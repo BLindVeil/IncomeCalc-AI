@@ -1,0 +1,388 @@
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+body {
+	@apply m-0;
+	font-family:
+		-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+		system-ui, "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	background: #0f1115;
+	color: #ffffff;
+}
+
+code {
+	font-family:
+		"SF Mono", source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+		monospace;
+}
+
+/* ─── Apple TV Ambient Background ────────────────────────────────────────── */
+.atv-ambient-bg {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.atv-ambient-bg::before {
+	content: "";
+	position: absolute;
+	width: 800px;
+	height: 800px;
+	top: -200px;
+	right: -100px;
+	background: radial-gradient(
+		circle,
+		rgba(80, 120, 255, 0.15) 0%,
+		transparent 70%
+	);
+	filter: blur(120px);
+	animation: ambientDrift1 20s ease-in-out infinite alternate;
+}
+
+.atv-ambient-bg::after {
+	content: "";
+	position: absolute;
+	width: 600px;
+	height: 600px;
+	bottom: -100px;
+	left: -50px;
+	background: radial-gradient(
+		circle,
+		rgba(255, 80, 180, 0.12) 0%,
+		transparent 70%
+	);
+	filter: blur(120px);
+	animation: ambientDrift2 25s ease-in-out infinite alternate;
+}
+
+.atv-ambient-teal {
+	position: absolute;
+	width: 500px;
+	height: 500px;
+	top: 40%;
+	left: 60%;
+	background: radial-gradient(
+		circle,
+		rgba(80, 255, 220, 0.1) 0%,
+		transparent 70%
+	);
+	filter: blur(120px);
+	animation: ambientDrift3 22s ease-in-out infinite alternate;
+}
+
+@keyframes ambientDrift1 {
+	0% {
+		transform: translate(0, 0);
+	}
+	100% {
+		transform: translate(-60px, 40px);
+	}
+}
+
+@keyframes ambientDrift2 {
+	0% {
+		transform: translate(0, 0);
+	}
+	100% {
+		transform: translate(40px, -30px);
+	}
+}
+
+@keyframes ambientDrift3 {
+	0% {
+		transform: translate(0, 0);
+	}
+	100% {
+		transform: translate(-30px, -50px);
+	}
+}
+
+/* ─── Fade-in Animation ─────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.atv-fade-in {
+	animation: fadeInUp 0.4s ease-out both;
+}
+
+.atv-fade-in-delay-1 {
+	animation-delay: 0.1s;
+}
+.atv-fade-in-delay-2 {
+	animation-delay: 0.2s;
+}
+.atv-fade-in-delay-3 {
+	animation-delay: 0.3s;
+}
+
+/* ─── Glass Card ─────────────────────────────────────────────────────────── */
+.atv-glass {
+	background: rgba(255, 255, 255, 0.06);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 20px;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+	transition:
+		transform 0.25s ease,
+		box-shadow 0.25s ease;
+}
+
+.atv-glass:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+}
+
+.atv-glass-static {
+	background: rgba(255, 255, 255, 0.06);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 20px;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── Primary CTA Button ────────────────────────────────────────────────── */
+.atv-btn-primary {
+	background: linear-gradient(135deg, #5e5ce6, #8e44ff);
+	color: #ffffff;
+	border: none;
+	border-radius: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition:
+		filter 0.2s ease,
+		box-shadow 0.2s ease,
+		transform 0.2s ease;
+}
+
+.atv-btn-primary:hover {
+	filter: brightness(1.1);
+	box-shadow: 0 0 25px rgba(142, 68, 255, 0.5);
+	transform: scale(1.02);
+}
+
+/* ─── Secondary Button ──────────────────────────────────────────────────── */
+.atv-btn-secondary {
+	background: rgba(255, 255, 255, 0.08);
+	color: #ffffff;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition:
+		background 0.2s ease,
+		transform 0.2s ease;
+}
+
+.atv-btn-secondary:hover {
+	background: rgba(255, 255, 255, 0.12);
+	transform: scale(1.02);
+}
+
+/* ─── Input Glass Style ─────────────────────────────────────────────────── */
+.atv-input {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	color: #ffffff;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+.atv-input:focus {
+	border-color: #5e5ce6;
+	box-shadow: 0 0 0 3px rgba(94, 92, 230, 0.15);
+	outline: none;
+}
+
+.atv-input::placeholder {
+	color: rgba(255, 255, 255, 0.35);
+}
+
+/* ─── Gradient Accent Bar ────────────────────────────────────────────────── */
+.atv-accent-bar {
+	height: 4px;
+	background: linear-gradient(90deg, #5e5ce6, #8e44ff);
+	border-radius: 4px 4px 0 0;
+}
+
+/* ─── Number Glow ─────────────────────────────────────────────────────────── */
+.atv-number-glow {
+	text-shadow: 0 0 15px rgba(142, 68, 255, 0.3);
+}
+
+/* ─── Locked Overlay ──────────────────────────────────────────────────────── */
+.atv-locked-overlay {
+	background: linear-gradient(rgba(15, 17, 21, 0.6), rgba(15, 17, 21, 0.8));
+	backdrop-filter: blur(4px);
+}
+
+.atv-lock-icon-glow {
+	filter: drop-shadow(0 0 8px rgba(94, 92, 230, 0.4));
+	color: #8e44ff;
+}
+
+/* ─── Select Styling ─────────────────────────────────────────────────────── */
+select.atv-select {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	color: #ffffff;
+	transition: border-color 0.2s ease;
+}
+
+select.atv-select:focus {
+	border-color: #5e5ce6;
+	outline: none;
+}
+
+select.atv-select option {
+	background: #1a1a2e;
+	color: #ffffff;
+}
+
+/* ─── Progress Bar Override ──────────────────────────────────────────────── */
+[role="progressbar"] {
+	background: rgba(255, 255, 255, 0.08);
+	border-radius: 6px;
+}
+
+[role="progressbar"] > div {
+	border-radius: 6px;
+}
+
+:root {
+	--background: #0f1115;
+	--foreground: #ffffff;
+	--card: rgba(255, 255, 255, 0.06);
+	--card-foreground: #ffffff;
+	--popover: #1a1a2e;
+	--popover-foreground: #ffffff;
+	--primary: #5e5ce6;
+	--primary-foreground: #ffffff;
+	--secondary: rgba(255, 255, 255, 0.08);
+	--secondary-foreground: #ffffff;
+	--muted: rgba(255, 255, 255, 0.06);
+	--muted-foreground: rgba(255, 255, 255, 0.45);
+	--accent: #8e44ff;
+	--accent-foreground: #ffffff;
+	--destructive: #ef4444;
+	--destructive-foreground: #ffffff;
+	--border: rgba(255, 255, 255, 0.08);
+	--input: rgba(255, 255, 255, 0.08);
+	--ring: rgba(94, 92, 230, 0.3);
+	--chart-1: #5e5ce6;
+	--chart-2: #8e44ff;
+	--chart-3: #50d4dc;
+	--chart-4: #ff50b4;
+	--chart-5: #ffb800;
+	--radius: 0.75rem;
+	--sidebar: #0f1115;
+	--sidebar-foreground: #ffffff;
+	--sidebar-primary: #5e5ce6;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: rgba(255, 255, 255, 0.08);
+	--sidebar-accent-foreground: #ffffff;
+	--sidebar-border: rgba(255, 255, 255, 0.08);
+	--sidebar-ring: rgba(94, 92, 230, 0.3);
+}
+
+.dark {
+	--background: #0f1115;
+	--foreground: #ffffff;
+	--card: rgba(255, 255, 255, 0.06);
+	--card-foreground: #ffffff;
+	--popover: #1a1a2e;
+	--popover-foreground: #ffffff;
+	--primary: #5e5ce6;
+	--primary-foreground: #ffffff;
+	--secondary: rgba(255, 255, 255, 0.08);
+	--secondary-foreground: #ffffff;
+	--muted: rgba(255, 255, 255, 0.06);
+	--muted-foreground: rgba(255, 255, 255, 0.45);
+	--accent: #8e44ff;
+	--accent-foreground: #ffffff;
+	--destructive: #ef4444;
+	--destructive-foreground: #ffffff;
+	--border: rgba(255, 255, 255, 0.08);
+	--input: rgba(255, 255, 255, 0.08);
+	--ring: rgba(94, 92, 230, 0.3);
+	--chart-1: #5e5ce6;
+	--chart-2: #8e44ff;
+	--chart-3: #50d4dc;
+	--chart-4: #ff50b4;
+	--chart-5: #ffb800;
+	--sidebar: #0f1115;
+	--sidebar-foreground: #ffffff;
+	--sidebar-primary: #5e5ce6;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: rgba(255, 255, 255, 0.08);
+	--sidebar-accent-foreground: #ffffff;
+	--sidebar-border: rgba(255, 255, 255, 0.08);
+	--sidebar-ring: rgba(94, 92, 230, 0.3);
+}
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}

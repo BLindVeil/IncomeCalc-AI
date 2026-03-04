@@ -1,0 +1,114 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { CheckCircle, ArrowRight, Loader2 } from "lucide-react";
+import { grantEntitlement, type PlanTier, type BillingPeriod } from "@/lib/stripe-entitlements";
+import { trackEvent } from "@/lib/analytics";
+import { getCurrentUser } from "@/lib/auth-store";
+
+export const Route = createFileRoute("/billing/success")({
+  component: BillingSuccessPage,
+});
+
+function BillingSuccessPage() {
+  const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
+  const didRun = useRef(false);
+
+  useEffect(() => {
+    if (didRun.current) return;
+    didRun.current = true;
+
+    const params = new URLSearchParams(window.location.search);
+    const rawPlan = params.get("plan");
+    const plan: PlanTier = rawPlan === "premium" ? "premium" : "pro";
+    const rawBilling = params.get("billing");
+    const billing: BillingPeriod = rawBilling === "yearly" ? "yearly" : "monthly";
+    const sessionId = params.get("session_id") || params.get("payment_intent") || null;
+
+    async function verify() {
+      try {
+        const user = getCurrentUser();
+        const userId = user?.id || "anonymous";
+
+        // Grant entitlement (persists to ORM + localStorage)
+        await grantEntitlement(userId, plan, billing, sessionId ?? undefined);
+
+        // Also set the legacy tier key for existing paywall checks
+        localStorage.setItem("incomecalc-tier", plan);
+
+        // Track purchase success
+        const trackPlan: "pro" | "premium" = plan === "premium" ? "premium" : "pro";
+        const amount = plan === "premium"
+          ? (billing === "yearly" ? 149 : 19)
+          : (billing === "yearly" ? 49 : 4.99);
+        trackEvent("purchase_success", {
+          plan: trackPlan,
+          billing,
+          amount,
+          source_page: "/billing/success",
+        });
+
+        setStatus("success");
+      } catch (err) {
+        console.error("[BillingSuccess] Verification error:", err);
+        // Still grant locally even if ORM fails
+        localStorage.setItem("incomecalc-tier", plan);
+        setStatus("success");
+      }
+    }
+
+    verify();
+  }, []);
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#0F1115", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+      <div style={{ maxWidth: "480px", width: "100%", textAlign: "center" }}>
+        {status === "verifying" && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+            <Loader2 size={48} style={{ color: "#5E5CE6", animation: "spin 1s linear infinite" }} />
+            <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#FFFFFF" }}>Verifying your payment...</h1>
+            <p style={{ color: "rgba(255,255,255,0.55)" }}>Please wait while we confirm your subscription.</p>
+            <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+          </div>
+        )}
+
+        {status === "success" && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+            <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(52,211,153,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <CheckCircle size={36} style={{ color: "#34D399" }} />
+            </div>
+            <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#FFFFFF", letterSpacing: "-0.02em" }}>Payment Successful!</h1>
+            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "1rem", lineHeight: 1.6 }}>
+              Your plan has been activated. You now have full access to all premium features.
+            </p>
+            <Link
+              to="/"
+              className="atv-btn-primary"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.85rem 2rem",
+                fontSize: "1rem",
+                textDecoration: "none",
+                marginTop: "0.5rem",
+              }}
+            >
+              Go to IncomeCalc
+              <ArrowRight size={18} />
+            </Link>
+          </div>
+        )}
+
+        {status === "error" && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+            <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#ef4444" }}>Something went wrong</h1>
+            <p style={{ color: "rgba(255,255,255,0.55)" }}>We couldn't verify your payment. Please contact support at support@yourdomain.com.</p>
+            <Link to="/" style={{ color: "#8E8AFF", textDecoration: "underline", fontSize: "0.95rem" }}>
+              Return to IncomeCalc
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,6 @@
+{
+  "integrationId": "mcp:686de48c6fd1cae1afbb55ba",
+  "name": "GOOGLESHEETS_BATCH_GET",
+  "description": "Retrieves data from specified cell ranges in a Google Spreadsheet.",
+  "docPath": "src/sdk/mcp-clients/686de48c6fd1cae1afbb55ba/GOOGLESHEETS_BATCH_GET.md"
+}

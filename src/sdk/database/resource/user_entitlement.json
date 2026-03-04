@@ -1,0 +1,177 @@
+{
+  "id": "102019c98fff79679fd8e5ee842c6ed082f",
+  "version": "102019c9914440d7cbe91d7d44d67b3e2c0",
+  "schema": {
+    "name": "user_entitlement",
+    "description": "Stores user active entitlement records, Stripe subscription, and plan tier information.",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier for each data of this entity.",
+        "type": 1,
+        "compliance": {
+          "confidentiality": 1,
+          "reason": "System generated primary identifier."
+        }
+      },
+      {
+        "name": "data_creator",
+        "description": "id of the user who creates the record",
+        "type": 1,
+        "compliance": {
+          "confidentiality": 2,
+          "reason": "Internal system auditing reference."
+        }
+      },
+      {
+        "name": "data_updater",
+        "description": "id of the user who updates the record",
+        "type": 1,
+        "compliance": {
+          "confidentiality": 2,
+          "reason": "Internal system auditing reference."
+        }
+      },
+      {
+        "name": "create_time",
+        "description": "create time in timestamp unix",
+        "type": 1,
+        "compliance": {
+          "confidentiality": 1,
+          "reason": "Creation timestamp is standard metadata."
+        },
+        "format": "timestamp"
+      },
+      {
+        "name": "update_time",
+        "description": "update time in timestamp unix",
+        "type": 1,
+        "compliance": {
+          "confidentiality": 1,
+          "reason": "Update timestamp is standard metadata."
+        },
+        "format": "timestamp"
+      },
+      {
+        "name": "user_id",
+        "description": "Unique identifier of the user who owns the entitlement.",
+        "type": 1,
+        "compliance": {
+          "confidentiality": 2,
+          "reason": "Links the entitlement directly to a specific user."
+        }
+      },
+      {
+        "name": "plan_tier",
+        "description": "Subscription plan tier of the user.",
+        "type": 100,
+        "compliance": {
+          "confidentiality": 2,
+          "reason": "Subscription tier determines application features."
+        },
+        "enumeration": [
+          {
+            "value": "Unspecified"
+          },
+          {
+            "number": 1,
+            "value": "Free"
+          },
+          {
+            "number": 2,
+            "value": "Pro"
+          },
+          {
+            "number": 3,
+            "value": "Premium"
+          }
+        ]
+      },
+      {
+        "name": "billing_period",
+        "description": "Billing period for the user's subscription.",
+        "type": 100,
+        "compliance": {
+          "confidentiality": 2,
+          "reason": "Information related to subscription billing cycle."
+        },
+        "enumeration": [
+          {
+            "value": "Unspecified"
+          },
+          {
+            "number": 1,
+            "value": "Monthly"
+          },
+          {
+            "number": 2,
+            "value": "Yearly"
+          }
+        ]
+      },
+      {
+        "name": "stripe_session_id",
+        "description": "Stripe payment session identifier for linking to Stripe webhooks.",
+        "type": 1,
+        "compliance": {
+          "confidentiality": 3,
+          "reason": "Third-party payment gateway identifier should be kept confidential."
+        },
+        "nullable": true
+      },
+      {
+        "name": "expires_at",
+        "description": "Timestamp unix string tracking when the subscription expires.",
+        "type": 1,
+        "compliance": {
+          "confidentiality": 2,
+          "reason": "Determines the duration of the granted user entitlement."
+        },
+        "nullable": true,
+        "format": "timestamp"
+      }
+    ],
+    "indexes": [
+      {
+        "fields": [
+          "id"
+        ],
+        "unique": true,
+        "primary": true,
+        "order": false
+      },
+      {
+        "fields": [
+          "data_creator"
+        ],
+        "order": false
+      },
+      {
+        "fields": [
+          "data_updater"
+        ],
+        "order": false
+      },
+      {
+        "fields": [
+          "user_id"
+        ],
+        "unique": true,
+        "order": false
+      }
+    ]
+  },
+  "task": {
+    "id": "69a0050512e4a83b51656229",
+    "root": "699a7e02c62b8b13bb143e71",
+    "project": "699a7e02c62b8b13bb143e70",
+    "user": "f8c10390-7041-707d-1abe-5a54309c161b"
+  },
+  "namespace": {
+    "id": "01987547fc6c72ecb453bd2736bd4ea0",
+    "tenant": 2,
+    "name": "global-1",
+    "default": true
+  },
+  "revision": 1
+}
