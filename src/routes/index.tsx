@@ -3739,6 +3739,7 @@ interface CheckoutPageProps {
   currentTheme: ThemeConfig;
   baseTheme: Theme;
   setTheme: (t: Theme) => void;
+  onRequireAuth: (mode: "signin" | "signup") => void;
 }
 
 const TESTIMONIALS = [
@@ -3773,6 +3774,7 @@ function CheckoutPage({
   currentTheme,
   baseTheme,
   setTheme,
+  onRequireAuth,
 }: CheckoutPageProps) {
   const t = applyDark(currentTheme, isDark);
   const [selectedPlan, setSelectedPlan] = useState<PlanId>(initialPlan);
@@ -3796,8 +3798,7 @@ async function redirectToCheckout(plan: PlanId, billingPeriod: "monthly" | "year
   const session = getSession();
 
   if (!user || !session) {
-    setShowAuthModal(true);
-    setAuthModalMode("signin");
+    onRequireAuth("signin");
     return;
   }
   
@@ -7873,10 +7874,14 @@ function App() {
       <CheckoutPage
         onBack={backToResults}
         initialPlan={checkoutPlan}
-        {...sharedProps}
-      />
-    );
-  }
+		onRequireAuth={(mode) => {
+			setAuthModalMode(mode);
+			setShowAuthModal(true);
+		  }}
+          {...sharedProps}
+        />
+      );
+    }
 
   if (page === "simulator") {
     return (
