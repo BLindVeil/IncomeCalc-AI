@@ -3806,15 +3806,9 @@ function CheckoutPage({
   >
     Continue to payment
   </button>
-
-  <button
-    type="button"
-    onClick={() => startCheckout("pro", billing)}
-  >
-    Get Pro
-  </button>
 </>
-  Get Premium
+
+Get Premium
 </button>
   // Analytics: pricing_viewed
   const pricingTracked = useRef(false);
