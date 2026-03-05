@@ -7652,12 +7652,6 @@ function App() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => getCurrentUser());
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  const openAuth = (arg?: "signin" | "signup" | unknown) => {
-    const mode = arg === "signup" ? "signup" : "signin";
-    setAuthModalMode(mode);
-    setShowAuthModal(true);
-  };
-
   const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
   const [savePromptPending, setSavePromptPending] = useState(false);
   const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
@@ -7744,14 +7738,14 @@ function handleUpgrade(plan: PlanId = "pro") {
 }
 
 // ── Auth handlers ──
-function handleSignIn() {
-  setAuthModalMode("signin");
+function openAuth(mode: "signin" | "signup" = "signin") {
+  setAuthModalMode(mode);
   setShowAuthModal(true);
 }
 
-function handleSignOut() {
-  authLogout();
-  setCurrentUser(null);
+function handleSignIn() {
+  setAuthModalMode("signin");
+  setShowAuthModal(true);
 }
 
 function handleAuthSuccess(user: AuthUser) {
@@ -8010,7 +8004,7 @@ function handleAuthSuccess(user: AuthUser) {
         onSignOut={handleSignOut}
         onDigestPreview={() => setPage("digest-preview")}
         {...sharedProps}
-       />
+      />
       {showAuthModal && (
         <AuthModal
           mode={authModalMode}
@@ -8028,8 +8022,8 @@ function handleAuthSuccess(user: AuthUser) {
           onRefresh={() => {}}
           t={applyDark(currentTheme, isDark)}
           isDark={isDark}
-         />
-       )}
-     </>
-   );
-  }
+        />
+      )}
+    </>
+  );
+}
