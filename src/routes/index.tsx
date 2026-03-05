@@ -7739,20 +7739,20 @@ const openAuth = (arg?: "signin" | "signup" | unknown) => {
   }
 
   function handleUpgrade(plan: PlanId = "pro") {
-    setCheckoutPlan(plan);
-    setPage("checkout");
-  }
+  setCheckoutPlan(plan);
+  setPage("checkout");
+}
 
-  // ── Auth handlers ──
-  function handleSignIn() {
-    setAuthModalMode("signin");
-    setShowAuthModal(true);
-  }
+// ── Auth handlers ──
+function openAuth(mode: "signin" | "signup" = "signin") {
+  setAuthModalMode(mode);
+  setShowAuthModal(true);
+}
 
-  function handleSignOut() {
-    authLogout();
-    setCurrentUser(null);
-  }
+function handleSignIn() {
+  setAuthModalMode("signin");
+  setShowAuthModal(true);
+}
 
   function handleAuthSuccess(user: AuthUser) {
     setCurrentUser(user);
@@ -8032,4 +8032,4 @@ const openAuth = (arg?: "signin" | "signup" | unknown) => {
       )}
     </>
   );
- )
+}
