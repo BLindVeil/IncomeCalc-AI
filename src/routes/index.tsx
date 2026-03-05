@@ -8032,4 +8032,4 @@ const openAuth = (arg?: "signin" | "signup" | unknown) => {
       )}
     </>
   );
-}
+ )
