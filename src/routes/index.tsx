@@ -7652,6 +7652,11 @@ function App() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => getCurrentUser());
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
+  
+  const openAuth = (mode: "signin" | "signup" = "signin") => {
+    setAuthModalMode(mode);
+    setShowAuthModal(true);
+  };
   const [savePromptPending, setSavePromptPending] = useState(false);
   const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
   const [shareSlug, setShareSlug] = useState<string | null>(null);
@@ -7868,20 +7873,30 @@ function App() {
       />
     );
   }
-
-  if (page === "checkout") {
-    return (
+  
+if (page === "checkout") {
+  return (
+    <>
       <CheckoutPage
         onBack={backToResults}
         initialPlan={checkoutPlan}
         onRequireAuth={(mode) => {
+          console.log("[auth] opening modal:", mode);
           setAuthModalMode(mode);
           setShowAuthModal(true);
         }}
         {...sharedProps}
       />
-    );
-  }
+
+      {showAuthModal && (
+        <AuthModal
+          mode={authModalMode}
+          onClose={() => setShowAuthModal(false)}
+        />
+      )}
+    </>
+  );
+}
 
   if (page === "simulator") {
     return (
