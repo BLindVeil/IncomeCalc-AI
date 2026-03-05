@@ -3861,37 +3861,37 @@ try {
 }
 
 }
-  // Annual upsell: only show once per session per planId
-  function handleCheckoutClick(plan: PlanId) {
-    if (billing === "monthly") {
-      const upsellKey = `incomecalc-upsell-shown-${plan}`;
-      if (!sessionStorage.getItem(upsellKey)) {
-        sessionStorage.setItem(upsellKey, "1");
-        setPendingCheckoutPlan(planId);
-        setShowUpsellModal(true);
-        return;
-      }
-    }
-    const p = PLANS.find((pp) => pp.id === planId) ?? PLANS[0];
-    const amount = billing === "monthly" ? p.price : p.yearlyPrice;
-    trackEvent("checkout_clicked", { planId, billing, amount, source_page: "/checkout" });
-    redirectToCheckout(planId, billing);
-  }
 
-  function handleUpsellAnnual() {
-    setShowUpsellModal(false);
-    setBilling("yearly");
-    const p = PLANS.find((pp) => pp.id === pendingCheckoutPlan) ?? PLANS[0];
-    trackEvent("checkout_clicked", { plan: pendingCheckoutPlan, billing: "yearly", amount: p.yearlyPrice, source_page: "/checkout" });
-    redirectToCheckout(pendingCheckoutPlan, "yearly");
-  }
+function handleUpsellAnnual() {
+  setShowUpsellModal(false);
+  setBilling("yearly");
 
-  function handleUpsellMonthly() {
-    setShowUpsellModal(false);
-    const p = PLANS.find((pp) => pp.id === pendingCheckoutPlan) ?? PLANS[0];
-    trackEvent("checkout_clicked", { plan: pendingCheckoutPlan, billing: "monthly", amount: p.price, source_page: "/checkout" });
-    redirectToCheckout(pendingCheckoutPlan, "monthly");
-  }
+  const p = PLANS.find((pp) => pp.id === pendingCheckoutPlan) ?? PLANS[0];
+
+  trackEvent("checkout_clicked", {
+    planId: pendingCheckoutPlan,
+    billing: "yearly",
+    amount: p.yearlyPrice,
+    source_page: "/checkout",
+  });
+
+  redirectToCheckout(pendingCheckoutPlan, "yearly");
+}
+
+function handleUpsellMonthly() {
+  setShowUpsellModal(false);
+
+  const p = PLANS.find((pp) => pp.id === pendingCheckoutPlan) ?? PLANS[0];
+
+  trackEvent("checkout_clicked", {
+    planId: pendingCheckoutPlan,
+    billing: "monthly",
+    amount: p.price,
+    source_page: "/checkout",
+  });
+
+  redirectToCheckout(pendingCheckoutPlan, "monthly");
+}
 
   // Urgency countdown — resets to 15 min each session
   const [secsLeft, setSecsLeft] = useState(15 * 60);
