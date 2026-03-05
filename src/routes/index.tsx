@@ -3828,6 +3828,7 @@ try {
   console.error("[checkout] Network error:", err);
 }
 
+}
   // Annual upsell: only show once per session per planId
   function handleCheckoutClick(plan: PlanId) {
     if (billing === "monthly") {
