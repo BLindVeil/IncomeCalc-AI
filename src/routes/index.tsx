@@ -3799,6 +3799,7 @@ function CheckoutPage({
     // Go to Stripe
     onCheckout(plan, period);
   }
+  
 <>
   <button
     type="button"
@@ -3806,10 +3807,15 @@ function CheckoutPage({
   >
     Continue to payment
   </button>
+
+  <button
+    type="button"
+    onClick={() => startCheckout("premium", billing)}
+  >
+    Get Premium
+  </button>
 </>
 
-Get Premium
-</button>
   // Analytics: pricing_viewed
   const pricingTracked = useRef(false);
   useEffect(() => {
