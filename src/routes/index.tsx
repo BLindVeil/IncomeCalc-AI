@@ -7738,7 +7738,7 @@ function App() {
     setPage("landing");
   }
 
-  function handleUpgrade(plan: PlanId = "pro") {
+function handleUpgrade(plan: PlanId = "pro") {
   setCheckoutPlan(plan);
   setPage("checkout");
 }
@@ -7749,14 +7749,19 @@ function handleSignIn() {
   setShowAuthModal(true);
 }
 
-  function handleAuthSuccess(user: AuthUser) {
-    setCurrentUser(user);
-    // If user signed in to save a scenario, complete the save now
-    if (savePromptPending) {
-      setSavePromptPending(false);
-      doSaveScenario(user);
-    }
+function handleSignOut() {
+  authLogout();
+  setCurrentUser(null);
+}
+
+function handleAuthSuccess(user: AuthUser) {
+  setCurrentUser(user);
+  // If user signed in to save a scenario, complete the save now
+  if (savePromptPending) {
+    setSavePromptPending(false);
+    doSaveScenario(user);
   }
+}
 
   // ── Save Scenario ──
   function doSaveScenario(user: AuthUser) {
@@ -8027,4 +8032,3 @@ function handleSignIn() {
       )}
     </>
   );
-}
