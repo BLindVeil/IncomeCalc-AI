@@ -3794,7 +3794,7 @@ function CheckoutPage({
   }, []);
 
   // Create a Stripe Checkout Session via the server and redirect the browser to it.
-async function redirectToCheckout(plan: PlanId, billingPeriod: "monthly" | "yearly") {
+async function redirectToCheckout(planId: PlanId, billingPeriod: "monthly" | "yearly") {
   const user = getCurrentUser();
   const session = getSession();
 
@@ -3811,7 +3811,7 @@ try {
       Authorization: `Bearer ${session.token}`,
     },
     body: JSON.stringify({
-      planTier: plan,
+      planTier: planId,
       billingPeriod,
       userId: user.id,
     }),
@@ -3828,21 +3828,21 @@ try {
   console.error("[checkout] Network error:", err);
 }
 
-  // Annual upsell: only show once per session per plan
+  // Annual upsell: only show once per session per planId
   function handleCheckoutClick(plan: PlanId) {
     if (billing === "monthly") {
       const upsellKey = `incomecalc-upsell-shown-${plan}`;
       if (!sessionStorage.getItem(upsellKey)) {
         sessionStorage.setItem(upsellKey, "1");
-        setPendingCheckoutPlan(plan);
+        setPendingCheckoutPlan(planId);
         setShowUpsellModal(true);
         return;
       }
     }
-    const p = PLANS.find((pp) => pp.id === plan) ?? PLANS[0];
+    const p = PLANS.find((pp) => pp.id === planId) ?? PLANS[0];
     const amount = billing === "monthly" ? p.price : p.yearlyPrice;
-    trackEvent("checkout_clicked", { plan, billing, amount, source_page: "/checkout" });
-    redirectToCheckout(plan, billing);
+    trackEvent("checkout_clicked", { planId, billing, amount, source_page: "/checkout" });
+    redirectToCheckout(planId, billing);
   }
 
   function handleUpsellAnnual() {
