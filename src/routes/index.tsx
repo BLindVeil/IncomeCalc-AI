@@ -3800,28 +3800,20 @@ async function redirectToCheckout(plan: PlanId, billingPeriod: "monthly" | "year
     setAuthModalMode("signin");
     return;
   }
-
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${session.token}`,
-  };
-
-  // ✅ Only allow X-User-Id in local/dev (NOT production)
-  if (import.meta.env.DEV) {
-    headers["X-User-Id"] = user.id;
-  }
-
+  
+try {
   const resp = await fetch("/api/stripe/create-checkout-session", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${session.token}`,
-  },
-  body: JSON.stringify({
-    planTier: plan,
-    billingPeriod,
-    userId: user.id,
-  }),
-});
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.token}`,
+    },
+    body: JSON.stringify({
+      planTier: plan,
+      billingPeriod,
+      userId: user.id,
+    }),
+  });
 
   if (!resp.ok) {
     console.error("[checkout] Failed to create session:", await resp.text());
@@ -3830,10 +3822,9 @@ async function redirectToCheckout(plan: PlanId, billingPeriod: "monthly" | "year
 
   const { url } = (await resp.json()) as { url: string };
   window.location.href = url;
+} catch (err) {
+  console.error("[checkout] Network error:", err);
 }
-    } catch (err) {
-      console.error("[checkout] Network error:", err);
-    }
   }
 
   // Annual upsell: only show once per session per plan
