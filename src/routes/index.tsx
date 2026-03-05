@@ -3791,30 +3791,47 @@ function CheckoutPage({
   }, []);
 
   // Create a Stripe Checkout Session via the server and redirect the browser to it.
-  async function redirectToCheckout(plan: PlanId, billingPeriod: "monthly" | "yearly") {
-    const user = getCurrentUser();
-    const session = getSession();
-    if (!user || !session) {
-      setShowAuthModal(true);
-      setAuthModalMode("signin");
-      return;
-    }
-    try {
-      const resp = await fetch("/api/stripe/create-checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.token}`,
-          "X-User-Id": user.id,
-        },
-        body: JSON.stringify({ planTier: plan, billingPeriod, userId: user.id }),
-      });
-      if (!resp.ok) {
-        console.error("[checkout] Failed to create session:", await resp.text());
-        return;
-      }
-      const { url } = (await resp.json()) as { url: string };
-      window.location.href = url;
+async function redirectToCheckout(plan: PlanId, billingPeriod: "monthly" | "yearly") {
+  const user = getCurrentUser();
+  const session = getSession();
+
+  if (!user || !session) {
+    setShowAuthModal(true);
+    setAuthModalMode("signin");
+    return;
+  }
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${session.token}`,
+  };
+
+  // ✅ Only allow X-User-Id in local/dev (NOT production)
+  if (import.meta.env.DEV) {
+    headers["X-User-Id"] = user.id;
+  }
+
+  const resp = await fetch("/api/stripe/create-checkout-session", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${session.token}`,
+  },
+  body: JSON.stringify({
+    planTier: plan,
+    billingPeriod,
+    userId: user.id,
+  }),
+});
+
+  if (!resp.ok) {
+    console.error("[checkout] Failed to create session:", await resp.text());
+    return;
+  }
+
+  const { url } = (await resp.json()) as { url: string };
+  window.location.href = url;
+}
     } catch (err) {
       console.error("[checkout] Network error:", err);
     }
