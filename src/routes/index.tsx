@@ -3801,7 +3801,6 @@ async function redirectToCheckout(plan: PlanId, billingPeriod: "monthly" | "year
     return;
   }
 
-  const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${session.token}`,
   };

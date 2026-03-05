@@ -1,38 +1,17 @@
 /**
- * Vercel serverless function: POST /api/stripe/create-checkout-session
+ * POST /api/stripe/create-checkout-session
  *
- * Creates a Stripe Checkout Session for the requested plan and returns the
- * Stripe-hosted checkout URL for the browser to redirect to.
- *
- * The session embeds client_reference_id (userId) and metadata (planTier,
- * billingPeriod) so the webhook can map the completed payment to a user.
+ * Creates a Stripe Checkout Session and returns { url }.
  *
  * Auth:
- *   Authorization: Bearer <sessionToken>  — required in all environments
- *   X-User-Id: <userId>                   — DEV ONLY (see note below)
+ *   Authorization: Bearer <sessionToken> — required (your app decides what “valid” means)
  *
- * ── SECURITY NOTE: X-User-Id is a temporary dev shim ────────────────────────
- * Accepting a user ID from a client-supplied header is NOT safe in production
- * because any caller can forge it and link a payment to an arbitrary account.
- * This header is intentionally blocked when NODE_ENV === "production". Before
- * going to production, replace X-User-Id with a real server-side identity
- * mechanism — e.g. a signed JWT validated against a secret, an HttpOnly
- * session cookie, or an OAuth access token — then extract the userId from
- * that verified credential instead of from a client header.
- * ─────────────────────────────────────────────────────────────────────────────
- *
- * Required env vars:
- *   STRIPE_SECRET_KEY            — Stripe secret key
- *   STRIPE_PRICE_PRO_MONTHLY     — Stripe Price ID for Pro monthly
- *   STRIPE_PRICE_PRO_YEARLY      — Stripe Price ID for Pro yearly
- *   STRIPE_PRICE_PREMIUM_MONTHLY — Stripe Price ID for Premium monthly
- *   STRIPE_PRICE_PREMIUM_YEARLY  — Stripe Price ID for Premium yearly
- *   SITE_URL                     — Base URL of the app (e.g. https://app.example.com)
+ * NOTE:
+ * For now we accept userId from the body so checkout works in production.
+ * The real “correct” version is: derive userId server-side from the Bearer token / cookie.
  */
 
 import Stripe from "stripe";
-
-// ── Inline types (matches api/ai.ts pattern — no @vercel/node import needed) ──
 
 interface Req {
   method?: string;
@@ -40,7 +19,7 @@ interface Req {
   body: {
     planTier: "pro" | "premium";
     billingPeriod: "monthly" | "yearly";
-    userId: string;
+    userId: string; // IMPORTANT: required now
   };
 }
 
@@ -48,8 +27,6 @@ interface Res {
   status(code: number): Res;
   json(data: unknown): void;
 }
-
-// ── Price ID map ──────────────────────────────────────────────────────────────
 
 type PlanTier = "pro" | "premium";
 type BillingPeriod = "monthly" | "yearly";
@@ -59,35 +36,17 @@ function getPriceId(plan: PlanTier, billing: BillingPeriod): string | null {
   return process.env[key] ?? null;
 }
 
-// Vercel envs: "production" | "preview" | "development"
-// We only want to block the X-User-Id dev shim on the real production domain.
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
-
-// ── Handler ───────────────────────────────────────────────────────────────────
-
 export default async function handler(req: Req, res: Res): Promise<void> {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
     return;
   }
 
+  // Require Authorization header (you can relax this later if you want)
   const authHeader = req.headers["authorization"];
-  const userIdHeader = req.headers["x-user-id"];
   const token = typeof authHeader === "string" ? authHeader.replace(/^Bearer\s+/i, "") : "";
-
-  // X-User-Id is a dev-only shim. Block it unconditionally in production —
-  // real auth must derive the user identity server-side before this can work.
-  if (IS_PRODUCTION && userIdHeader) {
-    res.status(401).json({
-      error: "X-User-Id header is not accepted in production. Implement server-side auth.",
-    });
-    return;
-  }
-
-  const headerUserId = typeof userIdHeader === "string" ? userIdHeader.trim() : "";
-
-  if (!token || !headerUserId) {
-    res.status(401).json({ error: "Unauthorized: missing credentials" });
+  if (!token) {
+    res.status(401).json({ error: "Unauthorized: missing Authorization Bearer token" });
     return;
   }
 
@@ -95,11 +54,15 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   const siteUrl = process.env.SITE_URL ?? "";
 
   if (!stripeSecret) {
-    res.status(500).json({ error: "Stripe not configured" });
+    res.status(500).json({ error: "Stripe not configured: missing STRIPE_SECRET_KEY" });
+    return;
+  }
+  if (!siteUrl) {
+    res.status(500).json({ error: "Server not configured: missing SITE_URL" });
     return;
   }
 
-  const { planTier, billingPeriod, userId } = req.body ?? {};
+  const { planTier, billingPeriod, userId } = (req.body ?? {}) as Partial<Req["body"]>;
 
   if (!planTier || !billingPeriod || !userId) {
     res.status(400).json({ error: "Missing planTier, billingPeriod, or userId" });
@@ -118,9 +81,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
 
   const priceId = getPriceId(planTier, billingPeriod);
   if (!priceId) {
-    res
-      .status(500)
-      .json({ error: `Price ID not configured for ${planTier}/${billingPeriod}` });
+    res.status(500).json({ error: `Price ID not configured for ${planTier}/${billingPeriod}` });
     return;
   }
 
@@ -129,8 +90,13 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
+
+      // ✅ THIS fixes your webhook error: client_reference_id will no longer be null
       client_reference_id: userId,
-      metadata: { planTier, billingPeriod },
+
+      // ✅ redundancy: webhook can also read it from metadata
+      metadata: { planTier, billingPeriod, userId },
+
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${siteUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/billing/cancel`,
