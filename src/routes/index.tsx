@@ -7654,10 +7654,14 @@ function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
-  // ── Auth handlers ──
+// ── Auth handlers (RESTORE) ──
 function openAuthModal(mode: "signin" | "signup" = "signin") {
   setAuthModalMode(mode);
   setShowAuthModal(true);
+}
+
+function handleSignIn() {
+  openAuthModal("signin");
 }
   const [savePromptPending, setSavePromptPending] = useState(false);
   const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
