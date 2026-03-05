@@ -7652,17 +7652,37 @@ function App() {
   // ── Auth State ──
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => getCurrentUser());
   const [showAuthModal, setShowAuthModal] = useState(false);
-
   const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
-// ── Auth handlers (RESTORE) ──
-function openAuthModal(mode: "signin" | "signup" = "signin") {
-  setAuthModalMode(mode);
-  setShowAuthModal(true);
-}
+  const [savePromptPending, setSavePromptPending] = useState(false);
+  const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
+  const [shareSlug, setShareSlug] = useState<string | null>(null);
 
-function handleSignIn() {
-  openAuthModal("signin");
-}
+  // ── Auth handlers ──
+  function openAuthModal(mode: "signin" | "signup" = "signin") {
+    setAuthModalMode(mode);
+    setShowAuthModal(true);
+  }
+
+  function handleSignIn() {
+    openAuthModal("signin");
+  }
+
+  function handleSignOut() {
+    try {
+      import("@/lib/auth-store").then(({ signOut }) => {
+        signOut();
+        setCurrentUser(null);
+        setShowAuthModal(false);
+        setSavePromptPending(false);
+        setPage("landing");
+      });
+    } catch {
+      setCurrentUser(null);
+      setShowAuthModal(false);
+      setSavePromptPending(false);
+      setPage("landing");
+    }
+  }
   const [savePromptPending, setSavePromptPending] = useState(false);
   const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
   const [shareSlug, setShareSlug] = useState<string | null>(null);
