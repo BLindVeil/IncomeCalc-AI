@@ -3740,6 +3740,8 @@ interface CheckoutPageProps {
   baseTheme: Theme;
   setTheme: (t: Theme) => void;
   onRequireAuth?: (mode: "signin" | "signup") => void;
+
+  onCheckout: (plan: PlanId, billingPeriod: "monthly" | "yearly") => void;
 }
 
 
@@ -3782,8 +3784,40 @@ function CheckoutPage({
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
-  const [pendingCheckoutPlan, setPendingCheckoutPlan] = useState<PlanId>("pro");
+    const [pendingCheckoutPlan, setPendingCheckoutPlan] = useState<PlanId>("pro");
 
+  function startCheckout(plan: PlanId, period: "monthly" | "yearly") {
+    const user = getCurrentUser();
+    const session = getSession();
+
+    // If not logged in, prompt auth and stop.
+    if (!user || !session) {
+      onRequireAuth?.("signin");
+      return;
+    }
+
+    // Go to Stripe
+    onCheckout(plan, period);
+  }
+<button
+  type="button"
+  onClick={() => startCheckout(selectedPlan, billing)}
+>
+  Continue to payment
+</button>
+<button
+  type="button"
+  onClick={() => startCheckout("pro", billing)}
+>
+  Get Pro
+</button>
+
+<button
+  type="button"
+  onClick={() => startCheckout("premium", billing)}
+>
+  Get Premium
+</button>
   // Analytics: pricing_viewed
   const pricingTracked = useRef(false);
   useEffect(() => {
@@ -7884,27 +7918,32 @@ function handleAuthSuccess(user: AuthUser) {
     );
   }
 
-  if (page === "checkout") {
-    return (
-      <>
-        <CheckoutPage
-          onBack={backToResults}
-          initialPlan={checkoutPlan}
-          onRequireAuth={openAuthModal}
-          {...sharedProps}
+if (page === "checkout") {
+  return (
+    <>
+      <CheckoutPage
+        onBack={backToResults}
+        initialPlan={checkoutPlan}
+        onRequireAuth={openAuthModal}
+        onCheckout={redirectToCheckout}   // ✅ ADD / KEEP THIS
+        {...sharedProps}
+      />
+
+      {showAuthModal && (
+        <AuthModal
+          mode={authModalMode}
+          onClose={() => { 
+            setShowAuthModal(false); 
+            setSavePromptPending(false); 
+          }}
+          onSuccess={handleAuthSuccess}
+          t={applyDark(currentTheme, isDark)}
+          isDark={isDark}
         />
-        {showAuthModal && (
-          <AuthModal
-            mode={authModalMode}
-            onClose={() => { setShowAuthModal(false); setSavePromptPending(false); }}
-            onSuccess={handleAuthSuccess}
-            t={applyDark(currentTheme, isDark)}
-            isDark={isDark}
-          />
-        )}
-      </>
-    );
-  }
+      )}
+    </>
+  );
+}
 
   if (page === "simulator") {
     return (
