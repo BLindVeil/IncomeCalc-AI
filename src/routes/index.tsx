@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { captureError } from "@/lib/sentry";
-import { restorePurchase, checkEntitlement } from "@/lib/stripe-entitlements";
+import { restorePurchase } from "@/lib/stripe-entitlements";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -73,7 +73,6 @@ import {
   Globe,
   Link2,
 } from "lucide-react";
-import { requestOpenAIGPTChat } from "@/sdk/api-clients/688a0b64dc79a2533460892c/requestOpenAIGPTChat";
 import { calculate, estimateTaxRate, INCOME_RANGES, US_STATES, type CalcInput, type CalcOutput, type ExpenseData as CalcExpenseData, type IncomeRange, type FilingStatus } from "@/lib/calc";
 import { answerQuestion, type PlanContext } from "@/lib/planRules";
 import { computeIncomeGap, computeRunway, computeAlerts } from "@/lib/stabilityMetrics";
@@ -82,7 +81,7 @@ import { forecast12Months, type MonthSnapshot } from "@/lib/forecast";
 import { simulateSnowball, simulateAvalanche, formatMonths, type DebtItem, type PayoffResult } from "@/lib/debt";
 import { simulateFI, type FIOutput } from "@/lib/fi";
 import { isDevOverrideActive, enableDevOverride, disableDevOverride } from "@/lib/dev-override";
-import { getPlan, getDevOverride, getDevBadgeLabel, enableDevOverride as entitlementEnable, disableDevOverride as entitlementDisable } from "@/lib/entitlements";
+import { getPlan, getDevOverride, getDevBadgeLabel, enableDevOverride as entitlementEnable, disableDevOverride as entitlementDisable, syncPlan } from "@/lib/entitlements";
 import {
   signup as authSignup,
   login as authLogin,
@@ -249,9 +248,6 @@ interface Plan {
   description: string;
   badge?: string;
   features: PlanFeature[];
-  // Replace these with your actual Stripe payment links
-  stripeMonthlyUrl: string;
-  stripeYearlyUrl: string;
 }
 
 const PLANS: Plan[] = [
@@ -271,8 +267,6 @@ const PLANS: Plan[] = [
       { text: "Multi-person household planning", included: false },
       { text: "Cloud sync across devices", included: false },
     ],
-    stripeMonthlyUrl: "https://buy.stripe.com/cNidR10XTekH76O5B62cg03",
-    stripeYearlyUrl: "https://buy.stripe.com/5kQfZ98qlgsPfDk2oU2cg00",
   },
   {
     id: "premium",
@@ -295,8 +289,6 @@ const PLANS: Plan[] = [
       { text: "Export to CSV / Google Sheets", included: true },
       { text: "Household multi-income modeling", included: true },
     ],
-    stripeMonthlyUrl: "https://buy.stripe.com/cNi6oz7mh2BZ1MuaVq2cg02",
-    stripeYearlyUrl: "https://buy.stripe.com/14A8wH21X0tR8aSgfK2cg01",
   },
 ];
 
@@ -1471,15 +1463,18 @@ Give personalized, actionable advice based on these real numbers. Be concise, wa
       ...newMessages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
     ];
 
-    const result = await requestOpenAIGPTChat({
-      body: {
-        model: "gpt-4.1",
-        messages: apiMessages,
-      },
-    });
-
-    const reply = result.data?.choices?.[0]?.message?.content ?? "Sorry, I couldn't get a response. Please try again.";
-    setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feature: "advisor", input: { messages: apiMessages } }),
+      });
+      const json = await res.json() as { reply?: string; error?: string };
+      const reply = json.reply ?? json.error ?? "Sorry, I couldn't get a response. Please try again.";
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+    } catch {
+      setMessages((prev) => [...prev, { role: "assistant", content: "Network error — please try again." }]);
+    }
     setLoading(false);
   }
 
@@ -1715,29 +1710,44 @@ function AIBudgetInsights({ data, taxRate, grossAnnual, grossMonthly, totalMonth
   const [insights, setInsights] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function generateInsights() {
     setLoading(true);
-    const prompt = `A user has these monthly expenses (total: ${fmt(totalMonthly)}, needs ${fmt(grossAnnual)}/year gross at ${taxRate}% tax):
-Housing: ${fmt(data.housing)}, Food: ${fmt(data.food)}, Transport: ${fmt(data.transport)}, Healthcare: ${fmt(data.healthcare)}, Utilities: ${fmt(data.utilities)}, Entertainment: ${fmt(data.entertainment)}, Clothing: ${fmt(data.clothing)}, Savings: ${fmt(data.savings)}, Other: ${fmt(data.other)}.
-
-Give exactly 4 short, specific, actionable budget optimization tips based on their actual numbers. Each tip should reference a specific dollar amount or percentage from their data. Format as 4 separate lines, no numbering, no bullets, just the tip text. Keep each under 100 characters.`;
-
-    const result = await requestOpenAIGPTChat({
-      body: {
-        model: "gpt-4.1",
-        messages: [
-          { role: "system", content: "You are a concise financial advisor. Respond with exactly 4 short tips, one per line." },
-          { role: "user", content: prompt },
-        ],
-      },
-    });
-
-    const text = result.data?.choices?.[0]?.message?.content ?? "";
-    const lines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0).slice(0, 4);
-    setInsights(lines);
+    setError(null);
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          feature: "budgetInsights",
+          input: {
+            grossAnnual,
+            taxRate,
+            totalMonthly,
+            housing: data.housing,
+            food: data.food,
+            transport: data.transport,
+            healthcare: data.healthcare,
+            utilities: data.utilities,
+            entertainment: data.entertainment,
+            clothing: data.clothing,
+            savings: data.savings,
+            other: data.other,
+          },
+        }),
+      });
+      const json = await res.json() as { insights?: string[]; error?: string };
+      if (!res.ok || json.error) {
+        setError(json.error ?? "Failed to generate insights.");
+      } else {
+        setInsights(json.insights ?? []);
+        setGenerated(true);
+      }
+    } catch {
+      setError("Network error — please try again.");
+    }
     setLoading(false);
-    setGenerated(true);
   }
 
   return (
@@ -1800,6 +1810,12 @@ Give exactly 4 short, specific, actionable budget optimization tips based on the
         </div>
       )}
 
+      {error && (
+        <p style={{ color: "#ef4444", fontSize: "0.88rem", textAlign: "center", padding: "0.5rem 0", margin: 0 }}>
+          {error}
+        </p>
+      )}
+
       {generated && !loading && insights.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
           {insights.map((tip, i) => (
@@ -1845,40 +1861,40 @@ function AIIncomeIdeas({ data, grossAnnual, totalMonthly, t, isDark }: AIIncomeI
   const [ideas, setIdeas] = useState<IncomeIdea[]>([]);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const gap = Math.max(0, grossAnnual * 0.2);
 
   async function generateIdeas() {
     setLoading(true);
-
-    const prompt = `A person needs ${fmt(grossAnnual)}/year gross income to cover their ${fmt(totalMonthly)}/month expenses. Their top expenses are: housing ${fmt(data.housing)}, food ${fmt(data.food)}, transport ${fmt(data.transport)}.
-
-Suggest 4 realistic ways they could earn an extra ${fmt(Math.round(gap))} per year to build financial freedom. Make them specific and actionable.
-
-Respond in this exact JSON format (an array of 4 objects):
-[{"title":"Idea Name","range":"$X-$Y/month","description":"One sentence description.","difficulty":"Easy|Medium|Hard"}]
-
-Only output the JSON array, nothing else.`;
-
-    const result = await requestOpenAIGPTChat({
-      body: {
-        model: "gpt-4.1",
-        messages: [
-          { role: "system", content: "You are a financial coach. Respond only with valid JSON." },
-          { role: "user", content: prompt },
-        ],
-      },
-    });
-
-    const text = result.data?.choices?.[0]?.message?.content ?? "[]";
+    setError(null);
     try {
-      const parsed = JSON.parse(text.replace(/```json\n?|\n?```/g, "").trim()) as IncomeIdea[];
-      setIdeas(parsed.slice(0, 4));
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          feature: "incomeIdeas",
+          input: {
+            grossAnnual,
+            totalMonthly,
+            gap,
+            housing: data.housing,
+            food: data.food,
+            transport: data.transport,
+          },
+        }),
+      });
+      const json = await res.json() as { ideas?: IncomeIdea[]; error?: string };
+      if (!res.ok || json.error) {
+        setError(json.error ?? "Failed to generate ideas.");
+      } else {
+        setIdeas((json.ideas ?? []).slice(0, 4));
+        setGenerated(true);
+      }
     } catch {
-      setIdeas([]);
+      setError("Network error — please try again.");
     }
     setLoading(false);
-    setGenerated(true);
   }
 
   const difficultyColor = (d: string) =>
@@ -1943,6 +1959,12 @@ Only output the JSON array, nothing else.`;
           <Lightbulb size={18} style={{ marginBottom: "0.5rem", color: "#f59e0b" }} />
           <div>Finding personalized income opportunities...</div>
         </div>
+      )}
+
+      {error && (
+        <p style={{ color: "#ef4444", fontSize: "0.88rem", textAlign: "center", padding: "0.5rem 0", margin: 0 }}>
+          {error}
+        </p>
       )}
 
       {generated && !loading && ideas.length > 0 && (
@@ -3768,8 +3790,38 @@ function CheckoutPage({
     }
   }, []);
 
+  // Create a Stripe Checkout Session via the server and redirect the browser to it.
+  async function redirectToCheckout(plan: PlanId, billingPeriod: "monthly" | "yearly") {
+    const user = getCurrentUser();
+    const session = getSession();
+    if (!user || !session) {
+      setShowAuthModal(true);
+      setAuthModalMode("signin");
+      return;
+    }
+    try {
+      const resp = await fetch("/api/stripe/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.token}`,
+          "X-User-Id": user.id,
+        },
+        body: JSON.stringify({ planTier: plan, billingPeriod, userId: user.id }),
+      });
+      if (!resp.ok) {
+        console.error("[checkout] Failed to create session:", await resp.text());
+        return;
+      }
+      const { url } = (await resp.json()) as { url: string };
+      window.location.href = url;
+    } catch (err) {
+      console.error("[checkout] Network error:", err);
+    }
+  }
+
   // Annual upsell: only show once per session per plan
-  function handleCheckoutClick(plan: PlanId, payUrl: string) {
+  function handleCheckoutClick(plan: PlanId) {
     if (billing === "monthly") {
       const upsellKey = `incomecalc-upsell-shown-${plan}`;
       if (!sessionStorage.getItem(upsellKey)) {
@@ -3779,11 +3831,10 @@ function CheckoutPage({
         return;
       }
     }
-    // Fire analytics then navigate
     const p = PLANS.find((pp) => pp.id === plan) ?? PLANS[0];
     const amount = billing === "monthly" ? p.price : p.yearlyPrice;
     trackEvent("checkout_clicked", { plan, billing, amount, source_page: "/checkout" });
-    window.open(payUrl, "_blank", "noopener,noreferrer");
+    redirectToCheckout(plan, billing);
   }
 
   function handleUpsellAnnual() {
@@ -3791,14 +3842,14 @@ function CheckoutPage({
     setBilling("yearly");
     const p = PLANS.find((pp) => pp.id === pendingCheckoutPlan) ?? PLANS[0];
     trackEvent("checkout_clicked", { plan: pendingCheckoutPlan, billing: "yearly", amount: p.yearlyPrice, source_page: "/checkout" });
-    window.open(p.stripeYearlyUrl, "_blank", "noopener,noreferrer");
+    redirectToCheckout(pendingCheckoutPlan, "yearly");
   }
 
   function handleUpsellMonthly() {
     setShowUpsellModal(false);
     const p = PLANS.find((pp) => pp.id === pendingCheckoutPlan) ?? PLANS[0];
     trackEvent("checkout_clicked", { plan: pendingCheckoutPlan, billing: "monthly", amount: p.price, source_page: "/checkout" });
-    window.open(p.stripeMonthlyUrl, "_blank", "noopener,noreferrer");
+    redirectToCheckout(pendingCheckoutPlan, "monthly");
   }
 
   // Urgency countdown — resets to 15 min each session
@@ -3812,7 +3863,6 @@ function CheckoutPage({
 
   const plan = PLANS.find((p) => p.id === selectedPlan) ?? PLANS[0];
   const price = billing === "monthly" ? plan.price : plan.yearlyPrice;
-  const payUrl = billing === "monthly" ? plan.stripeMonthlyUrl : plan.stripeYearlyUrl;
 
   const yearlySavings = Math.round((plan.price * 12 - plan.yearlyPrice));
 
@@ -4137,7 +4187,7 @@ function CheckoutPage({
           </div>
 
           <button
-            onClick={() => handleCheckoutClick(selectedPlan, payUrl)}
+            onClick={() => handleCheckoutClick(selectedPlan)}
             className="atv-btn-primary"
             style={{
               display: "flex",
@@ -4417,7 +4467,7 @@ function CheckoutPage({
           </p>
           <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>
             <button
-              onClick={() => handleCheckoutClick("pro", billing === "monthly" ? PLANS.find(p => p.id === "pro")!.stripeMonthlyUrl : PLANS.find(p => p.id === "pro")!.stripeYearlyUrl)}
+              onClick={() => handleCheckoutClick("pro")}
               style={{
                 background: "transparent",
                 color: currentTheme.primary,
@@ -4436,7 +4486,7 @@ function CheckoutPage({
               Start Pro — $4.99/mo
             </button>
             <button
-              onClick={() => handleCheckoutClick("premium", billing === "monthly" ? PLANS.find(p => p.id === "premium")!.stripeMonthlyUrl : PLANS.find(p => p.id === "premium")!.stripeYearlyUrl)}
+              onClick={() => handleCheckoutClick("premium")}
               style={{
                 background: currentTheme.primary,
                 color: "#fff",
@@ -4563,21 +4613,25 @@ function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier,
 - Emergency fund target: ${fmt(outputs.emergencyFundTarget)}
 - Health score: ${outputs.healthScore}/100 (${outputs.healthLabel})`;
 
-        const result = await requestOpenAIGPTChat({
-          body: {
-            model: "gpt-4.1",
-            messages: [
-              {
-                role: "system",
-                content: `You are a financial advisor answering questions based ONLY on the user's actual numbers. You MUST cite at least 3 specific numbers from their data. Give maximum 3 action bullets. Be concise and specific. End with: "Estimates only. Not financial advice."`,
-              },
-              { role: "user", content: `${contextStr}\n\nQuestion: ${q}` },
-            ],
-          },
+        const res = await fetch("/api/ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            feature: "advisor",
+            input: {
+              messages: [
+                {
+                  role: "system",
+                  content: `You are a financial advisor answering questions based ONLY on the user's actual numbers. You MUST cite at least 3 specific numbers from their data. Give maximum 3 action bullets. Be concise and specific. End with: "Estimates only. Not financial advice."`,
+                },
+                { role: "user", content: `${contextStr}\n\nQuestion: ${q}` },
+              ],
+            },
+          }),
         });
-        const reply = result.data?.choices?.[0]?.message?.content;
-        if (reply) {
-          setAiAnswer(reply);
+        const json = await res.json() as { reply?: string; error?: string };
+        if (json.reply) {
+          setAiAnswer(json.reply);
         }
       } catch {
         // Fallback already set
@@ -7606,14 +7660,9 @@ function App() {
     if (entitlementSynced.current) return;
     entitlementSynced.current = true;
     const user = getCurrentUser();
-    if (user) {
-      checkEntitlement(user.id).then((ent) => {
-        if (ent && ent.planTier !== "free") {
-          localStorage.setItem("incomecalc-tier", ent.planTier);
-        }
-      }).catch(() => {
-        // Silently fail — localStorage tier still applies
-      });
+    const session = getSession();
+    if (user && session) {
+      syncPlan(user.id, session.token); // fire-and-forget; updates localStorage
     }
   }, []);
 

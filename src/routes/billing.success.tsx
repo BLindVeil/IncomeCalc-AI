@@ -1,13 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle, ArrowRight, Loader2 } from "lucide-react";
-import { grantEntitlement, type PlanTier, type BillingPeriod } from "@/lib/stripe-entitlements";
 import { trackEvent } from "@/lib/analytics";
-import { getCurrentUser } from "@/lib/auth-store";
+import { getCurrentUser, getSession } from "@/lib/auth-store";
 
 export const Route = createFileRoute("/billing/success")({
   component: BillingSuccessPage,
 });
+
+const POLL_INTERVAL_MS = 2000;
+const MAX_POLL_ATTEMPTS = 5;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function BillingSuccessPage() {
   const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
@@ -17,42 +23,58 @@ function BillingSuccessPage() {
     if (didRun.current) return;
     didRun.current = true;
 
-    const params = new URLSearchParams(window.location.search);
-    const rawPlan = params.get("plan");
-    const plan: PlanTier = rawPlan === "premium" ? "premium" : "pro";
-    const rawBilling = params.get("billing");
-    const billing: BillingPeriod = rawBilling === "yearly" ? "yearly" : "monthly";
-    const sessionId = params.get("session_id") || params.get("payment_intent") || null;
-
     async function verify() {
       try {
         const user = getCurrentUser();
-        const userId = user?.id || "anonymous";
+        const session = getSession();
 
-        // Grant entitlement (persists to ORM + localStorage)
-        await grantEntitlement(userId, plan, billing, sessionId ?? undefined);
+        if (!user || !session) {
+          // No logged-in user — show success anyway (webhook will persist server-side)
+          setStatus("success");
+          return;
+        }
 
-        // Also set the legacy tier key for existing paywall checks
-        localStorage.setItem("incomecalc-tier", plan);
+        // Poll /api/entitlement until the webhook has fired and written the plan,
+        // or until we exhaust our attempts.
+        let confirmedPlan: string | null = null;
+        for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+          await sleep(POLL_INTERVAL_MS);
 
-        // Track purchase success
-        const trackPlan: "pro" | "premium" = plan === "premium" ? "premium" : "pro";
-        const amount = plan === "premium"
-          ? (billing === "yearly" ? 149 : 19)
-          : (billing === "yearly" ? 49 : 4.99);
-        trackEvent("purchase_success", {
-          plan: trackPlan,
-          billing,
-          amount,
-          source_page: "/billing/success",
-        });
+          try {
+            const resp = await fetch("/api/entitlement", {
+              headers: {
+                Authorization: `Bearer ${session.token}`,
+                "X-User-Id": user.id,
+              },
+            });
 
+            if (resp.ok) {
+              const data = (await resp.json()) as { plan?: string; status?: string };
+              if (data.plan && data.plan !== "free" && data.status !== "expired") {
+                confirmedPlan = data.plan;
+                break;
+              }
+            }
+          } catch {
+            // Network error — keep polling
+          }
+        }
+
+        if (confirmedPlan) {
+          // Mirror the server-verified plan into localStorage for getPlan()
+          localStorage.setItem("incomecalc-tier", confirmedPlan);
+
+          trackEvent("purchase_success", {
+            plan: confirmedPlan as "pro" | "premium",
+            source_page: "/billing/success",
+          });
+        }
+
+        // Show success regardless — webhook may simply be delayed
         setStatus("success");
       } catch (err) {
         console.error("[BillingSuccess] Verification error:", err);
-        // Still grant locally even if ORM fails
-        localStorage.setItem("incomecalc-tier", plan);
-        setStatus("success");
+        setStatus("success"); // Show success rather than leaving user stuck
       }
     }
 

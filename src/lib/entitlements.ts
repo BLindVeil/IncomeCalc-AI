@@ -9,21 +9,11 @@ const TIER_KEY = "incomecalc-tier";
 
 /**
  * Check if a dev override is active via any of the supported channels:
- *  1. URL param: ?dev=1, ?dev=pro, ?dev=premium
- *  2. localStorage: dev_override = "1" | "pro" | "premium"
- *  3. window.__DEV_OVERRIDE__ = true (optional)
+ *  1. localStorage: dev_override = "1" | "pro" | "premium"
+ *  2. window.__DEV_OVERRIDE__ = true (optional)
  */
 export function getDevOverride(): boolean {
-  // 1. URL params
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const dev = params.get("dev");
-    if (dev === "1" || dev === "pro" || dev === "premium") return true;
-  } catch {
-    // URL not available
-  }
-
-  // 2. localStorage
+  // 1. localStorage
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === "1" || stored === "pro" || stored === "premium") return true;
@@ -31,7 +21,7 @@ export function getDevOverride(): boolean {
     // storage not available
   }
 
-  // 3. window global
+  // 2. window global
   try {
     if ((window as unknown as Record<string, unknown>).__DEV_OVERRIDE__ === true) return true;
   } catch {
@@ -46,17 +36,6 @@ export function getDevOverride(): boolean {
  * Returns the specific tier requested by the dev override, or null if no override.
  */
 function getDevTier(): PlanTier | null {
-  // Check URL params first (highest priority)
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const dev = params.get("dev");
-    if (dev === "premium") return "premium";
-    if (dev === "pro") return "pro";
-    if (dev === "1") return "premium"; // ?dev=1 → premium
-  } catch {
-    // not available
-  }
-
   // Check localStorage
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -94,12 +73,8 @@ function loadStoredTier(): PlanTier {
  * Get the effective plan tier, accounting for dev overrides.
  * This is THE single function all feature gating should use.
  *
- * Dev override always wins over stored tier.
- * ?dev=1 → premium
- * ?dev=premium → premium
- * ?dev=pro → pro
- * localStorage dev_override = "premium" → premium
- * localStorage dev_override = "1" → premium
+ * Dev override always wins over stored tier (set via localStorage dev_override).
+ * For server-verified plan, call syncPlan() on app startup and after payment.
  */
 export function getPlan(): PlanTier {
   const devTier = getDevTier();
@@ -141,4 +116,46 @@ export function getDevBadgeLabel(): string | null {
   const devTier = getDevTier();
   if (!devTier) return null;
   return `DEV: ${devTier.toUpperCase()} UNLOCKED`;
+}
+
+// ─── Server-side plan sync ───────────────────────────────────────────────────
+
+/**
+ * Fetch the server-verified plan tier from /api/entitlement.
+ * Falls back to the current localStorage value if the request fails.
+ */
+export async function fetchPlanFromServer(
+  userId: string,
+  sessionToken: string,
+): Promise<PlanTier> {
+  try {
+    const resp = await fetch("/api/entitlement", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${sessionToken}`,
+        "X-User-Id": userId,
+      },
+    });
+    if (!resp.ok) return loadStoredTier();
+    const data = (await resp.json()) as { plan?: string };
+    const plan = data.plan;
+    if (plan === "pro" || plan === "premium") return plan;
+    return "free";
+  } catch {
+    return loadStoredTier();
+  }
+}
+
+/**
+ * Fetch the server-verified plan and write it to localStorage so that
+ * the synchronous getPlan() reflects the true server state.
+ * Safe to call fire-and-forget; swallows all errors.
+ */
+export async function syncPlan(userId: string, sessionToken: string): Promise<void> {
+  try {
+    const plan = await fetchPlanFromServer(userId, sessionToken);
+    localStorage.setItem(TIER_KEY, plan);
+  } catch {
+    // ignore — localStorage already has the last known value
+  }
 }
