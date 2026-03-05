@@ -3799,23 +3799,21 @@ function CheckoutPage({
     // Go to Stripe
     onCheckout(plan, period);
   }
-<button
-  type="button"
-  onClick={() => startCheckout(selectedPlan, billing)}
->
-  Continue to payment
-</button>
-<button
-  type="button"
-  onClick={() => startCheckout("pro", billing)}
->
-  Get Pro
-</button>
+<>
+  <button
+    type="button"
+    onClick={() => startCheckout(selectedPlan, billing)}
+  >
+    Continue to payment
+  </button>
 
-<button
-  type="button"
-  onClick={() => startCheckout("premium", billing)}
->
+  <button
+    type="button"
+    onClick={() => startCheckout("pro", billing)}
+  >
+    Get Pro
+  </button>
+</>
   Get Premium
 </button>
   // Analytics: pricing_viewed
