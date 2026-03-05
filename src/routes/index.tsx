@@ -7654,6 +7654,11 @@ function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
+  // ── Auth handlers ──
+function openAuthModal(mode: "signin" | "signup" = "signin") {
+  setAuthModalMode(mode);
+  setShowAuthModal(true);
+}
   const [savePromptPending, setSavePromptPending] = useState(false);
   const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
   const [shareSlug, setShareSlug] = useState<string | null>(null);
@@ -7736,12 +7741,6 @@ function App() {
 function handleUpgrade(plan: PlanId = "pro") {
   setCheckoutPlan(plan);
   setPage("checkout");
-}
-
-// ── Auth handlers ──
-function handleSignIn() {
-  setAuthModalMode("signin");
-  setShowAuthModal(true);
 }
 
 function handleAuthSuccess(user: AuthUser) {
