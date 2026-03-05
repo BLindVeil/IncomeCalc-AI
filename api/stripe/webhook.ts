@@ -69,7 +69,7 @@ export default async function handler(
     return;
   }
 
-  const stripe = new Stripe(stripeSecret, { apiVersion: "2025-02-24.acacia" });
+  const stripe = new Stripe(stripeSecret, { apiVersion: "2026-02-25.clover" });
 
   // Read raw body before any parsing
   const rawBody = await getRawBody(req);

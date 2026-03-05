@@ -85,7 +85,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
     return;
   }
 
-  const stripe = new Stripe(stripeSecret, { apiVersion: "2025-02-24.acacia" });
+  const stripe = new Stripe(stripeSecret, { apiVersion: "2026-02-25.clover" });
 
   try {
     const session = await stripe.checkout.sessions.create({

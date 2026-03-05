@@ -19,6 +19,9 @@
 
 interface Req {
   method?: string;
+
+  headers: Record<string, string | string[] | undefined>;
+
   body: {
     feature: "incomeIdeas" | "budgetInsights" | "advisor";
     input: Record<string, unknown>;
