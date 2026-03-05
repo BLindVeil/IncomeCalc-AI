@@ -7874,14 +7874,14 @@ function App() {
       <CheckoutPage
         onBack={backToResults}
         initialPlan={checkoutPlan}
-		onRequireAuth={(mode) => {
-			setAuthModalMode(mode);
-			setShowAuthModal(true);
-		  }}
-          {...sharedProps}
-        />
-      );
-    }
+        onRequireAuth={(mode) => {
+          setAuthModalMode(mode);
+          setShowAuthModal(true);
+        }}
+        {...sharedProps}
+      />
+    );
+  }
 
   if (page === "simulator") {
     return (
