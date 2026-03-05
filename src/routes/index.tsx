@@ -3777,6 +3777,7 @@ function CheckoutPage({
   currentTheme,
   baseTheme,
   setTheme,
+  onCheckout,
   onRequireAuth,
 }: CheckoutPageProps) {
   const t = applyDark(currentTheme, isDark);
@@ -3785,36 +3786,6 @@ function CheckoutPage({
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
     const [pendingCheckoutPlan, setPendingCheckoutPlan] = useState<PlanId>("pro");
-
-  function startCheckout(plan: PlanId, period: "monthly" | "yearly") {
-    const user = getCurrentUser();
-    const session = getSession();
-
-    // If not logged in, prompt auth and stop.
-    if (!user || !session) {
-      onRequireAuth?.("signin");
-      return;
-    }
-
-    // Go to Stripe
-    onCheckout(plan, period);
-  }
-  
-<>
-  <button
-    type="button"
-    onClick={() => startCheckout(selectedPlan, billing)}
-  >
-    Continue to payment
-  </button>
-
-  <button
-    type="button"
-    onClick={() => startCheckout("premium", billing)}
-  >
-    Get Premium
-  </button>
-</>
 
   // Analytics: pricing_viewed
   const pricingTracked = useRef(false);
@@ -3825,73 +3796,53 @@ function CheckoutPage({
     }
   }, []);
 
-  // Create a Stripe Checkout Session via the server and redirect the browser to it.
-async function redirectToCheckout(planId: PlanId, billingPeriod: "monthly" | "yearly") {
-  const user = getCurrentUser();
-  const session = getSession();
+  // Annual upsell: show once per session per plan (when user is on monthly)
+  function handleCheckoutClick(planId: PlanId) {
+    if (billing === "monthly") {
+      const upsellKey = `incomecalc-upsell-shown-${planId}`;
+      if (!sessionStorage.getItem(upsellKey)) {
+        sessionStorage.setItem(upsellKey, "1");
+        setPendingCheckoutPlan(planId);
+        setShowUpsellModal(true);
+        return;
+      }
+    }
 
-  if (!user || !session) {
-    onRequireAuth?.("signin");
-    return;
-  }
-  
-try {
-  const resp = await fetch("/api/stripe/create-checkout-session", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.token}`,
-    },
-    body: JSON.stringify({
-      planTier: planId,
-      billingPeriod,
-      userId: user.id,
-    }),
-  });
+    const p = PLANS.find((pp) => pp.id === planId) ?? PLANS[0];
+    const amount = billing === "monthly" ? p.price : p.yearlyPrice;
 
-  if (!resp.ok) {
-    console.error("[checkout] Failed to create session:", await resp.text());
-    return;
+    trackEvent("checkout_clicked", { planId, billing, amount, source_page: "/checkout" });
+    onCheckout(planId, billing);
   }
 
-  const { url } = (await resp.json()) as { url: string };
-  window.location.href = url;
-} catch (err) {
-  console.error("[checkout] Network error:", err);
-}
+  function handleUpsellAnnual() {
+    setShowUpsellModal(false);
+    setBilling("yearly");
 
-}
+    const p = PLANS.find((pp) => pp.id === pendingCheckoutPlan) ?? PLANS[0];
+    trackEvent("checkout_clicked", {
+      planId: pendingCheckoutPlan,
+      billing: "yearly",
+      amount: p.yearlyPrice,
+      source_page: "/checkout",
+    });
 
-function handleUpsellAnnual() {
-  setShowUpsellModal(false);
-  setBilling("yearly");
+    onCheckout(pendingCheckoutPlan, "yearly");
+  }
 
-  const p = PLANS.find((pp) => pp.id === pendingCheckoutPlan) ?? PLANS[0];
+  function handleUpsellMonthly() {
+    setShowUpsellModal(false);
 
-  trackEvent("checkout_clicked", {
-    planId: pendingCheckoutPlan,
-    billing: "yearly",
-    amount: p.yearlyPrice,
-    source_page: "/checkout",
-  });
+    const p = PLANS.find((pp) => pp.id === pendingCheckoutPlan) ?? PLANS[0];
+    trackEvent("checkout_clicked", {
+      planId: pendingCheckoutPlan,
+      billing: "monthly",
+      amount: p.price,
+      source_page: "/checkout",
+    });
 
-  redirectToCheckout(pendingCheckoutPlan, "yearly");
-}
-
-function handleUpsellMonthly() {
-  setShowUpsellModal(false);
-
-  const p = PLANS.find((pp) => pp.id === pendingCheckoutPlan) ?? PLANS[0];
-
-  trackEvent("checkout_clicked", {
-    planId: pendingCheckoutPlan,
-    billing: "monthly",
-    amount: p.price,
-    source_page: "/checkout",
-  });
-
-  redirectToCheckout(pendingCheckoutPlan, "monthly");
-}
+    onCheckout(pendingCheckoutPlan, "monthly");
+  }
 
   // Urgency countdown — resets to 15 min each session
   const [secsLeft, setSecsLeft] = useState(15 * 60);
@@ -7714,7 +7665,51 @@ function App() {
       setPage("landing");
     }
   }
-  // ── DEV_BYPASS_PAYWALL ──
+  
+  // Create a Stripe Checkout Session via the server and redirect the browser to it.
+  async function redirectToCheckout(plan: PlanId, billingPeriod: "monthly" | "yearly") {
+    const user = getCurrentUser();
+    const session = getSession();
+
+    if (!user || !session) {
+      openAuthModal("signin");
+      return;
+    }
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.token}`,
+    };
+
+    // ✅ Only allow X-User-Id in local/dev (NOT production)
+    if (import.meta.env.DEV) {
+      headers["X-User-Id"] = user.id;
+    }
+
+    try {
+      const resp = await fetch("/api/stripe/create-checkout-session", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          planTier: plan,
+          billingPeriod,
+          userId: user.id,
+        }),
+      });
+
+      if (!resp.ok) {
+        console.error("[checkout] Failed to create session:", await resp.text());
+        return;
+      }
+
+      const { url } = (await resp.json()) as { url: string };
+      window.location.href = url;
+    } catch (err) {
+      console.error("[checkout] Network error:", err);
+    }
+  }
+
+// ── DEV_BYPASS_PAYWALL ──
   const devBypassActive = isDevBypassPaywall();
   const effectiveTier: UserTier = devBypassActive ? "premium" : (devOverride ? (getPlan() as UserTier) : userTier);
   const devBadgeLabel = devBypassActive ? "DEV: PAYWALL BYPASS" : getDevBadgeLabel();
