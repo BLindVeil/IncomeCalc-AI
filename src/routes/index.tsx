@@ -7739,11 +7739,6 @@ function handleUpgrade(plan: PlanId = "pro") {
 }
 
 // ── Auth handlers ──
-function openAuthModal(mode: "signin" | "signup" = "signin") {
-  setAuthModalMode(mode);
-  setShowAuthModal(true);
-}
-
 function handleSignIn() {
   setAuthModalMode("signin");
   setShowAuthModal(true);
