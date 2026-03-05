@@ -7659,7 +7659,6 @@ function App() {
   };
 
   const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
-  const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
   const [savePromptPending, setSavePromptPending] = useState(false);
   const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
   const [shareSlug, setShareSlug] = useState<string | null>(null);
