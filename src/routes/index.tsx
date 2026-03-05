@@ -7651,12 +7651,14 @@ function App() {
   // ── Auth State ──
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => getCurrentUser());
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const openAuth = (mode: "signin" | "signup" = "signin") => {
-const openAuth = (arg?: "signin" | "signup" | unknown) => {
-  const mode = arg === "signup" ? "signup" : "signin";
-  setAuthModalMode(mode);
-  setShowAuthModal(true);
-};
+
+  const openAuth = (arg?: "signin" | "signup" | unknown) => {
+    const mode = arg === "signup" ? "signup" : "signin";
+    setAuthModalMode(mode);
+    setShowAuthModal(true);
+  };
+
+  const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
   const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
   const [savePromptPending, setSavePromptPending] = useState(false);
   const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
@@ -7743,11 +7745,6 @@ const openAuth = (arg?: "signin" | "signup" | unknown) => {
 }
 
 // ── Auth handlers ──
-function openAuth(mode: "signin" | "signup" = "signin") {
-  setAuthModalMode(mode);
-  setShowAuthModal(true);
-}
-
 function handleSignIn() {
   setAuthModalMode("signin");
   setShowAuthModal(true);
@@ -8032,3 +8029,4 @@ function handleSignIn() {
     </>
   );
 }
+});
