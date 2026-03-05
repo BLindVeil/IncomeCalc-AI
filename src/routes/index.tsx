@@ -7637,7 +7637,6 @@ const DEFAULT_EXPENSES: ExpenseData = {
   savings: 0,
   other: 0,
 };
-
 function App() {
   const [page, setPage] = useState<Page>("landing");
   const [isDark, setIsDark] = useState(true);
@@ -7683,10 +7682,6 @@ function App() {
       setPage("landing");
     }
   }
-  const [savePromptPending, setSavePromptPending] = useState(false);
-  const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
-  const [shareSlug, setShareSlug] = useState<string | null>(null);
-
   // ── DEV_BYPASS_PAYWALL ──
   const devBypassActive = isDevBypassPaywall();
   const effectiveTier: UserTier = devBypassActive ? "premium" : (devOverride ? (getPlan() as UserTier) : userTier);
