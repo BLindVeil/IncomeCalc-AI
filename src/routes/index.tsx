@@ -7739,7 +7739,7 @@ function handleUpgrade(plan: PlanId = "pro") {
 }
 
 // ── Auth handlers ──
-function openAuth(mode: "signin" | "signup" = "signin") {
+function openAuthModal(mode: "signin" | "signup" = "signin") {
   setAuthModalMode(mode);
   setShowAuthModal(true);
 }
@@ -7877,7 +7877,7 @@ function handleAuthSuccess(user: AuthUser) {
         <CheckoutPage
           onBack={backToResults}
           initialPlan={checkoutPlan}
-          onRequireAuth={openAuth}
+          onRequireAuth={openAuthModal}
           {...sharedProps}
         />
         {showAuthModal && (
