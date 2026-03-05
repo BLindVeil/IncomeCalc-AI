@@ -8010,7 +8010,7 @@ function handleAuthSuccess(user: AuthUser) {
         onSignOut={handleSignOut}
         onDigestPreview={() => setPage("digest-preview")}
         {...sharedProps}
-      />
+       />
       {showAuthModal && (
         <AuthModal
           mode={authModalMode}
@@ -8028,7 +8028,8 @@ function handleAuthSuccess(user: AuthUser) {
           onRefresh={() => {}}
           t={applyDark(currentTheme, isDark)}
           isDark={isDark}
-        />
-      )}
-    </>
-  );
+         />
+       )}
+     </>
+   );
+  }
