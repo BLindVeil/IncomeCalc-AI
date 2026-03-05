@@ -47,6 +47,8 @@ interface EntitlementRecord {
   expires_at: string;
 }
 
+// Vercel envs: "production" | "preview" | "development"
+// We only want to block the X-User-Id dev shim on the real production domain.
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 // ── Handler ───────────────────────────────────────────────────────────────────
