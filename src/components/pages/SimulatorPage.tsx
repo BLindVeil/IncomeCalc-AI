@@ -8,6 +8,9 @@ import {
   Edit3,
   Trash2,
   BarChart3,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -324,59 +327,187 @@ export function SimulatorPage({
           </div>
         )}
 
-        {/* Comparison table */}
-        {results.length > 1 && (
-          <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.5rem", marginBottom: "1.5rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-              <BarChart3 size={18} style={{ color: t.primary }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Comparison</span>
-            </div>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: "left", padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: t.muted, fontWeight: 600 }}>Metric</th>
-                    {results.map((r) => (
-                      <th key={r.scenario.id} style={{ textAlign: "right", padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: t.text, fontWeight: 600 }}>
-                        {winner?.scenario.id === r.scenario.id && <Trophy size={12} style={{ color: "#f59e0b", marginRight: "4px" }} />}
+        {/* Comparison section */}
+        {results.length > 1 && (() => {
+          const baseline = results[0];
+
+          // Delta helper: positive = good when higher is better, negative = good when lower is better
+          function DeltaChip({ value, unit, invert }: { value: number; unit: string; invert?: boolean }) {
+            if (Math.abs(value) < 0.1) return <span style={{ fontSize: "0.74rem", color: t.muted, display: "inline-flex", alignItems: "center", gap: "2px" }}><Minus size={10} /> —</span>;
+            const isGood = invert ? value < 0 : value > 0;
+            const color = isGood ? "#22c55e" : "#ef4444";
+            const Icon = value > 0 ? TrendingUp : TrendingDown;
+            const sign = value > 0 ? "+" : "";
+            return (
+              <span style={{ fontSize: "0.74rem", fontWeight: 600, color, display: "inline-flex", alignItems: "center", gap: "2px" }}>
+                <Icon size={11} /> {sign}{unit === "$" ? fmt(value) : value.toFixed(1) + unit}
+              </span>
+            );
+          }
+
+          return (
+            <>
+              {/* ── Winner summary strip ───────────────────────────── */}
+              {winner && winner.scenario.id !== baseline.scenario.id && (
+                <div
+                  style={{
+                    marginBottom: "1rem",
+                    padding: "0.75rem 1rem",
+                    borderRadius: "10px",
+                    background: "linear-gradient(135deg, rgba(245,158,11,0.1), rgba(34,197,94,0.08))",
+                    border: "1px solid rgba(245,158,11,0.25)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.6rem",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Trophy size={18} style={{ color: "#f59e0b", flexShrink: 0 }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: "0.92rem", color: t.text, marginBottom: "0.15rem" }}>
+                      {winner.scenario.name} is your strongest scenario
+                    </div>
+                    <div style={{ fontSize: "0.82rem", color: t.muted, lineHeight: 1.45 }}>
+                      {(() => {
+                        const parts: string[] = [];
+                        const dFrag = winner.output.fragilityScore - baseline.output.fragilityScore;
+                        const dMonth = winner.output.monthlyRequiredTotal - baseline.output.monthlyRequiredTotal;
+                        const dHealth = winner.output.healthScore - baseline.output.healthScore;
+                        if (Math.abs(dMonth) >= 1) parts.push(`${dMonth < 0 ? "saves" : "costs"} ${fmt(Math.abs(dMonth))}/mo vs. baseline`);
+                        if (Math.abs(dFrag) >= 1) parts.push(`fragility ${dFrag > 0 ? "+" : ""}${dFrag.toFixed(0)} pts`);
+                        if (Math.abs(dHealth) >= 1) parts.push(`health ${dHealth > 0 ? "+" : ""}${dHealth.toFixed(0)} pts`);
+                        return parts.length > 0 ? parts.join(" · ") : "Marginally better overall position.";
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Key metrics comparison cards ──────────────────── */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: `repeat(${results.length}, 1fr)`,
+                  gap: "0.65rem",
+                  marginBottom: "1.25rem",
+                }}
+              >
+                {results.map((r, ri) => {
+                  const isWinner = winner?.scenario.id === r.scenario.id;
+                  const isBase = ri === 0;
+                  const dMonthly = r.output.monthlyRequiredTotal - baseline.output.monthlyRequiredTotal;
+                  const dEmergency = r.output.emergencyFundTarget - baseline.output.emergencyFundTarget;
+                  const dAnnual = r.output.annualGrossRequired - baseline.output.annualGrossRequired;
+                  const dFragility = r.output.fragilityScore - baseline.output.fragilityScore;
+                  const dHealth = r.output.healthScore - baseline.output.healthScore;
+
+                  return (
+                    <div
+                      key={r.scenario.id}
+                      style={{
+                        background: t.cardBg,
+                        border: `${isWinner ? "2px" : "1px"} solid ${isWinner ? "#f59e0b50" : t.border}`,
+                        borderRadius: "12px",
+                        padding: "1rem",
+                        position: "relative",
+                      }}
+                    >
+                      {/* Winner badge */}
+                      {isWinner && results.length > 1 && (
+                        <div style={{
+                          position: "absolute",
+                          top: "-10px",
+                          right: "12px",
+                          background: "#f59e0b",
+                          color: "#000",
+                          fontSize: "0.65rem",
+                          fontWeight: 800,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.06em",
+                          padding: "2px 8px",
+                          borderRadius: "6px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "3px",
+                        }}>
+                          <Trophy size={10} /> Best
+                        </div>
+                      )}
+
+                      {/* Scenario name */}
+                      <div style={{ fontWeight: 700, fontSize: "0.88rem", color: t.text, marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
                         {r.scenario.name}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { label: "Hourly Required", fn: (o: CalcOutput) => `${fmt(o.hourlyRequired)}/hr` },
-                    { label: "Annual Gross", fn: (o: CalcOutput) => fmt(o.annualGrossRequired) },
-                    { label: "Monthly Total", fn: (o: CalcOutput) => fmt(o.monthlyRequiredTotal) },
-                    { label: "Emergency Fund", fn: (o: CalcOutput) => fmt(o.emergencyFundTarget) },
-                    { label: "Fragility", fn: (o: CalcOutput) => `${o.fragilityScore}/100` },
-                    { label: "Rent %", fn: (o: CalcOutput) => `${(o.ratios.rentRatio * 100).toFixed(1)}%` },
-                    { label: "Debt %", fn: (o: CalcOutput) => `${(o.ratios.debtRatio * 100).toFixed(1)}%` },
-                    { label: "Transport %", fn: (o: CalcOutput) => `${(o.ratios.transportRatio * 100).toFixed(1)}%` },
-                  ].map((row) => (
-                    <tr key={row.label}>
-                      <td style={{ padding: "0.45rem 0.75rem", borderBottom: `1px solid ${t.border}20`, color: t.muted }}>{row.label}</td>
-                      {results.map((r) => (
-                        <td key={r.scenario.id} style={{ textAlign: "right", padding: "0.45rem 0.75rem", borderBottom: `1px solid ${t.border}20`, color: t.text, fontWeight: 500 }}>
-                          {row.fn(r.output)}
-                        </td>
+                        {isBase && <span style={{ fontSize: "0.65rem", fontWeight: 500, color: t.muted, textTransform: "uppercase" }}>(baseline)</span>}
+                      </div>
+
+                      {/* Key metrics with deltas */}
+                      {[
+                        { label: "Monthly Spend", value: fmt(r.output.monthlyRequiredTotal), delta: dMonthly, unit: "$", invert: true },
+                        { label: "Emergency Fund", value: fmt(r.output.emergencyFundTarget), delta: dEmergency, unit: "$", invert: true },
+                        { label: "Annual Gross Req.", value: fmt(r.output.annualGrossRequired), delta: dAnnual, unit: "$", invert: true },
+                        { label: "Fragility", value: `${r.output.fragilityScore}/100`, delta: dFragility, unit: "pts", invert: false },
+                        { label: "Health Score", value: `${r.output.healthScore}/100`, delta: dHealth, unit: "pts", invert: false },
+                      ].map((m) => (
+                        <div key={m.label} style={{ marginBottom: "0.45rem", padding: "0.3rem 0", borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"}` }}>
+                          <div style={{ fontSize: "0.68rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "0.1rem" }}>{m.label}</div>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <span style={{ fontSize: "0.88rem", fontWeight: 700, color: t.text }}>{m.value}</span>
+                            {!isBase && <DeltaChip value={m.delta} unit={m.unit} invert={m.invert} />}
+                          </div>
+                        </div>
                       ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {winner && (
-              <div style={{ marginTop: "1rem", padding: "0.6rem 0.85rem", background: "#f59e0b12", border: "1px solid #f59e0b30", borderRadius: "8px", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <Trophy size={16} style={{ color: "#f59e0b" }} />
-                <span style={{ fontSize: "0.88rem", color: t.text }}>
-                  <strong>{winner.scenario.name}</strong> wins with the best fragility score ({winner.output.fragilityScore}/100) and {fmt(winner.output.hourlyRequired)}/hr required.
-                </span>
+                    </div>
+                  );
+                })}
               </div>
-            )}
-          </div>
-        )}
+
+              {/* ── Detailed comparison table ─────────────────────── */}
+              <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+                  <BarChart3 size={18} style={{ color: t.primary }} />
+                  <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Full Breakdown</span>
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: "left", padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: t.muted, fontWeight: 600 }}>Metric</th>
+                        {results.map((r) => (
+                          <th key={r.scenario.id} style={{ textAlign: "right", padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: t.text, fontWeight: 600 }}>
+                            {winner?.scenario.id === r.scenario.id && <Trophy size={12} style={{ color: "#f59e0b", marginRight: "4px" }} />}
+                            {r.scenario.name}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { label: "Hourly Required", fn: (o: CalcOutput) => `${fmt(o.hourlyRequired)}/hr` },
+                        { label: "Annual Gross", fn: (o: CalcOutput) => fmt(o.annualGrossRequired) },
+                        { label: "Monthly Total", fn: (o: CalcOutput) => fmt(o.monthlyRequiredTotal) },
+                        { label: "Emergency Fund", fn: (o: CalcOutput) => fmt(o.emergencyFundTarget) },
+                        { label: "Fragility", fn: (o: CalcOutput) => `${o.fragilityScore}/100` },
+                        { label: "Health Score", fn: (o: CalcOutput) => `${o.healthScore}/100 (${o.healthLabel})` },
+                        { label: "Rent %", fn: (o: CalcOutput) => `${(o.ratios.rentRatio * 100).toFixed(1)}%` },
+                        { label: "Debt %", fn: (o: CalcOutput) => `${(o.ratios.debtRatio * 100).toFixed(1)}%` },
+                        { label: "Transport %", fn: (o: CalcOutput) => `${(o.ratios.transportRatio * 100).toFixed(1)}%` },
+                      ].map((row) => (
+                        <tr key={row.label}>
+                          <td style={{ padding: "0.45rem 0.75rem", borderBottom: `1px solid ${t.border}20`, color: t.muted }}>{row.label}</td>
+                          {results.map((r) => (
+                            <td key={r.scenario.id} style={{ textAlign: "right", padding: "0.45rem 0.75rem", borderBottom: `1px solid ${t.border}20`, color: t.text, fontWeight: 500 }}>
+                              {row.fn(r.output)}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          );
+        })()}
       </div>
     </div>
   );
