@@ -23,7 +23,7 @@ interface Req {
   headers: Record<string, string | string[] | undefined>;
 
   body: {
-    feature: "incomeIdeas" | "budgetInsights" | "advisor";
+    feature: "incomeIdeas" | "budgetInsights" | "advisor" | "financialInsights" | "financialDiagnosis";
     input: Record<string, unknown>;
   };
 }
@@ -67,7 +67,7 @@ async function callOpenAI(messages: Msg[]): Promise<string> {
 
 // ── Anthropic ─────────────────────────────────────────────────────────────────
 
-async function callAnthropic(system: string, messages: Msg[]): Promise<string> {
+async function callAnthropic(system: string, messages: Msg[], maxTokens = 500): Promise<string> {
 
   const ANTHROPIC_MODEL =
     (process.env.ANTHROPIC_MODEL && process.env.ANTHROPIC_MODEL.trim()) ||
@@ -82,7 +82,7 @@ async function callAnthropic(system: string, messages: Msg[]): Promise<string> {
     },
     body: JSON.stringify({
       model: ANTHROPIC_MODEL,
-      max_tokens: 500,
+      max_tokens: maxTokens,
       system,
       messages: messages.filter((m) => m.role !== "system"),
     }),
@@ -110,6 +110,7 @@ async function callAI(
   system: string,
   userContent: string,
   preferOpenAI = false,
+  maxTokens = 500,
 ): Promise<string> {
   const hasOAI = !!process.env.OPENAI_API_KEY;
   const hasAnt = !!process.env.ANTHROPIC_API_KEY;
@@ -121,7 +122,7 @@ async function callAI(
   ];
 
   if (preferOpenAI && hasOAI) return callOpenAI(msgs);
-  if (hasAnt) return callAnthropic(system, [{ role: "user", content: userContent }]);
+  if (hasAnt) return callAnthropic(system, [{ role: "user", content: userContent }], maxTokens);
   return callOpenAI(msgs);
 }
 
@@ -246,6 +247,195 @@ export default async function handler(req: Req, res: Res): Promise<void> {
       // Advisor prefers OpenAI to preserve the original gpt-4.1 behaviour.
       const reply = await callAIChat(messages, /* preferOpenAI= */ true);
       res.json({ reply });
+      return;
+    }
+
+    // ── financialInsights ─────────────────────────────────────────────────
+    if (feature === "financialInsights") {
+      const d = input as {
+        grossAnnual: number;
+        netMonthly: number;
+        taxRate: number;
+        totalMonthly: number;
+        housing: number;
+        food: number;
+        transport: number;
+        healthcare: number;
+        utilities: number;
+        entertainment: number;
+        clothing: number;
+        savings: number;
+        investments: number;
+        other: number;
+        healthScore: number;
+        savingsRate: number;
+        hourlyRate: number;
+      };
+
+      const savingsMonthly = d.savings;
+      const investmentsMonthly = d.investments;
+      const disposableMonthly = d.netMonthly - d.totalMonthly;
+      const housingPct = d.totalMonthly > 0 ? ((d.housing / d.totalMonthly) * 100).toFixed(1) : "0";
+      const savingsPct = d.grossAnnual > 0 ? d.savingsRate.toFixed(1) : "0";
+
+      const prompt =
+        `Analyze this person's complete financial picture and provide a structured JSON response.\n\n` +
+        `FINANCIAL DATA:\n` +
+        `- Gross Annual Income Needed: ${usd(d.grossAnnual)}\n` +
+        `- Net Monthly Take-Home: ${usd(d.netMonthly)}\n` +
+        `- Tax Rate: ${d.taxRate}%\n` +
+        `- Total Monthly Expenses: ${usd(d.totalMonthly)}\n` +
+        `- Monthly Savings: ${usd(savingsMonthly)}\n` +
+        `- Monthly Investments: ${usd(investmentsMonthly)}\n` +
+        `- Monthly Disposable Income: ${usd(disposableMonthly)}\n` +
+        `- Savings Rate: ${savingsPct}%\n` +
+        `- Required Hourly Rate: ${usd(d.hourlyRate)}/hr\n` +
+        `- Financial Health Score: ${d.healthScore}/100\n\n` +
+        `EXPENSE BREAKDOWN:\n` +
+        `Housing: ${usd(d.housing)} (${housingPct}% of expenses), Food: ${usd(d.food)}, ` +
+        `Transport: ${usd(d.transport)}, Healthcare: ${usd(d.healthcare)}, ` +
+        `Utilities: ${usd(d.utilities)}, Entertainment: ${usd(d.entertainment)}, ` +
+        `Clothing: ${usd(d.clothing)}, Other: ${usd(d.other)}\n\n` +
+        `Respond ONLY with this exact JSON (no markdown, no extra text):\n` +
+        `{\n` +
+        `  "insights": [\n` +
+        `    "Specific insight about their cashflow citing exact numbers",\n` +
+        `    "Specific insight about their savings/investment rate with a concrete benchmark",\n` +
+        `    "Specific insight about their largest expense category and what it means"\n` +
+        `  ],\n` +
+        `  "riskWarning": "One specific risk based on their actual numbers (e.g. housing over 30%, no emergency fund, negative cashflow)",\n` +
+        `  "optimization": "One highest-impact action with estimated dollar impact per year",\n` +
+        `  "projection": "Where they will be financially in 10 years if they maintain current trajectory, with specific dollar estimates"\n` +
+        `}`;
+
+      const text = await callAI(
+        "You are a quantitative financial analyst. Respond only with valid JSON matching the exact schema requested.",
+        prompt,
+        /* preferOpenAI= */ false,
+      );
+
+      let parsed: {
+        insights?: string[];
+        riskWarning?: string;
+        optimization?: string;
+        projection?: string;
+      } = {};
+      try {
+        parsed = JSON.parse(text.replace(/```json\n?|\n?```/g, "").trim()) as typeof parsed;
+      } catch {
+        parsed = {};
+      }
+
+      res.json({
+        insights: (parsed.insights ?? []).slice(0, 3),
+        riskWarning: parsed.riskWarning ?? "",
+        optimization: parsed.optimization ?? "",
+        projection: parsed.projection ?? "",
+      });
+      return;
+    }
+
+    // ── financialDiagnosis ──────────────────────────────────────────────
+    if (feature === "financialDiagnosis") {
+      const d = input as {
+        grossAnnual: number;
+        netMonthly: number;
+        taxRate: number;
+        totalMonthly: number;
+        leftover: number;
+        savingsRate: number;
+        healthScore: number;
+        hourlyRate: number;
+        housing: number;
+        food: number;
+        transport: number;
+        healthcare: number;
+        utilities: number;
+        entertainment: number;
+        clothing: number;
+        savings: number;
+        other: number;
+        top3Categories: string[];
+        tone: string;
+        fragilityScore?: number;
+        debtRatio?: number;
+        emergencyFundTarget?: number;
+      };
+
+      const tone = d.tone || "direct";
+      const toneGuide =
+        tone === "supportive"
+          ? "Use an empathetic, encouraging tone while remaining specific and actionable."
+          : tone === "disciplined"
+            ? "Use a firm, coaching-oriented tone focused on execution and accountability."
+            : "Use a concise, blunt, strategic tone. No fluff.";
+
+      const prompt =
+        `Analyze this person's complete financial situation and produce a structured diagnosis.\n\n` +
+        `FINANCIAL DATA:\n` +
+        `- Gross Annual Income Needed: ${usd(d.grossAnnual)}\n` +
+        `- Net Monthly Take-Home: ${usd(d.netMonthly)}\n` +
+        `- Tax Rate: ${d.taxRate}%\n` +
+        `- Total Monthly Expenses: ${usd(d.totalMonthly)}\n` +
+        `- Monthly Leftover/Margin: ${usd(d.leftover)}\n` +
+        `- Savings Rate: ${d.savingsRate.toFixed(1)}%\n` +
+        `- Financial Health Score: ${d.healthScore}/100\n` +
+        `- Required Hourly Rate: ${usd(d.hourlyRate)}/hr\n` +
+        (d.fragilityScore != null ? `- Fragility Score: ${d.fragilityScore}/100\n` : "") +
+        (d.debtRatio != null ? `- Debt Ratio: ${(d.debtRatio * 100).toFixed(1)}%\n` : "") +
+        (d.emergencyFundTarget != null ? `- Emergency Fund Target: ${usd(d.emergencyFundTarget)}\n` : "") +
+        `\nEXPENSE BREAKDOWN:\n` +
+        `Housing: ${usd(d.housing)}, Food: ${usd(d.food)}, Transport: ${usd(d.transport)}, ` +
+        `Healthcare: ${usd(d.healthcare)}, Utilities: ${usd(d.utilities)}, Entertainment: ${usd(d.entertainment)}, ` +
+        `Clothing: ${usd(d.clothing)}, Savings: ${usd(d.savings)}, Other: ${usd(d.other)}\n` +
+        `\nTop 3 Categories: ${d.top3Categories.join(", ")}\n` +
+        `\nTONE INSTRUCTION: ${toneGuide}\n` +
+        `The "toneUsed" field in your response MUST be "${tone}".\n\n` +
+        `Respond ONLY with this exact JSON structure (no markdown fences, no extra text):\n` +
+        `{\n` +
+        `  "mainIssue": "Primary financial bottleneck in one sentence",\n` +
+        `  "summary": "2-3 sentence explanation of the structure of their finances",\n` +
+        `  "riskLevel": "low" | "medium" | "high",\n` +
+        `  "topMoves": [\n` +
+        `    {\n` +
+        `      "title": "Action title",\n` +
+        `      "explanation": "Why this matters and what to do",\n` +
+        `      "impact": "low" | "medium" | "high",\n` +
+        `      "difficulty": "easy" | "moderate" | "hard"\n` +
+        `    }\n` +
+        `  ],\n` +
+        `  "ifUnchanged30d": "What happens in 30 days if nothing changes",\n` +
+        `  "ifOptimized30d": "What happens in 30 days if optimized",\n` +
+        `  "ifUnchanged12m": "What happens in 12 months if nothing changes",\n` +
+        `  "ifOptimized12m": "What happens in 12 months if optimized",\n` +
+        `  "verdict": "One concise premium-quality verdict sentence",\n` +
+        `  "cutFirst": ["Item 1 to cut", "Item 2 to cut", "Item 3 to cut"],\n` +
+        `  "hiddenStrength": "One hidden strength or positive they may not see",\n` +
+        `  "toneUsed": "${tone}"\n` +
+        `}\n\n` +
+        `Requirements:\n` +
+        `- topMoves must have exactly 3 items\n` +
+        `- All string values must be specific to their actual numbers\n` +
+        `- Be practical, non-judgmental, and non-preachy\n` +
+        `- cutFirst and hiddenStrength are optional but recommended\n` +
+        `- Output ONLY the JSON object, nothing else`;
+
+      const text = await callAI(
+        "You are a premium financial diagnostician. You analyze personal finances and return structured JSON diagnoses. Never output markdown fences or prose outside JSON. Your analysis must be specific, practical, and based on the exact numbers provided.",
+        prompt,
+        /* preferOpenAI= */ false,
+        /* maxTokens= */ 1200,
+      );
+
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(text.replace(/```json\n?|\n?```/g, "").trim());
+      } catch {
+        res.status(500).json({ error: "Failed to parse AI diagnosis response." });
+        return;
+      }
+
+      res.json(parsed);
       return;
     }
 
