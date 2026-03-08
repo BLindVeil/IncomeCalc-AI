@@ -98,7 +98,45 @@ function SectionLabel({ icon: Icon, label, color }: { icon: React.ComponentType<
 
 // ─── Action Card (extracted for reuse) ───────────────────────────────────────
 
-function ActionCard({ move, index, t, isDark }: { move: DiagnosisAction; index: number; t: ThemeConfig; isDark: boolean }) {
+function ActionCard({ move, index, t, isDark, expanded }: { move: DiagnosisAction; index: number; t: ThemeConfig; isDark: boolean; expanded?: boolean }) {
+  if (expanded) {
+    // Enhanced first-action card with structured breakdown
+    const impactLabel = { low: "Minor improvement", medium: "Noticeable improvement", high: "Significant improvement" }[move.impact];
+    const diffLabel = { easy: "Can start today", moderate: "Takes some effort", hard: "Requires commitment" }[move.difficulty];
+    return (
+      <div
+        style={{
+          padding: "1rem 1.1rem",
+          borderRadius: "12px",
+          background: isDark ? "rgba(99,102,241,0.07)" : "rgba(99,102,241,0.04)",
+          border: `1px solid rgba(99,102,241,0.2)`,
+          marginBottom: "0.5rem",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+          <span style={{ fontWeight: 700, fontSize: "0.92rem", color: t.text }}>
+            {index + 1}. {move.title}
+          </span>
+          <ImpactBadge impact={move.impact} />
+          <DifficultyBadge difficulty={move.difficulty} />
+        </div>
+        <p style={{ margin: "0 0 0.6rem", fontSize: "0.84rem", color: t.text, opacity: 0.85, lineHeight: 1.55 }}>
+          {move.explanation}
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>
+          <div style={{ padding: "0.4rem 0.6rem", borderRadius: "8px", background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)" }}>
+            <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em" }}>Impact</div>
+            <div style={{ fontSize: "0.78rem", fontWeight: 600, color: { low: "#64748b", medium: "#f59e0b", high: "#22c55e" }[move.impact] }}>{impactLabel}</div>
+          </div>
+          <div style={{ padding: "0.4rem 0.6rem", borderRadius: "8px", background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)" }}>
+            <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em" }}>Effort</div>
+            <div style={{ fontSize: "0.78rem", fontWeight: 600, color: { easy: "#22c55e", moderate: "#f59e0b", hard: "#ef4444" }[move.difficulty] }}>{diffLabel}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
@@ -284,9 +322,6 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
       {/* ── Financial Snapshot ───────────────────────────────────────────── */}
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
-          gap: "0.4rem",
           padding: "0.75rem",
           borderRadius: "12px",
           background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
@@ -294,14 +329,29 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
           marginBottom: "0.85rem",
         }}
       >
+        {/* Top row: compact numeric stats */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.4rem" }}>
+          {[
+            { label: "Income", value: fmtUsd(grossMonthly) + "/mo", color: t.text },
+            { label: "Expenses", value: fmtUsd(totalMonthly) + "/mo", color: t.text },
+            { label: "Savings Rate", value: savingsRate.toFixed(1) + "%", color: savingsColor },
+          ].map((item) => (
+            <div key={item.label} style={{ padding: "0.35rem 0.5rem" }}>
+              <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.15rem" }}>
+                {item.label}
+              </div>
+              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: item.color, lineHeight: 1.3 }}>
+                {item.value}
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Full-width rows for text-heavy fields */}
         {[
-          { label: "Income", value: fmtUsd(grossMonthly) + "/mo", color: t.text },
-          { label: "Expenses", value: fmtUsd(totalMonthly) + "/mo", color: t.text },
-          { label: "Savings Rate", value: savingsRate.toFixed(1) + "%", color: savingsColor },
           { label: "Primary Issue", value: diagnosis.mainIssue, color: "#ef4444" },
           { label: "Best Next Move", value: bestMove?.title ?? "—", color: "#6366f1" },
         ].map((item) => (
-          <div key={item.label} style={{ padding: "0.35rem 0.5rem" }}>
+          <div key={item.label} style={{ padding: "0.35rem 0.5rem", marginTop: "0.25rem", borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}` }}>
             <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.15rem" }}>
               {item.label}
             </div>
@@ -340,7 +390,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
 
       {/* ── Main Issue + Why This Matters (always visible) ─────────────── */}
       <div style={{ marginBottom: "1rem" }}>
-        <SectionLabel icon={AlertTriangle} label="Main Issue" color="#ef4444" />
+        <SectionLabel icon={AlertTriangle} label="Primary Diagnosis" color="#ef4444" />
         <div
           style={{
             padding: "0.9rem 1rem",
@@ -350,16 +400,42 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
             marginBottom: "0.5rem",
           }}
         >
-          <div style={{ fontWeight: 700, fontSize: "0.95rem", color: t.text, lineHeight: 1.4 }}>
+          <div style={{ fontWeight: 700, fontSize: "0.95rem", color: t.text, lineHeight: 1.4, marginBottom: "0.35rem" }}>
             {diagnosis.mainIssue}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: surplusColor }}>
+              {monthlySurplus >= 0 ? "+" : ""}{fmtUsd(monthlySurplus)}/mo {monthlySurplus >= 0 ? "surplus" : "deficit"}
+            </span>
+            <span style={{ fontSize: "0.68rem", color: t.muted }}>·</span>
+            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: savingsColor }}>
+              {savingsRate.toFixed(1)}% savings rate
+            </span>
+            <span style={{ fontSize: "0.68rem", color: t.muted }}>·</span>
+            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: riskColor }}>
+              {diagnosis.riskLevel} risk
+            </span>
           </div>
         </div>
 
         <SectionLabel icon={Zap} label="Why This Matters" color="#f59e0b" />
         <div style={sectionStyle("#f59e0b")}>
-          <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.55, opacity: 0.9 }}>
-            {diagnosis.summary}
-          </p>
+          {diagnosis.summary.includes(". ") ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+              {diagnosis.summary.split(/\.\s+/).filter(Boolean).map((sentence, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
+                  <span style={{ color: "#f59e0b", fontSize: "0.7rem", marginTop: "3px", flexShrink: 0 }}>▸</span>
+                  <span style={{ fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>
+                    {sentence.endsWith(".") ? sentence : sentence + "."}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.55, opacity: 0.9 }}>
+              {diagnosis.summary}
+            </p>
+          )}
         </div>
       </div>
 
@@ -396,33 +472,42 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
       )}
 
       {/* ── First Action (always visible) ──────────────────────────────── */}
-      <SectionLabel icon={Crosshair} label="Highest-Impact Actions" color="#6366f1" />
-      {bestMove && <ActionCard move={bestMove} index={0} t={t} isDark={isDark} />}
+      <SectionLabel icon={Crosshair} label="Your #1 Move" color="#6366f1" />
+      {bestMove && <ActionCard move={bestMove} index={0} t={t} isDark={isDark} expanded />}
 
       {/* ── Premium gate ───────────────────────────────────────────────── */}
       {isPremium ? (
         premiumSections
       ) : (
         <>
-          {/* Preview progress indicator */}
+          {/* Locked value preview strip */}
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
               margin: "0.65rem 0 0.5rem",
-              padding: "0.5rem 0.75rem",
-              borderRadius: "8px",
+              padding: "0.65rem 0.85rem",
+              borderRadius: "10px",
               background: isDark ? "rgba(99,102,241,0.08)" : "rgba(99,102,241,0.05)",
-              border: "1px solid rgba(99,102,241,0.15)",
+              border: "1px solid rgba(99,102,241,0.18)",
             }}
           >
-            <div style={{ flex: 1, height: "3px", borderRadius: "2px", background: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)", overflow: "hidden" }}>
-              <div style={{ width: "16.6%", height: "100%", borderRadius: "2px", background: "linear-gradient(90deg, #6366f1, #8b5cf6)" }} />
+            <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.45rem" }}>
+              Included in your full diagnosis
             </div>
-            <span style={{ fontSize: "0.74rem", fontWeight: 600, color: t.muted, whiteSpace: "nowrap" }}>
-              Diagnosis preview: 1 of 6 insights shown
-            </span>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.3rem 0.75rem" }}>
+              {[
+                { icon: Crosshair, label: "Full ranked action plan" },
+                { icon: ArrowDown, label: "30-day comparison" },
+                { icon: ArrowUp, label: "12-month projection" },
+                { icon: Scissors, label: "Priority cuts" },
+                { icon: Star, label: "Hidden strength" },
+                { icon: ShieldAlert, label: "Final verdict" },
+              ].map((item) => (
+                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                  <Lock size={10} style={{ color: "rgba(99,102,241,0.5)", flexShrink: 0 }} />
+                  <span style={{ fontSize: "0.76rem", fontWeight: 500, color: t.muted, lineHeight: 1.4 }}>{item.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div
@@ -467,14 +552,11 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
                 <Lock size={20} className="atv-lock-icon-glow" />
               </div>
               <div style={{ textAlign: "center", maxWidth: "340px" }}>
-                <div style={{ fontWeight: 600, color: "#FFFFFF", marginBottom: "0.3rem", fontSize: "0.95rem" }}>
-                  Full Diagnosis is Premium
+                <div style={{ fontWeight: 700, color: "#FFFFFF", marginBottom: "0.3rem", fontSize: "0.98rem" }}>
+                  Your full fix plan is ready
                 </div>
-                <div style={{ fontSize: "0.84rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.5, marginBottom: "0.25rem" }}>
-                  The rest of the diagnosis shows exactly how to fix the financial pressure identified above.
-                </div>
-                <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.45 }}>
-                  Includes all ranked actions, 30-day &amp; 12-month projections, what to cut first, hidden strengths, and your final verdict.
+                <div style={{ fontSize: "0.84rem", color: "rgba(255,255,255,0.75)", lineHeight: 1.55, marginBottom: "0.25rem" }}>
+                  See exactly which expenses to cut, how your finances look in 30 days vs. 12 months, and the one strength most people miss.
                 </div>
               </div>
               <button
@@ -489,7 +571,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
                 }}
               >
                 <Lock size={14} />
-                Unlock Full Diagnosis
+                Unlock My Full Diagnosis
               </button>
             </div>
           </div>
