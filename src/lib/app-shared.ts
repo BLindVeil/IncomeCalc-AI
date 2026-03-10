@@ -18,6 +18,7 @@ export type Page =
   | "landing"
   | "calculator"
   | "results"
+  | "guided"
   | "checkout"
   | "simulator"
   | "checkin"

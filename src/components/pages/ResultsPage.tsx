@@ -527,6 +527,7 @@ export interface ResultsPageProps {
   onSignIn?: () => void;
   onSignOut?: () => void;
   onDigestPreview?: () => void;
+  fromGuidedFlow?: boolean;
 }
 
 export function ResultsPage({
@@ -555,6 +556,7 @@ export function ResultsPage({
   onSignIn,
   onSignOut,
   onDigestPreview,
+  fromGuidedFlow,
 }: ResultsPageProps) {
   const t = applyDark(currentTheme, isDark);
   const [chatOpen, setChatOpen] = useState(false);
@@ -636,23 +638,43 @@ export function ResultsPage({
 
       <div style={{ maxWidth: "780px", margin: "0 auto", padding: "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
         <div className="atv-fade-in" style={{ marginBottom: "2rem" }}>
-          <button
-            onClick={onRecalculate}
-            style={{
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              color: "rgba(255,255,255,0.45)",
-              fontSize: "0.9rem",
-              padding: 0,
-              marginBottom: "1rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.25rem",
-            }}
-          >
-            ← Edit expenses
-          </button>
+          {fromGuidedFlow ? (
+            <button
+              onClick={onBack}
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: "rgba(255,255,255,0.45)",
+                fontSize: "0.9rem",
+                padding: 0,
+                marginBottom: "1rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.25rem",
+              }}
+            >
+              ← Back to Your Plan
+            </button>
+          ) : (
+            <button
+              onClick={onRecalculate}
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: "rgba(255,255,255,0.45)",
+                fontSize: "0.9rem",
+                padding: 0,
+                marginBottom: "1rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.25rem",
+              }}
+            >
+              ← Edit expenses
+            </button>
+          )}
           <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#FFFFFF", margin: "0 0 0.5rem", letterSpacing: "-0.02em" }}>
             Your Income Report
           </h1>
@@ -2188,7 +2210,7 @@ export function ResultsPage({
             }}
           >
             <Home size={16} />
-            Start Over
+            {fromGuidedFlow ? "Back to Your Plan" : "Start Over"}
           </button>
         </div>
       </div>

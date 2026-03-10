@@ -6,11 +6,12 @@ import {
   Plus,
   Copy,
   Edit3,
-  Trash2,
+  X,
   BarChart3,
   TrendingUp,
   TrendingDown,
   Minus,
+  RotateCcw,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +22,6 @@ import {
   loadScenarios,
   saveScenarios,
   genId,
-  getScenarioLimit,
   EXPENSE_FIELDS,
   type ThemeConfig,
   type Theme,
@@ -31,6 +31,7 @@ import {
   type Scenario,
 } from "@/lib/app-shared";
 import { Header } from "@/components/Header";
+import { trackEvent } from "@/lib/analytics";
 import type { CalcOutput } from "@/lib/calc";
 
 export interface SimulatorPageProps {
@@ -59,53 +60,108 @@ export function SimulatorPage({
   setTheme,
 }: SimulatorPageProps) {
   const t = applyDark(currentTheme, isDark);
-  const limit = getScenarioLimit(userTier);
+  const hasPaidAccess = userTier === "pro" || userTier === "premium";
 
-  const [scenarios, setScenarios] = useState<Scenario[]>(() => {
+  // Active workspace slot limits (distinct from saved-scenario storage limits)
+  const workspaceLimit = userTier === "premium" ? 5 : userTier === "pro" ? 3 : 1;
+
+  // All saved scenarios (persisted to localStorage as the user's scenario library)
+  const [savedScenarios, setSavedScenarios] = useState<Scenario[]>(() => {
     const saved = loadScenarios();
     if (saved.length > 0) return saved;
     return [{ id: genId(), name: "Scenario A", expenses: { ...initialExpenses }, taxRate: initialTaxRate }];
   });
-  const [activeId, setActiveId] = useState<string>(scenarios[0]?.id ?? "");
-  const [editingName, setEditingName] = useState<string | null>(null);
 
-  useEffect(() => { saveScenarios(scenarios); }, [scenarios]);
+  // Track which scenario IDs are in the active workspace
+  const [workspaceIds, setWorkspaceIds] = useState<string[]>(() => {
+    // Start with only the first saved scenario (baseline) — no auto-clutter
+    return savedScenarios.length > 0 ? [savedScenarios[0].id] : [];
+  });
+
+  // Track IDs that were created/used in this workspace session then closed
+  // (only these should be reopenable — not old library items)
+  const [closedWorkspaceIds, setClosedWorkspaceIds] = useState<string[]>([]);
+
+  const [activeId, setActiveId] = useState<string>(workspaceIds[0] ?? "");
+  const [editingName, setEditingName] = useState<string | null>(null);
+  const [addedToast, setAddedToast] = useState<string | null>(null);
+
+  useEffect(() => { saveScenarios(savedScenarios); }, [savedScenarios]);
+
+  // Derive visible workspace scenarios: only IDs in workspaceIds that exist in savedScenarios, clamped to limit
+  const scenarios = workspaceIds
+    .slice(0, workspaceLimit)
+    .map((id) => savedScenarios.find((s) => s.id === id))
+    .filter((s): s is Scenario => s != null);
+
+  // If activeId is not in the visible workspace, reset to first visible
+  useEffect(() => {
+    if (!scenarios.find((s) => s.id === activeId) && scenarios.length > 0) {
+      setActiveId(scenarios[0].id);
+    }
+  }, [activeId, scenarios]);
 
   const activeScenario = scenarios.find((s) => s.id === activeId) ?? scenarios[0];
 
   function addScenario() {
-    if (scenarios.length >= limit) return;
+    if (scenarios.length >= workspaceLimit) return;
+    // Clone from baseline (first workspace scenario), not from initialExpenses
+    const baseline = scenarios[0];
     const newS: Scenario = {
       id: genId(),
       name: `Scenario ${String.fromCharCode(65 + scenarios.length)}`,
-      expenses: { ...initialExpenses },
-      taxRate: initialTaxRate,
+      expenses: baseline ? { ...baseline.expenses } : { ...initialExpenses },
+      taxRate: baseline?.taxRate ?? initialTaxRate,
     };
-    setScenarios((prev) => [...prev, newS]);
+    setSavedScenarios((prev) => [...prev, newS]);
+    setWorkspaceIds((prev) => [...prev, newS.id]);
     setActiveId(newS.id);
+    setAddedToast(newS.name);
+    setTimeout(() => setAddedToast(null), 2500);
+    trackEvent("scenario_added", { scenario_count: scenarios.length + 1, user_tier: userTier, source_page: "simulator" });
   }
 
+  function reopenScenario(id: string) {
+    if (scenarios.length >= workspaceLimit) return;
+    if (workspaceIds.includes(id)) return;
+    setWorkspaceIds((prev) => [...prev, id]);
+    setClosedWorkspaceIds((prev) => prev.filter((cid) => cid !== id));
+    setActiveId(id);
+    trackEvent("scenario_reopened", { scenario_count: scenarios.length + 1, user_tier: userTier, source_page: "simulator" });
+  }
+
+  // Only show variations that were part of this workspace session then closed
+  const closedVariations = closedWorkspaceIds
+    .map((id) => savedScenarios.find((s) => s.id === id))
+    .filter((s): s is Scenario => s != null);
+
   function duplicateScenario(id: string) {
-    if (scenarios.length >= limit) return;
+    if (scenarios.length >= workspaceLimit) return;
     const src = scenarios.find((s) => s.id === id);
     if (!src) return;
     const dup: Scenario = { ...src, id: genId(), name: src.name + " (copy)", expenses: { ...src.expenses } };
-    setScenarios((prev) => [...prev, dup]);
+    setSavedScenarios((prev) => [...prev, dup]);
+    setWorkspaceIds((prev) => [...prev, dup.id]);
     setActiveId(dup.id);
   }
 
-  function deleteScenario(id: string) {
+  function closeScenario(id: string) {
     if (scenarios.length <= 1) return;
-    setScenarios((prev) => prev.filter((s) => s.id !== id));
-    if (activeId === id) setActiveId(scenarios.find((s) => s.id !== id)?.id ?? "");
+    setWorkspaceIds((prev) => prev.filter((wid) => wid !== id));
+    setClosedWorkspaceIds((prev) => prev.includes(id) ? prev : [...prev, id]);
+    if (activeId === id) {
+      const remaining = scenarios.filter((s) => s.id !== id);
+      setActiveId(remaining[0]?.id ?? "");
+    }
+    trackEvent("scenario_closed", { scenario_count: scenarios.length - 1, user_tier: userTier, source_page: "simulator" });
   }
 
   function updateScenario(id: string, patch: Partial<Scenario>) {
-    setScenarios((prev) => prev.map((s) => s.id === id ? { ...s, ...patch } : s));
+    setSavedScenarios((prev) => prev.map((s) => s.id === id ? { ...s, ...patch } : s));
   }
 
   function updateExpense(id: string, field: keyof ExpenseData, value: number) {
-    setScenarios((prev) =>
+    setSavedScenarios((prev) =>
       prev.map((s) =>
         s.id === id ? { ...s, expenses: { ...s.expenses, [field]: value } } : s
       )
@@ -149,10 +205,10 @@ export function SimulatorPage({
         <p style={{ color: t.muted, fontSize: "0.95rem", margin: "0 0 1.5rem" }}>Compare different financial scenarios side by side.</p>
 
         {/* Scenario tabs */}
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
           {scenarios.map((s, i) => {
             const isActive = s.id === activeId;
-            const isLocked = i >= limit;
+            const isLocked = i >= workspaceLimit;
             return (
               <button
                 key={s.id}
@@ -191,7 +247,7 @@ export function SimulatorPage({
               </button>
             );
           })}
-          {scenarios.length < limit ? (
+          {scenarios.length < workspaceLimit ? (
             <button
               onClick={addScenario}
               style={{
@@ -207,11 +263,11 @@ export function SimulatorPage({
                 gap: "0.3rem",
               }}
             >
-              <Plus size={14} /> Add
+              <Plus size={14} /> Add Variation
             </button>
           ) : (
             <button
-              onClick={() => onUpgrade(userTier === "free" ? "pro" : "premium")}
+              onClick={() => { const p = userTier === "free" ? "pro" as const : "premium" as const; trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", plan: p }); onUpgrade(p); }}
               style={{
                 background: "transparent",
                 border: `1px dashed ${t.primary}50`,
@@ -225,8 +281,22 @@ export function SimulatorPage({
                 gap: "0.3rem",
               }}
             >
-              <Lock size={12} /> Upgrade to unlock more
+              <Lock size={12} /> Upgrade for more slots
             </button>
+          )}
+        </div>
+
+        {/* Microcopy + toast */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem", minHeight: "1.2rem" }}>
+          {hasPaidAccess && (
+            <span style={{ fontSize: "0.76rem", color: t.muted }}>
+              New variations start as a copy of your current plan — change one thing to see the impact.
+            </span>
+          )}
+          {addedToast && (
+            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: "#22c55e", marginLeft: "auto", whiteSpace: "nowrap" }}>
+              {addedToast} added — ready to edit
+            </span>
           )}
         </div>
 
@@ -240,7 +310,7 @@ export function SimulatorPage({
                 <div style={{ display: "flex", gap: "0.35rem" }}>
                   <button onClick={() => duplicateScenario(activeScenario.id)} title="Duplicate" style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "4px" }}><Copy size={14} /></button>
                   <button onClick={() => setEditingName(activeScenario.id)} title="Rename" style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "4px" }}><Edit3 size={14} /></button>
-                  {scenarios.length > 1 && <button onClick={() => deleteScenario(activeScenario.id)} title="Delete" style={{ background: "transparent", border: "none", cursor: "pointer", color: "#ef4444", padding: "4px" }}><Trash2 size={14} /></button>}
+                  {scenarios.length > 1 && <button onClick={() => closeScenario(activeScenario.id)} title="Close tab (scenario stays saved)" style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "4px" }}><X size={14} /></button>}
                 </div>
               </div>
 
@@ -327,8 +397,132 @@ export function SimulatorPage({
           </div>
         )}
 
-        {/* Comparison section */}
-        {results.length > 1 && (() => {
+        {/* ── Free-tier comparison teaser ──────────────────────────────── */}
+        {!hasPaidAccess && results.length === 1 && (() => {
+          // Use the scenario's current expenses as the single source of truth
+          const baseScenario = scenarios[0];
+          const base = results[0].output;
+          // Apply rent reduction clamped to what housing can actually absorb
+          const currentHousing = baseScenario.expenses.housing;
+          const actualReduction = Math.min(200, currentHousing);
+          const previewExpenses = { ...baseScenario.expenses, housing: currentHousing - actualReduction };
+          const previewOut = computeForExpenses(previewExpenses, baseScenario.taxRate);
+
+          // Pre-compute deltas from the same source of truth
+          const dMonthly = previewOut.monthlyRequiredTotal - base.monthlyRequiredTotal;
+          // fragilityScore: 0 = very fragile, 100 = very stable — higher is better
+          const dFragility = previewOut.fragilityScore - base.fragilityScore;
+          const dHealth = previewOut.healthScore - base.healthScore;
+
+          function formatDelta(delta: number, unit: "dollar" | "pts"): string {
+            const sign = delta > 0 ? "+" : "";
+            if (unit === "dollar") return sign + fmt(delta);
+            return sign + delta.toFixed(0) + " pts";
+          }
+
+          return (
+            <div style={{ marginBottom: "1.5rem" }}>
+              {/* Preview header */}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                <BarChart3 size={18} style={{ color: t.primary }} />
+                <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Scenario Comparison</span>
+              </div>
+
+              {/* Side-by-side preview: current vs hypothetical */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.65rem", marginBottom: "1rem" }}>
+                {/* Baseline card */}
+                <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1rem" }}>
+                  <div style={{ fontWeight: 700, fontSize: "0.85rem", color: t.text, marginBottom: "0.6rem" }}>
+                    Your Current Numbers
+                  </div>
+                  {[
+                    { label: "Monthly Spend", value: fmt(base.monthlyRequiredTotal) },
+                    { label: "Stability", value: `${base.fragilityScore}/100` },
+                    { label: "Health Score", value: `${base.healthScore}/100` },
+                  ].map((m) => (
+                    <div key={m.label} style={{ padding: "0.25rem 0", borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"}` }}>
+                      <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em" }}>{m.label}</div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: t.text }}>{m.value}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Preview "what if" card */}
+                <div style={{ background: t.cardBg, border: `1px solid rgba(99,102,241,0.25)`, borderRadius: "12px", padding: "1rem", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(90deg, #6366f1, #8b5cf6)" }} />
+                  <div style={{ fontWeight: 700, fontSize: "0.85rem", color: t.text, marginBottom: "0.6rem" }}>
+                    What if: Rent -${actualReduction.toLocaleString("en-US")}
+                  </div>
+                  {([
+                    { label: "Monthly Spend", value: fmt(previewOut.monthlyRequiredTotal), delta: dMonthly, good: dMonthly < 0, unit: "dollar" as const },
+                    { label: "Stability", value: `${previewOut.fragilityScore}/100`, delta: dFragility, good: dFragility > 0, unit: "pts" as const },
+                    { label: "Health Score", value: `${previewOut.healthScore}/100`, delta: dHealth, good: dHealth > 0, unit: "pts" as const },
+                  ]).map((m) => (
+                    <div key={m.label} style={{ padding: "0.25rem 0", borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"}` }}>
+                      <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em" }}>{m.label}</div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: "0.85rem", fontWeight: 700, color: t.text }}>{m.value}</span>
+                        {Math.abs(m.delta) >= 0.1 && (
+                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: m.good ? "#22c55e" : "#ef4444", display: "inline-flex", alignItems: "center", gap: "2px" }}>
+                            {m.good ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                            {formatDelta(m.delta, m.unit)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Upgrade CTA */}
+              <div
+                style={{
+                  padding: "1rem 1.25rem",
+                  borderRadius: "12px",
+                  background: isDark ? "rgba(99,102,241,0.08)" : "rgba(99,102,241,0.05)",
+                  border: "1px solid rgba(99,102,241,0.2)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "1rem",
+                  flexWrap: "wrap",
+                }}
+              >
+                <div style={{ flex: 1, minWidth: "200px" }}>
+                  <div style={{ fontWeight: 700, fontSize: "0.92rem", color: t.text, marginBottom: "0.2rem" }}>
+                    Build and compare your own scenarios
+                  </div>
+                  <div style={{ fontSize: "0.82rem", color: t.muted, lineHeight: 1.45 }}>
+                    Create up to 3 scenarios with custom expenses, see delta comparisons, winner verdicts, and full metric breakdowns.
+                  </div>
+                </div>
+                <button
+                  onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", plan: "pro" }); onUpgrade("pro"); }}
+                  style={{
+                    background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "0.55rem 1.25rem",
+                    fontSize: "0.85rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    whiteSpace: "nowrap",
+                    boxShadow: "0 2px 10px rgba(99,102,241,0.3)",
+                  }}
+                >
+                  <Lock size={13} />
+                  Upgrade to Pro
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ── Full comparison (Pro / Premium) ─────────────────────────────── */}
+        {hasPaidAccess && results.length > 1 && (() => {
           const baseline = results[0];
 
           // Delta helper: positive = good when higher is better, negative = good when lower is better
@@ -508,6 +702,46 @@ export function SimulatorPage({
             </>
           );
         })()}
+
+        {/* ── Closed Variations (workspace-only reopen area) ────────────── */}
+        {hasPaidAccess && closedVariations.length > 0 && (
+          <div style={{ marginBottom: "1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.5rem" }}>
+              <RotateCcw size={13} style={{ color: t.muted }} />
+              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                Closed Variations
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+              {closedVariations.map((s) => {
+                const atLimit = scenarios.length >= workspaceLimit;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => !atLimit && reopenScenario(s.id)}
+                    style={{
+                      background: "transparent",
+                      border: `1px solid ${atLimit ? t.border + "50" : t.border}`,
+                      borderRadius: "8px",
+                      padding: "0.35rem 0.7rem",
+                      fontSize: "0.8rem",
+                      fontWeight: 500,
+                      color: atLimit ? t.muted + "80" : t.muted,
+                      cursor: atLimit ? "not-allowed" : "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.3rem",
+                    }}
+                    title={atLimit ? `Close an open tab first (${workspaceLimit} slot limit)` : `Reopen ${s.name}`}
+                  >
+                    <RotateCcw size={11} />
+                    {s.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

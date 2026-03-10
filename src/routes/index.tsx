@@ -101,6 +101,7 @@ import { Header } from "@/components/Header";
 // ─── Lazy-loaded page components ─────────────────────────────────────────────
 
 const ResultsPage = lazy(() => import("@/components/pages/ResultsPage").then(m => ({ default: m.ResultsPage })));
+const GuidedFlowPage = lazy(() => import("@/components/pages/GuidedFlowPage").then(m => ({ default: m.GuidedFlowPage })));
 const CheckoutPage = lazy(() => import("@/components/pages/CheckoutPage").then(m => ({ default: m.CheckoutPage })));
 const SimulatorPage = lazy(() => import("@/components/pages/SimulatorPage").then(m => ({ default: m.SimulatorPage })));
 const CheckInPage = lazy(() => import("@/components/pages/CheckInPage").then(m => ({ default: m.CheckInPage })));
@@ -2960,6 +2961,10 @@ function App() {
   const [userTier] = useState<UserTier>(loadUserTier);
   const [devOverride, setDevOverride] = useState(getDevOverride);
 
+  // Guided flow: lifted step state + return context for back navigation
+  const [guidedStep, setGuidedStep] = useState(0);
+  const [returnTo, setReturnTo] = useState<{ page: Page; guidedStep: number } | null>(null);
+
   // ── Auth State ──
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => getCurrentUser());
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -3105,15 +3110,21 @@ function App() {
     setExpenseData(data);
     setTaxRate(rate);
     setCurrentGrossIncome(income);
-    setPage("results");
+    setGuidedStep(0);
+    setReturnTo(null);
+    setPage("guided");
+    trackEvent("calculator_completed", { source_page: "calculator", user_tier: userTier });
   }
 
   function handleStartOver() {
+    setGuidedStep(0);
+    setReturnTo(null);
     setExpenseData(DEFAULT_EXPENSES);
     setPage("landing");
   }
 
 function handleUpgrade(plan: PlanId = "pro") {
+  if (page === "guided") setReturnTo({ page: "guided", guidedStep });
   setCheckoutPlan(plan);
   setPage("checkout");
 }
@@ -3167,7 +3178,16 @@ function handleAuthSuccess(user: AuthUser) {
     setTheme: setBaseTheme,
   };
 
-  const backToResults = () => setPage(expenseData.housing || expenseData.food ? "results" : "landing");
+  function backToResults() {
+    if (returnTo) {
+      setPage(returnTo.page);
+      setGuidedStep(returnTo.guidedStep);
+      setReturnTo(null);
+      window.scrollTo(0, 0);
+      return;
+    }
+    setPage(expenseData.housing || expenseData.food ? "guided" : "landing");
+  }
 
   // ── Share Page (deep link) ──
   if (page === "share" && shareSlug) {
@@ -3267,6 +3287,29 @@ if (page === "checkout") {
   );
 }
 
+  if (page === "guided") {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <GuidedFlowPage
+          data={expenseData}
+          taxRate={taxRate}
+          currentGrossIncome={currentGrossIncome}
+          step={guidedStep}
+          onStepChange={setGuidedStep}
+          onBack={handleStartOver}
+          onRecalculate={() => setPage("calculator")}
+          onUpgrade={handleUpgrade}
+          onSimulator={() => { setReturnTo({ page: "guided", guidedStep }); setPage("simulator"); }}
+          onResults={() => { setReturnTo({ page: "guided", guidedStep }); setPage("results"); window.scrollTo(0, 0); }}
+          onSaveScenario={handleSaveScenario}
+          onDashboard={currentUser ? () => { setReturnTo({ page: "guided", guidedStep }); setPage("dashboard"); } : undefined}
+          userTier={effectiveTier}
+          {...sharedProps}
+        />
+      </Suspense>
+    );
+  }
+
   if (page === "simulator") {
     return (
       <Suspense fallback={<PageLoader />}>
@@ -3365,10 +3408,11 @@ if (page === "checkout") {
         data={expenseData}
         taxRate={taxRate}
         currentGrossIncome={currentGrossIncome}
-        onBack={handleStartOver}
+        onBack={returnTo ? backToResults : handleStartOver}
         onRecalculate={() => setPage("calculator")}
         onUpgrade={handleUpgrade}
         onSimulator={() => setPage("simulator")}
+        fromGuidedFlow={!!returnTo}
         onCheckIn={() => setPage("checkin")}
         onFire={() => setPage("fire")}
         onForecast={() => setPage("forecast")}

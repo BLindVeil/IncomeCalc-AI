@@ -36,7 +36,20 @@ export type AnalyticsEvent =
   | "purchase_success"
   | "restore_purchase_attempted"
   | "restore_purchase_success"
-  | "restore_purchase_failed";
+  | "restore_purchase_failed"
+  // Guided flow
+  | "calculator_completed"
+  | "guided_step_viewed"
+  | "diagnosis_generated"
+  | "scenario_lab_opened"
+  | "full_breakdown_opened"
+  | "upgrade_intent"
+  | "dashboard_opened"
+  | "adjust_expenses_clicked"
+  // Simulator
+  | "scenario_added"
+  | "scenario_closed"
+  | "scenario_reopened";
 
 export interface EventProps {
   plan?: "pro" | "premium";

@@ -4,6 +4,7 @@ import type { ThemeConfig, UserTier, PlanId } from "@/lib/app-shared";
 import type { ExpenseData } from "@/lib/calc";
 import type { FinancialDiagnosis, DiagnosisTone, DiagnosisInput } from "@/lib/diagnosis-types";
 import { parseDiagnosis } from "@/lib/diagnosis-types";
+import { trackEvent } from "@/lib/analytics";
 import { DiagnosisToneSelector } from "./DiagnosisToneSelector";
 import { FinancialDiagnosisCard } from "./FinancialDiagnosisCard";
 
@@ -154,6 +155,7 @@ export function FinancialDiagnosisSection({
       setResult(parsed);
       setGenerated(true);
       writeCache(cacheKey({ ...baseInput, tone }), parsed);
+      trackEvent("diagnosis_generated", { user_tier: userTier, source_page: "guided" });
     } catch {
       setError("Network error — please try again.");
     }
