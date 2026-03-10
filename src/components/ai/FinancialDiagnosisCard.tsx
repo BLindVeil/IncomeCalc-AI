@@ -11,6 +11,8 @@ import {
   ShieldAlert,
   Crosshair,
   Lock,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useState } from "react";
 import type { FinancialDiagnosis, DiagnosisAction } from "@/lib/diagnosis-types";
@@ -178,6 +180,7 @@ interface FinancialDiagnosisCardProps {
 
 export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus, grossMonthly, totalMonthly, data, isPremium, onUpgrade, t, isDark }: FinancialDiagnosisCardProps) {
   const [copied, setCopied] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   const sectionStyle = (accent: string): React.CSSProperties => ({
     padding: "0.85rem 1rem",
@@ -317,52 +320,11 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
     </>
   );
 
+  const visibleSignals = signals.slice(0, 3);
+
   return (
     <div>
-      {/* ── Financial Snapshot ───────────────────────────────────────────── */}
-      <div
-        style={{
-          padding: "0.75rem",
-          borderRadius: "12px",
-          background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
-          border: `1px solid ${t.border}`,
-          marginBottom: "0.85rem",
-        }}
-      >
-        {/* Top row: compact numeric stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.4rem" }}>
-          {[
-            { label: "Income", value: fmtUsd(grossMonthly) + "/mo", color: t.text },
-            { label: "Expenses", value: fmtUsd(totalMonthly) + "/mo", color: t.text },
-            { label: "Savings Rate", value: savingsRate.toFixed(1) + "%", color: savingsColor },
-          ].map((item) => (
-            <div key={item.label} style={{ padding: "0.35rem 0.5rem" }}>
-              <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.15rem" }}>
-                {item.label}
-              </div>
-              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: item.color, lineHeight: 1.3 }}>
-                {item.value}
-              </div>
-            </div>
-          ))}
-        </div>
-        {/* Full-width rows for text-heavy fields */}
-        {[
-          { label: "Primary Issue", value: diagnosis.mainIssue, color: "#ef4444" },
-          { label: "Best Next Move", value: bestMove?.title ?? "—", color: "#6366f1" },
-        ].map((item) => (
-          <div key={item.label} style={{ padding: "0.35rem 0.5rem", marginTop: "0.25rem", borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}` }}>
-            <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.15rem" }}>
-              {item.label}
-            </div>
-            <div style={{ fontSize: "0.82rem", fontWeight: 700, color: item.color, lineHeight: 1.3 }}>
-              {item.value}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Copy button row ─────────────────────────────────────────────── */}
+      {/* ── Risk + Copy row ─────────────────────────────────────────────── */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.85rem" }}>
         <RiskBadge level={diagnosis.riskLevel} />
         {isPremium && (
@@ -388,7 +350,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
         )}
       </div>
 
-      {/* ── Main Issue + Why This Matters (always visible) ─────────────── */}
+      {/* ── Primary Diagnosis + Why This Matters (always visible) ──────── */}
       <div style={{ marginBottom: "1rem" }}>
         <SectionLabel icon={AlertTriangle} label="Primary Diagnosis" color="#ef4444" />
         <div
@@ -439,18 +401,12 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
         </div>
       </div>
 
-      {/* ── Diagnosis Signals Detected ──────────────────────────────────── */}
-      {signals.length > 0 && (
+      {/* ── Key Signals (capped at 3) ──────────────────────────────────── */}
+      {visibleSignals.length > 0 && (
         <div style={{ marginBottom: "1rem" }}>
-          <SectionLabel icon={ShieldAlert} label="Diagnosis Signals Detected" color="#f59e0b" />
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "0.35rem",
-            }}
-          >
-            {signals.map((signal, i) => (
+          <SectionLabel icon={ShieldAlert} label="Key Signals" color="#f59e0b" />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+            {visibleSignals.map((signal, i) => (
               <span
                 key={i}
                 style={{
@@ -471,13 +427,43 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
         </div>
       )}
 
-      {/* ── First Action (always visible) ──────────────────────────────── */}
+      {/* ── Your #1 Move (always visible) ─────────────────────────────── */}
       <SectionLabel icon={Crosshair} label="Your #1 Move" color="#6366f1" />
       {bestMove && <ActionCard move={bestMove} index={0} t={t} isDark={isDark} expanded />}
 
       {/* ── Premium gate ───────────────────────────────────────────────── */}
       {isPremium ? (
-        premiumSections
+        <>
+          {/* ── Collapsible deep-dive toggle ───────────────────────────── */}
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.35rem",
+              background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+              border: `1px solid ${t.border}`,
+              borderRadius: "8px",
+              padding: "0.55rem",
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              color: t.muted,
+              cursor: "pointer",
+              marginTop: "0.75rem",
+            }}
+          >
+            {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {showDetails ? "Hide full diagnosis" : "See full diagnosis"}
+          </button>
+
+          {showDetails && (
+            <div style={{ marginTop: "0.75rem" }}>
+              {premiumSections}
+            </div>
+          )}
+        </>
       ) : (
         <>
           {/* Locked value preview strip */}
