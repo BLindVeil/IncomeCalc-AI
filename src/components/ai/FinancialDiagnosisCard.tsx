@@ -9,8 +9,6 @@ import {
   Copy,
   CheckCircle,
   ShieldAlert,
-  Crosshair,
-  Lock,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -195,8 +193,6 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
   const surplusColor = monthlySurplus >= 0 ? "#22c55e" : "#ef4444";
   const savingsColor = savingsRate >= 20 ? "#22c55e" : savingsRate >= 10 ? "#f59e0b" : "#ef4444";
   const riskColor = { low: "#22c55e", medium: "#f59e0b", high: "#ef4444" }[diagnosis.riskLevel];
-
-  const bestMove = diagnosis.topMoves[0];
 
   function handleCopy() {
     const text = [
@@ -427,14 +423,24 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
         </div>
       )}
 
-      {/* ── Your #1 Move (always visible) ─────────────────────────────── */}
-      <SectionLabel icon={Crosshair} label="Your #1 Move" color="#6366f1" />
-      {bestMove && <ActionCard move={bestMove} index={0} t={t} isDark={isDark} expanded />}
+      {/* ── Bridge to Top Move ─────────────────────────────────────── */}
+      <div
+        style={{
+          padding: "0.75rem 1rem",
+          borderRadius: "10px",
+          background: isDark ? "rgba(99,102,241,0.06)" : "rgba(99,102,241,0.04)",
+          border: `1px solid rgba(99,102,241,0.15)`,
+          textAlign: "center",
+        }}
+      >
+        <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: t.text, lineHeight: 1.5 }}>
+          Next, see the single highest-impact action.
+        </p>
+      </div>
 
-      {/* ── Premium gate ───────────────────────────────────────────────── */}
-      {isPremium ? (
+      {/* ── Premium deep-dive (collapsed by default, pro only) ───── */}
+      {isPremium && (
         <>
-          {/* ── Collapsible deep-dive toggle ───────────────────────────── */}
           <button
             onClick={() => setShowDetails(!showDetails)}
             style={{
@@ -463,104 +469,6 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
               {premiumSections}
             </div>
           )}
-        </>
-      ) : (
-        <>
-          {/* Locked value preview strip */}
-          <div
-            style={{
-              margin: "0.65rem 0 0.5rem",
-              padding: "0.65rem 0.85rem",
-              borderRadius: "10px",
-              background: isDark ? "rgba(99,102,241,0.08)" : "rgba(99,102,241,0.05)",
-              border: "1px solid rgba(99,102,241,0.18)",
-            }}
-          >
-            <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.45rem" }}>
-              Included in your full diagnosis
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.3rem 0.75rem" }}>
-              {[
-                { icon: Crosshair, label: "Full ranked action plan" },
-                { icon: ArrowDown, label: "30-day comparison" },
-                { icon: ArrowUp, label: "12-month projection" },
-                { icon: Scissors, label: "Priority cuts" },
-                { icon: Star, label: "Hidden strength" },
-                { icon: ShieldAlert, label: "Final verdict" },
-              ].map((item) => (
-                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-                  <Lock size={10} style={{ color: "rgba(99,102,241,0.5)", flexShrink: 0 }} />
-                  <span style={{ fontSize: "0.76rem", fontWeight: 500, color: t.muted, lineHeight: 1.4 }}>{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div
-            style={{
-              position: "relative",
-              overflow: "hidden",
-              borderRadius: "14px",
-              marginTop: "0.25rem",
-            }}
-          >
-            {/* Blurred preview of gated content */}
-            <div style={{ filter: "blur(5px)", pointerEvents: "none", userSelect: "none" }}>
-              {premiumSections}
-            </div>
-
-            {/* Lock overlay */}
-            <div
-              className="atv-locked-overlay"
-              style={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.75rem",
-                borderRadius: "14px",
-              }}
-            >
-              <div
-                style={{
-                  width: "44px",
-                  height: "44px",
-                  borderRadius: "50%",
-                  background: "rgba(94,92,230,0.15)",
-                  border: "2px solid rgba(94,92,230,0.3)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Lock size={20} className="atv-lock-icon-glow" />
-              </div>
-              <div style={{ textAlign: "center", maxWidth: "340px" }}>
-                <div style={{ fontWeight: 700, color: "#FFFFFF", marginBottom: "0.3rem", fontSize: "0.98rem" }}>
-                  Your full fix plan is ready
-                </div>
-                <div style={{ fontSize: "0.84rem", color: "rgba(255,255,255,0.75)", lineHeight: 1.55, marginBottom: "0.25rem" }}>
-                  See exactly which expenses to cut, how your finances look in 30 days vs. 12 months, and the one strength most people miss.
-                </div>
-              </div>
-              <button
-                onClick={() => onUpgrade("premium")}
-                className="atv-btn-primary"
-                style={{
-                  padding: "0.55rem 1.5rem",
-                  fontSize: "0.88rem",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                }}
-              >
-                <Lock size={14} />
-                Unlock My Full Diagnosis
-              </button>
-            </div>
-          </div>
         </>
       )}
     </div>
