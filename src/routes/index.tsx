@@ -3411,13 +3411,22 @@ if (page === "checkout") {
         onBack={returnTo ? backToResults : handleStartOver}
         onRecalculate={() => setPage("calculator")}
         onUpgrade={handleUpgrade}
-        onSimulator={() => setPage("simulator")}
+        onSimulator={() => { setReturnTo({ page: "results", guidedStep }); setPage("simulator"); }}
         fromGuidedFlow={!!returnTo}
-        onCheckIn={() => setPage("checkin")}
-        onFire={() => setPage("fire")}
-        onForecast={() => setPage("forecast")}
-        onDebt={() => setPage("debt")}
-        onFI={() => setPage("fi")}
+        onCheckIn={() => { setReturnTo({ page: "results", guidedStep }); setPage("checkin"); }}
+        onFire={() => { setReturnTo({ page: "results", guidedStep }); setPage("fire"); }}
+        onForecast={() => {
+          if (effectiveTier === "free") { handleUpgrade("premium"); return; }
+          setReturnTo({ page: "results", guidedStep }); setPage("forecast");
+        }}
+        onDebt={() => {
+          if (effectiveTier === "free") { handleUpgrade("pro"); return; }
+          setReturnTo({ page: "results", guidedStep }); setPage("debt");
+        }}
+        onFI={() => {
+          if (effectiveTier === "free") { handleUpgrade("premium"); return; }
+          setReturnTo({ page: "results", guidedStep }); setPage("fi");
+        }}
         userTier={effectiveTier}
         onDevAccess={() => setPage("dev-access")}
         onSaveScenario={handleSaveScenario}
