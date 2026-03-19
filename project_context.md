@@ -238,340 +238,156 @@ Every component receives `t: ThemeConfig` and `isDark: boolean`. Dark mode appli
 
 ## Product Strategy
 
-IncomeCalc AI is focused on one core value: financial clarity.
+IncomeCalc AI is not a generic AI finance app, a budgeting dashboard, or a broad personal finance platform.
 
-The product should avoid expanding into a full financial dashboard or budgeting platform.
+It is a **financial clarity and scenario engine** focused on one core value:
 
-The core engine is the AI Financial Diagnosis.
+**helping users understand what their life actually costs, what they can afford, and what to change next.**
 
-Development priorities:
+### Core Thesis
 
-1. Improve diagnosis clarity and insight quality
-2. Improve conversion from free preview to premium
-3. Improve scenario exploration (simulator)
+The product should become the **decision-support layer for lifestyle affordability and financial clarity**.
 
-Avoid adding unrelated financial tools such as:
+The goal is to help users quickly understand:
+
+- what their current lifestyle costs
+- what income they need
+- what is making their situation harder
+- which changes improve their position the most
+- what realistic next steps make sense
+
+### Job To Be Done
+
+The core user job is not:
+
+- “calculate my finances”
+- “track my budget”
+- “use an AI tool”
+
+The real job is:
+
+**“Help me know whether my current or desired life is financially realistic, and show me what to change.”**
+
+Every feature should support that job.
+
+### Product Experience Standard
+
+The core product experience should feel like:
+
+**Diagnosis → Simulation → Decision**
+
+Not just:
+
+**Input → Output**
+
+The product should help the user:
+
+1. enter their real situation
+2. understand where they stand
+3. test meaningful scenarios
+4. see which changes matter most
+5. leave with more confidence about what to do next
+
+### Current Product Wedge
+
+The current best wedge is **consumer financial clarity**.
+
+The product should help individuals make decisions around:
+
+- affordability
+- income targets
+- expense tradeoffs
+- savings pressure
+- debt pressure
+- lifestyle changes
+- “can I afford this?” decisions
+
+This is stronger than building a generic finance tool.
+
+### What To Optimize For
+
+Prioritize features that improve one or more of these:
+
+1. **Clarity**  
+   The result should be instantly understandable. Users should quickly see where they stand, what hurts most, and what helps most.
+
+2. **Diagnosis quality**  
+   The AI Financial Diagnosis is the flagship feature and should feel sharp, useful, and specific.
+
+3. **Scenario depth**  
+   Users should be able to test meaningful life changes, not just view static numbers.
+
+4. **Repeat usage**  
+   The product should give users reasons to come back and compare new scenarios over time.
+
+5. **Trust**  
+   Outputs should feel grounded, structured, and safe enough to rely on for planning decisions.
+
+6. **Premium conversion**  
+   Premium should unlock deeper insight, stronger comparisons, and more valuable decision support.
+
+### What Not To Build
+
+Avoid expanding into unrelated financial software categories such as:
 
 - account syncing
 - investment tracking
 - budgeting dashboards
-- complex financial planning systems
+- full financial planning suites
+- generic AI assistant features
+- broad productivity features
+- anything that adds complexity without improving decisions
 
-If a feature does not improve financial clarity, diagnosis quality, or premium conversion, it should not be added.
+Do not chase “AI for everyone.”
 
-## UI Design System
+Do not build vague automation or shallow AI wrappers.
 
-The UI follows a consistent visual language designed for clarity and financial insight.
+### Feature Filter
 
-### Layout Style
+A feature is worth building only if it improves one or more of these:
 
-The interface prioritizes:
+- financial clarity
+- diagnosis quality
+- scenario exploration
+- trust in the output
+- repeat usage
+- premium conversion
 
-- clear financial data presentation
-- structured sections
-- readable financial insights
-- minimal visual noise
+If it does not strengthen the core job, it is likely a distraction.
 
-Components typically use:
+### Strategic Direction
 
-- rounded containers
-- subtle borders
-- light gradients for emphasis
-- clear section separation
+The current best path is:
 
-Avoid overly complex layouts.
+**consumer wedge first → stronger scenario engine → deeper premium value → professional enablement later**
 
----
+Do not build for professionals first.
 
-### Styling Approach
+The longer-term opportunity may include tools for:
 
-All components use **inline style objects**, not Tailwind classes.
+- financial coaches
+- advisors
+- accountants
+- real estate teams
+- relocation advisors
+- debt consultants
 
-Example pattern:
+But that comes later, after the consumer product proves strong demand and repeat use.
 
-```ts
-const style = {
-  padding: "16px",
-  borderRadius: "12px",
-  background: t.cardBg,
-  border: `1px solid ${t.border}`,
-};
-```
+### Product Moat Direction
 
-Maintain this pattern when creating new components.
+The moat is not “we use AI.”
 
----
+The moat should become:
 
-### Section Structure
+- a better diagnosis flow
+- a stronger reveal moment
+- more useful scenario comparisons
+- saved context and history
+- action-oriented outputs
+- trusted decision support
+- eventually, advisor/client workflow
 
-Most UI sections follow this pattern:
+### Operating Principle
 
-1. Section label
-2. Primary insight or metric
-3. Supporting explanation
-4. Optional action items
-
-Example sections:
-
-- Financial Snapshot
-- Main Issue
-- Why This Matters
-- Highest-Impact Actions
-- Scenario Comparison
-
----
-
-### Financial Data Presentation
-
-Financial information should be:
-
-- easy to scan
-- structured
-- visually separated
-
-Preferred patterns:
-
-- KPI strips
-- small stat blocks
-- signal tags/pills
-- ranked lists of actions
-
-Avoid large paragraphs of text.
-
----
-
-### Premium Gating
-
-Premium content is visually gated using:
-
-- blur overlays
-- lock icons
-- upgrade CTA buttons
-
-Free users should always see **a preview of value before the gate**.
-
-This is important for conversion.
-
----
-
-### Color Meaning
-
-Colors communicate financial meaning:
-
-Green:
-positive financial health
-
-Amber:
-warning / improvement opportunity
-
-Red:
-financial risk or imbalance
-
-Purple gradient:
-AI insight / premium features
-
-These colors should remain consistent across the app.
-
----
-
-### AI Content Presentation
-
-AI-generated content should always be:
-
-- structured
-- broken into sections
-- easy to scan
-
-Avoid dumping raw AI paragraphs into the UI.
-
-Instead present insights as:
-
-- headlines
-- bullet points
-- ranked lists
-- signal tags
-
-## React Component Editing Guidelines
-
-When modifying React components in this project, follow these rules.
-
-### Prefer modifying existing components
-
-Before creating new components, check whether functionality belongs in:
-
-- ResultsPage
-- FinancialDiagnosisSection
-- FinancialDiagnosisCard
-
-Avoid unnecessary component splitting.
-
----
-
-### Keep financial logic outside UI components
-
-Financial calculations must remain in:
-
-src/lib/
-
-Examples include:
-
-- calc.ts
-- fireCalc.ts
-- forecast.ts
-- stabilityMetrics.ts
-
-UI components should only display calculated values.
-
----
-
-### Maintain the section layout pattern
-
-Most insight sections follow this structure:
-
-1. Section label
-2. Primary insight or metric
-3. Supporting explanation
-4. Optional action items
-
-Avoid rendering large AI-generated paragraphs directly in the UI.
-
----
-
-### Avoid large component rewrites
-
-When editing components:
-
-- change the smallest possible amount of code
-- maintain the existing structure
-- avoid rewriting entire files unless explicitly instructed
-
----
-
-### Keep AI-related UI inside the AI components folder
-
-AI insight components belong in:
-
-src/components/ai/
-
-Examples:
-
-- FinancialDiagnosisSection
-- FinancialDiagnosisCard
-- DiagnosisToneSelector
-
-Do not place AI insight UI in unrelated components.
-
----
-
-### Preserve premium gating behavior
-
-Premium gating is critical to the product.
-
-Do not remove or bypass:
-
-- blur overlays
-- lock overlays
-- upgrade prompts
-- free preview limits
-
-Free users must always see a preview before gated content.
-
----
-
-### Preserve the inline styling pattern
-
-All components use inline style objects.
-
-Example pattern:
-
-```ts
-const style = {
-  padding: "16px",
-  borderRadius: "12px",
-  background: t.cardBg,
-  border: `1px solid ${t.border}`,
-};
-```
-
-Do not replace this pattern with Tailwind utility classes.
-
-## Protected Systems — Do Not Modify Without Explicit Approval
-
-The following systems are considered high-risk and must not be changed unless explicitly instructed.
-
-### Stripe / Billing (protected)
-
-Do not modify any Stripe-related logic unless the task is specifically about billing or checkout.
-
-Protected areas include:
-
-- checkout session creation
-- pricing plan mapping
-- premium entitlement logic
-- purchase restore logic
-- webhook handling
-- billing redirects
-- Stripe-related environment variables
-- auth headers used by billing endpoints
-
-Examples of protected files and logic include:
-
-- api routes related to Stripe
-- stripe entitlement helpers
-- purchase restore helpers
-- checkout handlers
-- pricing / plan tier mapping
-
-Rules:
-
-- Do not rename Stripe-related functions
-- Do not change request payload shapes
-- Do not change success/cancel redirect behavior
-- Do not change premium entitlement behavior
-- Do not refactor Stripe code during unrelated tasks
-- Do not "clean up" billing code unless explicitly instructed
-- If another task appears to require a Stripe change, stop and explain why before editing
-
-### Auth / Session (protected)
-
-Do not modify authentication, session, or user identity logic unless explicitly instructed.
-
-Protected areas include:
-
-- auth store logic
-- sign-in / sign-out behavior
-- session tokens
-- authorization headers
-- user tier lookup
-- premium access checks
-
-Rules:
-
-- Do not change auth flows during unrelated feature work
-- Do not remove or rename auth helpers
-- Do not change token/header behavior unless the task is explicitly auth-related
-
-### Vercel API Routing (protected)
-
-Do not modify serverless route structure unless explicitly instructed.
-
-Protected areas include:
-
-- `api/ai.ts`
-- Stripe-related serverless endpoints
-- endpoint paths used by frontend fetch calls
-
-Rules:
-
-- Do not rename endpoints
-- Do not change route paths
-- Do not split or merge endpoints unless explicitly instructed
-
-## Local Development Note
-
-AI and other `/api` routes do not work under plain `npm run dev` because Vite serves the frontend only.
-
-Use:
-
-- `npm run dev` for frontend-only UI work
-- `npx vercel dev` for AI, Stripe, and any serverless API route testing
+**IncomeCalc AI should become the fastest, clearest way for someone to understand what their life costs, what they can afford, and what to do next.**

@@ -192,6 +192,9 @@ export function Header({
   onSignOut,
 }: HeaderProps) {
   const t = applyDark(currentTheme, isDark);
+  const hdrBtnBg = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
+  const hdrBtnBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+  const hdrIconColor = isDark ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.55)";
   const [themeOpen, setThemeOpen] = useState(false);
   const showDevBadge = devOverrideProp ?? isDevOverrideActive();
   const badgeLabel = getDevBadgeLabel() ?? (showDevBadge ? "DEV: PREMIUM UNLOCKED" : null);
@@ -204,10 +207,10 @@ export function Header({
         left: 0,
         right: 0,
         height: "60px",
-        background: "rgba(15,17,21,0.85)",
+        background: t.headerBg,
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -234,7 +237,7 @@ export function Header({
             width: "32px",
             height: "32px",
             borderRadius: "10px",
-            background: "linear-gradient(135deg, #5E5CE6, #8E44FF)",
+            background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -242,12 +245,12 @@ export function Header({
             fontWeight: 700,
             fontSize: "0.75rem",
             flexShrink: 0,
-            boxShadow: "0 0 12px rgba(94,92,230,0.3)",
+            boxShadow: `0 0 12px ${t.primary}4D`,
           }}
         >
           IC
         </div>
-        <span style={{ fontWeight: 600, fontSize: "1rem", color: "#FFFFFF", letterSpacing: "-0.01em" }}>IncomeCalc</span>
+        <span style={{ fontWeight: 600, fontSize: "1rem", color: t.text, letterSpacing: "-0.01em" }}>IncomeCalc</span>
       </button>
 
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0, position: "relative" }}>
@@ -273,14 +276,14 @@ export function Header({
           <button
             onClick={onDevAccess}
             style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: hdrBtnBg,
+              border: `1px solid ${hdrBtnBorder}`,
               borderRadius: "10px",
               padding: "0.35rem 0.65rem",
               fontSize: "0.7rem",
               fontWeight: 600,
               cursor: "pointer",
-              color: "rgba(255,255,255,0.65)",
+              color: hdrIconColor,
               display: "flex",
               alignItems: "center",
               gap: "0.3rem",
@@ -299,8 +302,8 @@ export function Header({
           <button
             onClick={() => setThemeOpen(!themeOpen)}
             style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: hdrBtnBg,
+              border: `1px solid ${hdrBtnBorder}`,
               borderRadius: "10px",
               padding: "0.35rem 0.65rem",
               fontSize: "0.9rem",
@@ -309,7 +312,7 @@ export function Header({
               alignItems: "center",
               height: "36px",
               minWidth: "36px",
-              color: "#FFFFFF",
+              color: t.text,
               transition: "background 0.2s ease",
             }}
             title="Change theme"
@@ -322,16 +325,16 @@ export function Header({
                 position: "absolute",
                 top: "44px",
                 right: 0,
-                background: "rgba(20,20,30,0.95)",
+                background: isDark ? "rgba(20,20,30,0.95)" : "rgba(255,255,255,0.98)",
                 backdropFilter: "blur(20px)",
                 WebkitBackdropFilter: "blur(20px)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
                 borderRadius: "14px",
                 padding: "0.5rem",
                 display: "flex",
                 flexDirection: "column",
                 gap: "0.25rem",
-                boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
+                boxShadow: isDark ? "0 16px 48px rgba(0,0,0,0.5)" : "0 16px 48px rgba(0,0,0,0.12)",
                 zIndex: 200,
                 minWidth: "150px",
               }}
@@ -346,11 +349,11 @@ export function Header({
                     gap: "0.5rem",
                     padding: "0.5rem 0.7rem",
                     borderRadius: "10px",
-                    background: baseTheme === key ? "rgba(94,92,230,0.2)" : "transparent",
-                    border: baseTheme === key ? "1px solid rgba(94,92,230,0.4)" : "1px solid transparent",
+                    background: baseTheme === key ? `${t.primary}33` : "transparent",
+                    border: baseTheme === key ? `1px solid ${t.primary}66` : "1px solid transparent",
                     cursor: "pointer",
                     fontSize: "0.88rem",
-                    color: "#FFFFFF",
+                    color: t.text,
                     fontWeight: baseTheme === key ? 600 : 400,
                     transition: "background 0.15s ease",
                   }}
@@ -367,8 +370,8 @@ export function Header({
         <button
           onClick={() => setIsDark(!isDark)}
           style={{
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: hdrBtnBg,
+            border: `1px solid ${hdrBtnBorder}`,
             borderRadius: "10px",
             padding: "0.35rem 0.65rem",
             cursor: "pointer",
@@ -377,7 +380,7 @@ export function Header({
             justifyContent: "center",
             height: "36px",
             minWidth: "36px",
-            color: "rgba(255,255,255,0.65)",
+            color: hdrIconColor,
             transition: "background 0.2s ease",
           }}
           title={isDark ? "Light mode" : "Dark mode"}

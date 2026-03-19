@@ -27,10 +27,10 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
   return (
     <footer
       style={{
-        borderTop: "1px solid rgba(255,255,255,0.06)",
+        borderTop: `1px solid ${t.border}`,
         padding: "1.5rem",
         textAlign: "center",
-        background: "rgba(15,17,21,0.6)",
+        background: t.headerBg,
         backdropFilter: "blur(12px)",
         position: "relative",
         zIndex: 1,
@@ -46,12 +46,12 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
           fontSize: "0.85rem",
         }}
       >
-        <a href="/terms" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Terms</a>
-        <a href="/privacy" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Privacy</a>
-        <a href="/refund-policy" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Refund Policy</a>
-        <a href="mailto:support@yourdomain.com" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Contact</a>
+        <a href="/terms" style={{ color: t.muted, textDecoration: "none" }}>Terms</a>
+        <a href="/privacy" style={{ color: t.muted, textDecoration: "none" }}>Privacy</a>
+        <a href="/refund-policy" style={{ color: t.muted, textDecoration: "none" }}>Refund Policy</a>
+        <a href="mailto:support@yourdomain.com" style={{ color: t.muted, textDecoration: "none" }}>Contact</a>
       </div>
-      <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.25)" }}>
+      <div style={{ fontSize: "0.78rem", color: t.muted, opacity: 0.6 }}>
         IncomeCalc is not financial, tax, or legal advice. For informational and educational purposes only.
       </div>
     </footer>
@@ -173,22 +173,13 @@ export function CheckoutPage({
     onCheckout(pendingCheckoutPlan, "monthly");
   }
 
-  // Urgency countdown — resets to 15 min each session
-  const [secsLeft, setSecsLeft] = useState(15 * 60);
-  useEffect(() => {
-    const id = setInterval(() => setSecsLeft((s) => Math.max(0, s - 1)), 1000);
-    return () => clearInterval(id);
-  }, []);
-  const mins = String(Math.floor(secsLeft / 60)).padStart(2, "0");
-  const secs = String(secsLeft % 60).padStart(2, "0");
-
   const plan = PLANS.find((p) => p.id === selectedPlan) ?? PLANS[0];
   const price = billing === "monthly" ? plan.price : plan.yearlyPrice;
 
   const yearlySavings = Math.round((plan.price * 12 - plan.yearlyPrice));
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" }}>
       <div className="atv-ambient-bg">
         <div className="atv-ambient-teal" />
       </div>
@@ -209,7 +200,7 @@ export function CheckoutPage({
             background: "transparent",
             border: "none",
             cursor: "pointer",
-            color: "rgba(255,255,255,0.45)",
+            color: t.muted,
             fontSize: "0.9rem",
             padding: 0,
             marginBottom: "1.5rem",
@@ -222,42 +213,6 @@ export function CheckoutPage({
           Back
         </button>
 
-        {/* Urgency banner */}
-        {secsLeft > 0 && (
-          <div
-            className="atv-glass-static"
-            style={{
-              padding: "0.65rem 1.25rem",
-              marginBottom: "1.5rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.75rem",
-              flexWrap: "wrap",
-              textAlign: "center",
-              borderTop: "3px solid",
-              borderImage: "linear-gradient(90deg, #5E5CE6, #8E44FF) 1",
-            }}
-          >
-            <Zap size={16} style={{ color: "#8E8AFF", flexShrink: 0 }} />
-            <span style={{ color: "#FFFFFF", fontWeight: 600, fontSize: "0.9rem" }}>
-              Limited offer — first month 20% off. Expires in{" "}
-              <span
-                style={{
-                  background: "rgba(94,92,230,0.2)",
-                  borderRadius: "5px",
-                  padding: "1px 7px",
-                  fontVariantNumeric: "tabular-nums",
-                  fontWeight: 700,
-                  letterSpacing: "0.05em",
-                }}
-              >
-                {mins}:{secs}
-              </span>
-            </span>
-          </div>
-        )}
-
         {/* Header */}
         <div className="atv-fade-in" style={{ textAlign: "center", marginBottom: "2.5rem" }}>
           <div
@@ -265,12 +220,12 @@ export function CheckoutPage({
               display: "inline-flex",
               alignItems: "center",
               gap: "0.5rem",
-              background: "rgba(94,92,230,0.12)",
-              border: "1px solid rgba(94,92,230,0.25)",
+              background: `${t.primary}1F`,
+              border: `1px solid ${t.primary}40`,
               borderRadius: "20px",
               padding: "0.4rem 1.1rem",
               fontSize: "0.85rem",
-              color: "#8E8AFF",
+              color: t.primary,
               fontWeight: 600,
               marginBottom: "1rem",
             }}
@@ -278,10 +233,10 @@ export function CheckoutPage({
             <CreditCard size={14} />
             Upgrade IncomeCalc
           </div>
-          <h1 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 700, color: "#FFFFFF", margin: "0 0 0.75rem", letterSpacing: "-0.02em" }}>
+          <h1 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 700, color: t.text, margin: "0 0 0.75rem", letterSpacing: "-0.02em" }}>
             Choose Your Plan
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "1rem", margin: 0 }}>
+          <p style={{ color: t.muted, fontSize: "1rem", margin: 0 }}>
             Unlock powerful features to take control of your financial future.
           </p>
         </div>
@@ -302,8 +257,8 @@ export function CheckoutPage({
                 key={b}
                 onClick={() => setBilling(b)}
                 style={{
-                  background: billing === b ? "linear-gradient(135deg, #5E5CE6, #8E44FF)" : "transparent",
-                  color: billing === b ? "#fff" : "rgba(255,255,255,0.45)",
+                  background: billing === b ? `linear-gradient(135deg, ${t.primary}, ${t.accent})` : "transparent",
+                  color: billing === b ? "#fff" : t.muted,
                   border: "none",
                   borderRadius: "10px",
                   padding: "0.5rem 1.25rem",
@@ -363,10 +318,10 @@ export function CheckoutPage({
                   cursor: "pointer",
                   position: "relative",
                   border: isSelected
-                    ? "2px solid rgba(94,92,230,0.6)"
-                    : "2px solid rgba(255,255,255,0.08)",
+                    ? `2px solid ${t.primary}99`
+                    : `2px solid ${t.border}`,
                   boxShadow: isSelected
-                    ? "0 20px 40px rgba(0,0,0,0.35), 0 0 20px rgba(94,92,230,0.15)"
+                    ? `0 20px 40px rgba(0,0,0,0.35), 0 0 20px ${t.primary}26`
                     : "0 20px 40px rgba(0,0,0,0.35)",
                   transition: "border-color 0.2s, box-shadow 0.2s",
                 }}
@@ -378,14 +333,14 @@ export function CheckoutPage({
                       top: "-12px",
                       left: "50%",
                       transform: "translateX(-50%)",
-                      background: "linear-gradient(135deg, #5E5CE6, #8E44FF)",
+                      background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
                       color: "#fff",
                       fontSize: "0.7rem",
                       fontWeight: 700,
                       padding: "3px 12px",
                       borderRadius: "20px",
                       whiteSpace: "nowrap",
-                      boxShadow: "0 0 12px rgba(94,92,230,0.4)",
+                      boxShadow: `0 0 12px ${t.primary}66`,
                     }}
                   >
                     {p.badge}

@@ -31,10 +31,10 @@ export function DiagnosisToneSelector({ value, onChange, t, isDark, disabled }: 
               padding: "0.55rem 0.75rem",
               borderRadius: "10px",
               border: active
-                ? "2px solid #8b5cf6"
+                ? `2px solid ${t.primary}`
                 : `1px solid ${t.border}`,
               background: active
-                ? isDark ? "rgba(139,92,246,0.15)" : "rgba(139,92,246,0.08)"
+                ? isDark ? `${t.primary}26` : `${t.primary}14`
                 : isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
               cursor: disabled ? "not-allowed" : "pointer",
               opacity: disabled ? 0.5 : 1,
@@ -42,7 +42,7 @@ export function DiagnosisToneSelector({ value, onChange, t, isDark, disabled }: 
               transition: "all 0.15s ease",
             }}
           >
-            <div style={{ fontWeight: 700, fontSize: "0.85rem", color: active ? "#8b5cf6" : t.text }}>
+            <div style={{ fontWeight: 700, fontSize: "0.85rem", color: active ? t.primary : t.text }}>
               {tone.label}
             </div>
             <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "2px" }}>

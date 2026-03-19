@@ -85,14 +85,17 @@ function computeTopMove(data: ExpenseData, taxRate: number, outputs: ReturnType<
   const totalMonthly = outputs.monthlyExpensesTotal;
 
   if (ratios.rentRatio > 0.4) {
-    const target = Math.round(totalMonthly * 0.35);
-    const adjustedVal = Math.min(data.housing, target);
+    // Solve for housing value that achieves 35% of the NEW total:
+    // housing / (nonHousing + housing) = 0.35 → housing = 0.35/0.65 * nonHousing
+    const nonHousing = totalMonthly - data.housing;
+    const targetHousing = Math.round((0.35 / 0.65) * nonHousing);
+    const adjustedVal = Math.min(data.housing, targetHousing);
     const adjusted = { ...data, housing: adjustedVal };
     const projectedOut = computeForExpenses(adjusted, taxRate);
     const diff = data.housing - adjustedVal;
     return {
       title: `Cut ${fieldLabel("housing")} by ${fmt(diff)}/mo`,
-      description: `Housing is ${(ratios.rentRatio * 100).toFixed(0)}% of your budget, well above the safe 40% threshold. Dropping from ${fmt(data.housing)} to ${fmt(adjustedVal)}/mo brings it to ~35% and meaningfully improves your stability.`,
+      description: `Housing is ${(ratios.rentRatio * 100).toFixed(0)}% of your budget, well above the safe 35% threshold. Dropping from ${fmt(data.housing)} to ${fmt(adjustedVal)}/mo brings it to ~35% and meaningfully improves your stability.`,
       field: "housing",
       currentValue: data.housing,
       adjustedValue: adjustedVal,
@@ -102,14 +105,17 @@ function computeTopMove(data: ExpenseData, taxRate: number, outputs: ReturnType<
   }
 
   if (ratios.debtRatio > 0.2) {
-    const target = Math.round(totalMonthly * 0.15);
-    const adjustedVal = Math.min(data.other, target);
+    // Solve for debt value that achieves 15% of the NEW total:
+    // debt / (nonDebt + debt) = 0.15 → debt = 0.15/0.85 * nonDebt
+    const nonDebt = totalMonthly - data.other;
+    const targetDebt = Math.round((0.15 / 0.85) * nonDebt);
+    const adjustedVal = Math.min(data.other, targetDebt);
     const adjusted = { ...data, other: adjustedVal };
     const projectedOut = computeForExpenses(adjusted, taxRate);
     const diff = data.other - adjustedVal;
     return {
       title: `Reduce ${fieldLabel("other")} by ${fmt(diff)}/mo`,
-      description: `Debt and other costs are ${(ratios.debtRatio * 100).toFixed(0)}% of your budget, above the recommended 20%. Bringing them from ${fmt(data.other)} down to ${fmt(adjustedVal)}/mo frees up cash flow for savings and emergencies.`,
+      description: `Debt and other costs are ${(ratios.debtRatio * 100).toFixed(0)}% of your budget, above the recommended 15%. Bringing them from ${fmt(data.other)} down to ${fmt(adjustedVal)}/mo frees up cash flow for savings and emergencies.`,
       field: "other",
       currentValue: data.other,
       adjustedValue: adjustedVal,
@@ -119,8 +125,11 @@ function computeTopMove(data: ExpenseData, taxRate: number, outputs: ReturnType<
   }
 
   if (ratios.savingsRatio < 0.1) {
-    const target = Math.round(totalMonthly * 0.15);
-    const adjustedVal = Math.max(data.savings, target);
+    // Solve for savings value that achieves 15% of the NEW total:
+    // savings / (nonSavings + savings) = 0.15 → savings = 0.15/0.85 * nonSavings
+    const nonSavings = totalMonthly - data.savings;
+    const targetSavings = Math.round((0.15 / 0.85) * nonSavings);
+    const adjustedVal = Math.max(data.savings, targetSavings);
     const adjusted = { ...data, savings: adjustedVal };
     const projectedOut = computeForExpenses(adjusted, taxRate);
     const diff = adjustedVal - data.savings;
@@ -144,7 +153,7 @@ function computeTopMove(data: ExpenseData, taxRate: number, outputs: ReturnType<
   const projectedOut = computeForExpenses(adjusted, taxRate);
   return {
     title: `Trim ${fieldLabel(largestField)} by ${fmt(diff)}/mo`,
-    description: `Your ratios are within safe ranges. A 10% reduction in ${fieldLabel(largestField)} (${fmt(data[largestField])} → ${fmt(reducedValue)}/mo) would still improve your position.`,
+    description: `A 10% reduction in ${fieldLabel(largestField)} (${fmt(data[largestField])} → ${fmt(reducedValue)}/mo) would improve your position.`,
     field: largestField,
     currentValue: data[largestField],
     adjustedValue: reducedValue,
@@ -252,10 +261,10 @@ export function GuidedFlowPage({
   function goPrev() { if (step > 0) setStep(step - 1); }
 
   // Step-specific CTA labels
-  const nextLabel = step === 0 ? "Get Diagnosis" : step === 1 ? "See Top Move" : step === 2 ? "See Your Plan" : "";
+  const nextLabel = step === 0 ? "See What's Driving It" : step === 1 ? "See Top Move" : step === 2 ? "See Your Plan" : "";
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF" }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "720px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
@@ -322,7 +331,7 @@ export function GuidedFlowPage({
               <div style={{ marginBottom: "1.5rem" }}>
                 <div style={{ fontSize: "0.75rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>Your Financial Reality</div>
                 <h2 style={{ fontSize: "1.75rem", fontWeight: 800, color: t.text, margin: "0 0 0.35rem", lineHeight: 1.2 }}>
-                  Your life currently requires <span style={{ color: t.primary }}>{fmt(totalMonthly)}/month</span>
+                  Your life currently requires <span style={{ color: t.accent }}>{fmt(totalMonthly)}/month</span>
                 </h2>
                 <p style={{ fontSize: "0.95rem", color: t.muted, margin: 0, lineHeight: 1.5 }}>
                   {interpretation}
@@ -378,27 +387,36 @@ export function GuidedFlowPage({
               </div>
 
               {/* Income gap — single line */}
-              {currentGrossIncome > 0 && (
-                <div style={{
-                  fontSize: "0.85rem",
-                  color: incomeGap.hasGap ? "#ef4444" : "#22c55e",
-                  fontWeight: 600,
-                  marginBottom: "1rem",
-                  padding: "0.6rem 0.85rem",
-                  background: incomeGap.hasGap ? "rgba(239,68,68,0.06)" : "rgba(34,197,94,0.06)",
-                  borderRadius: "8px",
-                  border: `1px solid ${incomeGap.hasGap ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)"}`,
-                }}>
-                  {incomeGap.hasGap
-                    ? `Income gap: you need ${fmt(incomeGap.gapMonthly)}/mo more than your current income covers.`
-                    : `No income gap — you have ${fmt(Math.abs(incomeGap.gapMonthly))}/mo surplus.`
-                  }
-                </div>
-              )}
+              {currentGrossIncome > 0 && (() => {
+                const surplusButFragile = !incomeGap.hasGap && healthScore < 70;
+                const gapColor = incomeGap.hasGap ? "#ef4444" : surplusButFragile ? "#f59e0b" : "#22c55e";
+                const gapBg = incomeGap.hasGap ? "rgba(239,68,68,0.06)" : surplusButFragile ? "rgba(245,158,11,0.06)" : "rgba(34,197,94,0.06)";
+                const gapBorder = incomeGap.hasGap ? "rgba(239,68,68,0.15)" : surplusButFragile ? "rgba(245,158,11,0.15)" : "rgba(34,197,94,0.15)";
+
+                return (
+                  <div style={{
+                    fontSize: "0.85rem",
+                    color: gapColor,
+                    fontWeight: 600,
+                    marginBottom: "1rem",
+                    padding: "0.6rem 0.85rem",
+                    background: gapBg,
+                    borderRadius: "8px",
+                    border: `1px solid ${gapBorder}`,
+                  }}>
+                    {incomeGap.hasGap
+                      ? `Income gap: you need ${fmt(incomeGap.gapMonthly)}/mo more than your current income covers.`
+                      : surplusButFragile
+                        ? `You earn enough to cover expenses (+${fmt(Math.abs(incomeGap.gapMonthly))}/mo), but your financial structure is still under pressure.`
+                        : `No income gap — you have ${fmt(Math.abs(incomeGap.gapMonthly))}/mo surplus.`
+                    }
+                  </div>
+                );
+              })()}
 
               {/* Alerts — quiet context */}
               {alerts.length > 0 && (
-                <div>
+                <div style={{ marginBottom: "1rem" }}>
                   {alerts.map((alert) => (
                     <div
                       key={alert.id}
@@ -417,6 +435,18 @@ export function GuidedFlowPage({
                     </div>
                   ))}
                 </div>
+              )}
+
+              {/* Bridge to Diagnosis */}
+              {healthScore < 80 && (
+                <p style={{ fontSize: "0.84rem", color: t.muted, margin: "0.5rem 0 0", lineHeight: 1.5, fontStyle: "italic" }}>
+                  {healthScore < 50
+                    ? "Your numbers reveal structural risk that surplus income alone won't fix. The diagnosis will show you exactly what's driving it."
+                    : healthScore < 70
+                      ? "There's room to strengthen your position. The diagnosis will pinpoint what to change first."
+                      : "You're in good shape overall. The diagnosis can help you optimize further."
+                  }
+                </p>
               )}
             </div>
           );
@@ -449,6 +479,7 @@ export function GuidedFlowPage({
               emergencyFundTarget={outputs.emergencyFundTarget}
               userTier={userTier}
               onUpgrade={onUpgrade}
+              onSimulator={onSimulator}
               t={t}
               isDark={isDark}
             />
@@ -508,7 +539,7 @@ export function GuidedFlowPage({
 
             {/* Scenario Lab CTA — not a separate step */}
             <div style={{
-              background: isDark ? "rgba(99,102,241,0.06)" : "rgba(99,102,241,0.04)",
+              background: isDark ? `${t.primary}0F` : `${t.primary}0A`,
               border: `1px solid ${t.primary}20`,
               borderRadius: "12px",
               padding: "1rem 1.25rem",
@@ -572,7 +603,11 @@ export function GuidedFlowPage({
               <div style={{ fontSize: "0.88rem", color: t.text, lineHeight: 1.5 }}>
                 {healthDelta > 0
                   ? <>Your top move — <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span> — could bring your score to <span style={{ fontWeight: 700, color: "#22c55e" }}>{topMove.projectedHealth}</span>. Test it in the Scenario Lab to see the full impact.</>
-                  : <>Your ratios are in good shape. Use the Scenario Lab to explore what-if scenarios and fine-tune your position.</>
+                  : healthScore < 40
+                    ? <>Your position needs work across multiple areas. Start with <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span>, then use the Scenario Lab to test further changes.</>
+                    : healthScore < 60
+                      ? <>Your top move — <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span> — is a solid starting point. Use the Scenario Lab to test combinations and find the strongest path forward.</>
+                      : <>Your ratios are in a healthy range. Use the Scenario Lab to explore what-if scenarios and fine-tune your position.</>
                 }
               </div>
             </div>
@@ -603,7 +638,7 @@ export function GuidedFlowPage({
             </button>
 
             {/* Secondary actions row */}
-            <div style={{ display: "grid", gridTemplateColumns: onSaveScenario ? "1fr 1fr" : "1fr 1fr", gap: "0.5rem", marginBottom: "0.75rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: (hasPaidAccess && onSaveScenario) ? "1fr 1fr" : "1fr 1fr", gap: "0.5rem", marginBottom: "0.75rem" }}>
               <button
                 onClick={() => { trackEvent("adjust_expenses_clicked", { user_tier: userTier, source_page: "guided" }); onRecalculate(); }}
                 style={{
@@ -619,7 +654,7 @@ export function GuidedFlowPage({
               >
                 Adjust Expenses
               </button>
-              {onSaveScenario ? (
+              {hasPaidAccess && onSaveScenario ? (
                 <button
                   onClick={onSaveScenario}
                   style={{
@@ -634,22 +669,6 @@ export function GuidedFlowPage({
                   }}
                 >
                   Save Scenario
-                </button>
-              ) : onDashboard ? (
-                <button
-                  onClick={() => { trackEvent("dashboard_opened", { user_tier: userTier, source_page: "guided" }); onDashboard(); }}
-                  style={{
-                    background: t.cardBg,
-                    border: `1px solid ${t.border}`,
-                    borderRadius: "8px",
-                    padding: "0.65rem",
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
-                    color: t.text,
-                    cursor: "pointer",
-                  }}
-                >
-                  Dashboard
                 </button>
               ) : (
                 <button
@@ -670,8 +689,8 @@ export function GuidedFlowPage({
               )}
             </div>
 
-            {/* Tertiary link: Full Breakdown (always available) */}
-            {(onSaveScenario || onDashboard) && (
+            {/* Tertiary link: Full Breakdown (shown when Save Scenario takes the grid slot) */}
+            {hasPaidAccess && onSaveScenario ? (
               <div style={{ textAlign: "center", marginBottom: "1rem" }}>
                 <button
                   onClick={() => { trackEvent("full_breakdown_opened", { user_tier: userTier, source_page: "guided" }); onResults(); }}
@@ -689,37 +708,43 @@ export function GuidedFlowPage({
                   View full breakdown
                 </button>
               </div>
-            )}
+            ) : null}
 
             {/* Upgrade CTA for free users */}
             {!hasPaidAccess && (
               <div style={{
-                padding: "1.15rem",
+                padding: "1.25rem",
                 borderRadius: "12px",
-                background: isDark ? "rgba(99,102,241,0.08)" : "rgba(99,102,241,0.05)",
-                border: "1px solid rgba(99,102,241,0.2)",
+                background: isDark ? `${t.primary}14` : `${t.primary}0D`,
+                border: `1px solid ${t.primary}33`,
               }}>
-                <div style={{ fontWeight: 700, fontSize: "0.92rem", color: t.text, marginBottom: "0.25rem" }}>
-                  Unlock the full experience
+                <div style={{ fontWeight: 700, fontSize: "0.95rem", color: t.text, marginBottom: "0.35rem" }}>
+                  {healthScore < 60
+                    ? "Your score is " + healthScore + " — there's real room to improve"
+                    : "You've seen the snapshot — now work the problem"
+                  }
                 </div>
-                <div style={{ fontSize: "0.8rem", color: t.muted, lineHeight: 1.45, marginBottom: "0.75rem" }}>
-                  AI diagnosis, multi-scenario comparison, debt payoff tools, and more.
+                <div style={{ fontSize: "0.82rem", color: t.muted, lineHeight: 1.55, marginBottom: "0.85rem" }}>
+                  {healthScore < 60
+                    ? "Pro lets you build custom scenarios, test different expense changes, and find the specific combination that moves your score the most. See exactly which trade-offs are worth making before you commit."
+                    : "Pro lets you build and compare scenarios side by side, test real trade-offs, and find the strongest path from here. One change helped — now find the combination that helps the most."
+                  }
                 </div>
                 <button
                   onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "guided", plan: "pro" }); onUpgrade("pro"); }}
                   style={{
-                    background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
                     color: "#fff",
                     border: "none",
                     borderRadius: "8px",
-                    padding: "0.5rem 1.15rem",
-                    fontSize: "0.82rem",
+                    padding: "0.55rem 1.25rem",
+                    fontSize: "0.85rem",
                     fontWeight: 700,
                     cursor: "pointer",
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "0.3rem",
-                    boxShadow: "0 2px 10px rgba(99,102,241,0.3)",
+                    gap: "0.35rem",
+                    boxShadow: `0 2px 10px ${t.primary}4D`,
                   }}
                 >
                   <Lock size={13} />
@@ -759,7 +784,7 @@ export function GuidedFlowPage({
             <button
               onClick={goNext}
               style={{
-                background: t.primary,
+                background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
                 border: "none",
                 borderRadius: "8px",
                 padding: "0.5rem 1.15rem",

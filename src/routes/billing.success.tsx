@@ -82,7 +82,7 @@ function BillingSuccessPage() {
   }, []);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+    <div style={{ minHeight: "100vh", background: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
       <div style={{ maxWidth: "480px", width: "100%", textAlign: "center" }}>
         {status === "verifying" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>

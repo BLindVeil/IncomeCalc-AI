@@ -7,7 +7,7 @@ export const Route = createFileRoute("/billing/cancel")({
 
 function BillingCancelPage() {
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+    <div style={{ minHeight: "100vh", background: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
       <div style={{ maxWidth: "480px", width: "100%", textAlign: "center" }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
           <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(255,184,0,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>

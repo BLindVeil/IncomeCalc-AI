@@ -6,7 +6,7 @@ export const Route = createFileRoute("/privacy")({
 
 function PrivacyPage() {
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF" }}>
+    <div style={{ minHeight: "100vh", background: "var(--background)", color: "var(--foreground)" }}>
       <div style={{ maxWidth: "720px", margin: "0 auto", padding: "4rem 1.5rem 6rem" }}>
         <Link to="/" style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.9rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.35rem", marginBottom: "2rem" }}>
           ← Back to IncomeCalc

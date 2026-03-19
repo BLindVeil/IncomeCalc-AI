@@ -97,11 +97,11 @@ export function AnnualUpsellModal({ plan, onAnnual, onMonthly, onClose, t }: Ann
       >
         <div className="atv-accent-bar" style={{ position: "absolute", top: 0, left: 0, right: 0 }} />
         <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>&#x2728;</div>
-        <h2 style={{ fontSize: "1.3rem", fontWeight: 700, color: "#FFFFFF", marginBottom: "0.5rem", letterSpacing: "-0.01em" }}>
+        <h2 style={{ fontSize: "1.3rem", fontWeight: 700, color: t.text, marginBottom: "0.5rem", letterSpacing: "-0.01em" }}>
           Save with Annual Billing
         </h2>
-        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.95rem", lineHeight: 1.6, marginBottom: "1.5rem" }}>
-          Get <strong style={{ color: "#FFFFFF" }}>2 months free</strong> when you switch to annual! Pay ${prices.yearly}/year instead of ${(prices.monthly * 12).toFixed(0)}/year.
+        <p style={{ color: t.muted, fontSize: "0.95rem", lineHeight: 1.6, marginBottom: "1.5rem" }}>
+          Get <strong style={{ color: t.text }}>2 months free</strong> when you switch to annual! Pay ${prices.yearly}/year instead of ${(prices.monthly * 12).toFixed(0)}/year.
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
@@ -279,9 +279,10 @@ interface AskYourPlanProps {
   onSimulator: () => void;
   userTier: UserTier;
   onUpgrade: (plan?: PlanId) => void;
+  initialQuestion?: string | null;
 }
 
-function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier, onUpgrade }: AskYourPlanProps) {
+function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier, onUpgrade, initialQuestion }: AskYourPlanProps) {
   const [selectedQ, setSelectedQ] = useState<string | null>(null);
   const [aiAnswer, setAiAnswer] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
@@ -359,6 +360,15 @@ function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier,
       setAiLoading(false);
     }
   }
+
+  // Auto-trigger initial question from outer suggestion buttons
+  const initialHandled = useRef(false);
+  useEffect(() => {
+    if (initialQuestion && !initialHandled.current) {
+      initialHandled.current = true;
+      handleQuestion(initialQuestion);
+    }
+  }, [initialQuestion]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const displayAnswer = aiAnswer || fallbackAnswer;
 
@@ -561,6 +571,7 @@ export function ResultsPage({
   const t = applyDark(currentTheme, isDark);
   const [chatOpen, setChatOpen] = useState(false);
   const [askPlanOpen, setAskPlanOpen] = useState(false);
+  const [askPlanQuestion, setAskPlanQuestion] = useState<string | null>(null);
   const [shareCardOpen, setShareCardOpen] = useState(false);
   const [alertsExpanded, setAlertsExpanded] = useState<string | null>(null);
 
@@ -617,7 +628,7 @@ export function ResultsPage({
     .sort((a, b) => b.value - a.value);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" }}>
       <div className="atv-ambient-bg">
         <div className="atv-ambient-teal" />
       </div>
@@ -645,7 +656,7 @@ export function ResultsPage({
                 background: "transparent",
                 border: "none",
                 cursor: "pointer",
-                color: "rgba(255,255,255,0.45)",
+                color: t.muted,
                 fontSize: "0.9rem",
                 padding: 0,
                 marginBottom: "1rem",
@@ -663,7 +674,7 @@ export function ResultsPage({
                 background: "transparent",
                 border: "none",
                 cursor: "pointer",
-                color: "rgba(255,255,255,0.45)",
+                color: t.muted,
                 fontSize: "0.9rem",
                 padding: 0,
                 marginBottom: "1rem",
@@ -675,10 +686,10 @@ export function ResultsPage({
               ← Edit expenses
             </button>
           )}
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#FFFFFF", margin: "0 0 0.5rem", letterSpacing: "-0.02em" }}>
+          <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: t.text, margin: "0 0 0.5rem", letterSpacing: "-0.02em" }}>
             Your Income Report
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.95rem", margin: 0 }}>
+          <p style={{ color: t.muted, fontSize: "0.95rem", margin: 0 }}>
             Based on {fmt(totalMonthly)}/mo in expenses at a {taxRate}% effective tax rate.
           </p>
         </div>
@@ -696,13 +707,13 @@ export function ResultsPage({
         >
           {/* Gradient accent bar at top */}
           <div className="atv-accent-bar" style={{ position: "absolute", top: 0, left: 0, right: 0 }} />
-          <div style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.55)", marginBottom: "0.5rem" }}>
+          <div style={{ fontSize: "0.9rem", color: t.muted, marginBottom: "0.5rem" }}>
             You need to earn at least
           </div>
-          <div className="atv-number-glow" style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 700, lineHeight: 1.1, color: "#FFFFFF", letterSpacing: "-0.03em" }}>
+          <div className="atv-number-glow" style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 700, lineHeight: 1.1, color: t.text, letterSpacing: "-0.03em" }}>
             {fmt(grossAnnual)}
           </div>
-          <div style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.55)", marginTop: "0.25rem" }}>per year</div>
+          <div style={{ fontSize: "0.9rem", color: t.muted, marginTop: "0.25rem" }}>per year</div>
           <div
             style={{
               display: "flex",
@@ -718,8 +729,8 @@ export function ResultsPage({
               { label: "Monthly taxes", value: fmt(taxMonthly) },
             ].map(({ label, value }) => (
               <div key={label}>
-                <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.8rem" }}>{label}</div>
-                <div className="atv-number-glow" style={{ fontWeight: 600, fontSize: "1.1rem", color: "#FFFFFF" }}>{value}</div>
+                <div style={{ color: t.muted, fontSize: "0.8rem" }}>{label}</div>
+                <div className="atv-number-glow" style={{ fontWeight: 600, fontSize: "1.1rem", color: t.text }}>{value}</div>
               </div>
             ))}
           </div>
@@ -1120,7 +1131,7 @@ export function ResultsPage({
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
-              <Milestone size={14} style={{ color: "#8b5cf6" }} />
+              <Milestone size={14} style={{ color: t.primary }} />
               <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>FI Date</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
@@ -1311,6 +1322,7 @@ export function ResultsPage({
           emergencyFundTarget={outputs.emergencyFundTarget}
           userTier={userTier}
           onUpgrade={onUpgrade}
+          onSimulator={onSimulator}
           t={t}
           isDark={isDark}
         />
@@ -1484,7 +1496,7 @@ export function ResultsPage({
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <FileText size={18} className="atv-lock-icon-glow" />
-                <span style={{ fontWeight: 600, color: "#FFFFFF" }}>Export features require Pro</span>
+                <span style={{ fontWeight: 600, color: t.text }}>Export features require Pro</span>
               </div>
               <button
                 onClick={() => onUpgrade("pro")}
@@ -1594,8 +1606,8 @@ export function ResultsPage({
                   width: "44px",
                   height: "44px",
                   borderRadius: "50%",
-                  background: "rgba(94,92,230,0.15)",
-                  border: "2px solid rgba(94,92,230,0.3)",
+                  background: `${t.primary}26`,
+                  border: `2px solid ${t.primary}4D`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -1604,10 +1616,10 @@ export function ResultsPage({
                 <TrendingUp size={20} className="atv-lock-icon-glow" />
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 600, color: "#FFFFFF", marginBottom: "0.25rem" }}>Savings Potential</div>
-                <div style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.55)" }}>
+                <div style={{ fontWeight: 600, color: t.text, marginBottom: "0.25rem" }}>Savings Potential</div>
+                <div style={{ fontSize: "0.85rem", color: t.muted }}>
                   See exactly where you could save{" "}
-                  <span style={{ color: "#8E8AFF", fontWeight: 700 }}>
+                  <span style={{ color: t.primary, fontWeight: 700 }}>
                     {fmt(Math.round(grossAnnual * 0.06))}+/year
                   </span>
                 </div>
@@ -1772,8 +1784,8 @@ export function ResultsPage({
                   width: "44px",
                   height: "44px",
                   borderRadius: "50%",
-                  background: "rgba(94,92,230,0.15)",
-                  border: "2px solid rgba(94,92,230,0.3)",
+                  background: `${t.primary}26`,
+                  border: `2px solid ${t.primary}4D`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -1782,8 +1794,13 @@ export function ResultsPage({
                 <Lock size={20} className="atv-lock-icon-glow" />
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 600, color: "#FFFFFF", marginBottom: "0.25rem" }}>12-Month Cashflow Forecast</div>
-                <div style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.55)" }}>Projected monthly income vs expenses — Premium only</div>
+                <div style={{ fontWeight: 600, color: t.text, marginBottom: "0.25rem" }}>12-Month Cashflow Forecast</div>
+                <div style={{ fontSize: "0.85rem", color: t.muted, lineHeight: 1.5 }}>
+                  {grossMonthly > totalMonthly
+                    ? <>See whether your <span style={{ color: t.primary, fontWeight: 600 }}>{fmt(Math.round(grossMonthly - totalMonthly))}/mo surplus</span> holds up over 12 months</>
+                    : <>See how your expenses track against income month by month — and where pressure builds</>
+                  }
+                </div>
               </div>
               <button
                 onClick={() => onUpgrade("premium")}
@@ -1797,7 +1814,7 @@ export function ResultsPage({
                 }}
               >
                 <Lock size={14} />
-                Unlock Forecasting
+                See My 12-Month Forecast
               </button>
             </div>
           </div>
@@ -1904,10 +1921,10 @@ export function ResultsPage({
         >
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
             <Star size={16} style={{ color: "#f59e0b" }} />
-            <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Upgrade Your Plan</span>
+            <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Go deeper on your numbers</span>
           </div>
           <p style={{ color: t.muted, fontSize: "0.9rem", margin: "0 0 1.25rem" }}>
-            Unlock AI insights, goal planning, PDF exports, cloud sync and more.
+            You've seen where you stand. Upgrade to test changes, get a full diagnosis, and make stronger decisions.
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
             {/* Pro card */}
@@ -1918,14 +1935,19 @@ export function ResultsPage({
                 borderRadius: "10px",
                 padding: "0.85rem 1rem",
                 flex: 1,
-                minWidth: "130px",
+                minWidth: "160px",
               }}
             >
               <div style={{ fontWeight: 700, color: t.text, fontSize: "0.9rem", marginBottom: "0.25rem" }}>Pro</div>
               <div style={{ fontSize: "1.25rem", fontWeight: 800, color: t.primary }}>
                 $4.99<span style={{ fontSize: "0.75rem", fontWeight: 400, color: t.muted }}>/mo</span>
               </div>
-              <div style={{ fontSize: "0.75rem", color: t.muted, marginBottom: "0.75rem" }}>or $49/year</div>
+              <div style={{ fontSize: "0.75rem", color: t.muted, marginBottom: "0.6rem" }}>or $49/year</div>
+              <div style={{ fontSize: "0.78rem", color: t.muted, lineHeight: 1.55, marginBottom: "0.75rem" }}>
+                <div style={{ marginBottom: "0.3rem" }}>✓ <span style={{ color: t.text, fontWeight: 500 }}>Build custom scenarios</span> and compare outcomes</div>
+                <div style={{ marginBottom: "0.3rem" }}>✓ <span style={{ color: t.text, fontWeight: 500 }}>Edit any expense</span> and see the score impact</div>
+                <div>✓ <span style={{ color: t.text, fontWeight: 500 }}>Find the trade-offs</span> that improve your position most</div>
+              </div>
               <button
                 onClick={() => onUpgrade("pro")}
                 style={{
@@ -1951,7 +1973,7 @@ export function ResultsPage({
                 borderRadius: "10px",
                 padding: "0.85rem 1rem",
                 flex: 1,
-                minWidth: "130px",
+                minWidth: "160px",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.25rem" }}>
@@ -1963,7 +1985,12 @@ export function ResultsPage({
               <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#fff" }}>
                 $9.99<span style={{ fontSize: "0.75rem", fontWeight: 400, opacity: 0.75 }}>/mo</span>
               </div>
-              <div style={{ fontSize: "0.75rem", color: "#fff", opacity: 0.75, marginBottom: "0.75rem" }}>or $99/year</div>
+              <div style={{ fontSize: "0.75rem", color: "#fff", opacity: 0.75, marginBottom: "0.6rem" }}>or $99/year</div>
+              <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.55, marginBottom: "0.75rem" }}>
+                <div style={{ marginBottom: "0.3rem" }}>✓ <span style={{ color: "#fff", fontWeight: 500 }}>Full AI diagnosis</span> with ranked actions</div>
+                <div style={{ marginBottom: "0.3rem" }}>✓ <span style={{ color: "#fff", fontWeight: 500 }}>12-month forecast</span> and savings analysis</div>
+                <div>✓ <span style={{ color: "#fff", fontWeight: 500 }}>Everything in Pro</span> plus deeper decision support</div>
+              </div>
               <button
                 onClick={() => onUpgrade("premium")}
                 style={{
@@ -2000,33 +2027,35 @@ export function ResultsPage({
               <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Ask Your Plan</span>
             </div>
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
-            {[
-              "What should I cut first?",
-              "Is my rent too high?",
-              "How much house can I afford?",
-              "How do I get to a stable score?",
-              "What happens if I save more?",
-              "What's my fastest improvement?",
-            ].map((q) => (
-              <button
-                key={q}
-                onClick={() => setAskPlanOpen(true)}
-                style={{
-                  background: t.primary + "10",
-                  border: `1px solid ${t.primary}25`,
-                  borderRadius: "8px",
-                  padding: "0.4rem 0.75rem",
-                  fontSize: "0.82rem",
-                  color: t.primary,
-                  cursor: "pointer",
-                  fontWeight: 500,
-                }}
-              >
-                {q}
-              </button>
-            ))}
-          </div>
+          {!askPlanOpen && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+              {[
+                "What should I cut first?",
+                "Is my rent too high?",
+                "How much house can I afford?",
+                "How do I get to a stable score?",
+                "What happens if I save more?",
+                "What's my fastest improvement?",
+              ].map((q) => (
+                <button
+                  key={q}
+                  onClick={() => { setAskPlanQuestion(q); setAskPlanOpen(true); }}
+                  style={{
+                    background: t.primary + "10",
+                    border: `1px solid ${t.primary}25`,
+                    borderRadius: "8px",
+                    padding: "0.4rem 0.75rem",
+                    fontSize: "0.82rem",
+                    color: t.primary,
+                    cursor: "pointer",
+                    fontWeight: 500,
+                  }}
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          )}
           {askPlanOpen && (
             <AskYourPlan
               data={data}
@@ -2037,11 +2066,12 @@ export function ResultsPage({
               onSimulator={onSimulator}
               userTier={userTier}
               onUpgrade={onUpgrade}
+              initialQuestion={askPlanQuestion}
             />
           )}
           {!askPlanOpen && (
             <button
-              onClick={() => setAskPlanOpen(true)}
+              onClick={() => { setAskPlanQuestion(null); setAskPlanOpen(true); }}
               style={{
                 background: t.primary,
                 color: "#fff",

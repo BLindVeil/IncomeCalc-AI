@@ -48,6 +48,7 @@ export interface FinancialDiagnosisSectionProps {
   emergencyFundTarget: number;
   userTier: UserTier;
   onUpgrade: (plan?: PlanId) => void;
+  onSimulator?: () => void;
   t: ThemeConfig;
   isDark: boolean;
 }
@@ -68,10 +69,11 @@ export function FinancialDiagnosisSection({
   emergencyFundTarget,
   userTier,
   onUpgrade,
+  onSimulator,
   t,
   isDark,
 }: FinancialDiagnosisSectionProps) {
-  const isPremium = userTier === "pro" || userTier === "premium";
+  const isPremium = userTier === "premium";
   const [tone, setTone] = useState<DiagnosisTone>("direct");
 
   // Build the input for cache keying (without tone — tone changes should regenerate)
@@ -182,7 +184,7 @@ export function FinancialDiagnosisSection({
           left: 0,
           right: 0,
           height: "3px",
-          background: "linear-gradient(90deg, #ef4444, #f59e0b, #22c55e, #6366f1)",
+          background: `linear-gradient(90deg, #ef4444, #f59e0b, #22c55e, ${t.primary})`,
           borderRadius: "14px 14px 0 0",
         }}
       />
@@ -190,20 +192,22 @@ export function FinancialDiagnosisSection({
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Stethoscope size={18} style={{ color: "#8b5cf6" }} />
+          <Stethoscope size={18} style={{ color: t.primary }} />
           <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Your AI Financial Diagnosis</span>
           <span
             style={{
               fontSize: "0.7rem",
               fontWeight: 700,
-              background: "linear-gradient(90deg, #ef4444, #8b5cf6)",
+              background: userTier === "premium"
+                ? `linear-gradient(90deg, #ef4444, ${t.primary})`
+                : `linear-gradient(90deg, ${t.primary}, ${t.accent})`,
               color: "#fff",
               padding: "2px 7px",
               borderRadius: "20px",
               letterSpacing: "0.04em",
             }}
           >
-            PREMIUM
+            {userTier === "premium" ? "PREMIUM" : "PREVIEW"}
           </span>
         </div>
         {generated && (
@@ -234,7 +238,7 @@ export function FinancialDiagnosisSection({
             <button
               onClick={generateDiagnosis}
               style={{
-                background: "linear-gradient(135deg, #ef4444, #8b5cf6)",
+                background: `linear-gradient(135deg, #ef4444, ${t.primary})`,
                 color: "#fff",
                 border: "none",
                 borderRadius: "10px",
@@ -245,7 +249,7 @@ export function FinancialDiagnosisSection({
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "0.5rem",
-                boxShadow: "0 4px 14px rgba(139,92,246,0.35)",
+                boxShadow: `0 4px 14px ${t.primary}59`,
               }}
             >
               <Stethoscope size={16} />
@@ -258,7 +262,7 @@ export function FinancialDiagnosisSection({
       {/* Loading */}
       {loading && (
         <div style={{ textAlign: "center", padding: "2rem 0", color: t.muted, fontSize: "0.9rem" }}>
-          <Stethoscope size={22} style={{ marginBottom: "0.5rem", color: "#8b5cf6" }} />
+          <Stethoscope size={22} style={{ marginBottom: "0.5rem", color: t.primary }} />
           <div style={{ fontWeight: 500 }}>Diagnosing your financial position…</div>
           <div style={{ fontSize: "0.78rem", marginTop: "0.35rem", opacity: 0.7 }}>This may take a few seconds</div>
         </div>
@@ -288,7 +292,7 @@ export function FinancialDiagnosisSection({
 
       {/* Result */}
       {generated && !loading && result && (
-        <FinancialDiagnosisCard diagnosis={result} savingsRate={savingsRate} monthlySurplus={leftover} grossMonthly={grossMonthly} totalMonthly={totalMonthly} data={data} isPremium={isPremium} onUpgrade={onUpgrade} t={t} isDark={isDark} />
+        <FinancialDiagnosisCard diagnosis={result} savingsRate={savingsRate} monthlySurplus={leftover} grossMonthly={grossMonthly} totalMonthly={totalMonthly} data={data} isPremium={isPremium} onUpgrade={onUpgrade} onSimulator={onSimulator} t={t} isDark={isDark} />
       )}
     </div>
   );

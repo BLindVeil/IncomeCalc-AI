@@ -108,8 +108,8 @@ const CheckInPage = lazy(() => import("@/components/pages/CheckInPage").then(m =
 
 function PageLoader() {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#0F1115" }}>
-      <div style={{ width: "32px", height: "32px", border: "3px solid rgba(255,255,255,0.1)", borderTopColor: "#5E5CE6", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "var(--background)" }}>
+      <div style={{ width: "32px", height: "32px", border: "3px solid rgba(255,255,255,0.1)", borderTopColor: "var(--theme-primary, #5E5CE6)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
@@ -136,7 +136,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
   const t = applyDark(currentTheme, isDark);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" }}>
       {/* Apple TV Ambient Background */}
       <div className="atv-ambient-bg">
         <div className="atv-ambient-teal" />
@@ -152,12 +152,12 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
               display: "inline-flex",
               alignItems: "center",
               gap: "0.5rem",
-              background: "rgba(94,92,230,0.12)",
-              border: "1px solid rgba(94,92,230,0.25)",
+              background: `${t.primary}1F`,
+              border: `1px solid ${t.primary}40`,
               borderRadius: "20px",
               padding: "0.4rem 1.1rem",
               fontSize: "0.85rem",
-              color: "#8E8AFF",
+              color: t.primary,
               fontWeight: 600,
               marginBottom: "1.5rem",
               backdropFilter: "blur(8px)",
@@ -173,20 +173,22 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
               fontWeight: 700,
               lineHeight: 1.08,
               letterSpacing: "-0.025em",
-              color: "#FFFFFF",
+              color: t.text,
               margin: "0 0 1.25rem",
             }}
           >
             Know Exactly Where You Stand{" "}
-            <span style={{
-              background: "linear-gradient(135deg, #8E8AFF, #B78AFF)",
+            <span key={baseTheme} style={{
+              background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
+              color: "transparent",
+              display: "inline-block",
             }}>Financially.</span>
           </h1>
 
-          <p style={{ fontSize: "1.15rem", color: "rgba(255,255,255,0.55)", maxWidth: "660px", margin: "0 auto 2.5rem", lineHeight: 1.65 }}>
+          <p style={{ fontSize: "1.15rem", color: t.muted, maxWidth: "660px", margin: "0 auto 2.5rem", lineHeight: 1.65 }}>
             IncomeCalc analyzes your income, expenses, tax impact, risk, and runway — and builds your financial stability plan in 60 seconds.
           </p>
 
@@ -243,11 +245,11 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
                   alignItems: "center",
                   gap: "0.4rem",
                   fontSize: "0.85rem",
-                  color: "rgba(255,255,255,0.45)",
+                  color: t.muted,
                   fontWeight: 500,
                 }}
               >
-                <span style={{ color: "#5E5CE6", display: "flex", alignItems: "center" }}>{icon}</span>
+                <span style={{ color: t.primary, display: "flex", alignItems: "center" }}>{icon}</span>
                 {text}
               </div>
             ))}
@@ -282,28 +284,28 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
                   width: "40px",
                   height: "40px",
                   borderRadius: "12px",
-                  background: "rgba(94,92,230,0.15)",
+                  background: `${t.primary}26`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   marginBottom: "0.75rem",
-                  color: "#8E8AFF",
+                  color: t.primary,
                 }}
               >
                 <Icon size={20} />
               </div>
-              <div style={{ fontWeight: 600, marginBottom: "0.35rem", color: "#FFFFFF", letterSpacing: "-0.01em" }}>{title}</div>
-              <div style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.5 }}>{desc}</div>
+              <div style={{ fontWeight: 600, marginBottom: "0.35rem", color: t.text, letterSpacing: "-0.01em" }}>{title}</div>
+              <div style={{ fontSize: "0.9rem", color: t.muted, lineHeight: 1.5 }}>{desc}</div>
             </div>
           ))}
         </div>
 
         {/* How Financially Stable Are You? */}
         <div className="atv-fade-in atv-fade-in-delay-2" style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-          <h2 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#FFFFFF", margin: "0 0 0.5rem", letterSpacing: "-0.02em" }}>
+          <h2 style={{ fontSize: "1.75rem", fontWeight: 700, color: t.text, margin: "0 0 0.5rem", letterSpacing: "-0.02em" }}>
             How Financially Stable Are You?
           </h2>
-          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.95rem", margin: 0 }}>
+          <p style={{ color: t.muted, fontSize: "0.95rem", margin: 0 }}>
             IncomeCalc measures what matters most.
           </p>
         </div>
@@ -320,7 +322,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
             { Icon: Gauge, title: "Income Gap", desc: "See exactly how much more you need to earn — or how much surplus you have.", color: "#FF6B6B" },
             { Icon: Clock, title: "Runway", desc: "Know how many months you can survive without income.", color: "#FFB800" },
             { Icon: Shield, title: "Stability Score", desc: "A single score that measures your overall financial health.", color: "#34D399" },
-            { Icon: AlertTriangle, title: "Alerts", desc: "Instant warnings when your housing, debt, or savings ratios are risky.", color: "#8E8AFF" },
+            { Icon: AlertTriangle, title: "Alerts", desc: "Instant warnings when your housing, debt, or savings ratios are risky.", color: t.primary },
           ].map(({ Icon, title, desc, color }) => (
             <div
               key={title}
@@ -344,8 +346,8 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
               >
                 <Icon size={18} />
               </div>
-              <div style={{ fontWeight: 600, marginBottom: "0.25rem", color: "#FFFFFF", fontSize: "0.95rem" }}>{title}</div>
-              <div style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.5 }}>{desc}</div>
+              <div style={{ fontWeight: 600, marginBottom: "0.25rem", color: t.text, fontSize: "0.95rem" }}>{title}</div>
+              <div style={{ fontSize: "0.85rem", color: t.muted, lineHeight: 1.5 }}>{desc}</div>
             </div>
           ))}
         </div>
@@ -361,12 +363,12 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
           }}
         >
           {/* Gradient accent bar at top */}
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "4px", background: "linear-gradient(90deg, #5E5CE6, #8E44FF)" }} />
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "4px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent})` }} />
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
             <Star size={18} style={{ color: "#FFB800" }} />
-            <span style={{ fontWeight: 600, color: "#FFFFFF", fontSize: "1.1rem", letterSpacing: "-0.01em" }}>Unlock Premium Features</span>
+            <span style={{ fontWeight: 600, color: t.text, fontSize: "1.1rem", letterSpacing: "-0.01em" }}>Unlock Premium Features</span>
           </div>
-          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.95rem", marginBottom: "1.25rem" }}>
+          <p style={{ color: t.muted, fontSize: "0.95rem", marginBottom: "1.25rem" }}>
             Advanced analytics, AI recommendations, goal planning, PDF exports, and cloud sync.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center", marginBottom: "1.5rem" }}>
@@ -374,12 +376,12 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
               <span
                 key={f}
                 style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+                  border: `1px solid ${t.border}`,
                   borderRadius: "20px",
                   padding: "0.35rem 0.85rem",
                   fontSize: "0.85rem",
-                  color: "rgba(255,255,255,0.65)",
+                  color: t.muted,
                 }}
               >
                 {f}
@@ -403,19 +405,20 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
         </div>
 
         {/* Footer */}
-        <div style={{ textAlign: "center", marginTop: "3rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ textAlign: "center", marginTop: "3rem", paddingTop: "1.5rem", borderTop: `1px solid ${t.border}` }}>
           {onDevAccess && (
             <button
               onClick={onDevAccess}
               style={{
                 background: "transparent",
                 border: "none",
-                color: "rgba(255,255,255,0.25)",
+                color: t.muted,
                 fontSize: "0.78rem",
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "0.35rem",
+                opacity: 0.5,
               }}
             >
               <Zap size={12} />
@@ -495,7 +498,7 @@ function CalculatorPage({
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" }}>
       <div className="atv-ambient-bg">
         <div className="atv-ambient-teal" />
       </div>
@@ -516,7 +519,7 @@ function CalculatorPage({
               background: "transparent",
               border: "none",
               cursor: "pointer",
-              color: "rgba(255,255,255,0.45)",
+              color: t.muted,
               fontSize: "0.9rem",
               padding: 0,
               marginBottom: "1rem",
@@ -527,10 +530,10 @@ function CalculatorPage({
           >
             ← Back
           </button>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#FFFFFF", margin: "0 0 0.5rem", letterSpacing: "-0.02em" }}>
+          <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: t.text, margin: "0 0 0.5rem", letterSpacing: "-0.02em" }}>
             Monthly Expenses
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.95rem", margin: 0 }}>
+          <p style={{ color: t.muted, fontSize: "0.95rem", margin: 0 }}>
             Enter your monthly spending in each category. Leave blank for categories that don't apply.
           </p>
         </div>
@@ -730,7 +733,7 @@ function CalculatorPage({
           <div style={{ flex: 1 }}>
             <Label
               style={{
-                color: "#FFFFFF",
+                color: t.text,
                 fontWeight: 600,
                 fontSize: "0.9rem",
                 display: "block",
@@ -739,7 +742,7 @@ function CalculatorPage({
             >
               Current Gross Annual Income
             </Label>
-            <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)" }}>Optional — used for Income Gap analysis</span>
+            <span style={{ fontSize: "0.75rem", color: t.muted }}>Optional — used for Income Gap analysis</span>
             <div style={{ position: "relative", marginTop: "0.35rem" }}>
               <span
                 style={{
@@ -747,7 +750,7 @@ function CalculatorPage({
                   left: "10px",
                   top: "50%",
                   transform: "translateY(-50%)",
-                  color: "rgba(255,255,255,0.35)",
+                  color: t.muted,
                   fontSize: "0.95rem",
                   pointerEvents: "none",
                   zIndex: 1,
@@ -791,11 +794,11 @@ function CalculatorPage({
                     width: "36px",
                     height: "36px",
                     borderRadius: "10px",
-                    background: "rgba(94,92,230,0.12)",
+                    background: `${t.primary}1F`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#8E8AFF",
+                    color: t.primary,
                     flexShrink: 0,
                   }}
                 >
@@ -804,7 +807,7 @@ function CalculatorPage({
                 <div style={{ flex: 1 }}>
                   <Label
                     style={{
-                      color: "#FFFFFF",
+                      color: t.text,
                       fontWeight: 600,
                       fontSize: "0.9rem",
                       display: "block",
@@ -820,7 +823,7 @@ function CalculatorPage({
                         left: "10px",
                         top: "50%",
                         transform: "translateY(-50%)",
-                        color: "rgba(255,255,255,0.35)",
+                        color: t.muted,
                         fontSize: "0.95rem",
                         pointerEvents: "none",
                         zIndex: 1,
@@ -851,24 +854,28 @@ function CalculatorPage({
           <div
             className="atv-glass-static"
             style={{
-              padding: "1rem 1.25rem",
+              padding: "1.15rem 1.35rem",
               marginBottom: "1.5rem",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
               flexWrap: "wrap",
               gap: "0.5rem",
-              borderTop: "3px solid",
-              borderImage: "linear-gradient(90deg, #5E5CE6, #8E44FF) 1",
+              borderRadius: "14px",
+              border: `1px solid ${t.primary}30`,
+              boxShadow: `0 4px 24px ${t.primary}1A, 0 1px 0 ${t.primary}15 inset`,
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent})` }} />
             <div>
-              <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)", marginBottom: "0.2rem" }}>Monthly expenses</div>
-              <div className="atv-number-glow" style={{ fontSize: "1.25rem", fontWeight: 700, color: "#8E8AFF" }}>{fmt(total)}</div>
+              <div style={{ fontSize: "0.8rem", color: t.muted, marginBottom: "0.2rem" }}>Monthly expenses</div>
+              <div className="atv-number-glow" style={{ fontSize: "1.25rem", fontWeight: 700, color: t.primary }}>{fmt(total)}</div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)", marginBottom: "0.2rem" }}>Gross income needed</div>
-              <div className="atv-number-glow" style={{ fontSize: "1.25rem", fontWeight: 700, color: "#FFFFFF" }}>{fmt(grossNeeded)}/mo</div>
+              <div style={{ fontSize: "0.8rem", color: t.muted, marginBottom: "0.2rem" }}>Gross income needed</div>
+              <div className="atv-number-glow" style={{ fontSize: "1.25rem", fontWeight: 700, color: t.text }}>{fmt(grossNeeded)}/mo</div>
             </div>
           </div>
         )}
@@ -1175,7 +1182,7 @@ function FirePage({
   });
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" as const }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "720px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
@@ -1247,41 +1254,8 @@ function FirePage({
         </div>
 
         {/* Results */}
-        <div style={{ position: "relative" }}>
-          {!isPremium && (
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.75rem",
-                background: isDark ? "rgba(15,15,17,0.85)" : "rgba(255,255,255,0.85)",
-                backdropFilter: "blur(6px)",
-                zIndex: 10,
-                borderRadius: "16px",
-              }}
-            >
-              <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#f59e0b20", border: "2px solid #f59e0b40", display: "flex", alignItems: "center", justifyContent: "center", color: "#f59e0b" }}>
-                <Lock size={22} />
-              </div>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 700, color: t.text, marginBottom: "0.25rem" }}>Premium Feature</div>
-                <div style={{ fontSize: "0.85rem", color: t.muted }}>Unlock full FIRE projections with Premium</div>
-              </div>
-              <button
-                onClick={() => onUpgrade("premium")}
-                style={{ background: "#f59e0b", color: "#fff", border: "none", borderRadius: "8px", padding: "0.6rem 1.5rem", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}
-              >
-                <Flame size={15} />
-                Get Premium
-              </button>
-            </div>
-          )}
-
-          <div style={{ filter: isPremium ? "none" : "blur(6px)", pointerEvents: isPremium ? "auto" : "none" }}>
+        {isPremium ? (
+          <>
             {/* Hero projection card */}
             <div
               style={{
@@ -1359,8 +1333,69 @@ function FirePage({
                 </p>
               </div>
             </div>
+          </>
+        ) : (
+          /* Polished paywall teaser for non-premium users */
+          <div
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: "16px",
+              padding: "2.5rem 2rem",
+              textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            {/* Accent bar */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "linear-gradient(90deg, #f59e0b, #ef4444, #f59e0b)" }} />
+
+            <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "#f59e0b15", border: "2px solid #f59e0b30", display: "flex", alignItems: "center", justifyContent: "center", color: "#f59e0b", margin: "0 auto 1rem" }}>
+              <Flame size={26} />
+            </div>
+
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: t.text, margin: "0 0 0.5rem" }}>
+              Your FIRE projection is ready
+            </h3>
+            <p style={{ fontSize: "0.9rem", color: t.muted, margin: "0 0 1.25rem", lineHeight: 1.55, maxWidth: "400px", marginLeft: "auto", marginRight: "auto" }}>
+              See your projected retirement balance, monthly income under the 4% rule, and whether you're on track — based on the inputs above.
+            </p>
+
+            <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+              {[
+                { label: "Projected Balance", icon: "💰" },
+                { label: "Monthly Income", icon: "📊" },
+                { label: "On-Track Status", icon: "✅" },
+              ].map((item) => (
+                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.82rem", color: t.muted }}>
+                  <span style={{ fontSize: "0.9rem" }}>{item.icon}</span>
+                  {item.label}
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => onUpgrade("premium")}
+              style={{
+                background: "linear-gradient(135deg, #f59e0b, #ea580c)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "10px",
+                padding: "0.7rem 2rem",
+                fontSize: "0.95rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                boxShadow: "0 4px 14px rgba(245,158,11,0.3)",
+              }}
+            >
+              <Flame size={16} />
+              Unlock FIRE Estimator
+            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -1466,7 +1501,7 @@ function ForecastPage({
   const visibleMonths = isPremium ? 12 : 2;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" as const }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "820px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
@@ -1516,12 +1551,12 @@ function ForecastPage({
                 <Lock size={22} />
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 700, color: t.text, marginBottom: "0.25rem" }}>Unlock 12-Month Forecast</div>
-                <div style={{ fontSize: "0.85rem", color: t.muted }}>Free/Pro users see first 2 months only</div>
+                <div style={{ fontWeight: 700, color: t.text, marginBottom: "0.25rem" }}>See Your Full 12-Month Outlook</div>
+                <div style={{ fontSize: "0.85rem", color: t.muted }}>Unlock stability trends, runway projections, and debt paydown month by month.</div>
               </div>
               <button onClick={() => onUpgrade("premium")} style={{ background: currentTheme.primary, color: "#fff", border: "none", borderRadius: "8px", padding: "0.6rem 1.5rem", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                <Lock size={15} />
-                Unlock 12-Month Forecast (Premium)
+                <TrendingUp size={15} />
+                Unlock 12-Month Forecast
               </button>
             </div>
           )}
@@ -1656,7 +1691,7 @@ function DebtPage({
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" as const }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "820px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
@@ -1723,6 +1758,70 @@ function DebtPage({
           )}
         </div>
 
+        {/* Free users: paywall card replaces extra payment, strategy, and results */}
+        {isFree ? (
+          <div
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: "16px",
+              padding: "2.5rem 2rem",
+              textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
+              marginBottom: "1.25rem",
+            }}
+          >
+            {/* Accent bar */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "linear-gradient(90deg, #ef4444, #f59e0b, #ef4444)" }} />
+
+            <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "#ef444415", border: "2px solid #ef444430", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444", margin: "0 auto 1rem" }}>
+              <Wallet size={26} />
+            </div>
+
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: t.text, margin: "0 0 0.5rem" }}>
+              Your payoff plan is ready
+            </h3>
+            <p style={{ fontSize: "0.9rem", color: t.muted, margin: "0 0 1.25rem", lineHeight: 1.55, maxWidth: "400px", marginLeft: "auto", marginRight: "auto" }}>
+              See which strategy saves you the most interest, your optimal payoff order, and how long until you're debt-free — based on your debts.
+            </p>
+
+            <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+              {[
+                { label: "Payoff Order", icon: "📋" },
+                { label: "Interest Saved", icon: "💰" },
+                { label: "Strategy Pick", icon: "🏆" },
+              ].map((item) => (
+                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.82rem", color: t.muted }}>
+                  <span style={{ fontSize: "0.9rem" }}>{item.icon}</span>
+                  {item.label}
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => onUpgrade("pro")}
+              style={{
+                background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "10px",
+                padding: "0.7rem 2rem",
+                fontSize: "0.95rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                boxShadow: "0 4px 14px rgba(239,68,68,0.35)",
+              }}
+            >
+              <Wallet size={16} />
+              Unlock Debt Optimizer
+            </button>
+          </div>
+        ) : (
+        <>
         {/* Extra payment field */}
         <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1rem 1.25rem", marginBottom: "1.25rem", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: "180px" }}>
@@ -1746,19 +1845,6 @@ function DebtPage({
         {/* Results */}
         {validDebts.length > 0 && snowballResult && avalancheResult && (
           <div style={{ position: "relative" }}>
-            {isFree && (
-              <div style={{
-                position: "absolute", top: "60px", left: 0, right: 0, bottom: 0,
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.75rem",
-                background: isDark ? "rgba(15,15,17,0.85)" : "rgba(255,255,255,0.85)", backdropFilter: "blur(6px)", zIndex: 10, borderRadius: "0 0 16px 16px",
-              }}>
-                <Lock size={22} style={{ color: t.primary }} />
-                <div style={{ fontWeight: 700, color: t.text }}>Upgrade for full comparison</div>
-                <button onClick={() => onUpgrade("pro")} style={{ background: t.primary, color: "#fff", border: "none", borderRadius: "8px", padding: "0.55rem 1.25rem", fontSize: "0.88rem", fontWeight: 600, cursor: "pointer" }}>
-                  Get Pro
-                </button>
-              </div>
-            )}
 
             {/* Comparison cards */}
             {(mode === "compare" || mode === "snowball" || mode === "avalanche") && (
@@ -1850,6 +1936,8 @@ function DebtPage({
             </button>
           </div>
         )}
+        </>
+        )}
       </div>
     </div>
   );
@@ -1907,7 +1995,7 @@ function FIEstimatorPage({
     : "50+ years";
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" as const }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "720px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
@@ -1915,7 +2003,7 @@ function FIEstimatorPage({
           <ChevronLeft size={16} /> Back
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-          <Milestone size={22} style={{ color: "#8b5cf6" }} />
+          <Milestone size={22} style={{ color: t.primary }} />
           <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: t.text, margin: 0 }}>Financial Independence Date</h1>
           <Badge style={{ background: "#f59e0b20", color: "#f59e0b", border: "1px solid #f59e0b40", fontSize: "0.7rem" }}>Premium</Badge>
         </div>
@@ -1949,63 +2037,45 @@ function FIEstimatorPage({
           </div>
         </div>
 
-        {/* FI Target - always visible */}
-        <div style={{ background: `linear-gradient(135deg, #8b5cf6, #6366f1)`, borderRadius: "16px", padding: "2rem", marginBottom: "1.25rem", color: "#fff", textAlign: "center" }}>
-          <div style={{ fontSize: "0.85rem", opacity: 0.8, marginBottom: "0.5rem" }}>FI Target Net Worth</div>
-          <div style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, lineHeight: 1.1 }}>{fmt(fiResult.targetNetWorth)}</div>
-          <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: "0.25rem" }}>
-            Based on {fmt(annualExpenses)}/yr expenses at {swr}% SWR
-          </div>
-        </div>
-
-        {/* Progress bar - always visible */}
-        <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem", marginBottom: "1.25rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <span style={{ fontWeight: 700, fontSize: "0.9rem", color: t.text }}>Progress to FI</span>
-            <span style={{ fontWeight: 700, color: "#8b5cf6", fontSize: "0.9rem" }}>{fiResult.currentProgress}%</span>
-          </div>
-          <div style={{ height: "12px", background: t.border, borderRadius: "6px", overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${fiResult.currentProgress}%`, background: "linear-gradient(90deg, #8b5cf6, #6366f1)", borderRadius: "6px", transition: "width 0.3s" }} />
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.35rem", fontSize: "0.78rem", color: t.muted }}>
-            <span>{fmt(currentAssets)} now</span>
-            <span>{fmt(fiResult.targetNetWorth)} target</span>
-          </div>
-        </div>
-
-        {/* Premium-gated time estimate + chart */}
-        <div style={{ position: "relative" }}>
-          {!isPremium && (
-            <div style={{
-              position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.75rem",
-              background: isDark ? "rgba(15,15,17,0.85)" : "rgba(255,255,255,0.85)", backdropFilter: "blur(6px)", zIndex: 10, borderRadius: "16px",
-            }}>
-              <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#8b5cf620", border: "2px solid #8b5cf640", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}>
-                <Lock size={22} />
+        {/* Results — premium gets full view, others get paywall card */}
+        {isPremium ? (
+          <>
+            {/* FI Target */}
+            <div style={{ background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`, borderRadius: "16px", padding: "2rem", marginBottom: "1.25rem", color: "#fff", textAlign: "center" }}>
+              <div style={{ fontSize: "0.85rem", opacity: 0.8, marginBottom: "0.5rem" }}>FI Target Net Worth</div>
+              <div style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, lineHeight: 1.1 }}>{fmt(fiResult.targetNetWorth)}</div>
+              <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: "0.25rem" }}>
+                Based on {fmt(annualExpenses)}/yr expenses at {swr}% SWR
               </div>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 700, color: t.text, marginBottom: "0.25rem" }}>Unlock Full FI Timeline</div>
-                <div style={{ fontSize: "0.85rem", color: t.muted }}>Premium required for time estimate and chart</div>
-              </div>
-              <button onClick={() => onUpgrade("premium")} style={{ background: "#8b5cf6", color: "#fff", border: "none", borderRadius: "8px", padding: "0.6rem 1.5rem", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer" }}>
-                Unlock FI Estimator
-              </button>
             </div>
-          )}
 
-          <div style={{ filter: isPremium ? "none" : "blur(6px)", pointerEvents: isPremium ? "auto" : "none" }}>
+            {/* Progress bar */}
+            <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem", marginBottom: "1.25rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                <span style={{ fontWeight: 700, fontSize: "0.9rem", color: t.text }}>Progress to FI</span>
+                <span style={{ fontWeight: 700, color: t.primary, fontSize: "0.9rem" }}>{fiResult.currentProgress}%</span>
+              </div>
+              <div style={{ height: "12px", background: t.border, borderRadius: "6px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${fiResult.currentProgress}%`, background: `linear-gradient(90deg, ${t.primary}, ${t.accent})`, borderRadius: "6px", transition: "width 0.3s" }} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.35rem", fontSize: "0.78rem", color: t.muted }}>
+                <span>{fmt(currentAssets)} now</span>
+                <span>{fmt(fiResult.targetNetWorth)} target</span>
+              </div>
+            </div>
+
             {/* Time to FI big number */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
               <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.5rem", textAlign: "center" }}>
                 <div style={{ fontSize: "0.8rem", color: t.muted, marginBottom: "0.35rem" }}>Time to FI</div>
-                <div style={{ fontSize: "2rem", fontWeight: 900, color: "#8b5cf6" }}>
+                <div style={{ fontSize: "2rem", fontWeight: 900, color: t.primary }}>
                   {fiResult.onTrack ? `${fiResult.yearsToFI} years` : "50+ years"}
                 </div>
                 <div style={{ fontSize: "0.82rem", color: t.muted }}>{fiResult.monthsToFI} months</div>
               </div>
               <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.5rem", textAlign: "center" }}>
                 <div style={{ fontSize: "0.8rem", color: t.muted, marginBottom: "0.35rem" }}>Projected FI Date</div>
-                <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#8b5cf6" }}>{fiDateStr}</div>
+                <div style={{ fontSize: "1.5rem", fontWeight: 900, color: t.primary }}>{fiDateStr}</div>
                 <div style={{ fontSize: "0.82rem", color: fiResult.onTrack ? "#22c55e" : "#ef4444", fontWeight: 600, marginTop: "0.25rem" }}>
                   {fiResult.onTrack ? "On Track" : "Behind — increase savings or reduce expenses"}
                 </div>
@@ -2015,15 +2085,76 @@ function FIEstimatorPage({
             {/* Assets growth chart */}
             {fiResult.schedule.length > 1 && (
               <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1rem" }}>
-                <MiniLineChart data={fiResult.schedule.map(s => s.assets)} color="#8b5cf6" height={160} label="Projected Assets Over Time" />
+                <MiniLineChart data={fiResult.schedule.map(s => s.assets)} color={t.primary} height={160} label="Projected Assets Over Time" />
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: t.muted, paddingTop: "0.25rem" }}>
                   <span>Today</span>
                   <span>{fiResult.onTrack ? `Year ${Math.ceil(fiResult.monthsToFI / 12)}` : "Year 50+"}</span>
                 </div>
               </div>
             )}
+          </>
+        ) : (
+          /* Polished paywall teaser for non-premium users */
+          <div
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: "16px",
+              padding: "2.5rem 2rem",
+              textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            {/* Accent bar */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent}, ${t.primary})` }} />
+
+            <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: `${t.primary}15`, border: `2px solid ${t.primary}30`, display: "flex", alignItems: "center", justifyContent: "center", color: t.primary, margin: "0 auto 1rem" }}>
+              <Milestone size={26} />
+            </div>
+
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: t.text, margin: "0 0 0.5rem" }}>
+              Your FI estimate is ready
+            </h3>
+            <p style={{ fontSize: "0.9rem", color: t.muted, margin: "0 0 1.25rem", lineHeight: 1.55, maxWidth: "400px", marginLeft: "auto", marginRight: "auto" }}>
+              See your target net worth, projected FI date, progress tracking, and asset growth chart — based on the inputs above.
+            </p>
+
+            <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+              {[
+                { label: "FI Target", icon: "🎯" },
+                { label: "Timeline", icon: "📅" },
+                { label: "Growth Chart", icon: "📈" },
+              ].map((item) => (
+                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.82rem", color: t.muted }}>
+                  <span style={{ fontSize: "0.9rem" }}>{item.icon}</span>
+                  {item.label}
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => onUpgrade("premium")}
+              style={{
+                background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
+                color: "#fff",
+                border: "none",
+                borderRadius: "10px",
+                padding: "0.7rem 2rem",
+                fontSize: "0.95rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                boxShadow: `0 4px 14px ${t.primary}4D`,
+              }}
+            >
+              <Milestone size={16} />
+              Unlock FI Estimator
+            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -2048,7 +2179,7 @@ function DevAccessPage({ isDark, setIsDark, currentTheme, baseTheme, setTheme, d
   const t = applyDark(currentTheme, isDark);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" as const }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} devOverride={devOverride} />
       <div style={{ paddingTop: "80px", maxWidth: "480px", margin: "0 auto", padding: "80px 1rem 2rem" }}>
         <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "2rem", textAlign: "center" }}>
@@ -2075,7 +2206,7 @@ function DevAccessPage({ isDark, setIsDark, currentTheme, baseTheme, setTheme, d
               )}
             </div>
             <div style={{ fontSize: "0.78rem", color: t.muted, marginBottom: "0.25rem" }}>
-              Effective tier: <strong style={{ color: effectiveTier === "premium" ? "#a855f7" : effectiveTier === "pro" ? "#3b82f6" : t.muted }}>{effectiveTier.toUpperCase()}</strong>
+              Effective tier: <strong style={{ color: effectiveTier === "premium" ? t.primary : effectiveTier === "pro" ? "#3b82f6" : t.muted }}>{effectiveTier.toUpperCase()}</strong>
             </div>
             {devBadgeLabel && (
               <div style={{
@@ -2114,9 +2245,9 @@ function DevAccessPage({ isDark, setIsDark, currentTheme, baseTheme, setTheme, d
             <button
               onClick={() => onToggle(true, "premium")}
               style={{
-                background: effectiveTier === "premium" && devOverride ? "#a855f7" : t.bg,
-                color: effectiveTier === "premium" && devOverride ? "#fff" : "#a855f7",
-                border: "2px solid #a855f7",
+                background: effectiveTier === "premium" && devOverride ? t.primary : t.bg,
+                color: effectiveTier === "premium" && devOverride ? "#fff" : t.primary,
+                border: `2px solid ${t.primary}`,
                 borderRadius: "8px",
                 padding: "0.6rem 1.1rem",
                 fontSize: "0.85rem",
@@ -2348,7 +2479,7 @@ function DashboardPage({ user, onBack, onLoadScenario, onShare, isDark, setIsDar
   const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" as const }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
       <div style={{ maxWidth: "780px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
@@ -2681,7 +2812,7 @@ function SharePage({ slug, onTryYourOwn, isDark, setIsDark, currentTheme, baseTh
 
   if (!scenario) {
     return (
-      <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" as const }}>
+      <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
         <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} />
         <div style={{ maxWidth: "500px", margin: "0 auto", padding: "120px 1.5rem 4rem", textAlign: "center" }}>
           <AlertTriangle size={40} style={{ color: "#f59e0b", marginBottom: "1rem" }} />
@@ -2709,7 +2840,7 @@ function SharePage({ slug, onTryYourOwn, isDark, setIsDark, currentTheme, baseTh
   const scoreColor = r.healthScore >= 80 ? "#22c55e" : r.healthScore >= 60 ? "#84cc16" : r.healthScore >= 40 ? "#f59e0b" : "#ef4444";
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" as const }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} />
       <div style={{ maxWidth: "600px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
         <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
@@ -2833,7 +2964,7 @@ function DigestPreviewPage({ user, onBack, isDark, setIsDark, currentTheme, base
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" as const }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
       <div style={{ maxWidth: "700px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
@@ -2917,10 +3048,10 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
   return (
     <footer
       style={{
-        borderTop: "1px solid rgba(255,255,255,0.06)",
+        borderTop: `1px solid ${t.border}`,
         padding: "1.5rem",
         textAlign: "center",
-        background: "rgba(15,17,21,0.6)",
+        background: t.headerBg,
         backdropFilter: "blur(12px)",
         position: "relative",
         zIndex: 1,
@@ -2936,12 +3067,12 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
           fontSize: "0.85rem",
         }}
       >
-        <Link to="/terms" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Terms</Link>
-        <Link to="/privacy" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Privacy</Link>
-        <Link to="/refund-policy" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Refund Policy</Link>
-        <a href="mailto:support@yourdomain.com" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Contact</a>
+        <Link to="/terms" style={{ color: t.muted, textDecoration: "none" }}>Terms</Link>
+        <Link to="/privacy" style={{ color: t.muted, textDecoration: "none" }}>Privacy</Link>
+        <Link to="/refund-policy" style={{ color: t.muted, textDecoration: "none" }}>Refund Policy</Link>
+        <a href="mailto:support@yourdomain.com" style={{ color: t.muted, textDecoration: "none" }}>Contact</a>
       </div>
-      <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.25)" }}>
+      <div style={{ fontSize: "0.78rem", color: t.muted, opacity: 0.6 }}>
         IncomeCalc is not financial, tax, or legal advice. For informational and educational purposes only.
       </div>
     </footer>
@@ -2954,6 +3085,12 @@ function App() {
   const [page, setPage] = useState<Page>("landing");
   const [isDark, setIsDark] = useState(true);
   const [baseTheme, setBaseTheme] = useState<Theme>("default");
+  const currentTheme = THEMES[baseTheme];
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.style.setProperty("--theme-primary", currentTheme.primary);
+    document.documentElement.style.setProperty("--theme-accent", currentTheme.accent);
+  }, [isDark, currentTheme]);
   const [expenseData, setExpenseData] = useState<ExpenseData>(DEFAULT_EXPENSES);
   const [taxRate, setTaxRate] = useState(25);
   const [currentGrossIncome, setCurrentGrossIncome] = useState(0);
@@ -2964,6 +3101,8 @@ function App() {
   // Guided flow: lifted step state + return context for back navigation
   const [guidedStep, setGuidedStep] = useState(0);
   const [returnTo, setReturnTo] = useState<{ page: Page; guidedStep: number } | null>(null);
+  const returnStack = useRef<{ page: Page; guidedStep: number }[]>([]);
+  const savedScrollY = useRef(0);
 
   // ── Auth State ──
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => getCurrentUser());
@@ -3047,7 +3186,7 @@ function App() {
   const devBypassActive = isDevBypassPaywall();
   const effectiveTier: UserTier = devBypassActive ? "premium" : (devOverride ? (getPlan() as UserTier) : userTier);
   const devBadgeLabel = devBypassActive ? "DEV: PAYWALL BYPASS" : getDevBadgeLabel();
-  const currentTheme = THEMES[baseTheme] ?? THEMES["default"] ?? Object.values(THEMES)[0];
+  // currentTheme is defined above alongside the useEffect
 
   // ── Entitlement sync on startup ──
   const entitlementSynced = useRef(false);
@@ -3124,9 +3263,15 @@ function App() {
   }
 
 function handleUpgrade(plan: PlanId = "pro") {
-  if (page === "guided") setReturnTo({ page: "guided", guidedStep });
+  // Save scroll position before leaving so we can restore on Back
+  savedScrollY.current = window.scrollY;
+  // Push current returnTo onto stack so the full back-chain is preserved
+  // e.g. Results → Fire → Checkout → Back → Fire → Back → Results
+  if (returnTo) returnStack.current.push(returnTo);
+  setReturnTo({ page, guidedStep });
   setCheckoutPlan(plan);
   setPage("checkout");
+  window.scrollTo(0, 0);
 }
 
 function handleAuthSuccess(user: AuthUser) {
@@ -3180,10 +3325,15 @@ function handleAuthSuccess(user: AuthUser) {
 
   function backToResults() {
     if (returnTo) {
+      const dest = returnTo.page;
       setPage(returnTo.page);
       setGuidedStep(returnTo.guidedStep);
-      setReturnTo(null);
-      window.scrollTo(0, 0);
+      const prev = returnStack.current.pop() ?? null;
+      setReturnTo(prev);
+      // Only restore scroll when returning to a content page (results/guided), not a feature page
+      if (dest === "results" || dest === "guided") {
+        requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, savedScrollY.current)));
+      }
       return;
     }
     setPage(expenseData.housing || expenseData.food ? "guided" : "landing");
@@ -3299,10 +3449,10 @@ if (page === "checkout") {
           onBack={handleStartOver}
           onRecalculate={() => setPage("calculator")}
           onUpgrade={handleUpgrade}
-          onSimulator={() => { setReturnTo({ page: "guided", guidedStep }); setPage("simulator"); }}
-          onResults={() => { setReturnTo({ page: "guided", guidedStep }); setPage("results"); window.scrollTo(0, 0); }}
+          onSimulator={() => { savedScrollY.current = window.scrollY; setReturnTo({ page: "guided", guidedStep }); setPage("simulator"); }}
+          onResults={() => { savedScrollY.current = window.scrollY; setReturnTo({ page: "guided", guidedStep }); setPage("results"); window.scrollTo(0, 0); }}
           onSaveScenario={handleSaveScenario}
-          onDashboard={currentUser ? () => { setReturnTo({ page: "guided", guidedStep }); setPage("dashboard"); } : undefined}
+          onDashboard={currentUser ? () => { savedScrollY.current = window.scrollY; setReturnTo({ page: "guided", guidedStep }); setPage("dashboard"); } : undefined}
           userTier={effectiveTier}
           {...sharedProps}
         />
@@ -3411,21 +3561,18 @@ if (page === "checkout") {
         onBack={returnTo ? backToResults : handleStartOver}
         onRecalculate={() => setPage("calculator")}
         onUpgrade={handleUpgrade}
-        onSimulator={() => { setReturnTo({ page: "results", guidedStep }); setPage("simulator"); }}
+        onSimulator={() => { savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("simulator"); }}
         fromGuidedFlow={!!returnTo}
-        onCheckIn={() => { setReturnTo({ page: "results", guidedStep }); setPage("checkin"); }}
-        onFire={() => { setReturnTo({ page: "results", guidedStep }); setPage("fire"); }}
+        onCheckIn={() => { savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("checkin"); }}
+        onFire={() => { savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("fire"); }}
         onForecast={() => {
-          if (effectiveTier === "free") { handleUpgrade("premium"); return; }
-          setReturnTo({ page: "results", guidedStep }); setPage("forecast");
+          savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("forecast");
         }}
         onDebt={() => {
-          if (effectiveTier === "free") { handleUpgrade("pro"); return; }
-          setReturnTo({ page: "results", guidedStep }); setPage("debt");
+          savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("debt");
         }}
         onFI={() => {
-          if (effectiveTier === "free") { handleUpgrade("premium"); return; }
-          setReturnTo({ page: "results", guidedStep }); setPage("fi");
+          savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("fi");
         }}
         userTier={effectiveTier}
         onDevAccess={() => setPage("dev-access")}

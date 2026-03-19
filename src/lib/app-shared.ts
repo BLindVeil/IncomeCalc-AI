@@ -81,66 +81,51 @@ export interface Plan {
 
 // ─── Themes ────────────────────────────────────────────────────────────────
 
+// Light-mode base colors shared by all themes (themes differ only by primary/accent)
+const LIGHT_BASE = {
+  bg: "#F8F9FC",
+  cardBg: "#FFFFFF",
+  text: "#1A1A2E",
+  muted: "#6B7280",
+  border: "#E2E4EA",
+  headerBg: "rgba(248,249,252,0.92)",
+} as const;
+
 export const THEMES: Record<Theme, ThemeConfig> = {
   default: {
     name: "Cinematic",
     icon: "◼",
     primary: "#5E5CE6",
     accent: "#8E44FF",
-    bg: "#0F1115",
-    cardBg: "rgba(255,255,255,0.06)",
-    text: "#FFFFFF",
-    muted: "rgba(255,255,255,0.45)",
-    border: "rgba(255,255,255,0.08)",
-    headerBg: "rgba(15,17,21,0.85)",
+    ...LIGHT_BASE,
   },
   ocean: {
     name: "Deep Sea",
     icon: "◆",
     primary: "#5E5CE6",
     accent: "#50D4DC",
-    bg: "#0F1115",
-    cardBg: "rgba(255,255,255,0.06)",
-    text: "#FFFFFF",
-    muted: "rgba(255,255,255,0.45)",
-    border: "rgba(255,255,255,0.08)",
-    headerBg: "rgba(15,17,21,0.85)",
+    ...LIGHT_BASE,
   },
   forest: {
     name: "Aurora",
     icon: "◇",
     primary: "#5E5CE6",
     accent: "#34D399",
-    bg: "#0F1115",
-    cardBg: "rgba(255,255,255,0.06)",
-    text: "#FFFFFF",
-    muted: "rgba(255,255,255,0.45)",
-    border: "rgba(255,255,255,0.08)",
-    headerBg: "rgba(15,17,21,0.85)",
+    ...LIGHT_BASE,
   },
   sunset: {
     name: "Ember",
     icon: "●",
     primary: "#5E5CE6",
     accent: "#F97316",
-    bg: "#0F1115",
-    cardBg: "rgba(255,255,255,0.06)",
-    text: "#FFFFFF",
-    muted: "rgba(255,255,255,0.45)",
-    border: "rgba(255,255,255,0.08)",
-    headerBg: "rgba(15,17,21,0.85)",
+    ...LIGHT_BASE,
   },
   lavender: {
     name: "Prism",
     icon: "◈",
     primary: "#8E44FF",
     accent: "#5E5CE6",
-    bg: "#0F1115",
-    cardBg: "rgba(255,255,255,0.06)",
-    text: "#FFFFFF",
-    muted: "rgba(255,255,255,0.45)",
-    border: "rgba(255,255,255,0.08)",
-    headerBg: "rgba(15,17,21,0.85)",
+    ...LIGHT_BASE,
   },
 };
 

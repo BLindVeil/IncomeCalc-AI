@@ -47,6 +47,7 @@ export type AnalyticsEvent =
   | "dashboard_opened"
   | "adjust_expenses_clicked"
   // Simulator
+  | "diagnosis_to_simulator_click"
   | "scenario_added"
   | "scenario_closed"
   | "scenario_reopened";

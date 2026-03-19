@@ -2,6 +2,7 @@ import {
   AlertTriangle,
   ArrowUp,
   ArrowDown,
+  ArrowRight,
   Check,
   Scissors,
   Star,
@@ -11,11 +12,13 @@ import {
   ShieldAlert,
   ChevronDown,
   ChevronUp,
+  Lock,
 } from "lucide-react";
 import { useState } from "react";
 import type { FinancialDiagnosis, DiagnosisAction } from "@/lib/diagnosis-types";
 import type { ThemeConfig, PlanId } from "@/lib/app-shared";
 import type { ExpenseData } from "@/lib/calc";
+import { trackEvent } from "@/lib/analytics";
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
@@ -108,8 +111,8 @@ function ActionCard({ move, index, t, isDark, expanded }: { move: DiagnosisActio
         style={{
           padding: "1rem 1.1rem",
           borderRadius: "12px",
-          background: isDark ? "rgba(99,102,241,0.07)" : "rgba(99,102,241,0.04)",
-          border: `1px solid rgba(99,102,241,0.2)`,
+          background: isDark ? `${t.primary}12` : `${t.primary}0A`,
+          border: `1px solid ${t.primary}33`,
           marginBottom: "0.5rem",
         }}
       >
@@ -172,13 +175,14 @@ interface FinancialDiagnosisCardProps {
   data: ExpenseData;
   isPremium: boolean;
   onUpgrade: (plan?: PlanId) => void;
+  onSimulator?: () => void;
   t: ThemeConfig;
   isDark: boolean;
 }
 
-export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus, grossMonthly, totalMonthly, data, isPremium, onUpgrade, t, isDark }: FinancialDiagnosisCardProps) {
+export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus, grossMonthly, totalMonthly, data, isPremium, onUpgrade, onSimulator, t, isDark }: FinancialDiagnosisCardProps) {
   const [copied, setCopied] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(isPremium);
 
   const sectionStyle = (accent: string): React.CSSProperties => ({
     padding: "0.85rem 1rem",
@@ -205,10 +209,12 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
       `Highest-Impact Actions:`,
       ...diagnosis.topMoves.map((m, i) => `  ${i + 1}. ${m.title} (${m.impact} impact, ${m.difficulty}) — ${m.explanation}`),
       ``,
-      `If Unchanged (30 days): ${diagnosis.ifUnchanged30d}`,
-      `If Optimized (30 days): ${diagnosis.ifOptimized30d}`,
-      `If Unchanged (12 months): ${diagnosis.ifUnchanged12m}`,
-      `If Optimized (12 months): ${diagnosis.ifOptimized12m}`,
+      `In 30 Days:`,
+      `  Do nothing: ${diagnosis.ifUnchanged30d}`,
+      `  Take action: ${diagnosis.ifOptimized30d}`,
+      `In 12 Months:`,
+      `  Do nothing: ${diagnosis.ifUnchanged12m}`,
+      `  Take action: ${diagnosis.ifOptimized12m}`,
       ``,
       `Verdict: ${diagnosis.verdict}`,
       ...(diagnosis.cutFirst?.length ? [``, `Cut First:`, ...diagnosis.cutFirst.map((c) => `  - ${c}`)] : []),
@@ -244,29 +250,67 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
         <ActionCard key={i + 1} move={move} index={i + 1} t={t} isDark={isDark} />
       ))}
 
-      {/* ── Scenario Comparison ────────────────────────────────────────── */}
+      {/* ── Scenario Comparison (time-first with inline contrast) ────── */}
       <div style={{ marginTop: "1rem" }}>
-        <SectionLabel icon={ArrowDown} label="If Nothing Changes" color="#f59e0b" />
-        <div style={sectionStyle("#f59e0b")}>
-          <div style={{ marginBottom: "0.5rem" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#f59e0b", textTransform: "uppercase" }}>30 Days</span>
-            <p style={{ margin: "0.15rem 0 0", fontSize: "0.84rem", color: t.text, lineHeight: 1.5 }}>{diagnosis.ifUnchanged30d}</p>
+        <SectionLabel icon={ShieldAlert} label="Your Two Paths" color="#f59e0b" />
+
+        {/* 30 Days */}
+        <div style={{ marginBottom: "0.75rem" }}>
+          <div style={{ fontSize: "0.7rem", fontWeight: 700, color: t.muted, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
+            In 30 Days
           </div>
-          <div>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#f59e0b", textTransform: "uppercase" }}>12 Months</span>
-            <p style={{ margin: "0.15rem 0 0", fontSize: "0.84rem", color: t.text, lineHeight: 1.5 }}>{diagnosis.ifUnchanged12m}</p>
+          <div
+            style={{
+              borderRadius: "10px",
+              border: `1px solid ${t.border}`,
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(245,158,11,0.06)" : "rgba(245,158,11,0.04)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
+                <ArrowDown size={11} style={{ color: "#f59e0b" }} />
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifUnchanged30d}</p>
+            </div>
+            <div style={{ height: "1px", background: t.border }} />
+            <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.04)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
+                <ArrowUp size={11} style={{ color: "#22c55e" }} />
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#22c55e", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifOptimized30d}</p>
+            </div>
           </div>
         </div>
 
-        <SectionLabel icon={ArrowUp} label="If Optimized" color="#22c55e" />
-        <div style={sectionStyle("#22c55e")}>
-          <div style={{ marginBottom: "0.5rem" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#22c55e", textTransform: "uppercase" }}>30 Days</span>
-            <p style={{ margin: "0.15rem 0 0", fontSize: "0.84rem", color: t.text, lineHeight: 1.5 }}>{diagnosis.ifOptimized30d}</p>
+        {/* 12 Months */}
+        <div>
+          <div style={{ fontSize: "0.7rem", fontWeight: 700, color: t.muted, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
+            In 12 Months
           </div>
-          <div>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#22c55e", textTransform: "uppercase" }}>12 Months</span>
-            <p style={{ margin: "0.15rem 0 0", fontSize: "0.84rem", color: t.text, lineHeight: 1.5 }}>{diagnosis.ifOptimized12m}</p>
+          <div
+            style={{
+              borderRadius: "10px",
+              border: `1px solid ${t.border}`,
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(245,158,11,0.06)" : "rgba(245,158,11,0.04)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
+                <ArrowDown size={11} style={{ color: "#f59e0b" }} />
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifUnchanged12m}</p>
+            </div>
+            <div style={{ height: "1px", background: t.border }} />
+            <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.04)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
+                <ArrowUp size={11} style={{ color: "#22c55e" }} />
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#22c55e", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifOptimized12m}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -289,8 +333,8 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
       {/* ── Hidden Strength ────────────────────────────────────────────── */}
       {diagnosis.hiddenStrength && (
         <div style={{ marginTop: "0.75rem" }}>
-          <SectionLabel icon={Star} label="Hidden Strength" color="#8b5cf6" />
-          <div style={sectionStyle("#8b5cf6")}>
+          <SectionLabel icon={Star} label="Hidden Strength" color={t.primary} />
+          <div style={sectionStyle(t.primary)}>
             <p style={{ margin: 0, fontSize: "0.85rem", color: t.text, lineHeight: 1.55 }}>{diagnosis.hiddenStrength}</p>
           </div>
         </div>
@@ -300,18 +344,87 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
       <div
         style={{
           marginTop: "1rem",
-          padding: "1rem",
           borderRadius: "10px",
-          background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1))",
-          border: "1px solid rgba(139,92,246,0.25)",
+          background: `linear-gradient(135deg, ${t.primary}1A, ${t.accent}1A)`,
+          border: `1px solid ${t.primary}40`,
+          overflow: "hidden",
         }}
       >
-        <div style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8b5cf6", marginBottom: "0.35rem" }}>
-          Verdict
+        {/* Risk-colored urgency bar */}
+        <div style={{ height: "3px", background: riskColor }} />
+        <div style={{ padding: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
+            <div style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: t.primary }}>
+              Verdict
+            </div>
+            <span style={{
+              fontSize: "0.62rem",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+              padding: "1px 6px",
+              borderRadius: "4px",
+              background: riskColor + "18",
+              color: riskColor,
+            }}>
+              {diagnosis.riskLevel === "high" ? "Act now" : diagnosis.riskLevel === "medium" ? "Room to improve" : "On track"}
+            </span>
+          </div>
+          <p style={{ margin: 0, fontSize: "0.92rem", fontWeight: 600, color: t.text, lineHeight: 1.55 }}>
+            {diagnosis.verdict}
+          </p>
+          {diagnosis.topMoves[0] && (
+            <div style={{
+              marginTop: "0.6rem",
+              paddingTop: "0.55rem",
+              borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "0.5rem",
+              flexWrap: "wrap",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", minWidth: 0 }}>
+                <Zap size={12} style={{ color: "#22c55e", flexShrink: 0 }} />
+                <span style={{ fontSize: "0.8rem", color: t.muted, fontWeight: 500 }}>
+                  Start with:
+                </span>
+                <span style={{ fontSize: "0.8rem", color: t.text, fontWeight: 600 }}>
+                  {diagnosis.topMoves[0].title}
+                </span>
+              </div>
+              {onSimulator && (
+                <button
+                  onClick={() => {
+                    trackEvent("diagnosis_to_simulator_click", {
+                      riskLevel: diagnosis.riskLevel,
+                      topMoveTitle: diagnosis.topMoves[0].title,
+                    });
+                    onSimulator();
+                  }}
+                  style={{
+                    background: "transparent",
+                    border: `1px solid ${t.primary}40`,
+                    borderRadius: "6px",
+                    padding: "0.3rem 0.65rem",
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    color: t.primary,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                    whiteSpace: "nowrap",
+                    flexShrink: 0,
+                  }}
+                >
+                  Test in Simulator
+                  <ArrowRight size={11} />
+                </button>
+              )}
+            </div>
+          )}
         </div>
-        <p style={{ margin: 0, fontSize: "0.92rem", fontWeight: 600, color: t.text, lineHeight: 1.55 }}>
-          {diagnosis.verdict}
-        </p>
       </div>
     </>
   );
@@ -378,22 +491,55 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
 
         <SectionLabel icon={Zap} label="Why This Matters" color="#f59e0b" />
         <div style={sectionStyle("#f59e0b")}>
-          {diagnosis.summary.includes(". ") ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
-              {diagnosis.summary.split(/\.\s+/).filter(Boolean).map((sentence, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
-                  <span style={{ color: "#f59e0b", fontSize: "0.7rem", marginTop: "3px", flexShrink: 0 }}>▸</span>
-                  <span style={{ fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>
-                    {sentence.endsWith(".") ? sentence : sentence + "."}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.55, opacity: 0.9 }}>
-              {diagnosis.summary}
-            </p>
-          )}
+          {(() => {
+            const sentences = diagnosis.summary.includes(". ")
+              ? diagnosis.summary.split(/\.\s+/).filter(Boolean)
+              : [diagnosis.summary];
+            const visibleSentences = isPremium ? sentences : sentences.slice(0, 1);
+            const hasMore = !isPremium && sentences.length > 1;
+
+            return (
+              <>
+                {visibleSentences.length > 1 ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                    {visibleSentences.map((sentence, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
+                        <span style={{ color: "#f59e0b", fontSize: "0.7rem", marginTop: "3px", flexShrink: 0 }}>▸</span>
+                        <span style={{ fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>
+                          {sentence.endsWith(".") ? sentence : sentence + "."}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.55, opacity: 0.9 }}>
+                    {visibleSentences[0]?.endsWith(".") ? visibleSentences[0] : (visibleSentences[0] ?? "") + "."}
+                  </p>
+                )}
+                {hasMore && (
+                  <button
+                    onClick={() => onUpgrade("premium")}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "0.3rem 0",
+                      marginTop: "0.35rem",
+                      fontSize: "0.78rem",
+                      fontWeight: 600,
+                      color: "#f59e0b",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.3rem",
+                    }}
+                  >
+                    <Lock size={11} />
+                    Unlock full analysis
+                  </button>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
 
@@ -423,20 +569,49 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
         </div>
       )}
 
-      {/* ── Bridge to Top Move ─────────────────────────────────────── */}
-      <div
-        style={{
-          padding: "0.75rem 1rem",
-          borderRadius: "10px",
-          background: isDark ? "rgba(99,102,241,0.06)" : "rgba(99,102,241,0.04)",
-          border: `1px solid rgba(99,102,241,0.15)`,
-          textAlign: "center",
-        }}
-      >
-        <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: t.text, lineHeight: 1.5 }}>
-          Next, see the single highest-impact action.
-        </p>
-      </div>
+      {/* ── #1 Action (Premium) / Locked CTA (Free) ──────────────── */}
+      {isPremium ? (
+        <div>
+          <SectionLabel icon={Zap} label="Start Here" color="#22c55e" />
+          {diagnosis.topMoves[0] && (
+            <ActionCard move={diagnosis.topMoves[0]} index={0} t={t} isDark={isDark} expanded />
+          )}
+        </div>
+      ) : (
+        <div
+          style={{
+            padding: "1rem 1.1rem",
+            borderRadius: "10px",
+            background: `linear-gradient(135deg, ${t.primary}14, ${t.accent}14)`,
+            border: `1px solid ${t.primary}33`,
+            textAlign: "center",
+          }}
+        >
+          <Lock size={16} style={{ color: t.primary, marginBottom: "0.4rem" }} />
+          <p style={{ margin: "0 0 0.5rem", fontSize: "0.88rem", fontWeight: 600, color: t.text, lineHeight: 1.45 }}>
+            Your ranked actions, scenario projections, and verdict are ready.
+          </p>
+          <p style={{ margin: "0 0 0.75rem", fontSize: "0.78rem", color: t.muted, lineHeight: 1.45 }}>
+            See what to cut first, what happens in 30 days and 12 months, and the AI's final verdict on your position.
+          </p>
+          <button
+            onClick={() => onUpgrade("premium")}
+            style={{
+              background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              padding: "0.55rem 1.5rem",
+              fontSize: "0.85rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              boxShadow: `0 3px 10px ${t.primary}4D`,
+            }}
+          >
+            Unlock Full Diagnosis
+          </button>
+        </div>
+      )}
 
       {/* ── Premium deep-dive (collapsed by default, pro only) ───── */}
       {isPremium && (
@@ -461,7 +636,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
             }}
           >
             {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            {showDetails ? "Hide full diagnosis" : "See full diagnosis"}
+            {showDetails ? "Hide details" : "Show full diagnosis"}
           </button>
 
           {showDetails && (

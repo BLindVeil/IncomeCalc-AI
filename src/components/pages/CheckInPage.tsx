@@ -130,7 +130,7 @@ export function CheckInPage({
   const visibleSnapshots = userTier === "premium" ? snapshots : snapshots.slice(-3);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" as const }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "780px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
@@ -287,10 +287,10 @@ export function CheckInPage({
             {userTier !== "premium" && snapshots.length > 3 && (
               <div style={{ marginTop: "0.75rem", padding: "0.6rem 0.85rem", background: t.primary + "08", border: `1px solid ${t.primary}20`, borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
                 <span style={{ fontSize: "0.82rem", color: t.muted }}>
-                  {snapshots.length - 3} more check-ins hidden
+                  You have {snapshots.length} check-ins — unlock your full history to see whether your score is actually improving.
                 </span>
                 <button onClick={() => onUpgrade("premium")} style={{ background: t.primary, color: "#fff", border: "none", borderRadius: "6px", padding: "0.3rem 0.7rem", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer" }}>
-                  Get Premium
+                  See My Progress
                 </button>
               </div>
             )}

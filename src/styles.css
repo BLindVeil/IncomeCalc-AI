@@ -11,8 +11,8 @@ body {
 		system-ui, "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	background: #0f1115;
-	color: #ffffff;
+	background: var(--background);
+	color: var(--foreground);
 }
 
 code {
@@ -132,12 +132,12 @@ code {
 
 /* ─── Glass Card ─────────────────────────────────────────────────────────── */
 .atv-glass {
-	background: rgba(255, 255, 255, 0.06);
+	background: rgba(0, 0, 0, 0.03);
 	backdrop-filter: blur(20px);
 	-webkit-backdrop-filter: blur(20px);
-	border: 1px solid rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(0, 0, 0, 0.08);
 	border-radius: 20px;
-	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 	transition:
 		transform 0.25s ease,
 		box-shadow 0.25s ease;
@@ -145,21 +145,37 @@ code {
 
 .atv-glass:hover {
 	transform: translateY(-2px);
+	box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+}
+
+.dark .atv-glass {
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.dark .atv-glass:hover {
 	box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
 }
 
 .atv-glass-static {
-	background: rgba(255, 255, 255, 0.06);
+	background: rgba(0, 0, 0, 0.03);
 	backdrop-filter: blur(20px);
 	-webkit-backdrop-filter: blur(20px);
-	border: 1px solid rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(0, 0, 0, 0.08);
 	border-radius: 20px;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.dark .atv-glass-static {
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.08);
 	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
 /* ─── Primary CTA Button ────────────────────────────────────────────────── */
 .atv-btn-primary {
-	background: linear-gradient(135deg, #5e5ce6, #8e44ff);
+	background: linear-gradient(135deg, var(--theme-primary, #5e5ce6), var(--theme-accent, #8e44ff));
 	color: #ffffff;
 	border: none;
 	border-radius: 14px;
@@ -179,9 +195,9 @@ code {
 
 /* ─── Secondary Button ──────────────────────────────────────────────────── */
 .atv-btn-secondary {
-	background: rgba(255, 255, 255, 0.08);
-	color: #ffffff;
-	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: rgba(0, 0, 0, 0.05);
+	color: #1a1a2e;
+	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 14px;
 	font-weight: 600;
 	cursor: pointer;
@@ -191,117 +207,161 @@ code {
 }
 
 .atv-btn-secondary:hover {
-	background: rgba(255, 255, 255, 0.12);
+	background: rgba(0, 0, 0, 0.08);
 	transform: scale(1.02);
+}
+
+.dark .atv-btn-secondary {
+	background: rgba(255, 255, 255, 0.08);
+	color: #ffffff;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.dark .atv-btn-secondary:hover {
+	background: rgba(255, 255, 255, 0.12);
 }
 
 /* ─── Input Glass Style ─────────────────────────────────────────────────── */
 .atv-input {
-	background: rgba(255, 255, 255, 0.05);
-	border: 1px solid rgba(255, 255, 255, 0.1);
+	background: rgba(0, 0, 0, 0.03);
+	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 12px;
-	color: #ffffff;
+	color: #1a1a2e;
 	transition:
 		border-color 0.2s ease,
 		box-shadow 0.2s ease;
 }
 
 .atv-input:focus {
-	border-color: #5e5ce6;
-	box-shadow: 0 0 0 3px rgba(94, 92, 230, 0.15);
+	border-color: var(--theme-primary, #5e5ce6);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-primary, #5e5ce6) 15%, transparent);
 	outline: none;
 }
 
 .atv-input::placeholder {
+	color: rgba(0, 0, 0, 0.35);
+}
+
+.dark .atv-input {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	color: #ffffff;
+}
+
+.dark .atv-input::placeholder {
 	color: rgba(255, 255, 255, 0.35);
 }
 
 /* ─── Gradient Accent Bar ────────────────────────────────────────────────── */
 .atv-accent-bar {
 	height: 4px;
-	background: linear-gradient(90deg, #5e5ce6, #8e44ff);
+	background: linear-gradient(90deg, var(--theme-primary, #5e5ce6), var(--theme-accent, #8e44ff));
 	border-radius: 4px 4px 0 0;
 }
 
 /* ─── Number Glow ─────────────────────────────────────────────────────────── */
 .atv-number-glow {
+	text-shadow: none;
+}
+
+.dark .atv-number-glow {
 	text-shadow: 0 0 15px rgba(142, 68, 255, 0.3);
 }
 
 /* ─── Locked Overlay ──────────────────────────────────────────────────────── */
 .atv-locked-overlay {
-	background: linear-gradient(rgba(15, 17, 21, 0.6), rgba(15, 17, 21, 0.8));
+	background: linear-gradient(rgba(248, 249, 252, 0.6), rgba(248, 249, 252, 0.85));
 	backdrop-filter: blur(4px);
 }
 
+.dark .atv-locked-overlay {
+	background: linear-gradient(rgba(15, 17, 21, 0.6), rgba(15, 17, 21, 0.8));
+}
+
 .atv-lock-icon-glow {
-	filter: drop-shadow(0 0 8px rgba(94, 92, 230, 0.4));
-	color: #8e44ff;
+	filter: drop-shadow(0 0 8px color-mix(in srgb, var(--theme-primary, #5e5ce6) 40%, transparent));
+	color: var(--theme-accent, #8e44ff);
 }
 
 /* ─── Select Styling ─────────────────────────────────────────────────────── */
 select.atv-select {
-	background: rgba(255, 255, 255, 0.05);
-	border: 1px solid rgba(255, 255, 255, 0.1);
+	background: rgba(0, 0, 0, 0.03);
+	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 12px;
-	color: #ffffff;
+	color: #1a1a2e;
 	transition: border-color 0.2s ease;
 }
 
 select.atv-select:focus {
-	border-color: #5e5ce6;
+	border-color: var(--theme-primary, #5e5ce6);
 	outline: none;
 }
 
 select.atv-select option {
+	background: #ffffff;
+	color: #1a1a2e;
+}
+
+.dark select.atv-select {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	color: #ffffff;
+}
+
+.dark select.atv-select option {
 	background: #1a1a2e;
 	color: #ffffff;
 }
 
 /* ─── Progress Bar Override ──────────────────────────────────────────────── */
 [role="progressbar"] {
-	background: rgba(255, 255, 255, 0.08);
+	background: rgba(0, 0, 0, 0.06);
 	border-radius: 6px;
+}
+
+.dark [role="progressbar"] {
+	background: rgba(255, 255, 255, 0.08);
 }
 
 [role="progressbar"] > div {
 	border-radius: 6px;
 }
 
+/* ─── Light / Dark CSS Variables ─────────────────────────────────────────── */
 :root {
-	--background: #0f1115;
-	--foreground: #ffffff;
-	--card: rgba(255, 255, 255, 0.06);
-	--card-foreground: #ffffff;
-	--popover: #1a1a2e;
-	--popover-foreground: #ffffff;
-	--primary: #5e5ce6;
+	--background: #F8F9FC;
+	--foreground: #1A1A2E;
+	--card: #FFFFFF;
+	--card-foreground: #1A1A2E;
+	--popover: #FFFFFF;
+	--popover-foreground: #1A1A2E;
+	--primary: var(--theme-primary, #5e5ce6);
 	--primary-foreground: #ffffff;
-	--secondary: rgba(255, 255, 255, 0.08);
-	--secondary-foreground: #ffffff;
-	--muted: rgba(255, 255, 255, 0.06);
-	--muted-foreground: rgba(255, 255, 255, 0.45);
-	--accent: #8e44ff;
+	--secondary: rgba(0, 0, 0, 0.04);
+	--secondary-foreground: #1A1A2E;
+	--muted: rgba(0, 0, 0, 0.03);
+	--muted-foreground: #6B7280;
+	--accent: var(--theme-accent, #8e44ff);
 	--accent-foreground: #ffffff;
 	--destructive: #ef4444;
 	--destructive-foreground: #ffffff;
-	--border: rgba(255, 255, 255, 0.08);
-	--input: rgba(255, 255, 255, 0.08);
-	--ring: rgba(94, 92, 230, 0.3);
-	--chart-1: #5e5ce6;
-	--chart-2: #8e44ff;
+	--border: #E2E4EA;
+	--input: #E2E4EA;
+	--ring: color-mix(in srgb, var(--theme-primary, #5e5ce6) 30%, transparent);
+	--chart-1: var(--theme-primary, #5e5ce6);
+	--chart-2: var(--theme-accent, #8e44ff);
 	--chart-3: #50d4dc;
 	--chart-4: #ff50b4;
 	--chart-5: #ffb800;
 	--radius: 0.75rem;
-	--sidebar: #0f1115;
-	--sidebar-foreground: #ffffff;
-	--sidebar-primary: #5e5ce6;
+	--sidebar: #F8F9FC;
+	--sidebar-foreground: #1A1A2E;
+	--sidebar-primary: var(--theme-primary, #5e5ce6);
 	--sidebar-primary-foreground: #ffffff;
-	--sidebar-accent: rgba(255, 255, 255, 0.08);
-	--sidebar-accent-foreground: #ffffff;
-	--sidebar-border: rgba(255, 255, 255, 0.08);
-	--sidebar-ring: rgba(94, 92, 230, 0.3);
+	--sidebar-accent: rgba(0, 0, 0, 0.04);
+	--sidebar-accent-foreground: #1A1A2E;
+	--sidebar-border: #E2E4EA;
+	--sidebar-ring: color-mix(in srgb, var(--theme-primary, #5e5ce6) 30%, transparent);
 }
 
 .dark {
@@ -311,32 +371,32 @@ select.atv-select option {
 	--card-foreground: #ffffff;
 	--popover: #1a1a2e;
 	--popover-foreground: #ffffff;
-	--primary: #5e5ce6;
+	--primary: var(--theme-primary, #5e5ce6);
 	--primary-foreground: #ffffff;
 	--secondary: rgba(255, 255, 255, 0.08);
 	--secondary-foreground: #ffffff;
 	--muted: rgba(255, 255, 255, 0.06);
 	--muted-foreground: rgba(255, 255, 255, 0.45);
-	--accent: #8e44ff;
+	--accent: var(--theme-accent, #8e44ff);
 	--accent-foreground: #ffffff;
 	--destructive: #ef4444;
 	--destructive-foreground: #ffffff;
 	--border: rgba(255, 255, 255, 0.08);
 	--input: rgba(255, 255, 255, 0.08);
-	--ring: rgba(94, 92, 230, 0.3);
-	--chart-1: #5e5ce6;
-	--chart-2: #8e44ff;
+	--ring: color-mix(in srgb, var(--theme-primary, #5e5ce6) 30%, transparent);
+	--chart-1: var(--theme-primary, #5e5ce6);
+	--chart-2: var(--theme-accent, #8e44ff);
 	--chart-3: #50d4dc;
 	--chart-4: #ff50b4;
 	--chart-5: #ffb800;
 	--sidebar: #0f1115;
 	--sidebar-foreground: #ffffff;
-	--sidebar-primary: #5e5ce6;
+	--sidebar-primary: var(--theme-primary, #5e5ce6);
 	--sidebar-primary-foreground: #ffffff;
 	--sidebar-accent: rgba(255, 255, 255, 0.08);
 	--sidebar-accent-foreground: #ffffff;
 	--sidebar-border: rgba(255, 255, 255, 0.08);
-	--sidebar-ring: rgba(94, 92, 230, 0.3);
+	--sidebar-ring: color-mix(in srgb, var(--theme-primary, #5e5ce6) 30%, transparent);
 }
 
 @theme inline {

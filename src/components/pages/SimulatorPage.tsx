@@ -194,15 +194,20 @@ export function SimulatorPage({
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1115", color: "#FFFFFF", position: "relative" as const }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "900px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
           <ChevronLeft size={16} /> Back
         </button>
-        <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: t.text, margin: "0 0 0.5rem" }}>Scenario Simulator</h1>
-        <p style={{ color: t.muted, fontSize: "0.95rem", margin: "0 0 1.5rem" }}>Compare different financial scenarios side by side.</p>
+        <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: t.text, margin: "0 0 0.5rem" }}>Scenario Lab</h1>
+        <p style={{ color: t.muted, fontSize: "0.95rem", margin: "0 0 1.5rem" }}>
+          {hasPaidAccess
+            ? "Compare different financial scenarios side by side."
+            : "See how one change could shift your financial position."
+          }
+        </p>
 
         {/* Scenario tabs */}
         <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
@@ -265,6 +270,21 @@ export function SimulatorPage({
             >
               <Plus size={14} /> Add Variation
             </button>
+          ) : userTier === "premium" ? (
+            <span
+              style={{
+                border: `1px dashed ${t.border}`,
+                borderRadius: "8px",
+                padding: "0.45rem 0.75rem",
+                fontSize: "0.82rem",
+                color: t.muted,
+                display: "flex",
+                alignItems: "center",
+                gap: "0.3rem",
+              }}
+            >
+              {workspaceLimit}/{workspaceLimit} slots used
+            </span>
           ) : (
             <button
               onClick={() => { const p = userTier === "free" ? "pro" as const : "premium" as const; trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", plan: p }); onUpgrade(p); }}
@@ -304,14 +324,32 @@ export function SimulatorPage({
         {activeScenario && (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem", marginBottom: "1.5rem" }}>
             {/* Left: form */}
-            <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem" }}>
+            <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem", position: "relative" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-                <span style={{ fontWeight: 700, color: t.text }}>{activeScenario.name}</span>
-                <div style={{ display: "flex", gap: "0.35rem" }}>
-                  <button onClick={() => duplicateScenario(activeScenario.id)} title="Duplicate" style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "4px" }}><Copy size={14} /></button>
-                  <button onClick={() => setEditingName(activeScenario.id)} title="Rename" style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "4px" }}><Edit3 size={14} /></button>
-                  {scenarios.length > 1 && <button onClick={() => closeScenario(activeScenario.id)} title="Close tab (scenario stays saved)" style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "4px" }}><X size={14} /></button>}
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <span style={{ fontWeight: 700, color: t.text }}>{hasPaidAccess ? activeScenario.name : "Your Current Baseline"}</span>
+                  {!hasPaidAccess && (
+                    <span style={{
+                      fontSize: "0.65rem",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                      padding: "2px 7px",
+                      borderRadius: "6px",
+                      background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+                      color: t.muted,
+                    }}>
+                      Read-only
+                    </span>
+                  )}
                 </div>
+                {hasPaidAccess && (
+                  <div style={{ display: "flex", gap: "0.35rem" }}>
+                    <button onClick={() => duplicateScenario(activeScenario.id)} title="Duplicate" style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "4px" }}><Copy size={14} /></button>
+                    <button onClick={() => setEditingName(activeScenario.id)} title="Rename" style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "4px" }}><Edit3 size={14} /></button>
+                    {scenarios.length > 1 && <button onClick={() => closeScenario(activeScenario.id)} title="Close tab (scenario stays saved)" style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "4px" }}><X size={14} /></button>}
+                  </div>
+                )}
               </div>
 
               <div style={{ marginBottom: "0.75rem" }}>
@@ -319,8 +357,9 @@ export function SimulatorPage({
                 <Input
                   type="number" min={0} max={70}
                   value={activeScenario.taxRate}
-                  onChange={(e) => updateScenario(activeScenario.id, { taxRate: Math.min(70, Math.max(0, parseFloat(e.target.value) || 0)) })}
-                  style={{ background: t.bg, border: `1px solid ${t.border}`, color: t.text, maxWidth: "120px" }}
+                  onChange={hasPaidAccess ? (e) => updateScenario(activeScenario.id, { taxRate: Math.min(70, Math.max(0, parseFloat(e.target.value) || 0)) }) : undefined}
+                  readOnly={!hasPaidAccess}
+                  style={{ background: t.bg, border: `1px solid ${t.border}`, color: hasPaidAccess ? t.text : t.muted, maxWidth: "120px", opacity: hasPaidAccess ? 1 : 0.6, cursor: hasPaidAccess ? undefined : "default" }}
                 />
               </div>
 
@@ -334,9 +373,10 @@ export function SimulatorPage({
                     <Input
                       type="number" min={0}
                       value={val === 0 ? "" : val}
-                      onChange={(e) => updateExpense(activeScenario.id, field.name, Math.max(0, parseFloat(e.target.value) || 0))}
+                      onChange={hasPaidAccess ? (e) => updateExpense(activeScenario.id, field.name, Math.max(0, parseFloat(e.target.value) || 0)) : undefined}
+                      readOnly={!hasPaidAccess}
                       placeholder="0"
-                      style={{ background: t.bg, border: `1px solid ${t.border}`, color: t.text, flex: 1 }}
+                      style={{ background: t.bg, border: `1px solid ${t.border}`, color: hasPaidAccess ? t.text : t.muted, flex: 1, opacity: hasPaidAccess ? 1 : 0.6, cursor: hasPaidAccess ? undefined : "default" }}
                     />
                   </div>
                 );
@@ -352,22 +392,68 @@ export function SimulatorPage({
                 ].map((p) => (
                   <button
                     key={p.key}
-                    onClick={() => applyPreset(activeScenario.id, p.key)}
+                    onClick={() => {
+                      if (hasPaidAccess) {
+                        applyPreset(activeScenario.id, p.key);
+                      } else {
+                        trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", trigger: "preset_click" });
+                        onUpgrade("pro");
+                      }
+                    }}
                     style={{
                       background: t.primary + "10",
                       border: `1px solid ${t.primary}25`,
                       borderRadius: "6px",
                       padding: "0.3rem 0.6rem",
                       fontSize: "0.75rem",
-                      color: t.primary,
+                      color: hasPaidAccess ? t.primary : t.muted,
                       cursor: "pointer",
                       fontWeight: 500,
+                      opacity: hasPaidAccess ? 1 : 0.6,
                     }}
                   >
+                    {!hasPaidAccess && <Lock size={10} style={{ marginRight: "3px", verticalAlign: "middle" }} />}
                     {p.label}
                   </button>
                 ))}
               </div>
+
+              {/* Free-tier lock banner */}
+              {!hasPaidAccess && (
+                <div
+                  style={{
+                    marginTop: "1rem",
+                    padding: "0.65rem 0.85rem",
+                    borderRadius: "8px",
+                    background: isDark ? `${t.primary}14` : `${t.primary}0D`,
+                    border: `1px solid ${t.primary}33`,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <Lock size={13} style={{ color: t.primary, flexShrink: 0 }} />
+                  <span style={{ fontSize: "0.8rem", color: t.muted, flex: 1 }}>
+                    Upgrade to Pro to edit values and build custom scenarios.
+                  </span>
+                  <button
+                    onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", trigger: "form_lock_banner" }); onUpgrade("pro"); }}
+                    style={{
+                      background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "0.35rem 0.75rem",
+                      fontSize: "0.78rem",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Upgrade
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Right: active scenario results */}
@@ -375,7 +461,7 @@ export function SimulatorPage({
               const out = computeForExpenses(activeScenario.expenses, activeScenario.taxRate);
               return (
                 <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem" }}>
-                  <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem", display: "block", marginBottom: "1rem" }}>Results</span>
+                  <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem", display: "block", marginBottom: "1rem" }}>{hasPaidAccess ? "Results" : "Your Numbers"}</span>
                   {[
                     { label: "Hourly Required", value: `${fmt(out.hourlyRequired)}/hr` },
                     { label: "Annual Gross Required", value: fmt(out.annualGrossRequired) },
@@ -425,7 +511,8 @@ export function SimulatorPage({
               {/* Preview header */}
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
                 <BarChart3 size={18} style={{ color: t.primary }} />
-                <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Scenario Comparison</span>
+                <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>What One Change Could Do</span>
+                <span style={{ fontSize: "0.68rem", fontWeight: 600, color: t.muted, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)", padding: "2px 7px", borderRadius: "6px" }}>Sample</span>
               </div>
 
               {/* Side-by-side preview: current vs hypothetical */}
@@ -448,10 +535,10 @@ export function SimulatorPage({
                 </div>
 
                 {/* Preview "what if" card */}
-                <div style={{ background: t.cardBg, border: `1px solid rgba(99,102,241,0.25)`, borderRadius: "12px", padding: "1rem", position: "relative", overflow: "hidden" }}>
-                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(90deg, #6366f1, #8b5cf6)" }} />
+                <div style={{ background: t.cardBg, border: `1px solid ${t.primary}40`, borderRadius: "12px", padding: "1rem", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent})` }} />
                   <div style={{ fontWeight: 700, fontSize: "0.85rem", color: t.text, marginBottom: "0.6rem" }}>
-                    What if: Rent -${actualReduction.toLocaleString("en-US")}
+                    Example: Rent -${actualReduction.toLocaleString("en-US")}
                   </div>
                   {([
                     { label: "Monthly Spend", value: fmt(previewOut.monthlyRequiredTotal), delta: dMonthly, good: dMonthly < 0, unit: "dollar" as const },
@@ -479,8 +566,8 @@ export function SimulatorPage({
                 style={{
                   padding: "1rem 1.25rem",
                   borderRadius: "12px",
-                  background: isDark ? "rgba(99,102,241,0.08)" : "rgba(99,102,241,0.05)",
-                  border: "1px solid rgba(99,102,241,0.2)",
+                  background: isDark ? `${t.primary}14` : `${t.primary}0D`,
+                  border: `1px solid ${t.primary}33`,
                   display: "flex",
                   alignItems: "center",
                   gap: "1rem",
@@ -498,7 +585,7 @@ export function SimulatorPage({
                 <button
                   onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", plan: "pro" }); onUpgrade("pro"); }}
                   style={{
-                    background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
                     color: "#fff",
                     border: "none",
                     borderRadius: "8px",
@@ -510,7 +597,7 @@ export function SimulatorPage({
                     alignItems: "center",
                     gap: "0.35rem",
                     whiteSpace: "nowrap",
-                    boxShadow: "0 2px 10px rgba(99,102,241,0.3)",
+                    boxShadow: `0 2px 10px ${t.primary}4D`,
                   }}
                 >
                   <Lock size={13} />

@@ -147,7 +147,7 @@ export function AIFinancialInsights({
           left: 0,
           right: 0,
           height: "3px",
-          background: "linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899)",
+          background: `linear-gradient(90deg, ${t.primary}, ${t.accent}, #ec4899)`,
           borderRadius: "14px 14px 0 0",
         }}
       />
@@ -155,13 +155,13 @@ export function AIFinancialInsights({
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Sparkles size={18} style={{ color: "#8b5cf6" }} />
+          <Sparkles size={18} style={{ color: t.primary }} />
           <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Financial Insights</span>
           <span
             style={{
               fontSize: "0.7rem",
               fontWeight: 700,
-              background: "linear-gradient(90deg, #6366f1, #8b5cf6)",
+              background: `linear-gradient(90deg, ${t.primary}, ${t.accent})`,
               color: "#fff",
               padding: "2px 7px",
               borderRadius: "20px",
@@ -190,7 +190,7 @@ export function AIFinancialInsights({
           <button
             onClick={generateInsights}
             style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
               color: "#fff",
               border: "none",
               borderRadius: "10px",
@@ -201,7 +201,7 @@ export function AIFinancialInsights({
               display: "inline-flex",
               alignItems: "center",
               gap: "0.5rem",
-              boxShadow: "0 4px 14px rgba(99,102,241,0.35)",
+              boxShadow: `0 4px 14px ${t.primary}59`,
             }}
           >
             <Sparkles size={16} />
@@ -212,7 +212,7 @@ export function AIFinancialInsights({
 
       {loading && (
         <div style={{ textAlign: "center", padding: "1.75rem 0", color: t.muted, fontSize: "0.9rem" }}>
-          <Sparkles size={20} style={{ marginBottom: "0.5rem", color: "#8b5cf6" }} />
+          <Sparkles size={20} style={{ marginBottom: "0.5rem", color: t.primary }} />
           <div style={{ fontWeight: 500 }}>Analyzing your complete financial picture…</div>
         </div>
       )}
@@ -237,14 +237,14 @@ export function AIFinancialInsights({
                 fontWeight: 700,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
-                color: "#6366f1",
+                color: t.primary,
               }}
             >
               <Brain size={13} />
               Key Insights
             </div>
             {result.insights.map((insight, i) => (
-              <div key={i} style={sectionStyle("#6366f1")}>
+              <div key={i} style={sectionStyle(t.primary)}>
                 <p style={{ margin: 0, fontSize: "0.875rem", color: t.text, lineHeight: 1.55 }}>{insight}</p>
               </div>
             ))}
