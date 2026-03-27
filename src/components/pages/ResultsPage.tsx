@@ -574,6 +574,7 @@ export function ResultsPage({
   const [askPlanQuestion, setAskPlanQuestion] = useState<string | null>(null);
   const [shareCardOpen, setShareCardOpen] = useState(false);
   const [alertsExpanded, setAlertsExpanded] = useState<string | null>(null);
+  const [moreToolsOpen, setMoreToolsOpen] = useState(false);
 
   // Use shared calculation engine
   const outputs = computeForExpenses(data, taxRate);
@@ -1307,6 +1308,13 @@ export function ResultsPage({
           </div>
         )}
 
+        {/* ═══ SECTION 2: Your Next Steps ═══ */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "1.5rem 0 1.25rem" }}>
+          <div style={{ flex: 1, height: "1px", background: `linear-gradient(90deg, ${t.primary}40, transparent)` }} />
+          <span style={{ fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: t.primary, whiteSpace: "nowrap" }}>Your Next Steps</span>
+          <div style={{ flex: 1, height: "1px", background: `linear-gradient(270deg, ${t.primary}40, transparent)` }} />
+        </div>
+
         {/* AI Financial Diagnosis — premium structured analysis */}
         <FinancialDiagnosisSection
           data={data}
@@ -1402,6 +1410,43 @@ export function ResultsPage({
             </button>
           </div>
         </div>
+
+        {/* ═══ SECTION 3: More Tools & Insights (collapsible) ═══ */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "1rem 0 0" }}>
+          <div style={{ flex: 1, height: "1px", background: `linear-gradient(90deg, ${t.border}, transparent)` }} />
+          <button
+            onClick={() => setMoreToolsOpen((v) => !v)}
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              padding: "0.35rem 0.1rem",
+              fontSize: "0.78rem",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: t.muted,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {moreToolsOpen ? "Show Less" : "More Tools & Insights"}
+            {moreToolsOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
+          <div style={{ flex: 1, height: "1px", background: `linear-gradient(270deg, ${t.border}, transparent)` }} />
+        </div>
+
+        <div
+          style={{
+            overflow: "hidden",
+            transition: "max-height 0.4s ease, opacity 0.3s ease",
+            maxHeight: moreToolsOpen ? "8000px" : "0px",
+            opacity: moreToolsOpen ? 1 : 0,
+          }}
+        >
+        <div style={{ paddingTop: "1.25rem" }}>
 
         {/* AI Financial Insight Engine */}
         <AIFinancialInsights
@@ -1985,13 +2030,98 @@ export function ResultsPage({
           </div>
         </div>
 
-        {/* Premium upsell */}
+        {/* Ask Your Plan panel */}
+        <div
+          style={{
+            background: t.cardBg,
+            border: `1px solid ${t.border}`,
+            borderRadius: "12px",
+            padding: "1.5rem",
+            marginBottom: "1.25rem",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <MessageCircle size={18} style={{ color: t.primary }} />
+              <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Ask Your Plan</span>
+            </div>
+          </div>
+          {!askPlanOpen && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+              {[
+                "What should I cut first?",
+                "Is my rent too high?",
+                "How much house can I afford?",
+                "How do I get to a stable score?",
+                "What happens if I save more?",
+                "What's my fastest improvement?",
+              ].map((q) => (
+                <button
+                  key={q}
+                  onClick={() => { setAskPlanQuestion(q); setAskPlanOpen(true); }}
+                  style={{
+                    background: t.primary + "10",
+                    border: `1px solid ${t.primary}25`,
+                    borderRadius: "8px",
+                    padding: "0.4rem 0.75rem",
+                    fontSize: "0.82rem",
+                    color: t.primary,
+                    cursor: "pointer",
+                    fontWeight: 500,
+                  }}
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          )}
+          {askPlanOpen && (
+            <AskYourPlan
+              data={data}
+              taxRate={taxRate}
+              outputs={outputs}
+              t={t}
+              isDark={isDark}
+              onSimulator={onSimulator}
+              userTier={userTier}
+              onUpgrade={onUpgrade}
+              initialQuestion={askPlanQuestion}
+            />
+          )}
+          {!askPlanOpen && (
+            <button
+              onClick={() => { setAskPlanQuestion(null); setAskPlanOpen(true); }}
+              style={{
+                background: t.primary,
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                padding: "0.6rem 1.25rem",
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+              }}
+            >
+              <MessageCircle size={15} />
+              Open Ask Your Plan
+            </button>
+          )}
+        </div>
+
+        </div>{/* end paddingTop wrapper */}
+        </div>{/* end collapsible wrapper */}
+
+        {/* Premium upsell — always visible outside collapsible */}
         <div
           style={{
             background: `linear-gradient(135deg, ${currentTheme.primary}12, ${currentTheme.accent}08)`,
             border: `1px solid ${currentTheme.primary}30`,
             borderRadius: "16px",
             padding: "1.75rem",
+            marginTop: "1.25rem",
             marginBottom: "1.5rem",
           }}
         >
@@ -2085,87 +2215,6 @@ export function ResultsPage({
               </button>
             </div>
           </div>
-        </div>
-
-        {/* Ask Your Plan panel */}
-        <div
-          style={{
-            background: t.cardBg,
-            border: `1px solid ${t.border}`,
-            borderRadius: "12px",
-            padding: "1.5rem",
-            marginBottom: "1.25rem",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <MessageCircle size={18} style={{ color: t.primary }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Ask Your Plan</span>
-            </div>
-          </div>
-          {!askPlanOpen && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
-              {[
-                "What should I cut first?",
-                "Is my rent too high?",
-                "How much house can I afford?",
-                "How do I get to a stable score?",
-                "What happens if I save more?",
-                "What's my fastest improvement?",
-              ].map((q) => (
-                <button
-                  key={q}
-                  onClick={() => { setAskPlanQuestion(q); setAskPlanOpen(true); }}
-                  style={{
-                    background: t.primary + "10",
-                    border: `1px solid ${t.primary}25`,
-                    borderRadius: "8px",
-                    padding: "0.4rem 0.75rem",
-                    fontSize: "0.82rem",
-                    color: t.primary,
-                    cursor: "pointer",
-                    fontWeight: 500,
-                  }}
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-          )}
-          {askPlanOpen && (
-            <AskYourPlan
-              data={data}
-              taxRate={taxRate}
-              outputs={outputs}
-              t={t}
-              isDark={isDark}
-              onSimulator={onSimulator}
-              userTier={userTier}
-              onUpgrade={onUpgrade}
-              initialQuestion={askPlanQuestion}
-            />
-          )}
-          {!askPlanOpen && (
-            <button
-              onClick={() => { setAskPlanQuestion(null); setAskPlanOpen(true); }}
-              style={{
-                background: t.primary,
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                padding: "0.6rem 1.25rem",
-                fontSize: "0.9rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.4rem",
-              }}
-            >
-              <MessageCircle size={15} />
-              Open Ask Your Plan
-            </button>
-          )}
         </div>
 
         {/* Save Scenario */}
