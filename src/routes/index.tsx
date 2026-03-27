@@ -1349,7 +1349,7 @@ function FirePage({
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: `linear-gradient(90deg, #f59e0b, ${t.accent}, #f59e0b)`, zIndex: 3 }} />
 
             {/* Blurred preview — shows real computed data */}
-            <div style={{ filter: "blur(8px)", pointerEvents: "none", userSelect: "none" as const }}>
+            <div style={{ filter: "blur(4px)", pointerEvents: "none", userSelect: "none" as const }}>
               {/* Hero card preview */}
               <div
                 style={{
@@ -1400,6 +1400,9 @@ function FirePage({
                 zIndex: 2,
                 padding: "2rem",
                 textAlign: "center",
+                background: isDark
+                  ? "linear-gradient(rgba(15,17,21,0.35), rgba(15,17,21,0.55))"
+                  : "linear-gradient(rgba(248,249,252,0.35), rgba(248,249,252,0.55))",
               }}
             >
               <div style={{
@@ -2178,7 +2181,7 @@ function FIEstimatorPage({
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent}, ${t.primary})`, zIndex: 3 }} />
 
             {/* Blurred preview — shows real computed data */}
-            <div style={{ filter: "blur(8px)", pointerEvents: "none", userSelect: "none" as const }}>
+            <div style={{ filter: "blur(4px)", pointerEvents: "none", userSelect: "none" as const }}>
               {/* FI target hero preview */}
               <div
                 style={{
@@ -2231,6 +2234,9 @@ function FIEstimatorPage({
                 zIndex: 2,
                 padding: "2rem",
                 textAlign: "center",
+                background: isDark
+                  ? "linear-gradient(rgba(15,17,21,0.35), rgba(15,17,21,0.55))"
+                  : "linear-gradient(rgba(248,249,252,0.35), rgba(248,249,252,0.55))",
               }}
             >
               <div style={{
