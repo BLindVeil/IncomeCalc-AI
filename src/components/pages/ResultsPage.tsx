@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useIsMobile } from "@/lib/useIsMobile";
 import {
   Calculator,
   TrendingUp,
@@ -569,6 +570,7 @@ export function ResultsPage({
   fromGuidedFlow,
 }: ResultsPageProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
   const [chatOpen, setChatOpen] = useState(false);
   const [askPlanOpen, setAskPlanOpen] = useState(false);
   const [askPlanQuestion, setAskPlanQuestion] = useState<string | null>(null);
@@ -648,7 +650,7 @@ export function ResultsPage({
         onSignOut={onSignOut}
       />
 
-      <div style={{ maxWidth: "780px", margin: "0 auto", padding: "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: "780px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
         <div className="atv-fade-in" style={{ marginBottom: "2rem" }}>
           {fromGuidedFlow ? (
             <button
@@ -786,7 +788,7 @@ export function ResultsPage({
           <Progress value={healthScore} className="h-3" />
 
           {/* Sub-scores */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "1.25rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem", marginTop: "1.25rem" }}>
             {subScores.map((s) => (
               <div key={s.label}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.3rem" }}>
@@ -1080,7 +1082,7 @@ export function ResultsPage({
                     <div style={{ fontSize: "0.85rem", fontWeight: 600, color: healthColor }}>{healthLabel}</div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0.75rem" }}>
                     {/* Runway */}
                     <div style={{ background: t.cardBg, borderRadius: "10px", padding: "0.85rem", textAlign: "center", border: `1px solid ${t.border}` }}>
                       <div style={{ fontSize: "0.72rem", color: t.muted, marginBottom: "0.2rem" }}>Runway</div>
@@ -1187,7 +1189,7 @@ export function ResultsPage({
         />
 
         {/* Open in Simulator + Check-In cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
           <div
             style={{
               background: t.cardBg,
@@ -1274,8 +1276,9 @@ export function ResultsPage({
               display: "inline-flex",
               alignItems: "center",
               gap: "0.4rem",
-              padding: "0.35rem 0.1rem",
+              padding: "0.6rem 0.75rem",
               fontSize: "0.78rem",
+              minHeight: "44px",
               fontWeight: 700,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
@@ -1350,7 +1353,7 @@ export function ResultsPage({
         )}
 
         {/* Share Stability Score + FIRE CTA row (moved from Section 1) */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
           <button
             onClick={() => setShareCardOpen(true)}
             style={{
@@ -1392,7 +1395,7 @@ export function ResultsPage({
         </div>
 
         {/* Feature Nav: Forecast, Debt, FI (moved from Section 1) */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "1.25rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "1.25rem" }}>
           <button
             onClick={onForecast}
             style={{
@@ -1659,7 +1662,7 @@ export function ResultsPage({
                 <TrendingUp size={18} style={{ color: "#22c55e" }} />
                 <div style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Savings Potential Analysis</div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
                 {top3.map(({ label, value }) => {
                   const saving = Math.round(value * (reductionPct / 100));
                   return (
@@ -1699,7 +1702,7 @@ export function ResultsPage({
               <div style={{ fontWeight: 700, color: t.text, marginBottom: "0.75rem", fontSize: "1.05rem" }}>
                 Savings Potential Analysis
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0.75rem" }}>
                 {[
                   { label: "Optimized housing", saving: fmt(Math.round(grossMonthly * 0.04)) + "/mo" },
                   { label: "Transport savings", saving: fmt(Math.round(grossMonthly * 0.02)) + "/mo" },

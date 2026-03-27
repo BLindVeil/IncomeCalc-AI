@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useIsMobile } from "@/lib/useIsMobile";
 import {
   ChevronLeft,
   CreditCard,
@@ -110,6 +111,7 @@ export function CheckoutPage({
   onRequireAuth: _onRequireAuth,
 }: CheckoutPageProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
   const [selectedPlan, setSelectedPlan] = useState<PlanId>(initialPlan);
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [showUpsellModal, setShowUpsellModal] = useState(false);
@@ -192,7 +194,7 @@ export function CheckoutPage({
         onLogoClick={onBack}
       />
 
-      <div style={{ maxWidth: "860px", margin: "0 auto", padding: "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: "860px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
         {/* Back nav */}
         <button
           onClick={onBack}
@@ -741,7 +743,7 @@ export function CheckoutPage({
           <p style={{ color: t.muted, fontSize: "0.88rem", marginBottom: "1.5rem" }}>
             Start with a free calculation, upgrade when you're ready.
           </p>
-          <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap", flexDirection: isMobile ? "column" : "row" }}>
             <button
               onClick={() => handleCheckoutClick("pro")}
               style={{
@@ -755,7 +757,9 @@ export function CheckoutPage({
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
+                justifyContent: "center",
                 gap: "0.4rem",
+                width: isMobile ? "100%" : "auto",
               }}
             >
               <Target size={16} />
@@ -774,8 +778,10 @@ export function CheckoutPage({
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
+                justifyContent: "center",
                 gap: "0.4rem",
                 boxShadow: `0 4px 16px ${currentTheme.primary}40`,
+                width: isMobile ? "100%" : "auto",
               }}
             >
               <Users size={16} />

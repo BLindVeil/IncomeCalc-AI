@@ -446,3 +446,24 @@ select.atv-select option {
 		@apply bg-background text-foreground;
 	}
 }
+
+/* ─── Mobile Performance ─────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+	.atv-ambient-bg::before {
+		width: 300px;
+		height: 300px;
+		animation: none;
+	}
+
+	.atv-ambient-bg::after {
+		width: 250px;
+		height: 250px;
+		animation: none;
+	}
+
+	.atv-ambient-teal {
+		width: 200px;
+		height: 200px;
+		animation: none;
+	}
+}

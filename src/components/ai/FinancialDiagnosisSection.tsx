@@ -214,7 +214,7 @@ export function FinancialDiagnosisSection({
           <button
             onClick={generateDiagnosis}
             disabled={loading}
-            style={{ background: "transparent", border: "none", cursor: loading ? "not-allowed" : "pointer", color: t.muted, padding: "2px" }}
+            style={{ background: "transparent", border: "none", cursor: loading ? "not-allowed" : "pointer", color: t.muted, padding: "10px", minWidth: "44px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center" }}
             title="Regenerate"
           >
             <RefreshCw size={15} />

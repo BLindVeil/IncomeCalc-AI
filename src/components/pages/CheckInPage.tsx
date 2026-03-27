@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useIsMobile } from "@/lib/useIsMobile";
 import {
   ChevronLeft,
   TrendingUp,
@@ -53,6 +54,7 @@ export function CheckInPage({
   setTheme,
 }: CheckInPageProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
 
   const [snapshots, setSnapshots] = useState<CheckInSnapshot[]>(loadSnapshots);
   const [showForm, setShowForm] = useState(false);
@@ -146,7 +148,7 @@ export function CheckInPage({
             <div style={{ fontSize: "0.82rem", color: t.muted, marginBottom: "0.5rem" }}>
               Last check-in: {new Date(lastSnapshot.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "1rem" }}>
               {[
                 { label: "Hourly Required", value: `${fmt(lastSnapshot.outputs.hourlyRequired)}/hr` },
                 { label: "Annual Gross", value: fmt(lastSnapshot.outputs.annualGrossRequired) },
@@ -168,7 +170,7 @@ export function CheckInPage({
               <TrendingUp size={18} style={{ color: t.primary }} />
               <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Change Report</span>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
               {[
                 { label: "Hourly Required", prev: deltaReport.prev.hourlyRequired, curr: deltaReport.curr.hourlyRequired, suffix: "/hr" },
                 { label: "Annual Gross", prev: deltaReport.prev.annualGrossRequired, curr: deltaReport.curr.annualGrossRequired, suffix: "" },
@@ -208,8 +210,8 @@ export function CheckInPage({
               { label: "Debt payment change ($)", value: debtChange, set: setDebtChange },
               { label: "Savings goal change ($)", value: savingsChange, set: setSavingsChange },
             ].map((f) => (
-              <div key={f.label} style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.6rem" }}>
-                <span style={{ fontSize: "0.85rem", color: t.muted, width: "170px", flexShrink: 0 }}>{f.label}</span>
+              <div key={f.label} style={{ display: isMobile ? "block" : "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.6rem" }}>
+                <span style={{ fontSize: "0.85rem", color: t.muted, width: isMobile ? "100%" : "170px", flexShrink: 0, display: "block", marginBottom: isMobile ? "0.25rem" : 0 }}>{f.label}</span>
                 <Input
                   type="number"
                   value={f.value === 0 ? "" : f.value}

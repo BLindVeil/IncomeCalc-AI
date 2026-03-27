@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/lib/useIsMobile";
 import {
   ChevronLeft,
   Trophy,
@@ -61,6 +62,7 @@ export function SimulatorPage({
   setTheme,
 }: SimulatorPageProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
   const hasPaidAccess = userTier === "pro" || userTier === "premium";
 
   // Active workspace slot limits (distinct from saved-scenario storage limits)
@@ -323,7 +325,7 @@ export function SimulatorPage({
 
         {/* Active scenario form */}
         {activeScenario && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem", marginBottom: "1.5rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1.25rem", marginBottom: "1.5rem" }}>
             {/* Left: form */}
             <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem", position: "relative" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
@@ -558,7 +560,7 @@ export function SimulatorPage({
               </div>
 
               {/* Side-by-side preview: current vs hypothetical */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.65rem", marginBottom: "1rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0.65rem", marginBottom: "1rem" }}>
                 {/* Baseline card */}
                 <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1rem" }}>
                   <div style={{ fontWeight: 700, fontSize: "0.85rem", color: t.text, marginBottom: "0.6rem" }}>
@@ -710,7 +712,7 @@ export function SimulatorPage({
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: `repeat(${results.length}, 1fr)`,
+                  gridTemplateColumns: isMobile ? "1fr" : `repeat(${results.length}, 1fr)`,
                   gap: "0.65rem",
                   marginBottom: "1.25rem",
                 }}

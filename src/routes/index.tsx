@@ -97,6 +97,7 @@ import {
   loadUserTier,
 } from "@/lib/app-shared";
 import { Header } from "@/components/Header";
+import { useIsMobile } from "@/lib/useIsMobile";
 
 // ─── Lazy-loaded page components ─────────────────────────────────────────────
 
@@ -134,6 +135,7 @@ interface LandingProps {
 
 function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseTheme, setTheme, onDevAccess }: LandingProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" }}>
@@ -144,7 +146,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
 
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onDevAccess={onDevAccess} />
 
-      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: "900px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
         {/* Hero */}
         <div className="atv-fade-in" style={{ textAlign: "center", marginBottom: "4rem" }}>
           <div
@@ -460,6 +462,7 @@ function CalculatorPage({
   initialCurrentIncome,
 }: CalculatorPageProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
 
   const [formData, setFormData] = useState<ExpenseData>(initialData);
   const [taxRate, setTaxRate] = useState<number | "">(initialTaxRate);
@@ -511,7 +514,7 @@ function CalculatorPage({
         onLogoClick={onBack}
       />
 
-      <div style={{ maxWidth: "680px", margin: "0 auto", padding: "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: "680px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
         <div className="atv-fade-in" style={{ marginBottom: "2rem" }}>
           <button
             onClick={onBack}
@@ -553,7 +556,7 @@ function CalculatorPage({
             This is an estimate. Your real effective rate depends on deductions.
           </p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
             {/* State selector */}
             <div>
               <Label style={{ color: t.muted, fontSize: "0.78rem", display: "block", marginBottom: "0.3rem" }}>State</Label>
@@ -1165,6 +1168,7 @@ function FirePage({
   setTheme,
 }: FirePageProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
   const isPremium = userTier === "premium";
 
   const [currentAge, setCurrentAge] = useState(30);
@@ -1185,7 +1189,7 @@ function FirePage({
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
 
-      <div style={{ maxWidth: "720px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
+      <div style={{ maxWidth: "720px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
           <ChevronLeft size={16} /> Back
         </button>
@@ -1199,7 +1203,7 @@ function FirePage({
 
         {/* Inputs */}
         <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem", marginBottom: "1.5rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem" }}>
             {[
               { label: "Current Age", value: currentAge, set: (v: number) => setCurrentAge(v), min: 18, max: 80 },
               { label: "Retirement Age Target", value: retirementAge, set: (v: number) => setRetirementAge(v), min: 30, max: 90 },
@@ -1545,6 +1549,7 @@ function ForecastPage({
   setTheme,
 }: ForecastPageProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
   const isPremium = userTier === "premium";
 
   const outputs = computeForExpenses(expenses, taxRate);
@@ -1577,7 +1582,7 @@ function ForecastPage({
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
 
-      <div style={{ maxWidth: "820px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
+      <div style={{ maxWidth: "820px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
           <ChevronLeft size={16} /> Back
         </button>
@@ -1593,7 +1598,7 @@ function ForecastPage({
         {/* Override inputs */}
         <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem", marginBottom: "1.5rem" }}>
           <div style={{ fontWeight: 700, fontSize: "0.95rem", color: t.text, marginBottom: "0.75rem" }}>Projection Settings</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0.75rem" }}>
             <div>
               <Label style={{ fontSize: "0.78rem", color: t.muted, display: "block", marginBottom: "0.3rem" }}>Starting Emergency Fund ($)</Label>
               <Input type="number" min={0} value={startingEF === 0 ? "" : startingEF} onChange={(e) => setStartingEF(Math.max(0, parseFloat(e.target.value) || 0))} placeholder="0" style={{ background: t.bg, border: `1px solid ${t.border}`, color: t.text }} />
@@ -1636,7 +1641,7 @@ function ForecastPage({
 
           <div style={{ filter: isPremium ? "none" : "blur(4px)", pointerEvents: isPremium ? "auto" : "none" }}>
             {/* Mini charts */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
               <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1rem" }}>
                 <MiniLineChart data={snapshots.slice(0, visibleMonths).map(s => s.stabilityScore)} color="#22c55e" label="Stability Score" />
               </div>
@@ -1713,6 +1718,7 @@ function DebtPage({
   setTheme,
 }: DebtPageProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
   const isFree = userTier === "free";
   const isPro = userTier === "pro";
   const isPremium = userTier === "premium";
@@ -1767,7 +1773,7 @@ function DebtPage({
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
 
-      <div style={{ maxWidth: "820px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
+      <div style={{ maxWidth: "820px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
           <ChevronLeft size={16} /> Back
         </button>
@@ -1799,7 +1805,7 @@ function DebtPage({
                   <Trash2 size={14} />
                 </button>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.5rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "0.5rem" }}>
                 <div>
                   <Label style={{ fontSize: "0.72rem", color: t.muted, display: "block", marginBottom: "0.2rem" }}>Balance ($)</Label>
                   <Input type="number" min={0} value={debt.balance === 0 ? "" : debt.balance} onChange={(e) => updateDebt(debt.id, "balance", e.target.value)} placeholder="0" style={{ background: t.bg, border: `1px solid ${t.border}`, color: t.text, fontSize: "0.85rem" }} />
@@ -1921,7 +1927,7 @@ function DebtPage({
 
             {/* Comparison cards */}
             {(mode === "compare" || mode === "snowball" || mode === "avalanche") && (
-              <div style={{ display: "grid", gridTemplateColumns: mode === "compare" ? "1fr 1fr" : "1fr", gap: "1rem", marginBottom: "1.25rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: mode === "compare" && !isMobile ? "1fr 1fr" : "1fr", gap: "1rem", marginBottom: "1.25rem" }}>
                 {(mode === "compare" || mode === "snowball") && (
                   <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
@@ -2044,6 +2050,7 @@ function FIEstimatorPage({
   setTheme,
 }: FIPageProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
   const isPremium = userTier === "premium";
 
   const outputs = computeForExpenses(expenses, taxRate);
@@ -2071,7 +2078,7 @@ function FIEstimatorPage({
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
 
-      <div style={{ maxWidth: "720px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
+      <div style={{ maxWidth: "720px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
           <ChevronLeft size={16} /> Back
         </button>
@@ -2086,7 +2093,7 @@ function FIEstimatorPage({
 
         {/* Inputs */}
         <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem", marginBottom: "1.5rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0.75rem" }}>
             <div>
               <Label style={{ fontSize: "0.82rem", color: t.muted, display: "block", marginBottom: "0.3rem" }}>Annual Expenses (from calculator)</Label>
               <div style={{ padding: "0.55rem 0.75rem", background: t.primary + "10", borderRadius: "8px", fontWeight: 700, color: t.primary, fontSize: "0.95rem" }}>{fmt(annualExpenses)}/yr</div>
@@ -2138,7 +2145,7 @@ function FIEstimatorPage({
             </div>
 
             {/* Time to FI big number */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
               <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.5rem", textAlign: "center" }}>
                 <div style={{ fontSize: "0.8rem", color: t.muted, marginBottom: "0.35rem" }}>Time to FI</div>
                 <div style={{ fontSize: "2rem", fontWeight: 900, color: t.primary }}>
@@ -2207,7 +2214,7 @@ function FIEstimatorPage({
                 <div style={{ height: "10px", background: t.border, borderRadius: "5px", overflow: "hidden" }}>
                   <div style={{ height: "100%", width: `${fiResult.currentProgress}%`, background: `linear-gradient(90deg, ${t.primary}, ${t.accent})`, borderRadius: "5px" }} />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginTop: "0.75rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0.75rem", marginTop: "0.75rem" }}>
                   <div style={{ textAlign: "center" }}>
                     <div style={{ fontSize: "0.72rem", color: t.muted }}>Time to FI</div>
                     <div style={{ fontSize: "1.25rem", fontWeight: 900, color: t.primary }}>{fiResult.onTrack ? `${fiResult.yearsToFI} yrs` : "50+"}</div>
@@ -3086,6 +3093,7 @@ interface DigestPreviewPageProps {
 
 function DigestPreviewPage({ user, onBack, isDark, setIsDark, currentTheme, baseTheme, setTheme }: DigestPreviewPageProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
   const digest = generateDigestForUser(user.id);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -3157,7 +3165,7 @@ function DigestPreviewPage({ user, onBack, isDark, setIsDark, currentTheme, base
             <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem" }}>
               <div style={{ fontWeight: 700, color: t.text, marginBottom: "1rem", fontSize: "0.95rem" }}>Preview: {digest.latestScenario.name}</div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
                 {[
                   { label: "Monthly Required", value: fmt(digest.latestScenario.resultsJson.grossMonthlyRequired), delta: digest.deltas.monthlyRequired },
                   { label: "Hourly Rate", value: `${fmt(digest.latestScenario.resultsJson.hourlyRequired)}/hr`, delta: digest.deltas.hourlyRequired },

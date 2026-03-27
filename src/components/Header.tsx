@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useIsMobile } from "@/lib/useIsMobile";
 import {
   Moon, Sun, Zap, ChevronDown, LogIn, LogOut, LayoutDashboard, Mail,
 } from "lucide-react";
@@ -97,9 +98,10 @@ function AccountMenu({ user, onSignIn, onDashboard, onDigestPreview, onSignOut, 
             boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
             zIndex: 200,
             minWidth: "180px",
+            maxWidth: "calc(100vw - 2rem)",
           }}
         >
-          <div style={{ padding: "0.5rem 0.65rem", fontSize: "0.78rem", color: t.muted, borderBottom: `1px solid ${t.border}`, marginBottom: "0.25rem" }}>
+          <div style={{ padding: "0.5rem 0.65rem", fontSize: "0.78rem", color: t.muted, borderBottom: `1px solid ${t.border}`, marginBottom: "0.25rem", overflow: "hidden", textOverflow: "ellipsis" }}>
             {user.email}
           </div>
           {[
@@ -192,6 +194,7 @@ export function Header({
   onSignOut,
 }: HeaderProps) {
   const t = applyDark(currentTheme, isDark);
+  const isMobile = useIsMobile();
   const hdrBtnBg = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
   const hdrBtnBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
   const hdrIconColor = isDark ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.55)";
@@ -215,8 +218,8 @@ export function Header({
         alignItems: "center",
         justifyContent: "space-between",
         zIndex: 100,
-        padding: "0 1.25rem",
-        gap: "1rem",
+        padding: isMobile ? "0 0.75rem" : "0 1.25rem",
+        gap: isMobile ? "0.5rem" : "1rem",
       }}
     >
       <button
@@ -250,10 +253,10 @@ export function Header({
         >
           IC
         </div>
-        <span style={{ fontWeight: 600, fontSize: "1rem", color: t.text, letterSpacing: "-0.01em" }}>IncomeCalc</span>
+        {!isMobile && <span style={{ fontWeight: 600, fontSize: "1rem", color: t.text, letterSpacing: "-0.01em" }}>IncomeCalc</span>}
       </button>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0, position: "relative" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "0.35rem" : "0.5rem", flexShrink: 0, position: "relative", flexWrap: "wrap" }}>
         {badgeLabel && (
           <span
             style={{
@@ -337,6 +340,7 @@ export function Header({
                 boxShadow: isDark ? "0 16px 48px rgba(0,0,0,0.5)" : "0 16px 48px rgba(0,0,0,0.12)",
                 zIndex: 200,
                 minWidth: "150px",
+                maxWidth: "calc(100vw - 2rem)",
               }}
             >
               {(Object.entries(THEMES) as [Theme, ThemeConfig][]).map(([key, cfg]) => (
