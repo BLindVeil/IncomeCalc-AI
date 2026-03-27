@@ -1,6 +1,14 @@
 const STORAGE_KEY = "dev_override";
 
+/**
+ * SECURITY: Dev override only works in development builds.
+ * Vite replaces import.meta.env.DEV with `false` in production,
+ * so these code paths are dead-code-eliminated from the bundle.
+ */
+
 export function isDevOverrideActive(): boolean {
+  if (!import.meta.env.DEV) return false;
+
   try {
     if (import.meta.env?.DEV_OVERRIDE === "true") return true;
   } catch {
@@ -14,6 +22,7 @@ export function isDevOverrideActive(): boolean {
 }
 
 export function enableDevOverride(): void {
+  if (!import.meta.env.DEV) return;
   try {
     localStorage.setItem(STORAGE_KEY, "true");
   } catch {
@@ -22,6 +31,7 @@ export function enableDevOverride(): void {
 }
 
 export function disableDevOverride(): void {
+  if (!import.meta.env.DEV) return;
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch {

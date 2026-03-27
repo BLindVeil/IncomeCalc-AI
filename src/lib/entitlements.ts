@@ -11,8 +11,12 @@ const TIER_KEY = "incomecalc-tier";
  * Check if a dev override is active via any of the supported channels:
  *  1. localStorage: dev_override = "1" | "pro" | "premium"
  *  2. window.__DEV_OVERRIDE__ = true (optional)
+ *
+ * SECURITY: Only works in development builds. Vite strips this in production.
  */
 export function getDevOverride(): boolean {
+  if (!import.meta.env.DEV) return false;
+
   // 1. localStorage
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -34,8 +38,12 @@ export function getDevOverride(): boolean {
 /**
  * Determine the dev-requested tier level (granular).
  * Returns the specific tier requested by the dev override, or null if no override.
+ *
+ * SECURITY: Only works in development builds. Vite strips this in production.
  */
 function getDevTier(): PlanTier | null {
+  if (!import.meta.env.DEV) return null;
+
   // Check localStorage
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -96,6 +104,7 @@ export function hasPremiumAccess(): boolean {
 // ─── Dev override management ────────────────────────────────────────────────
 
 export function enableDevOverride(level: "pro" | "premium" = "premium"): void {
+  if (!import.meta.env.DEV) return;
   try {
     localStorage.setItem(STORAGE_KEY, level);
   } catch {

@@ -3246,6 +3246,9 @@ function App() {
     document.documentElement.classList.toggle("dark", isDark);
     document.documentElement.style.setProperty("--theme-primary", currentTheme.primary);
     document.documentElement.style.setProperty("--theme-accent", currentTheme.accent);
+    // Update mobile status bar color to match mode
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", isDark ? "#0F1115" : "#F8F9FC");
   }, [isDark, currentTheme]);
   const [expenseData, setExpenseData] = useState<ExpenseData>(DEFAULT_EXPENSES);
   const [taxRate, setTaxRate] = useState(25);

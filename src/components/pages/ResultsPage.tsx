@@ -1830,25 +1830,25 @@ export function ResultsPage({
                 </div>
               </div>
               {/* Summary table */}
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", fontSize: "0.75rem", borderCollapse: "collapse" }}>
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                <table style={{ width: "100%", minWidth: "420px", fontSize: "0.75rem", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${t.border}` }}>
-                      <th style={{ textAlign: "left", padding: "0.35rem 0.5rem", color: t.muted, fontWeight: 600 }}>Month</th>
-                      <th style={{ textAlign: "right", padding: "0.35rem 0.5rem", color: t.muted, fontWeight: 600 }}>Income</th>
-                      <th style={{ textAlign: "right", padding: "0.35rem 0.5rem", color: t.muted, fontWeight: 600 }}>Expenses</th>
-                      <th style={{ textAlign: "right", padding: "0.35rem 0.5rem", color: t.muted, fontWeight: 600 }}>Net</th>
-                      <th style={{ textAlign: "right", padding: "0.35rem 0.5rem", color: t.muted, fontWeight: 600 }}>Cumulative</th>
+                      <th style={{ textAlign: "left", padding: "0.35rem 0.5rem", color: t.muted, fontWeight: 600, whiteSpace: "nowrap" }}>Month</th>
+                      <th style={{ textAlign: "right", padding: "0.35rem 0.5rem", color: t.muted, fontWeight: 600, whiteSpace: "nowrap" }}>Income</th>
+                      <th style={{ textAlign: "right", padding: "0.35rem 0.5rem", color: t.muted, fontWeight: 600, whiteSpace: "nowrap" }}>Expenses</th>
+                      <th style={{ textAlign: "right", padding: "0.35rem 0.5rem", color: t.muted, fontWeight: 600, whiteSpace: "nowrap" }}>Net</th>
+                      <th style={{ textAlign: "right", padding: "0.35rem 0.5rem", color: t.muted, fontWeight: 600, whiteSpace: "nowrap" }}>Cumulative</th>
                     </tr>
                   </thead>
                   <tbody>
                     {forecastData.map((d, i) => (
                       <tr key={i} style={{ borderBottom: `1px solid ${t.border}20` }}>
-                        <td style={{ padding: "0.3rem 0.5rem", color: t.text, fontWeight: 600 }}>{d.label}</td>
-                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: "#22c55e" }}>{fmt(d.income)}</td>
-                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: t.text }}>{fmt(d.expenses)}</td>
-                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: d.net >= 0 ? "#22c55e" : "#ef4444", fontWeight: 700 }}>{d.net >= 0 ? "+" : ""}{fmt(d.net)}</td>
-                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: d.cumulative >= 0 ? "#22c55e" : "#ef4444", fontWeight: 700 }}>{d.cumulative >= 0 ? "+" : ""}{fmt(d.cumulative)}</td>
+                        <td style={{ padding: "0.3rem 0.5rem", color: t.text, fontWeight: 600, whiteSpace: "nowrap" }}>{d.label}</td>
+                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: "#22c55e", whiteSpace: "nowrap" }}>{fmt(d.income)}</td>
+                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: t.text, whiteSpace: "nowrap" }}>{fmt(d.expenses)}</td>
+                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: d.net >= 0 ? "#22c55e" : "#ef4444", fontWeight: 700, whiteSpace: "nowrap" }}>{d.net >= 0 ? "+" : ""}{fmt(d.net)}</td>
+                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: d.cumulative >= 0 ? "#22c55e" : "#ef4444", fontWeight: 700, whiteSpace: "nowrap" }}>{d.cumulative >= 0 ? "+" : ""}{fmt(d.cumulative)}</td>
                       </tr>
                     ))}
                   </tbody>

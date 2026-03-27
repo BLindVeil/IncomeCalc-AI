@@ -38,6 +38,49 @@ interface Msg {
   content: string;
 }
 
+// ── Rate Limiter (in-memory, per serverless instance) ────────────────────────
+
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 15;
+
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+// Periodically clean stale entries to prevent memory leak (every 5 min)
+let lastCleanup = Date.now();
+function cleanupRateLimitMap(): void {
+  const now = Date.now();
+  if (now - lastCleanup < 300_000) return;
+  lastCleanup = now;
+  for (const [key, entry] of rateLimitMap) {
+    if (now > entry.resetTime) rateLimitMap.delete(key);
+  }
+}
+
+function isRateLimited(ip: string): boolean {
+  cleanupRateLimitMap();
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX_REQUESTS;
+}
+
+// ── Input validation constants ───────────────────────────────────────────────
+
+const MAX_PAYLOAD_BYTES = 15_000;
+const MAX_ADVISOR_MESSAGES = 20;
+const MAX_MESSAGE_LENGTH = 2_000;
+
+/** Strip control characters (keep newlines and tabs). */
+function sanitizeText(s: string): string {
+  return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function usd(n: number): string {
@@ -143,8 +186,29 @@ async function callAIChat(messages: Msg[], preferOpenAI = false): Promise<string
 // ── Main handler ──────────────────────────────────────────────────────────────
 
 export default async function handler(req: Req, res: Res): Promise<void> {
-  if (!req.headers["x-forwarded-for"]) {
+  // ── Access check ──────────────────────────────────────────────────────────
+  const forwarded = req.headers["x-forwarded-for"];
+  if (!forwarded) {
     res.status(403).json({ error: "Access denied" });
+    return;
+  }
+
+  // ── Rate limiting (per IP, in-memory) ─────────────────────────────────────
+  const clientIp = (typeof forwarded === "string" ? forwarded : forwarded[0]).split(",")[0].trim();
+  if (isRateLimited(clientIp)) {
+    res.status(429).json({ error: "Too many requests. Please wait a minute before trying again." });
+    return;
+  }
+
+  // ── Payload size check ────────────────────────────────────────────────────
+  try {
+    const bodySize = JSON.stringify(req.body).length;
+    if (bodySize > MAX_PAYLOAD_BYTES) {
+      res.status(413).json({ error: "Payload too large. Maximum size is 15KB." });
+      return;
+    }
+  } catch {
+    res.status(400).json({ error: "Invalid request body" });
     return;
   }
 
@@ -243,7 +307,26 @@ export default async function handler(req: Req, res: Res): Promise<void> {
 
     // ── advisor (multi-turn chat) ──────────────────────────────────────────
     if (feature === "advisor") {
-      const { messages } = input as { messages: Msg[] };
+      const { messages: rawMessages } = input as { messages: Msg[] };
+
+      // Validate messages array
+      if (!Array.isArray(rawMessages) || rawMessages.length === 0) {
+        res.status(400).json({ error: "Advisor requires a non-empty messages array." });
+        return;
+      }
+      if (rawMessages.length > MAX_ADVISOR_MESSAGES) {
+        res.status(400).json({ error: `Too many messages. Maximum is ${MAX_ADVISOR_MESSAGES}.` });
+        return;
+      }
+
+      // Sanitize and truncate each message
+      const messages: Msg[] = rawMessages.map((m) => ({
+        role: typeof m.role === "string" ? m.role : "user",
+        content: sanitizeText(
+          typeof m.content === "string" ? m.content.slice(0, MAX_MESSAGE_LENGTH) : ""
+        ),
+      }));
+
       // Advisor prefers OpenAI to preserve the original gpt-4.1 behaviour.
       const reply = await callAIChat(messages, /* preferOpenAI= */ true);
       res.json({ reply });
