@@ -84,81 +84,98 @@ function computeTopMove(data: ExpenseData, taxRate: number, outputs: ReturnType<
   const { ratios } = outputs;
   const totalMonthly = outputs.monthlyExpensesTotal;
 
-  if (ratios.rentRatio > 0.4) {
-    // Solve for housing value that achieves 35% of the NEW total:
-    // housing / (nonHousing + housing) = 0.35 → housing = 0.35/0.65 * nonHousing
+  // FIX 2: Each branch checks that the diff > 0 before recommending
+  if (ratios.rentRatio > 0.4 && data.housing > 0) {
     const nonHousing = totalMonthly - data.housing;
     const targetHousing = Math.round((0.35 / 0.65) * nonHousing);
     const adjustedVal = Math.min(data.housing, targetHousing);
-    const adjusted = { ...data, housing: adjustedVal };
-    const projectedOut = computeForExpenses(adjusted, taxRate);
     const diff = data.housing - adjustedVal;
-    return {
-      title: `Cut ${fieldLabel("housing")} by ${fmt(diff)}/mo`,
-      description: `Housing is ${(ratios.rentRatio * 100).toFixed(0)}% of your budget, well above the safe 35% threshold. Dropping from ${fmt(data.housing)} to ${fmt(adjustedVal)}/mo brings it to ~35% and meaningfully improves your stability.`,
-      field: "housing",
-      currentValue: data.housing,
-      adjustedValue: adjustedVal,
-      currentHealth: outputs.healthScore,
-      projectedHealth: projectedOut.healthScore,
-    };
+    if (diff > 0) {
+      const adjusted = { ...data, housing: adjustedVal };
+      const projectedOut = computeForExpenses(adjusted, taxRate);
+      return {
+        title: `Cut ${fieldLabel("housing")} by ${fmt(diff)}/mo`,
+        description: `Housing is ${(ratios.rentRatio * 100).toFixed(0)}% of your budget, well above the safe 35% threshold. Dropping from ${fmt(data.housing)} to ${fmt(adjustedVal)}/mo brings it to ~35% and meaningfully improves your stability.`,
+        field: "housing",
+        currentValue: data.housing,
+        adjustedValue: adjustedVal,
+        currentHealth: outputs.healthScore,
+        projectedHealth: projectedOut.healthScore,
+      };
+    }
   }
 
-  if (ratios.debtRatio > 0.2) {
-    // Solve for debt value that achieves 15% of the NEW total:
-    // debt / (nonDebt + debt) = 0.15 → debt = 0.15/0.85 * nonDebt
+  if (ratios.debtRatio > 0.2 && data.other > 0) {
     const nonDebt = totalMonthly - data.other;
     const targetDebt = Math.round((0.15 / 0.85) * nonDebt);
     const adjustedVal = Math.min(data.other, targetDebt);
-    const adjusted = { ...data, other: adjustedVal };
-    const projectedOut = computeForExpenses(adjusted, taxRate);
     const diff = data.other - adjustedVal;
-    return {
-      title: `Reduce ${fieldLabel("other")} by ${fmt(diff)}/mo`,
-      description: `Debt and other costs are ${(ratios.debtRatio * 100).toFixed(0)}% of your budget, above the recommended 15%. Bringing them from ${fmt(data.other)} down to ${fmt(adjustedVal)}/mo frees up cash flow for savings and emergencies.`,
-      field: "other",
-      currentValue: data.other,
-      adjustedValue: adjustedVal,
-      currentHealth: outputs.healthScore,
-      projectedHealth: projectedOut.healthScore,
-    };
+    if (diff > 0) {
+      const adjusted = { ...data, other: adjustedVal };
+      const projectedOut = computeForExpenses(adjusted, taxRate);
+      return {
+        title: `Reduce ${fieldLabel("other")} by ${fmt(diff)}/mo`,
+        description: `Debt and other costs are ${(ratios.debtRatio * 100).toFixed(0)}% of your budget, above the recommended 15%. Bringing them from ${fmt(data.other)} down to ${fmt(adjustedVal)}/mo frees up cash flow for savings and emergencies.`,
+        field: "other",
+        currentValue: data.other,
+        adjustedValue: adjustedVal,
+        currentHealth: outputs.healthScore,
+        projectedHealth: projectedOut.healthScore,
+      };
+    }
   }
 
   if (ratios.savingsRatio < 0.1) {
-    // Solve for savings value that achieves 15% of the NEW total:
-    // savings / (nonSavings + savings) = 0.15 → savings = 0.15/0.85 * nonSavings
     const nonSavings = totalMonthly - data.savings;
     const targetSavings = Math.round((0.15 / 0.85) * nonSavings);
     const adjustedVal = Math.max(data.savings, targetSavings);
-    const adjusted = { ...data, savings: adjustedVal };
-    const projectedOut = computeForExpenses(adjusted, taxRate);
     const diff = adjustedVal - data.savings;
-    return {
-      title: `Add ${fmt(diff)}/mo to ${fieldLabel("savings")}`,
-      description: `You're only saving ${(ratios.savingsRatio * 100).toFixed(0)}% of your budget. Increasing from ${fmt(data.savings)} to ${fmt(adjustedVal)}/mo builds a real safety net and significantly improves your health score.`,
-      field: "savings",
-      currentValue: data.savings,
-      adjustedValue: adjustedVal,
-      currentHealth: outputs.healthScore,
-      projectedHealth: projectedOut.healthScore,
-    };
+    if (diff > 0) {
+      const adjusted = { ...data, savings: adjustedVal };
+      const projectedOut = computeForExpenses(adjusted, taxRate);
+      return {
+        title: `Add ${fmt(diff)}/mo to ${fieldLabel("savings")}`,
+        description: `You're only saving ${(ratios.savingsRatio * 100).toFixed(0)}% of your budget. Increasing from ${fmt(data.savings)} to ${fmt(adjustedVal)}/mo builds a real safety net and significantly improves your health score.`,
+        field: "savings",
+        currentValue: data.savings,
+        adjustedValue: adjustedVal,
+        currentHealth: outputs.healthScore,
+        projectedHealth: projectedOut.healthScore,
+      };
+    }
   }
 
-  // Fallback: reduce largest non-savings expense by 10%
-  const largestField: keyof ExpenseData = (["housing", "food", "transport", "healthcare", "utilities", "entertainment", "clothing", "other"] as const)
-    .reduce((a, b) => (data[a] >= data[b] ? a : b));
-  const reducedValue = Math.round(data[largestField] * 0.9);
-  const diff = data[largestField] - reducedValue;
-  const adjusted = { ...data, [largestField]: reducedValue };
-  const projectedOut = computeForExpenses(adjusted, taxRate);
+  // Fallback: reduce largest non-savings, non-zero expense by 10%
+  const nonZeroFields = (["housing", "food", "transport", "healthcare", "utilities", "entertainment", "clothing", "other"] as const)
+    .filter((f) => data[f] > 0);
+  if (nonZeroFields.length > 0) {
+    const largestField = nonZeroFields.reduce((a, b) => (data[a] >= data[b] ? a : b));
+    const reducedValue = Math.round(data[largestField] * 0.9);
+    const diff = data[largestField] - reducedValue;
+    if (diff > 0) {
+      const adjusted = { ...data, [largestField]: reducedValue };
+      const projectedOut = computeForExpenses(adjusted, taxRate);
+      return {
+        title: `Trim ${fieldLabel(largestField)} by ${fmt(diff)}/mo`,
+        description: `A 10% reduction in ${fieldLabel(largestField)} (${fmt(data[largestField])} → ${fmt(reducedValue)}/mo) would improve your position.`,
+        field: largestField,
+        currentValue: data[largestField],
+        adjustedValue: reducedValue,
+        currentHealth: outputs.healthScore,
+        projectedHealth: projectedOut.healthScore,
+      };
+    }
+  }
+
+  // Ultimate fallback: no actionable move (all expenses at $0 or negligible)
   return {
-    title: `Trim ${fieldLabel(largestField)} by ${fmt(diff)}/mo`,
-    description: `A 10% reduction in ${fieldLabel(largestField)} (${fmt(data[largestField])} → ${fmt(reducedValue)}/mo) would improve your position.`,
-    field: largestField,
-    currentValue: data[largestField],
-    adjustedValue: reducedValue,
+    title: "Start building an emergency fund",
+    description: "Your expenses are minimal. Focus on setting aside savings to build a financial buffer.",
+    field: "savings",
+    currentValue: data.savings,
+    adjustedValue: data.savings,
     currentHealth: outputs.healthScore,
-    projectedHealth: projectedOut.healthScore,
+    projectedHealth: outputs.healthScore,
   };
 }
 
@@ -230,7 +247,11 @@ export function GuidedFlowPage({
 
   // Health
   const healthScore = outputs.healthScore;
-  const healthLabel = outputs.healthLabel;
+  // FIX 4: Cap healthLabel at "Fair" if runway < 1 month or 2+ critical alerts
+  const criticalAlertCount = alerts.filter((a) => a.severity === "critical").length;
+  const healthLabel = (runway.months < 1 || criticalAlertCount >= 2)
+    ? (outputs.healthLabel === "Excellent" || outputs.healthLabel === "Good" ? "Fair" : outputs.healthLabel)
+    : outputs.healthLabel;
   const healthColor =
     healthScore >= 80 ? "#22c55e" : healthScore >= 60 ? "#84cc16" : healthScore >= 40 ? "#f59e0b" : "#ef4444";
 

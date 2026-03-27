@@ -306,7 +306,11 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         `  "riskWarning": "One specific risk based on their actual numbers (e.g. housing over 30%, no emergency fund, negative cashflow)",\n` +
         `  "optimization": "One highest-impact action with estimated dollar impact per year",\n` +
         `  "projection": "Where they will be financially in 10 years if they maintain current trajectory, with specific dollar estimates"\n` +
-        `}`;
+        `}\n\n` +
+        `GUARDRAILS:\n` +
+        `- If savings is $0, never describe them as stable. Their position is fragile.\n` +
+        `- Never recommend reducing a $0 category.\n` +
+        `- If savings exceeds 60% of expenses, acknowledge aggressive saving and focus on allocation optimization.`;
 
       const text = await callAI(
         "You are a quantitative financial analyst. Respond only with valid JSON matching the exact schema requested.",
@@ -418,7 +422,13 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         `- All string values must be specific to their actual numbers\n` +
         `- Be practical, non-judgmental, and non-preachy\n` +
         `- cutFirst and hiddenStrength are optional but recommended\n` +
-        `- Output ONLY the JSON object, nothing else`;
+        `- Output ONLY the JSON object, nothing else\n\n` +
+        `GUARDRAILS (you must follow these):\n` +
+        `- If savings is $0 or savings rate is 0%, NEVER describe the person as "stable" or "in good shape". Their position is fragile.\n` +
+        `- If monthly leftover/margin is $0 or negative, this is a high-risk situation — do not downplay it.\n` +
+        `- NEVER recommend reducing a category that is already $0. If a category is $0, skip it entirely and focus on non-zero categories.\n` +
+        `- If savings exceeds 60% of total expenses, acknowledge that the person is saving aggressively. Do not treat this as a problem — instead focus on optimizing allocation (emergency fund vs investments vs debt paydown).\n` +
+        `- riskLevel must be "high" if savings rate is 0% or monthly leftover is $0 or negative.`;
 
       const text = await callAI(
         "You are a premium financial diagnostician. You analyze personal finances and return structured JSON diagnoses. Never output markdown fences or prose outside JSON. Your analysis must be specific, practical, and based on the exact numbers provided.",

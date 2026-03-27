@@ -605,7 +605,11 @@ export function ResultsPage({
   // Sub-scores from shared engine
   const { cashflowStability, debtRisk, savingsStrength, incomeFragility } = outputs.subScores;
   const healthScore = outputs.healthScore;
-  const healthLabel = outputs.healthLabel;
+  // FIX 4: Cap healthLabel at "Fair" if runway < 1 month or 2+ critical alerts
+  const criticalAlertCount = alerts.filter((a) => a.severity === "critical").length;
+  const healthLabel = (runway.months < 1 || criticalAlertCount >= 2)
+    ? (outputs.healthLabel === "Excellent" || outputs.healthLabel === "Good" ? "Fair" : outputs.healthLabel)
+    : outputs.healthLabel;
   const healthColor =
     healthScore >= 80 ? "#22c55e" : healthScore >= 60 ? "#84cc16" : healthScore >= 40 ? "#f59e0b" : "#ef4444";
 
@@ -814,7 +818,8 @@ export function ResultsPage({
             Weighted overall score based on cashflow, debt, savings, and income resilience.
             {savingsRate < 20 && " Aim for at least 20% savings for a healthy financial foundation."}
             {savingsRate >= 20 && savingsRate < 30 && " Great work! Consider pushing toward 30% for faster wealth building."}
-            {savingsRate >= 30 && " Excellent savings discipline! You're on a strong financial path."}
+            {savingsRate >= 30 && !outputs.savingsHeavy && " Excellent savings discipline! You're on a strong financial path."}
+            {outputs.savingsHeavy && " You're saving aggressively (60%+ of budget). Consider optimizing allocation between emergency fund, investments, and debt paydown."}
           </p>
         </div>
 

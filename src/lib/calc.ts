@@ -42,6 +42,7 @@ export interface CalcOutput {
   };
   healthScore: number;
   healthLabel: string;
+  savingsHeavy: boolean;
   subScores: {
     cashflowStability: number;
     debtRisk: number;
@@ -135,14 +136,24 @@ export function calculate(input: CalcInput): CalcOutput {
       : 0
   ));
 
-  const healthScore = Math.min(100, Math.round(
+  let healthScore = Math.min(100, Math.round(
     cashflowStability * 0.3 + debtRisk * 0.2 + savingsStrength * 0.3 + incomeFragility * 0.2
   ));
+
+  // FIX 1: Cap health score at 25 when runway is effectively zero
+  // (savings = 0 means no emergency buffer at all)
+  if (expenses.savings === 0) {
+    healthScore = Math.min(healthScore, 25);
+  }
+
   const healthLabel =
     healthScore >= 80 ? "Excellent" :
     healthScore >= 60 ? "Good" :
     healthScore >= 40 ? "Fair" :
     "Needs Work";
+
+  // FIX 3: Flag when savings dominates the budget (>60% of total expenses)
+  const savingsHeavy = monthlyRequiredTotal > 0 && (expenses.savings / monthlyRequiredTotal) > 0.6;
 
   return {
     monthlyExpensesTotal,
@@ -164,6 +175,7 @@ export function calculate(input: CalcInput): CalcOutput {
     },
     healthScore,
     healthLabel,
+    savingsHeavy,
     subScores: {
       cashflowStability,
       debtRisk,
