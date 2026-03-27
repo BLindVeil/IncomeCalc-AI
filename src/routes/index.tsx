@@ -1335,65 +1335,135 @@ function FirePage({
             </div>
           </>
         ) : (
-          /* Polished paywall teaser for non-premium users */
+          /* Premium paywall with blurred preview */
           <div
             style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "16px",
-              padding: "2.5rem 2rem",
-              textAlign: "center",
               position: "relative",
               overflow: "hidden",
+              borderRadius: "16px",
+              border: `1px solid ${t.primary}30`,
+              boxShadow: `0 0 40px ${t.primary}15, 0 8px 32px rgba(0,0,0,0.12)`,
             }}
           >
             {/* Accent bar */}
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "linear-gradient(90deg, #f59e0b, #ef4444, #f59e0b)" }} />
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: `linear-gradient(90deg, #f59e0b, ${t.accent}, #f59e0b)`, zIndex: 3 }} />
 
-            <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "#f59e0b15", border: "2px solid #f59e0b30", display: "flex", alignItems: "center", justifyContent: "center", color: "#f59e0b", margin: "0 auto 1rem" }}>
-              <Flame size={26} />
-            </div>
-
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: t.text, margin: "0 0 0.5rem" }}>
-              Your FIRE projection is ready
-            </h3>
-            <p style={{ fontSize: "0.9rem", color: t.muted, margin: "0 0 1.25rem", lineHeight: 1.55, maxWidth: "400px", marginLeft: "auto", marginRight: "auto" }}>
-              See your projected retirement balance, monthly income under the 4% rule, and whether you're on track — based on the inputs above.
-            </p>
-
-            <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
-              {[
-                { label: "Projected Balance", icon: "💰" },
-                { label: "Monthly Income", icon: "📊" },
-                { label: "On-Track Status", icon: "✅" },
-              ].map((item) => (
-                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.82rem", color: t.muted }}>
-                  <span style={{ fontSize: "0.9rem" }}>{item.icon}</span>
-                  {item.label}
+            {/* Blurred preview — shows real computed data */}
+            <div style={{ filter: "blur(8px)", pointerEvents: "none", userSelect: "none" as const }}>
+              {/* Hero card preview */}
+              <div
+                style={{
+                  background: `linear-gradient(135deg, ${currentTheme.primary}, ${currentTheme.accent})`,
+                  padding: "1.75rem",
+                  color: "#fff",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: "0.8rem", opacity: 0.8, marginBottom: "0.35rem" }}>Projected Retirement Balance</div>
+                <div style={{ fontSize: "2.25rem", fontWeight: 900, lineHeight: 1.1 }}>{fmt(fireResult.projectedBalance)}</div>
+                <div style={{ fontSize: "0.8rem", opacity: 0.8, marginTop: "0.2rem" }}>in {fireResult.yearsUntilRetirement} years</div>
+                <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginTop: "1rem", flexWrap: "wrap" }}>
+                  <div>
+                    <div style={{ opacity: 0.7, fontSize: "0.72rem" }}>Monthly Income</div>
+                    <div style={{ fontWeight: 700, fontSize: "1rem" }}>{fmt(fireResult.monthlyRetirementIncome)}/mo</div>
+                  </div>
+                  <div>
+                    <div style={{ opacity: 0.7, fontSize: "0.72rem" }}>Annual Withdrawal</div>
+                    <div style={{ fontWeight: 700, fontSize: "1rem" }}>{fmt(fireResult.annualWithdrawal)}/yr</div>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              {/* On-track preview */}
+              <div style={{ background: t.cardBg, padding: "1rem 1.5rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#22c55e15", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <CheckCircle size={18} style={{ color: "#22c55e" }} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, color: "#22c55e", fontSize: "0.95rem" }}>On Track</div>
+                  <div style={{ fontSize: "0.8rem", color: t.muted }}>Your projection details are ready</div>
+                </div>
+              </div>
             </div>
 
-            <button
-              onClick={() => onUpgrade("premium")}
+            {/* Overlay CTA */}
+            <div
+              className="atv-locked-overlay"
               style={{
-                background: "linear-gradient(135deg, #f59e0b, #ea580c)",
-                color: "#fff",
-                border: "none",
-                borderRadius: "10px",
-                padding: "0.7rem 2rem",
-                fontSize: "0.95rem",
-                fontWeight: 700,
-                cursor: "pointer",
-                display: "inline-flex",
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                gap: "0.5rem",
-                boxShadow: "0 4px 14px rgba(245,158,11,0.3)",
+                justifyContent: "center",
+                gap: "0.75rem",
+                zIndex: 2,
+                padding: "2rem",
+                textAlign: "center",
               }}
             >
-              <Flame size={16} />
-              Unlock FIRE Estimator
-            </button>
+              <div style={{
+                width: "52px", height: "52px", borderRadius: "50%",
+                background: `linear-gradient(135deg, #f59e0b20, ${t.primary}20)`,
+                border: `2px solid #f59e0b40`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: `0 0 20px #f59e0b20`,
+              }}>
+                <Flame size={24} style={{ color: "#f59e0b" }} />
+              </div>
+
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, color: t.text, margin: 0 }}>
+                Your FIRE projection is ready
+              </h3>
+              <p style={{ fontSize: "0.85rem", color: t.muted, margin: 0, lineHeight: 1.5, maxWidth: "340px" }}>
+                See your full retirement balance, monthly income, and on-track status.
+              </p>
+
+              {/* Feature pills */}
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+                {["Projected Balance", "4% Rule Income", "On-Track Status"].map((label) => (
+                  <span
+                    key={label}
+                    style={{
+                      fontSize: "0.72rem",
+                      fontWeight: 600,
+                      padding: "0.25rem 0.65rem",
+                      borderRadius: "20px",
+                      background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
+                      color: t.muted,
+                      border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                    }}
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+
+              <button
+                onClick={() => onUpgrade("premium")}
+                style={{
+                  background: `linear-gradient(135deg, #f59e0b, #ea580c)`,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "10px",
+                  padding: "0.75rem 2.25rem",
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  boxShadow: `0 4px 20px rgba(245,158,11,0.35)`,
+                  marginTop: "0.25rem",
+                  transition: "transform 0.15s, box-shadow 0.15s",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 6px 24px rgba(245,158,11,0.45)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(245,158,11,0.35)"; }}
+              >
+                <Lock size={15} />
+                Unlock FIRE Estimator
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -2094,65 +2164,137 @@ function FIEstimatorPage({
             )}
           </>
         ) : (
-          /* Polished paywall teaser for non-premium users */
+          /* Premium paywall with blurred preview */
           <div
             style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "16px",
-              padding: "2.5rem 2rem",
-              textAlign: "center",
               position: "relative",
               overflow: "hidden",
+              borderRadius: "16px",
+              border: `1px solid ${t.primary}30`,
+              boxShadow: `0 0 40px ${t.primary}15, 0 8px 32px rgba(0,0,0,0.12)`,
             }}
           >
             {/* Accent bar */}
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent}, ${t.primary})` }} />
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent}, ${t.primary})`, zIndex: 3 }} />
 
-            <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: `${t.primary}15`, border: `2px solid ${t.primary}30`, display: "flex", alignItems: "center", justifyContent: "center", color: t.primary, margin: "0 auto 1rem" }}>
-              <Milestone size={26} />
-            </div>
-
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: t.text, margin: "0 0 0.5rem" }}>
-              Your FI estimate is ready
-            </h3>
-            <p style={{ fontSize: "0.9rem", color: t.muted, margin: "0 0 1.25rem", lineHeight: 1.55, maxWidth: "400px", marginLeft: "auto", marginRight: "auto" }}>
-              See your target net worth, projected FI date, progress tracking, and asset growth chart — based on the inputs above.
-            </p>
-
-            <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
-              {[
-                { label: "FI Target", icon: "🎯" },
-                { label: "Timeline", icon: "📅" },
-                { label: "Growth Chart", icon: "📈" },
-              ].map((item) => (
-                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.82rem", color: t.muted }}>
-                  <span style={{ fontSize: "0.9rem" }}>{item.icon}</span>
-                  {item.label}
+            {/* Blurred preview — shows real computed data */}
+            <div style={{ filter: "blur(8px)", pointerEvents: "none", userSelect: "none" as const }}>
+              {/* FI target hero preview */}
+              <div
+                style={{
+                  background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
+                  padding: "1.75rem",
+                  color: "#fff",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: "0.8rem", opacity: 0.8, marginBottom: "0.35rem" }}>FI Target Net Worth</div>
+                <div style={{ fontSize: "2.25rem", fontWeight: 900, lineHeight: 1.1 }}>{fmt(fiResult.targetNetWorth)}</div>
+                <div style={{ fontSize: "0.8rem", opacity: 0.8, marginTop: "0.2rem" }}>
+                  Based on {fmt(annualExpenses)}/yr at {swr}% SWR
                 </div>
-              ))}
+              </div>
+
+              {/* Progress + timeline preview */}
+              <div style={{ background: t.cardBg, padding: "1rem 1.5rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+                  <span style={{ fontWeight: 700, fontSize: "0.85rem", color: t.text }}>Progress to FI</span>
+                  <span style={{ fontWeight: 700, color: t.primary, fontSize: "0.85rem" }}>{fiResult.currentProgress}%</span>
+                </div>
+                <div style={{ height: "10px", background: t.border, borderRadius: "5px", overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${fiResult.currentProgress}%`, background: `linear-gradient(90deg, ${t.primary}, ${t.accent})`, borderRadius: "5px" }} />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginTop: "0.75rem" }}>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: "0.72rem", color: t.muted }}>Time to FI</div>
+                    <div style={{ fontSize: "1.25rem", fontWeight: 900, color: t.primary }}>{fiResult.onTrack ? `${fiResult.yearsToFI} yrs` : "50+"}</div>
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: "0.72rem", color: t.muted }}>Projected Date</div>
+                    <div style={{ fontSize: "1.05rem", fontWeight: 900, color: t.primary }}>{fiDateStr}</div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <button
-              onClick={() => onUpgrade("premium")}
+            {/* Overlay CTA */}
+            <div
+              className="atv-locked-overlay"
               style={{
-                background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-                color: "#fff",
-                border: "none",
-                borderRadius: "10px",
-                padding: "0.7rem 2rem",
-                fontSize: "0.95rem",
-                fontWeight: 700,
-                cursor: "pointer",
-                display: "inline-flex",
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                gap: "0.5rem",
-                boxShadow: `0 4px 14px ${t.primary}4D`,
+                justifyContent: "center",
+                gap: "0.75rem",
+                zIndex: 2,
+                padding: "2rem",
+                textAlign: "center",
               }}
             >
-              <Milestone size={16} />
-              Unlock FI Estimator
-            </button>
+              <div style={{
+                width: "52px", height: "52px", borderRadius: "50%",
+                background: `${t.primary}20`,
+                border: `2px solid ${t.primary}40`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: `0 0 20px ${t.primary}20`,
+              }}>
+                <Milestone size={24} style={{ color: t.primary }} />
+              </div>
+
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, color: t.text, margin: 0 }}>
+                Your FI estimate is ready
+              </h3>
+              <p style={{ fontSize: "0.85rem", color: t.muted, margin: 0, lineHeight: 1.5, maxWidth: "340px" }}>
+                See your target net worth, FI date, progress tracking, and growth chart.
+              </p>
+
+              {/* Feature pills */}
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+                {["FI Target", "Timeline", "Progress", "Growth Chart"].map((label) => (
+                  <span
+                    key={label}
+                    style={{
+                      fontSize: "0.72rem",
+                      fontWeight: 600,
+                      padding: "0.25rem 0.65rem",
+                      borderRadius: "20px",
+                      background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
+                      color: t.muted,
+                      border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                    }}
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+
+              <button
+                onClick={() => onUpgrade("premium")}
+                style={{
+                  background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "10px",
+                  padding: "0.75rem 2.25rem",
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  boxShadow: `0 4px 20px ${t.primary}40`,
+                  marginTop: "0.25rem",
+                  transition: "transform 0.15s, box-shadow 0.15s",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = `0 6px 24px ${t.primary}55`; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = `0 4px 20px ${t.primary}40`; }}
+              >
+                <Lock size={15} />
+                Unlock FI Estimator
+              </button>
+            </div>
           </div>
         )}
       </div>
