@@ -257,7 +257,7 @@ export function Header({
       </button>
 
       <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "0.35rem" : "0.5rem", flexShrink: 0, position: "relative", flexWrap: "wrap" }}>
-        {badgeLabel && (
+        {import.meta.env.DEV && badgeLabel && (
           <span
             style={{
               background: "#dc2626",
@@ -274,8 +274,8 @@ export function Header({
             {badgeLabel}
           </span>
         )}
-        {/* Dev Access */}
-        {onDevAccess && (
+        {/* Dev Access — only in development builds */}
+        {import.meta.env.DEV && onDevAccess && (
           <button
             onClick={onDevAccess}
             style={{
