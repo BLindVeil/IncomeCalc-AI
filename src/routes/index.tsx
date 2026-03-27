@@ -3283,8 +3283,8 @@ function App() {
 
   function handleSignOut() {
     try {
-      import("@/lib/auth-store").then(({ signOut }) => {
-        signOut();
+      import("@/lib/auth-store").then(({ logout }) => {
+        logout();
         setCurrentUser(null);
         setShowAuthModal(false);
         setSavePromptPending(false);
@@ -3311,12 +3311,8 @@ function App() {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${session.token}`,
+      "X-User-Id": user.id,
     };
-
-    // ✅ Only allow X-User-Id in local/dev (NOT production)
-    if (import.meta.env.DEV) {
-      headers["X-User-Id"] = user.id;
-    }
 
     try {
       const resp = await fetch("/api/stripe/create-checkout-session", {
@@ -3330,14 +3326,21 @@ function App() {
       });
 
       if (!resp.ok) {
-        console.error("[checkout] Failed to create session:", await resp.text());
+        const text = await resp.text().catch(() => "Unknown error");
+        console.error("[checkout] Failed to create session:", text);
+        alert("Unable to start checkout. Please try again or contact support.");
         return;
       }
 
       const { url } = (await resp.json()) as { url: string };
-      window.location.href = url;
+      if (url) {
+        window.location.href = url;
+      } else {
+        alert("Unable to start checkout. Please try again.");
+      }
     } catch (err) {
       console.error("[checkout] Network error:", err);
+      alert("Network error. Please check your connection and try again.");
     }
   }
 

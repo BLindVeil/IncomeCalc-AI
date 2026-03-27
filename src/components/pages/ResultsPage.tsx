@@ -151,20 +151,31 @@ export function RestorePurchaseModal({ onClose, t }: RestorePurchaseModalProps) 
     trackEvent("restore_purchase_attempted", { source_page: "/checkout" });
 
     try {
-      const { restorePurchase } = await import("@/lib/stripe-entitlements");
-      const { getCurrentUser } = await import("@/lib/auth-store");
+      const { getCurrentUser, getSession } = await import("@/lib/auth-store");
       const currentUser = getCurrentUser();
+      const session = getSession();
       const userId = currentUser?.id || email.trim();
+      const token = session?.token || "";
 
-      const result = await restorePurchase(userId);
-      if (result && result.planTier !== "free") {
-        localStorage.setItem("incomecalc-tier", result.planTier);
-        trackEvent("restore_purchase_success", { plan: result.planTier as "pro" | "premium", source_page: "/checkout" });
-        setStatus("success");
-      } else {
-        trackEvent("restore_purchase_failed", { source_page: "/checkout" });
-        setStatus("failed");
+      const resp = await fetch("/api/entitlement", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "X-User-Id": userId,
+        },
+      });
+
+      if (resp.ok) {
+        const data = (await resp.json()) as { plan?: string; status?: string };
+        if (data.plan && data.plan !== "free" && data.status !== "expired") {
+          localStorage.setItem("incomecalc-tier", data.plan);
+          trackEvent("restore_purchase_success", { plan: data.plan as "pro" | "premium", source_page: "/checkout" });
+          setStatus("success");
+          return;
+        }
       }
+
+      trackEvent("restore_purchase_failed", { source_page: "/checkout" });
+      setStatus("failed");
     } catch {
       trackEvent("restore_purchase_failed", { source_page: "/checkout" });
       setStatus("failed");

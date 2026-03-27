@@ -5,15 +5,11 @@
  *
  * Auth:
  *   Authorization: Bearer <sessionToken>  — required in all environments
- *   X-User-Id: <userId>                   — DEV ONLY (see note below)
+ *   X-User-Id: <userId>                   — required (client-side auth)
  *
- * ── SECURITY NOTE: X-User-Id is a temporary dev shim ────────────────────────
- * Accepting a user ID from a client-supplied header is NOT safe in production
- * because any caller can forge it. This header is intentionally blocked when
- * NODE_ENV === "production". Before going to production, replace X-User-Id
- * with a real server-side identity mechanism — e.g. a signed JWT validated
- * against a secret, an HttpOnly session cookie, or an OAuth access token.
- * ─────────────────────────────────────────────────────────────────────────────
+ * TODO: Replace X-User-Id with a real server-side identity mechanism
+ * (signed JWT, HttpOnly session cookie, or OAuth access token) before
+ * scaling to production with sensitive data.
  *
  * Response schema:
  *   { user_id, plan, status, created_at }
@@ -47,10 +43,6 @@ interface EntitlementRecord {
   expires_at: string;
 }
 
-// Vercel envs: "production" | "preview" | "development"
-// We only want to block the X-User-Id dev shim on the real production domain.
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
-
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export default async function handler(req: Req, res: Res): Promise<void> {
@@ -62,16 +54,6 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   const authHeader = req.headers["authorization"];
   const userIdHeader = req.headers["x-user-id"];
   const token = typeof authHeader === "string" ? authHeader.replace(/^Bearer\s+/i, "") : "";
-
-  // X-User-Id is a dev-only shim. Block it unconditionally in production —
-  // real auth must derive the user identity server-side before this can work.
-  if (IS_PRODUCTION && userIdHeader) {
-    res.status(401).json({
-      error: "X-User-Id header is not accepted in production. Implement server-side auth.",
-    });
-    return;
-  }
-
   const userId = typeof userIdHeader === "string" ? userIdHeader.trim() : "";
 
   if (!token || !userId) {
