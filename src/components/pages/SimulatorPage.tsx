@@ -12,6 +12,7 @@ import {
   TrendingDown,
   Minus,
   RotateCcw,
+  CheckCircle,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -488,10 +489,46 @@ export function SimulatorPage({
           // Use the scenario's current expenses as the single source of truth
           const baseScenario = scenarios[0];
           const base = results[0].output;
-          // Apply rent reduction clamped to what housing can actually absorb
-          const currentHousing = baseScenario.expenses.housing;
-          const actualReduction = Math.min(200, currentHousing);
-          const previewExpenses = { ...baseScenario.expenses, housing: currentHousing - actualReduction };
+          const expenses = baseScenario.expenses;
+          const { rentRatio, savingsRatio, debtRatio, transportRatio } = base.ratios;
+
+          // Pick the most impactful preview scenario based on user's actual data
+          let previewExpenses: ExpenseData;
+          let previewTitle: string;
+
+          if (rentRatio > 0.30 && expenses.housing > 0) {
+            const reduced = Math.round(expenses.housing * 0.85);
+            previewExpenses = { ...expenses, housing: reduced };
+            previewTitle = `What if you reduced housing by 15%?`;
+          } else if (savingsRatio < 0.05) {
+            previewExpenses = { ...expenses, savings: expenses.savings + 200 };
+            previewTitle = `What if you started saving $200/month more?`;
+          } else if (debtRatio > 0.20 && expenses.other > 0) {
+            const reduced = Math.round(expenses.other * 0.80);
+            previewExpenses = { ...expenses, other: reduced };
+            previewTitle = `What if you cut debt payments by 20%?`;
+          } else if (transportRatio > 0.15 && expenses.transport >= 150) {
+            previewExpenses = { ...expenses, transport: expenses.transport - 150 };
+            previewTitle = `What if you reduced transport by $150?`;
+          } else {
+            // Default: cut the biggest expense by 10%
+            const expenseEntries: { key: keyof ExpenseData; val: number }[] = [
+              { key: "housing", val: expenses.housing },
+              { key: "food", val: expenses.food },
+              { key: "transport", val: expenses.transport },
+              { key: "healthcare", val: expenses.healthcare },
+              { key: "utilities", val: expenses.utilities },
+              { key: "entertainment", val: expenses.entertainment },
+              { key: "clothing", val: expenses.clothing },
+              { key: "other", val: expenses.other },
+            ];
+            const biggest = expenseEntries.reduce((a, b) => b.val > a.val ? b : a);
+            const reduced = Math.round(biggest.val * 0.90);
+            previewExpenses = { ...expenses, [biggest.key]: reduced };
+            const fieldLabel = biggest.key === "other" ? "misc expenses" : biggest.key;
+            previewTitle = `What if you cut ${fieldLabel} by 10%?`;
+          }
+
           const previewOut = computeForExpenses(previewExpenses, baseScenario.taxRate);
 
           // Pre-compute deltas from the same source of truth
@@ -513,6 +550,11 @@ export function SimulatorPage({
                 <BarChart3 size={18} style={{ color: t.primary }} />
                 <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>What One Change Could Do</span>
                 <span style={{ fontSize: "0.68rem", fontWeight: 600, color: t.muted, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)", padding: "2px 7px", borderRadius: "6px" }}>Sample</span>
+              </div>
+
+              {/* Dynamic scenario title */}
+              <div style={{ fontSize: "0.88rem", fontWeight: 600, color: t.primary, marginBottom: "0.65rem" }}>
+                {previewTitle}
               </div>
 
               {/* Side-by-side preview: current vs hypothetical */}
@@ -538,7 +580,7 @@ export function SimulatorPage({
                 <div style={{ background: t.cardBg, border: `1px solid ${t.primary}40`, borderRadius: "12px", padding: "1rem", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent})` }} />
                   <div style={{ fontWeight: 700, fontSize: "0.85rem", color: t.text, marginBottom: "0.6rem" }}>
-                    Example: Rent -${actualReduction.toLocaleString("en-US")}
+                    After This Change
                   </div>
                   {([
                     { label: "Monthly Spend", value: fmt(previewOut.monthlyRequiredTotal), delta: dMonthly, good: dMonthly < 0, unit: "dollar" as const },
@@ -786,6 +828,145 @@ export function SimulatorPage({
                   </table>
                 </div>
               </div>
+
+              {/* ── Impact Summary / Decision Card ─────────────────── */}
+              {winner && (() => {
+                const dMonthly = winner.output.monthlyRequiredTotal - baseline.output.monthlyRequiredTotal;
+                const dAnnual = winner.output.annualGrossRequired - baseline.output.annualGrossRequired;
+                const dHealth = winner.output.healthScore - baseline.output.healthScore;
+                const dFragility = winner.output.fragilityScore - baseline.output.fragilityScore;
+
+                // Composite magnitude score (0–100 scale) to determine assessment tier
+                // Weight monthly savings most, then health, then fragility
+                const monthlySavings = Math.max(0, -dMonthly); // positive when winner spends less
+                const monthlyPct = baseline.output.monthlyRequiredTotal > 0
+                  ? (monthlySavings / baseline.output.monthlyRequiredTotal) * 100
+                  : 0;
+                const magnitude = monthlyPct * 2 + Math.abs(dHealth) + Math.abs(dFragility) * 0.5;
+
+                let assessment: string;
+                let assessmentColor: string;
+                if (magnitude >= 30) {
+                  assessment = "This is a major shift — worth serious consideration.";
+                  assessmentColor = "#22c55e";
+                } else if (magnitude >= 10) {
+                  assessment = "This is a meaningful improvement that compounds over time.";
+                  assessmentColor = "#22c55e";
+                } else if (magnitude >= 3) {
+                  assessment = "A modest adjustment — small but real progress.";
+                  assessmentColor = "#f59e0b";
+                } else {
+                  assessment = "The difference is marginal — consider testing a bolder change.";
+                  assessmentColor = t.muted;
+                }
+
+                // Build the plain-language summary parts
+                const isWinnerBaseline = winner.scenario.id === baseline.scenario.id;
+                const summaryParts: string[] = [];
+
+                if (Math.abs(dMonthly) >= 1) {
+                  summaryParts.push(
+                    dMonthly < 0
+                      ? `saves ${fmt(Math.abs(dMonthly))}/mo`
+                      : `costs ${fmt(dMonthly)}/mo more`
+                  );
+                }
+                if (Math.abs(dHealth) >= 1) {
+                  summaryParts.push(
+                    dHealth > 0
+                      ? `improves your health score by ${dHealth.toFixed(0)} points`
+                      : `lowers your health score by ${Math.abs(dHealth).toFixed(0)} points`
+                  );
+                }
+                if (Math.abs(dAnnual) >= 1) {
+                  summaryParts.push(
+                    dAnnual < 0
+                      ? `reduces your required income by ${fmt(Math.abs(dAnnual))}/year`
+                      : `increases your required income by ${fmt(dAnnual)}/year`
+                  );
+                }
+
+                const summaryText = isWinnerBaseline
+                  ? "Your current baseline is already your strongest position. Try making a bolder change in one of your variations."
+                  : summaryParts.length > 0
+                    ? `Switching to ${winner.scenario.name} ${summaryParts.join(", ")}.`
+                    : `${winner.scenario.name} is marginally better overall.`;
+
+                return (
+                  <div
+                    style={{
+                      background: t.cardBg,
+                      border: `1px solid ${t.primary}30`,
+                      borderRadius: "14px",
+                      padding: "1.5rem",
+                      marginBottom: "1.5rem",
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {/* Gradient accent bar */}
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent})` }} />
+
+                    {/* Header */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.85rem" }}>
+                      <CheckCircle size={18} style={{ color: "#22c55e" }} />
+                      <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Bottom Line</span>
+                    </div>
+
+                    {/* Summary text */}
+                    <p style={{ margin: "0 0 0.85rem", fontSize: "0.95rem", color: t.text, lineHeight: 1.6, fontWeight: 500 }}>
+                      {summaryText}
+                    </p>
+
+                    {/* Assessment badge */}
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                        padding: "0.45rem 0.85rem",
+                        borderRadius: "8px",
+                        background: assessmentColor + "14",
+                        border: `1px solid ${assessmentColor}30`,
+                      }}
+                    >
+                      <span style={{ fontSize: "0.85rem", fontWeight: 600, color: assessmentColor, lineHeight: 1.4 }}>
+                        {assessment}
+                      </span>
+                    </div>
+
+                    {/* Key deltas row — only when winner is not baseline */}
+                    {!isWinnerBaseline && (
+                      <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", marginTop: "1rem", paddingTop: "0.85rem", borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}` }}>
+                        {[
+                          { label: "Monthly", value: dMonthly, prefix: "$", invert: true },
+                          { label: "Annual Income", value: dAnnual, prefix: "$", invert: true },
+                          { label: "Health", value: dHealth, suffix: " pts", invert: false },
+                          { label: "Stability", value: dFragility, suffix: " pts", invert: false },
+                        ]
+                          .filter((d) => Math.abs(d.value) >= 0.5)
+                          .map((d) => {
+                            const isGood = d.invert ? d.value < 0 : d.value > 0;
+                            const color = isGood ? "#22c55e" : "#ef4444";
+                            const sign = d.value > 0 ? "+" : "";
+                            const display = d.prefix
+                              ? `${sign}${fmt(d.value)}`
+                              : `${sign}${d.value.toFixed(0)}${d.suffix}`;
+                            return (
+                              <div key={d.label}>
+                                <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.15rem" }}>{d.label}</div>
+                                <div style={{ fontSize: "0.95rem", fontWeight: 700, color, display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                                  {isGood ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
+                                  {display}
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </>
           );
         })()}

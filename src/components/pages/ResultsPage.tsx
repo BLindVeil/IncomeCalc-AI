@@ -1327,6 +1327,82 @@ export function ResultsPage({
           isDark={isDark}
         />
 
+        {/* Open in Simulator + Check-In cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
+          <div
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: "12px",
+              padding: "1.25rem",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+              <Play size={16} style={{ color: t.primary }} />
+              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>Scenario Simulator</span>
+            </div>
+            <p style={{ color: t.muted, fontSize: "0.82rem", margin: "0 0 0.75rem", lineHeight: 1.5 }}>
+              Compare what-if scenarios side by side.
+            </p>
+            <button
+              onClick={onSimulator}
+              style={{
+                background: t.primary + "15",
+                color: t.primary,
+                border: `1px solid ${t.primary}30`,
+                borderRadius: "8px",
+                padding: "0.45rem 0.85rem",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.35rem",
+              }}
+            >
+              <ArrowRight size={14} />
+              Open in Simulator
+            </button>
+          </div>
+          <div
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: "12px",
+              padding: "1.25rem",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+              <CalendarCheck size={16} style={{ color: "#22c55e" }} />
+              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>Monthly Check-In</span>
+            </div>
+            <p style={{ color: t.muted, fontSize: "0.82rem", margin: "0 0 0.75rem", lineHeight: 1.5 }}>
+              {snapshots.length > 0
+                ? `Next check-in: in ~${Math.max(1, 30 - Math.round((Date.now() - new Date(snapshots[snapshots.length - 1].date).getTime()) / 86400000))} days`
+                : "Track your progress month over month."}
+            </p>
+            <button
+              onClick={onCheckIn}
+              style={{
+                background: "#22c55e15",
+                color: "#22c55e",
+                border: "1px solid #22c55e30",
+                borderRadius: "8px",
+                padding: "0.45rem 0.85rem",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.35rem",
+              }}
+            >
+              <CalendarCheck size={14} />
+              {snapshots.length > 0 ? "Continue Check-In" : "Start Monthly Check-In"}
+            </button>
+          </div>
+        </div>
+
         {/* AI Financial Insight Engine */}
         <AIFinancialInsights
           data={data}
@@ -2090,82 +2166,6 @@ export function ResultsPage({
               Open Ask Your Plan
             </button>
           )}
-        </div>
-
-        {/* Open in Simulator + Check-In cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
-          <div
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "12px",
-              padding: "1.25rem",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-              <Play size={16} style={{ color: t.primary }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>Scenario Simulator</span>
-            </div>
-            <p style={{ color: t.muted, fontSize: "0.82rem", margin: "0 0 0.75rem", lineHeight: 1.5 }}>
-              Compare what-if scenarios side by side.
-            </p>
-            <button
-              onClick={onSimulator}
-              style={{
-                background: t.primary + "15",
-                color: t.primary,
-                border: `1px solid ${t.primary}30`,
-                borderRadius: "8px",
-                padding: "0.45rem 0.85rem",
-                fontSize: "0.85rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.35rem",
-              }}
-            >
-              <ArrowRight size={14} />
-              Open in Simulator
-            </button>
-          </div>
-          <div
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "12px",
-              padding: "1.25rem",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-              <CalendarCheck size={16} style={{ color: "#22c55e" }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>Monthly Check-In</span>
-            </div>
-            <p style={{ color: t.muted, fontSize: "0.82rem", margin: "0 0 0.75rem", lineHeight: 1.5 }}>
-              {snapshots.length > 0
-                ? `Next check-in: in ~${Math.max(1, 30 - Math.round((Date.now() - new Date(snapshots[snapshots.length - 1].date).getTime()) / 86400000))} days`
-                : "Track your progress month over month."}
-            </p>
-            <button
-              onClick={onCheckIn}
-              style={{
-                background: "#22c55e15",
-                color: "#22c55e",
-                border: "1px solid #22c55e30",
-                borderRadius: "8px",
-                padding: "0.45rem 0.85rem",
-                fontSize: "0.85rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.35rem",
-              }}
-            >
-              <CalendarCheck size={14} />
-              {snapshots.length > 0 ? "Continue Check-In" : "Start Monthly Check-In"}
-            </button>
-          </div>
         </div>
 
         {/* Save Scenario */}
