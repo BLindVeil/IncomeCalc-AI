@@ -13,8 +13,8 @@ function BillingCancelPage() {
           <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(255,184,0,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <XCircle size={36} style={{ color: "#FFB800" }} />
           </div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#FFFFFF", letterSpacing: "-0.02em" }}>Payment Cancelled</h1>
-          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "1rem", lineHeight: 1.6 }}>
+          <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "var(--foreground)", letterSpacing: "-0.02em" }}>Payment Cancelled</h1>
+          <p style={{ color: "var(--muted-foreground)", fontSize: "1rem", lineHeight: 1.6 }}>
             No worries — you haven't been charged. Your free plan is still active, and you can upgrade anytime.
           </p>
           <Link
