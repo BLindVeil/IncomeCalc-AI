@@ -352,10 +352,10 @@ export function GuidedFlowPage({
               <div style={{ marginBottom: "1.5rem" }}>
                 <div style={{ fontSize: "0.75rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>Your Financial Reality</div>
                 <h2 style={{ fontSize: "1.75rem", fontWeight: 800, color: t.text, margin: "0 0 0.35rem", lineHeight: 1.2 }}>
-                  Your life currently requires <span style={{ color: t.accent }}>{fmt(totalMonthly)}/month</span>
+                  You need to earn <span style={{ color: t.accent }}>{fmt(grossMonthly)}/month</span>
                 </h2>
                 <p style={{ fontSize: "0.95rem", color: t.muted, margin: 0, lineHeight: 1.5 }}>
-                  {interpretation}
+                  That covers {fmt(totalMonthly)}/mo in expenses at a {taxRate}% effective tax rate.
                 </p>
               </div>
 

@@ -708,7 +708,7 @@ export function ResultsPage({
             Your Income Report
           </h1>
           <p style={{ color: t.muted, fontSize: "0.95rem", margin: 0 }}>
-            Based on {fmt(totalMonthly)}/mo in expenses at a {taxRate}% effective tax rate.
+            That covers {fmt(totalMonthly)}/mo in expenses at a {taxRate}% effective tax rate.
           </p>
         </div>
 
