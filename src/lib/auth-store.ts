@@ -55,6 +55,7 @@ export interface Session {
 const KEYS = {
   USERS: "incomecalc-users",
   SESSION: "incomecalc-session",
+  CURRENT_USER: "incomecalc-current-user",
   SCENARIOS: "incomecalc-saved-scenarios",
 } as const;
 
@@ -82,24 +83,66 @@ function genToken(): string {
 function loadUsers(): User[] {
   try {
     const raw = localStorage.getItem(KEYS.USERS);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed;
   } catch {
     return [];
   }
 }
 
 function saveUsers(users: User[]): void {
-  localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+  try {
+    localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+  } catch {
+    // Quota exceeded or storage unavailable — log but don't crash
+    console.error("[auth-store] Failed to save users to localStorage");
+  }
+}
+
+/** Persist the current logged-in user under a dedicated key (redundancy). */
+function saveCurrentUser(user: User): void {
+  try {
+    localStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user));
+  } catch {
+    // ignore
+  }
+}
+
+/** Load the backup current-user record. */
+function loadCurrentUser(): User | null {
+  try {
+    const raw = localStorage.getItem(KEYS.CURRENT_USER);
+    if (!raw) return null;
+    const user = JSON.parse(raw) as User;
+    if (user && user.id && user.email) return user;
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 function findUserByEmail(email: string): User | null {
   const users = loadUsers();
-  return users.find((u) => u.email.toLowerCase() === email.toLowerCase()) ?? null;
+  const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase()) ?? null;
+  if (found) return found;
+
+  // Fallback: check the dedicated current-user backup
+  const backup = loadCurrentUser();
+  if (backup && backup.email.toLowerCase() === email.toLowerCase()) return backup;
+  return null;
 }
 
 function findUserById(id: string): User | null {
   const users = loadUsers();
-  return users.find((u) => u.id === id) ?? null;
+  const found = users.find((u) => u.id === id) ?? null;
+  if (found) return found;
+
+  // Fallback: check the dedicated current-user backup
+  const backup = loadCurrentUser();
+  if (backup && backup.id === id) return backup;
+  return null;
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
@@ -124,6 +167,7 @@ export function signup(email: string, password: string): { user: User; session: 
   const users = loadUsers();
   users.push(user);
   saveUsers(users);
+  saveCurrentUser(user);
 
   // Store password hash (simplified for client-side: just store a hash-like key)
   localStorage.setItem(`incomecalc-pw-${user.id}`, btoa(password));
@@ -143,12 +187,14 @@ export function login(email: string, password: string): { user: User; session: S
     return { error: "Incorrect password." };
   }
 
+  saveCurrentUser(user);
   const session = createSession(user);
   return { user, session };
 }
 
 export function logout(): void {
   localStorage.removeItem(KEYS.SESSION);
+  localStorage.removeItem(KEYS.CURRENT_USER);
 }
 
 function createSession(user: User): Session {
@@ -180,7 +226,30 @@ export function getSession(): Session | null {
 export function getCurrentUser(): User | null {
   const session = getSession();
   if (!session) return null;
-  return findUserById(session.userId);
+
+  // Normal path: find user in the users array (also checks backup)
+  const user = findUserById(session.userId);
+  if (user) return user;
+
+  // Recovery: session is valid but user record is gone (storage eviction, corruption).
+  // Reconstruct a minimal user from the session data and re-persist it.
+  const recovered: User = {
+    id: session.userId,
+    email: session.email,
+    createdAt: new Date().toISOString(),
+    stripeCustomerId: null,
+    isDevAdmin: false,
+    emailWeeklyDigestEnabled: true,
+    digestDayOfWeek: 1,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Los_Angeles",
+  };
+
+  const users = loadUsers();
+  users.push(recovered);
+  saveUsers(users);
+  saveCurrentUser(recovered);
+
+  return recovered;
 }
 
 export function updateUserPreferences(

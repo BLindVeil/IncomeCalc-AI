@@ -31,9 +31,16 @@ interface Res {
 type PlanTier = "pro" | "premium";
 type BillingPeriod = "monthly" | "yearly";
 
+const PRICE_IDS: Record<`${PlanTier}_${BillingPeriod}`, string> = {
+  pro_monthly: "price_1T4UrT1ntfmgKEH73GB7UDLx",
+  premium_monthly: "price_1T4UrT1ntfmgKEH7zPqb6onD",
+  pro_yearly: "price_1T4UrT1ntfmgKEH7li54UHRm",
+  premium_yearly: "price_1T4UrT1ntfmgKEH7rA1HwIIz",
+};
+
 function getPriceId(plan: PlanTier, billing: BillingPeriod): string | null {
-  const key = `STRIPE_PRICE_${plan.toUpperCase()}_${billing.toUpperCase()}`;
-  return process.env[key] ?? null;
+  const envKey = `STRIPE_PRICE_${plan.toUpperCase()}_${billing.toUpperCase()}`;
+  return process.env[envKey] ?? PRICE_IDS[`${plan}_${billing}`] ?? null;
 }
 
 export default async function handler(req: Req, res: Res): Promise<void> {
@@ -51,14 +58,10 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   }
 
   const stripeSecret = process.env.STRIPE_SECRET_KEY;
-  const siteUrl = process.env.SITE_URL ?? "";
+  const siteUrl = process.env.SITE_URL ?? "https://incomecalcai.com";
 
   if (!stripeSecret) {
     res.status(500).json({ error: "Stripe not configured: missing STRIPE_SECRET_KEY" });
-    return;
-  }
-  if (!siteUrl) {
-    res.status(500).json({ error: "Server not configured: missing SITE_URL" });
     return;
   }
 
