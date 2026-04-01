@@ -213,6 +213,12 @@ export async function login(email: string, password: string): Promise<{ user: Us
     }
 
     saveCurrentUser(user);
+
+    // Sync server-side plan to localStorage so paid features unlock immediately
+    if (data.plan && data.plan !== "free") {
+      localStorage.setItem("incomecalc-tier", data.plan);
+    }
+
     const session = createSession(user);
     return { user, session };
   } catch {

@@ -8,8 +8,10 @@
  *   { action: "signup" | "login", email: string, password: string }
  *
  * Response:
- *   Success: { ok: true, userId: string, email: string }
+ *   Success: { ok: true, userId: string, email: string, plan?: "free" | "pro" | "premium" }
  *   Error:   { ok: false, error: string }
+ *
+ * On login, also reads entitlement:<userId> from KV to return the user's plan.
  *
  * KV key format: user:<email>
  * KV value: { userId, email, passwordHash, createdAt }
@@ -137,7 +139,22 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         return;
       }
 
-      res.status(200).json({ ok: true, userId: record.userId, email: record.email });
+      // Read entitlement to return plan alongside login response
+      let plan: "free" | "pro" | "premium" = "free";
+      try {
+        const ent = await kv.get<{ plan: string; status: string; expires_at: string }>(
+          `entitlement:${record.userId}`
+        );
+        if (ent && ent.status === "active" && (!ent.expires_at || new Date(ent.expires_at) > new Date())) {
+          if (ent.plan === "pro" || ent.plan === "premium") {
+            plan = ent.plan;
+          }
+        }
+      } catch {
+        // Non-fatal — default to free if entitlement read fails
+      }
+
+      res.status(200).json({ ok: true, userId: record.userId, email: record.email, plan });
     }
   } catch (err) {
     console.error("[auth] KV operation failed:", err);
