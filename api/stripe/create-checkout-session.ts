@@ -58,7 +58,12 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   }
 
   const stripeSecret = process.env.STRIPE_SECRET_KEY;
-  const siteUrl = process.env.SITE_URL ?? "https://incomecalcai.com";
+  // Always use the canonical domain. Ignore SITE_URL env var if it points to a
+  // *.vercel.app preview URL — that caused Stripe's back-arrow to redirect to
+  // the old income-calc-ai.vercel.app domain instead of the custom domain.
+  const CANONICAL = "https://incomecalcai.com";
+  const envUrl = process.env.SITE_URL;
+  const siteUrl = envUrl && !envUrl.includes(".vercel.app") ? envUrl : CANONICAL;
 
   if (!stripeSecret) {
     res.status(500).json({ error: "Stripe not configured: missing STRIPE_SECRET_KEY" });

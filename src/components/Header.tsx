@@ -401,8 +401,12 @@ export function Header({
           onSignIn={onSignIn ?? (() => {
             window.dispatchEvent(new CustomEvent(AUTH_EVENT, { detail: { mode: "signin" } }));
           })}
-          onDashboard={onDashboard ?? (() => {})}
-          onDigestPreview={onDigestPreview ?? (() => {})}
+          onDashboard={onDashboard ?? (() => {
+            window.dispatchEvent(new CustomEvent(AUTH_EVENT, { detail: { mode: "dashboard" } }));
+          })}
+          onDigestPreview={onDigestPreview ?? (() => {
+            window.dispatchEvent(new CustomEvent(AUTH_EVENT, { detail: { mode: "digest-preview" } }));
+          })}
           onSignOut={onSignOut ?? (() => {
             window.dispatchEvent(new CustomEvent(AUTH_EVENT, { detail: { mode: "signout" } }));
           })}

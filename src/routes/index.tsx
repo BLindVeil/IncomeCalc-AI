@@ -3350,6 +3350,10 @@ function App() {
       const detail = (e as CustomEvent).detail;
       if (detail?.mode === "signout") {
         handleSignOut();
+      } else if (detail?.mode === "dashboard") {
+        setPage("dashboard");
+      } else if (detail?.mode === "digest-preview") {
+        setPage("digest-preview");
       } else {
         openAuthModal(detail?.mode === "signup" ? "signup" : "signin");
       }
