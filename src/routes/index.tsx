@@ -408,7 +408,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
 
         {/* Footer */}
         <div style={{ textAlign: "center", marginTop: "3rem", paddingTop: "1.5rem", borderTop: `1px solid ${t.border}` }}>
-          {onDevAccess && (
+          {import.meta.env.DEV && onDevAccess && (
             <button
               onClick={onDevAccess}
               style={{
@@ -2477,8 +2477,8 @@ function AuthModal({ mode: initialMode, onClose, onSuccess, t, isDark }: AuthMod
     setError("");
 
     const result = mode === "signup"
-      ? authSignup(email, password)
-      : authLogin(email, password);
+      ? await authSignup(email, password)
+      : await authLogin(email, password);
 
     if ("error" in result) {
       setError(result.error);

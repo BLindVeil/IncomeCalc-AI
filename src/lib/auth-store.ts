@@ -147,49 +147,77 @@ function findUserById(id: string): User | null {
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-export function signup(email: string, password: string): { user: User; session: Session } | { error: string } {
-  const existing = findUserByEmail(email);
-  if (existing) {
-    return { error: "An account with this email already exists. Please sign in." };
+export async function signup(email: string, password: string): Promise<{ user: User; session: Session } | { error: string }> {
+  try {
+    const res = await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "signup", email, password }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      return { error: data.error || "Signup failed." };
+    }
+
+    const user: User = {
+      id: data.userId,
+      email: data.email,
+      createdAt: new Date().toISOString(),
+      stripeCustomerId: null,
+      isDevAdmin: false,
+      emailWeeklyDigestEnabled: true,
+      digestDayOfWeek: 1,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Los_Angeles",
+    };
+
+    const users = loadUsers();
+    users.push(user);
+    saveUsers(users);
+    saveCurrentUser(user);
+
+    const session = createSession(user);
+    return { user, session };
+  } catch {
+    return { error: "Network error. Please try again." };
   }
-
-  const user: User = {
-    id: genId(),
-    email: email.toLowerCase().trim(),
-    createdAt: new Date().toISOString(),
-    stripeCustomerId: null,
-    isDevAdmin: false,
-    emailWeeklyDigestEnabled: true,
-    digestDayOfWeek: 1,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Los_Angeles",
-  };
-
-  const users = loadUsers();
-  users.push(user);
-  saveUsers(users);
-  saveCurrentUser(user);
-
-  // Store password hash (simplified for client-side: just store a hash-like key)
-  localStorage.setItem(`incomecalc-pw-${user.id}`, btoa(password));
-
-  const session = createSession(user);
-  return { user, session };
 }
 
-export function login(email: string, password: string): { user: User; session: Session } | { error: string } {
-  const user = findUserByEmail(email);
-  if (!user) {
-    return { error: "No account found with this email." };
-  }
+export async function login(email: string, password: string): Promise<{ user: User; session: Session } | { error: string }> {
+  try {
+    const res = await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "login", email, password }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      return { error: data.error || "Login failed." };
+    }
 
-  const storedPw = localStorage.getItem(`incomecalc-pw-${user.id}`);
-  if (!storedPw || storedPw !== btoa(password)) {
-    return { error: "Incorrect password." };
-  }
+    // Create or update local user record from server response
+    const users = loadUsers();
+    let user = users.find((u) => u.id === data.userId);
+    if (!user) {
+      user = {
+        id: data.userId,
+        email: data.email,
+        createdAt: new Date().toISOString(),
+        stripeCustomerId: null,
+        isDevAdmin: false,
+        emailWeeklyDigestEnabled: true,
+        digestDayOfWeek: 1,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Los_Angeles",
+      };
+      users.push(user);
+      saveUsers(users);
+    }
 
-  saveCurrentUser(user);
-  const session = createSession(user);
-  return { user, session };
+    saveCurrentUser(user);
+    const session = createSession(user);
+    return { user, session };
+  } catch {
+    return { error: "Network error. Please try again." };
+  }
 }
 
 export function logout(): void {
