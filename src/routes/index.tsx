@@ -96,7 +96,7 @@ import {
   genId,
   loadUserTier,
 } from "@/lib/app-shared";
-import { Header } from "@/components/Header";
+import { Header, AUTH_EVENT } from "@/components/Header";
 import { useIsMobile } from "@/lib/useIsMobile";
 
 // ─── Lazy-loaded page components ─────────────────────────────────────────────
@@ -3344,6 +3344,20 @@ function App() {
     }
   }
 
+// ── Global auth event listener (Header dispatches when onSignIn/onSignOut props are absent) ──
+  useEffect(() => {
+    function onAuthEvent(e: Event) {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.mode === "signout") {
+        handleSignOut();
+      } else {
+        openAuthModal(detail?.mode === "signup" ? "signup" : "signin");
+      }
+    }
+    window.addEventListener(AUTH_EVENT, onAuthEvent);
+    return () => window.removeEventListener(AUTH_EVENT, onAuthEvent);
+  }, []);
+
 // ── DEV_BYPASS_PAYWALL ──
   const devBypassActive = isDevBypassPaywall();
   const effectiveTier: UserTier = devBypassActive ? "premium" : (devOverride ? (getPlan() as UserTier) : userTier);
@@ -3501,20 +3515,19 @@ function handleAuthSuccess(user: AuthUser) {
     setPage(expenseData.housing || expenseData.food ? "guided" : "landing");
   }
 
-  // ── Share Page (deep link) ──
+  // ── Page content (AuthModal rendered globally below) ──
+  let pageContent: React.ReactNode;
+
   if (page === "share" && shareSlug) {
-    return (
+    pageContent = (
       <SharePage
         slug={shareSlug}
         onTryYourOwn={() => { setShareSlug(null); setPage("landing"); }}
         {...sharedProps}
       />
     );
-  }
-
-  // ── Dashboard ──
-  if (page === "dashboard" && currentUser) {
-    return (
+  } else if (page === "dashboard" && currentUser) {
+    pageContent = (
       <>
         <DashboardPage
           user={currentUser}
@@ -3535,21 +3548,16 @@ function handleAuthSuccess(user: AuthUser) {
         )}
       </>
     );
-  }
-
-  // ── Digest Preview ──
-  if (page === "digest-preview" && currentUser) {
-    return (
+  } else if (page === "digest-preview" && currentUser) {
+    pageContent = (
       <DigestPreviewPage
         user={currentUser}
         onBack={backToResults}
         {...sharedProps}
       />
     );
-  }
-
-  if (page === "landing") {
-    return (
+  } else if (page === "landing") {
+    pageContent = (
       <Landing
         onStart={() => setPage("calculator")}
         onPricing={() => handleUpgrade("pro")}
@@ -3557,10 +3565,8 @@ function handleAuthSuccess(user: AuthUser) {
         {...sharedProps}
       />
     );
-  }
-
-  if (page === "calculator") {
-    return (
+  } else if (page === "calculator") {
+    pageContent = (
       <CalculatorPage
         onResults={handleResults}
         onBack={() => setPage("landing")}
@@ -3570,37 +3576,20 @@ function handleAuthSuccess(user: AuthUser) {
         {...sharedProps}
       />
     );
-  }
-
-if (page === "checkout") {
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <CheckoutPage
-        onBack={backToResults}
-        initialPlan={checkoutPlan}
-        onRequireAuth={openAuthModal}
-        onCheckout={redirectToCheckout}
-        {...sharedProps}
-      />
-
-      {showAuthModal && (
-        <AuthModal
-          mode={authModalMode}
-          onClose={() => {
-            setShowAuthModal(false);
-            setSavePromptPending(false);
-          }}
-          onSuccess={handleAuthSuccess}
-          t={applyDark(currentTheme, isDark)}
-          isDark={isDark}
+  } else if (page === "checkout") {
+    pageContent = (
+      <Suspense fallback={<PageLoader />}>
+        <CheckoutPage
+          onBack={backToResults}
+          initialPlan={checkoutPlan}
+          onRequireAuth={openAuthModal}
+          onCheckout={redirectToCheckout}
+          {...sharedProps}
         />
-      )}
-    </Suspense>
-  );
-}
-
-  if (page === "guided") {
-    return (
+      </Suspense>
+    );
+  } else if (page === "guided") {
+    pageContent = (
       <Suspense fallback={<PageLoader />}>
         <GuidedFlowPage
           data={expenseData}
@@ -3620,10 +3609,8 @@ if (page === "checkout") {
         />
       </Suspense>
     );
-  }
-
-  if (page === "simulator") {
-    return (
+  } else if (page === "simulator") {
+    pageContent = (
       <Suspense fallback={<PageLoader />}>
         <SimulatorPage
           initialExpenses={expenseData}
@@ -3635,10 +3622,8 @@ if (page === "checkout") {
         />
       </Suspense>
     );
-  }
-
-  if (page === "checkin") {
-    return (
+  } else if (page === "checkin") {
+    pageContent = (
       <Suspense fallback={<PageLoader />}>
         <CheckInPage
           currentExpenses={expenseData}
@@ -3651,10 +3636,8 @@ if (page === "checkout") {
         />
       </Suspense>
     );
-  }
-
-  if (page === "fire") {
-    return (
+  } else if (page === "fire") {
+    pageContent = (
       <FirePage
         onBack={backToResults}
         onUpgrade={handleUpgrade}
@@ -3662,10 +3645,8 @@ if (page === "checkout") {
         {...sharedProps}
       />
     );
-  }
-
-  if (page === "forecast") {
-    return (
+  } else if (page === "forecast") {
+    pageContent = (
       <ForecastPage
         expenses={expenseData}
         taxRate={taxRate}
@@ -3675,10 +3656,8 @@ if (page === "checkout") {
         {...sharedProps}
       />
     );
-  }
-
-  if (page === "debt") {
-    return (
+  } else if (page === "debt") {
+    pageContent = (
       <DebtPage
         onBack={backToResults}
         onUpgrade={handleUpgrade}
@@ -3686,10 +3665,8 @@ if (page === "checkout") {
         {...sharedProps}
       />
     );
-  }
-
-  if (page === "fi") {
-    return (
+  } else if (page === "fi") {
+    pageContent = (
       <FIEstimatorPage
         expenses={expenseData}
         taxRate={taxRate}
@@ -3699,10 +3676,8 @@ if (page === "checkout") {
         {...sharedProps}
       />
     );
-  }
-
-  if (page === "dev-access") {
-    return (
+  } else if (page === "dev-access") {
+    pageContent = (
       <DevAccessPage
         devOverride={devOverride}
         devBadgeLabel={devBadgeLabel}
@@ -3712,40 +3687,57 @@ if (page === "checkout") {
         {...sharedProps}
       />
     );
+  } else {
+    // Default: Results page
+    pageContent = (
+      <Suspense fallback={<PageLoader />}>
+        <ResultsPage
+          data={expenseData}
+          taxRate={taxRate}
+          currentGrossIncome={currentGrossIncome}
+          onBack={returnTo ? backToResults : handleStartOver}
+          onRecalculate={() => setPage("calculator")}
+          onUpgrade={handleUpgrade}
+          onSimulator={() => { savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("simulator"); }}
+          fromGuidedFlow={!!returnTo}
+          onCheckIn={() => { savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("checkin"); }}
+          onFire={() => { savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("fire"); }}
+          onForecast={() => {
+            savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("forecast");
+          }}
+          onDebt={() => {
+            savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("debt");
+          }}
+          onFI={() => {
+            savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("fi");
+          }}
+          userTier={effectiveTier}
+          onDevAccess={() => setPage("dev-access")}
+          onSaveScenario={handleSaveScenario}
+          onDashboard={() => setPage("dashboard")}
+          currentUser={currentUser}
+          onSignIn={handleSignIn}
+          onSignOut={handleSignOut}
+          onDigestPreview={() => setPage("digest-preview")}
+          {...sharedProps}
+        />
+        {shareModalScenario && currentUser && (
+          <ShareModal
+            scenario={shareModalScenario}
+            userId={currentUser.id}
+            onClose={() => setShareModalScenario(null)}
+            onRefresh={() => {}}
+            t={applyDark(currentTheme, isDark)}
+            isDark={isDark}
+          />
+        )}
+      </Suspense>
+    );
   }
 
   return (
-    <Suspense fallback={<PageLoader />}>
-      <ResultsPage
-        data={expenseData}
-        taxRate={taxRate}
-        currentGrossIncome={currentGrossIncome}
-        onBack={returnTo ? backToResults : handleStartOver}
-        onRecalculate={() => setPage("calculator")}
-        onUpgrade={handleUpgrade}
-        onSimulator={() => { savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("simulator"); }}
-        fromGuidedFlow={!!returnTo}
-        onCheckIn={() => { savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("checkin"); }}
-        onFire={() => { savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("fire"); }}
-        onForecast={() => {
-          savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("forecast");
-        }}
-        onDebt={() => {
-          savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("debt");
-        }}
-        onFI={() => {
-          savedScrollY.current = window.scrollY; setReturnTo({ page: "results", guidedStep }); setPage("fi");
-        }}
-        userTier={effectiveTier}
-        onDevAccess={() => setPage("dev-access")}
-        onSaveScenario={handleSaveScenario}
-        onDashboard={() => setPage("dashboard")}
-        currentUser={currentUser}
-        onSignIn={handleSignIn}
-        onSignOut={handleSignOut}
-        onDigestPreview={() => setPage("digest-preview")}
-        {...sharedProps}
-      />
+    <>
+      {pageContent}
       {showAuthModal && (
         <AuthModal
           mode={authModalMode}
@@ -3755,16 +3747,6 @@ if (page === "checkout") {
           isDark={isDark}
         />
       )}
-      {shareModalScenario && currentUser && (
-        <ShareModal
-          scenario={shareModalScenario}
-          userId={currentUser.id}
-          onClose={() => setShareModalScenario(null)}
-          onRefresh={() => {}}
-          t={applyDark(currentTheme, isDark)}
-          isDark={isDark}
-        />
-      )}
-    </Suspense>
+    </>
   );
 }

@@ -7,7 +7,10 @@ import { isDevOverrideActive } from "@/lib/dev-override";
 import { getDevBadgeLabel } from "@/lib/entitlements";
 import { applyDark, THEMES } from "@/lib/app-shared";
 import type { ThemeConfig, Theme } from "@/lib/app-shared";
-import type { User as AuthUser } from "@/lib/auth-store";
+import { getCurrentUser, type User as AuthUser } from "@/lib/auth-store";
+
+/** Custom event name used when Header needs to open the auth modal but has no onSignIn prop. */
+export const AUTH_EVENT = "incomecalc-open-auth";
 
 // ─── Account Menu ────────────────────────────────────────────────────────────
 
@@ -392,17 +395,19 @@ export function Header({
           {isDark ? <Sun size={16} /> : <Moon size={16} />}
         </button>
 
-        {/* Account Menu */}
-        {(onSignIn || accountUser) && (
-          <AccountMenu
-            user={accountUser ?? null}
-            onSignIn={onSignIn ?? (() => {})}
-            onDashboard={onDashboard ?? (() => {})}
-            onDigestPreview={onDigestPreview ?? (() => {})}
-            onSignOut={onSignOut ?? (() => {})}
-            t={t}
-          />
-        )}
+        {/* Account Menu — always shown; reads auth state from localStorage when props aren't provided */}
+        <AccountMenu
+          user={accountUser ?? getCurrentUser()}
+          onSignIn={onSignIn ?? (() => {
+            window.dispatchEvent(new CustomEvent(AUTH_EVENT, { detail: { mode: "signin" } }));
+          })}
+          onDashboard={onDashboard ?? (() => {})}
+          onDigestPreview={onDigestPreview ?? (() => {})}
+          onSignOut={onSignOut ?? (() => {
+            window.dispatchEvent(new CustomEvent(AUTH_EVENT, { detail: { mode: "signout" } }));
+          })}
+          t={t}
+        />
       </div>
     </div>
   );
