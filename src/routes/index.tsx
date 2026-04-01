@@ -570,7 +570,7 @@ function CalculatorPage({
                   border: `1px solid ${t.border}`,
                   background: t.bg,
                   color: t.text,
-                  fontSize: "0.88rem",
+                  fontSize: "16px",
                   cursor: "pointer",
                 }}
               >
@@ -593,7 +593,7 @@ function CalculatorPage({
                   border: `1px solid ${t.border}`,
                   background: t.bg,
                   color: t.text,
-                  fontSize: "0.88rem",
+                  fontSize: "16px",
                   cursor: "pointer",
                 }}
               >
@@ -615,7 +615,7 @@ function CalculatorPage({
                   border: `1px solid ${t.border}`,
                   background: t.bg,
                   color: t.text,
-                  fontSize: "0.88rem",
+                  fontSize: "16px",
                   cursor: "pointer",
                 }}
               >
@@ -1798,7 +1798,7 @@ function DebtPage({
                 <input
                   value={debt.name}
                   onChange={(e) => updateDebt(debt.id, "name", e.target.value)}
-                  style={{ background: "transparent", border: "none", fontWeight: 700, color: t.text, fontSize: "0.9rem", outline: "none", padding: 0, width: "150px" }}
+                  style={{ background: "transparent", border: "none", fontWeight: 700, color: t.text, fontSize: "16px", outline: "none", padding: 0, width: "150px" }}
                   placeholder="Debt name"
                 />
                 <button onClick={() => removeDebt(debt.id)} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "2px" }}>
@@ -1808,15 +1808,15 @@ function DebtPage({
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "0.5rem" }}>
                 <div>
                   <Label style={{ fontSize: "0.72rem", color: t.muted, display: "block", marginBottom: "0.2rem" }}>Balance ($)</Label>
-                  <Input type="number" min={0} value={debt.balance === 0 ? "" : debt.balance} onChange={(e) => updateDebt(debt.id, "balance", e.target.value)} placeholder="0" style={{ background: t.bg, border: `1px solid ${t.border}`, color: t.text, fontSize: "0.85rem" }} />
+                  <Input type="number" min={0} value={debt.balance === 0 ? "" : debt.balance} onChange={(e) => updateDebt(debt.id, "balance", e.target.value)} placeholder="0" style={{ background: t.bg, border: `1px solid ${t.border}`, color: t.text, fontSize: "16px" }} />
                 </div>
                 <div>
                   <Label style={{ fontSize: "0.72rem", color: t.muted, display: "block", marginBottom: "0.2rem" }}>APR (%)</Label>
-                  <Input type="number" min={0} max={60} step={0.1} value={debt.apr === 0 ? "" : debt.apr} onChange={(e) => updateDebt(debt.id, "apr", e.target.value)} placeholder="0" style={{ background: t.bg, border: `1px solid ${t.border}`, color: t.text, fontSize: "0.85rem" }} />
+                  <Input type="number" min={0} max={60} step={0.1} value={debt.apr === 0 ? "" : debt.apr} onChange={(e) => updateDebt(debt.id, "apr", e.target.value)} placeholder="0" style={{ background: t.bg, border: `1px solid ${t.border}`, color: t.text, fontSize: "16px" }} />
                 </div>
                 <div>
                   <Label style={{ fontSize: "0.72rem", color: t.muted, display: "block", marginBottom: "0.2rem" }}>Min Payment ($)</Label>
-                  <Input type="number" min={0} value={debt.minPayment === 0 ? "" : debt.minPayment} onChange={(e) => updateDebt(debt.id, "minPayment", e.target.value)} placeholder="0" style={{ background: t.bg, border: `1px solid ${t.border}`, color: t.text, fontSize: "0.85rem" }} />
+                  <Input type="number" min={0} value={debt.minPayment === 0 ? "" : debt.minPayment} onChange={(e) => updateDebt(debt.id, "minPayment", e.target.value)} placeholder="0" style={{ background: t.bg, border: `1px solid ${t.border}`, color: t.text, fontSize: "16px" }} />
                 </div>
               </div>
             </div>
@@ -2686,7 +2686,7 @@ function DashboardPage({ user, onBack, onLoadScenario, onShare, isDark, setIsDar
                   <select
                     value={digestDay}
                     onChange={(e) => setDigestDay(parseInt(e.target.value))}
-                    style={{ padding: "0.45rem 0.6rem", borderRadius: "6px", border: `1px solid ${t.border}`, background: t.bg, color: t.text, fontSize: "0.85rem" }}
+                    style={{ padding: "0.45rem 0.6rem", borderRadius: "6px", border: `1px solid ${t.border}`, background: t.bg, color: t.text, fontSize: "16px" }}
                   >
                     {dayNames.map((d, i) => <option key={i} value={i}>{d}</option>)}
                   </select>
