@@ -3226,7 +3226,7 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
         <Link to="/terms" style={{ color: t.muted, textDecoration: "none" }}>Terms</Link>
         <Link to="/privacy" style={{ color: t.muted, textDecoration: "none" }}>Privacy</Link>
         <Link to="/refund-policy" style={{ color: t.muted, textDecoration: "none" }}>Refund Policy</Link>
-        <a href="mailto:support@yourdomain.com" style={{ color: t.muted, textDecoration: "none" }}>Contact</a>
+        <a href="mailto:incomecalcai@proton.me" style={{ color: t.muted, textDecoration: "none" }}>Contact</a>
       </div>
       <div style={{ fontSize: "0.78rem", color: t.muted, opacity: 0.6 }}>
         IncomeCalc is not financial, tax, or legal advice. For informational and educational purposes only.

@@ -77,7 +77,7 @@ function PrivacyPage() {
           <p>We use browser local storage to save your preferences, calculation data, and session information. Analytics services may use cookies for tracking purposes.</p>
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>8. Contact</h2>
-          <p>For privacy-related questions or data deletion requests, contact us at <a href="mailto:support@yourdomain.com" style={{ color: "color-mix(in srgb, var(--foreground) 65%, #5E5CE6)" }}>support@yourdomain.com</a>.</p>
+          <p>For privacy-related questions or data deletion requests, contact us at <a href="mailto:incomecalcai@proton.me" style={{ color: "color-mix(in srgb, var(--foreground) 65%, #5E5CE6)" }}>incomecalcai@proton.me</a>.</p>
         </div>
       </div>
     </div>

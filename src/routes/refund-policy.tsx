@@ -31,7 +31,7 @@ function RefundPolicyPage() {
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>How to Request a Refund</h2>
           <ol style={{ paddingLeft: "1.5rem" }}>
-            <li>Email us at <a href="mailto:support@yourdomain.com" style={{ color: "color-mix(in srgb, var(--foreground) 65%, #5E5CE6)" }}>support@yourdomain.com</a> within 7 days of your purchase.</li>
+            <li>Email us at <a href="mailto:incomecalcai@proton.me" style={{ color: "color-mix(in srgb, var(--foreground) 65%, #5E5CE6)" }}>incomecalcai@proton.me</a> within 7 days of your purchase.</li>
             <li>Include your account email address and the approximate date of purchase.</li>
             <li>We will process your refund within 5–10 business days.</li>
           </ol>
@@ -56,7 +56,7 @@ function RefundPolicyPage() {
           </ul>
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>Contact</h2>
-          <p>For refund requests or billing questions, email <a href="mailto:support@yourdomain.com" style={{ color: "color-mix(in srgb, var(--foreground) 65%, #5E5CE6)" }}>support@yourdomain.com</a>.</p>
+          <p>For refund requests or billing questions, email <a href="mailto:incomecalcai@proton.me" style={{ color: "color-mix(in srgb, var(--foreground) 65%, #5E5CE6)" }}>incomecalcai@proton.me</a>.</p>
         </div>
       </div>
     </div>

@@ -58,7 +58,7 @@ function TermsPage() {
           <p>We reserve the right to modify these terms at any time. Continued use of the Service after changes constitutes acceptance of the updated terms.</p>
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>10. Contact</h2>
-          <p>Questions about these terms? Contact us at <a href="mailto:support@yourdomain.com" style={{ color: "color-mix(in srgb, var(--foreground) 65%, #5E5CE6)" }}>support@yourdomain.com</a>.</p>
+          <p>Questions about these terms? Contact us at <a href="mailto:incomecalcai@proton.me" style={{ color: "color-mix(in srgb, var(--foreground) 65%, #5E5CE6)" }}>incomecalcai@proton.me</a>.</p>
         </div>
       </div>
     </div>

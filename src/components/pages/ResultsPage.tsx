@@ -266,7 +266,7 @@ export function RestorePurchaseModal({ onClose, t }: RestorePurchaseModalProps) 
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>❌</div>
             <p style={{ color: t.text, fontWeight: 600, marginBottom: "0.5rem" }}>No active plan found for this email.</p>
-            <p style={{ color: t.muted, fontSize: "0.85rem" }}>Contact support@yourdomain.com for help.</p>
+            <p style={{ color: t.muted, fontSize: "0.85rem" }}>Contact incomecalcai@proton.me for help.</p>
             <button
               onClick={onClose}
               style={{ marginTop: "1rem", background: "transparent", color: t.muted, border: `1px solid ${t.border}`, borderRadius: "8px", padding: "0.6rem 1.5rem", fontWeight: 600, cursor: "pointer" }}
