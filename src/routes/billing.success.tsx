@@ -19,6 +19,11 @@ function BillingSuccessPage() {
   const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
   const didRun = useRef(false);
 
+  // Ensure dark mode is active (App component from index route doesn't mount here)
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+  }, []);
+
   useEffect(() => {
     if (didRun.current) return;
     didRun.current = true;
@@ -82,13 +87,13 @@ function BillingSuccessPage() {
   }, []);
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+    <div style={{ minHeight: "100vh", background: "#0f1115", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
       <div style={{ maxWidth: "480px", width: "100%", textAlign: "center" }}>
         {status === "verifying" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
             <Loader2 size={48} style={{ color: "#5E5CE6", animation: "spin 1s linear infinite" }} />
-            <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--foreground)" }}>Verifying your payment...</h1>
-            <p style={{ color: "var(--muted-foreground)" }}>Please wait while we confirm your subscription.</p>
+            <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#ffffff" }}>Verifying your payment...</h1>
+            <p style={{ color: "rgba(255,255,255,0.55)" }}>Please wait while we confirm your subscription.</p>
             <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
           </div>
         )}
@@ -98,8 +103,8 @@ function BillingSuccessPage() {
             <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(52,211,153,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <CheckCircle size={36} style={{ color: "#34D399" }} />
             </div>
-            <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "var(--foreground)", letterSpacing: "-0.02em" }}>Payment Successful!</h1>
-            <p style={{ color: "var(--muted-foreground)", fontSize: "1rem", lineHeight: 1.6 }}>
+            <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#ffffff", letterSpacing: "-0.02em" }}>Payment Successful!</h1>
+            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "1rem", lineHeight: 1.6 }}>
               Your plan has been activated. You now have full access to all premium features.
             </p>
             <Link
@@ -124,8 +129,8 @@ function BillingSuccessPage() {
         {status === "error" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
             <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#ef4444" }}>Something went wrong</h1>
-            <p style={{ color: "var(--muted-foreground)" }}>We couldn't verify your payment. Please contact support at support@yourdomain.com.</p>
-            <Link to="/" style={{ color: "color-mix(in srgb, var(--foreground) 65%, #5E5CE6)", textDecoration: "underline", fontSize: "0.95rem" }}>
+            <p style={{ color: "rgba(255,255,255,0.55)" }}>We couldn't verify your payment. Please contact support.</p>
+            <Link to="/" style={{ color: "#8b8bf5", textDecoration: "underline", fontSize: "0.95rem" }}>
               Return to IncomeCalc
             </Link>
           </div>

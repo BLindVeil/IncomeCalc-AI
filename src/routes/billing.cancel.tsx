@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { XCircle, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/billing/cancel")({
@@ -6,16 +7,63 @@ export const Route = createFileRoute("/billing/cancel")({
 });
 
 function BillingCancelPage() {
+  // Ensure dark mode is active (App component from index route doesn't mount here)
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+  }, []);
+
   return (
-    <div style={{ minHeight: "100vh", background: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#0f1115",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2rem",
+      }}
+    >
       <div style={{ maxWidth: "480px", width: "100%", textAlign: "center" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
-          <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(255,184,0,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "1rem",
+          }}
+        >
+          <div
+            style={{
+              width: "64px",
+              height: "64px",
+              borderRadius: "50%",
+              background: "rgba(255,184,0,0.12)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <XCircle size={36} style={{ color: "#FFB800" }} />
           </div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "var(--foreground)", letterSpacing: "-0.02em" }}>Payment Cancelled</h1>
-          <p style={{ color: "var(--muted-foreground)", fontSize: "1rem", lineHeight: 1.6 }}>
-            No worries — you haven't been charged. Your free plan is still active, and you can upgrade anytime.
+          <h1
+            style={{
+              fontSize: "1.75rem",
+              fontWeight: 700,
+              color: "#ffffff",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Payment Cancelled
+          </h1>
+          <p
+            style={{
+              color: "rgba(255,255,255,0.55)",
+              fontSize: "1rem",
+              lineHeight: 1.6,
+            }}
+          >
+            No worries — you haven't been charged. Your free plan is still
+            active, and you can upgrade anytime.
           </p>
           <Link
             to="/"
