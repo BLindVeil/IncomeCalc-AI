@@ -181,8 +181,8 @@ export const PLANS: Plan[] = [
   {
     id: "premium",
     name: "Premium",
-    price: 19,
-    yearlyPrice: 149,
+    price: 9.99,
+    yearlyPrice: 99,
     description: "Financial Growth & Long-Term Strategy — advanced planning, forecasting, and wealth optimization.",
     badge: "Most Popular",
     features: [

@@ -785,7 +785,7 @@ export function CheckoutPage({
               }}
             >
               <Users size={16} />
-              Start Premium — $19/mo
+              Start Premium — $9.99/mo
             </button>
           </div>
         </div>

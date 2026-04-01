@@ -35,7 +35,7 @@ const PRICE_IDS: Record<`${PlanTier}_${BillingPeriod}`, string> = {
   pro_monthly: "price_1T4UrT1ntfmgKEH73GB7UDLx",
   premium_monthly: "price_1T4UrT1ntfmgKEH7zPqb6onD",
   pro_yearly: "price_1T4UrT1ntfmgKEH7li54UHRm",
-  premium_yearly: "price_1T4UrT1ntfmgKEH7rA1HwIIz",
+  premium_yearly: "price_1THTGX1ntfmgKEH7DBvbplsX",
 };
 
 function getPriceId(plan: PlanTier, billing: BillingPeriod): string | null {
