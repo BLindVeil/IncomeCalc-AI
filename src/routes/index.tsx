@@ -3254,7 +3254,7 @@ function App() {
   const [taxRate, setTaxRate] = useState(25);
   const [currentGrossIncome, setCurrentGrossIncome] = useState(0);
   const [checkoutPlan, setCheckoutPlan] = useState<PlanId>("pro");
-  const [userTier] = useState<UserTier>(loadUserTier);
+  const [userTier, setUserTier] = useState<UserTier>(loadUserTier);
   const [devOverride, setDevOverride] = useState(getDevOverride);
 
   // Guided flow: lifted step state + return context for back navigation
@@ -3376,7 +3376,7 @@ function App() {
     const user = getCurrentUser();
     const session = getSession();
     if (user && session) {
-      syncPlan(user.id, session.token); // fire-and-forget; updates localStorage
+      syncPlan(user.id, session.token).then(() => setUserTier(loadUserTier())); // updates localStorage then React state
     }
   }, []);
 
@@ -3456,6 +3456,8 @@ function handleUpgrade(plan: PlanId = "pro") {
 
 function handleAuthSuccess(user: AuthUser) {
   setCurrentUser(user);
+  // Re-read tier from localStorage — login may have written a paid plan
+  setUserTier(loadUserTier());
   // If user signed in to save a scenario, complete the save now
   if (savePromptPending) {
     setSavePromptPending(false);
