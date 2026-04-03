@@ -19,6 +19,7 @@ import type { FinancialDiagnosis, DiagnosisAction } from "@/lib/diagnosis-types"
 import type { ThemeConfig, PlanId } from "@/lib/app-shared";
 import type { ExpenseData } from "@/lib/calc";
 import { trackEvent } from "@/lib/analytics";
+import { useIsMobile } from "@/lib/useIsMobile";
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
@@ -182,7 +183,8 @@ interface FinancialDiagnosisCardProps {
 
 export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus, grossMonthly, totalMonthly, data, isPremium, onUpgrade, onSimulator, t, isDark }: FinancialDiagnosisCardProps) {
   const [copied, setCopied] = useState(false);
-  const [showDetails, setShowDetails] = useState(isPremium);
+  const isMobile = useIsMobile();
+  const [showDetails, setShowDetails] = useState(!isMobile);
 
   const sectionStyle = (accent: string): React.CSSProperties => ({
     padding: "0.85rem 1rem",
@@ -241,195 +243,98 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
   if (grossMonthly > 3000 && savingsRate < 15) signals.push("Strong income potential but weak savings structure");
   if (data.entertainment > data.savings && data.savings > 0) signals.push("Discretionary spending exceeds savings");
 
-  // ── Premium-only sections (rendered for both tiers, gated below) ───────
-
-  const premiumSections = (
-    <>
-      {/* ── Remaining Actions (2+) ─────────────────────────────────────── */}
-      {diagnosis.topMoves.slice(1).map((move, i) => (
-        <ActionCard key={i + 1} move={move} index={i + 1} t={t} isDark={isDark} />
-      ))}
-
-      {/* ── Scenario Comparison (time-first with inline contrast) ────── */}
-      <div style={{ marginTop: "1rem" }}>
-        <SectionLabel icon={ShieldAlert} label="Your Two Paths" color="#f59e0b" />
-
-        {/* 30 Days */}
-        <div style={{ marginBottom: "0.75rem" }}>
-          <div style={{ fontSize: "0.7rem", fontWeight: 700, color: t.muted, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
-            In 30 Days
-          </div>
-          <div
-            style={{
-              borderRadius: "10px",
-              border: `1px solid ${t.border}`,
-              overflow: "hidden",
-            }}
-          >
-            <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(245,158,11,0.06)" : "rgba(245,158,11,0.04)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                <ArrowDown size={11} style={{ color: "#f59e0b" }} />
-                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
-              </div>
-              <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifUnchanged30d}</p>
-            </div>
-            <div style={{ height: "1px", background: t.border }} />
-            <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.04)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                <ArrowUp size={11} style={{ color: "#22c55e" }} />
-                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#22c55e", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
-              </div>
-              <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifOptimized30d}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* 12 Months */}
-        <div>
-          <div style={{ fontSize: "0.7rem", fontWeight: 700, color: t.muted, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
-            In 12 Months
-          </div>
-          <div
-            style={{
-              borderRadius: "10px",
-              border: `1px solid ${t.border}`,
-              overflow: "hidden",
-            }}
-          >
-            <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(245,158,11,0.06)" : "rgba(245,158,11,0.04)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                <ArrowDown size={11} style={{ color: "#f59e0b" }} />
-                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
-              </div>
-              <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifUnchanged12m}</p>
-            </div>
-            <div style={{ height: "1px", background: t.border }} />
-            <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.04)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                <ArrowUp size={11} style={{ color: "#22c55e" }} />
-                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#22c55e", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
-              </div>
-              <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifOptimized12m}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Cut First ──────────────────────────────────────────────────── */}
-      {diagnosis.cutFirst && diagnosis.cutFirst.length > 0 && (
-        <div style={{ marginTop: "0.75rem" }}>
-          <SectionLabel icon={Scissors} label="Cut First" color="#ef4444" />
-          <div style={sectionStyle("#ef4444")}>
-            {diagnosis.cutFirst.map((item, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem", marginBottom: i < diagnosis.cutFirst!.length - 1 ? "0.35rem" : 0 }}>
-                <Check size={13} style={{ color: "#ef4444", marginTop: "2px", flexShrink: 0 }} />
-                <span style={{ fontSize: "0.84rem", color: t.text, lineHeight: 1.5 }}>{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Hidden Strength ────────────────────────────────────────────── */}
-      {diagnosis.hiddenStrength && (
-        <div style={{ marginTop: "0.75rem" }}>
-          <SectionLabel icon={Star} label="Hidden Strength" color={t.primary} />
-          <div style={sectionStyle(t.primary)}>
-            <p style={{ margin: 0, fontSize: "0.85rem", color: t.text, lineHeight: 1.55 }}>{diagnosis.hiddenStrength}</p>
-          </div>
-        </div>
-      )}
-
-      {/* ── Verdict ────────────────────────────────────────────────────── */}
-      <div
-        style={{
-          marginTop: "1rem",
-          borderRadius: "10px",
-          background: `linear-gradient(135deg, ${t.primary}1A, ${t.accent}1A)`,
-          border: `1px solid ${t.primary}40`,
-          overflow: "hidden",
-        }}
-      >
-        {/* Risk-colored urgency bar */}
-        <div style={{ height: "3px", background: riskColor }} />
-        <div style={{ padding: "1rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
-            <div style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: t.primary }}>
-              Verdict
-            </div>
-            <span style={{
-              fontSize: "0.62rem",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
-              padding: "1px 6px",
-              borderRadius: "4px",
-              background: riskColor + "18",
-              color: riskColor,
-            }}>
-              {diagnosis.riskLevel === "high" ? "Act now" : diagnosis.riskLevel === "medium" ? "Room to improve" : "On track"}
-            </span>
-          </div>
-          <p style={{ margin: 0, fontSize: "0.92rem", fontWeight: 600, color: t.text, lineHeight: 1.55 }}>
-            {diagnosis.verdict}
-          </p>
-          {diagnosis.topMoves[0] && (
-            <div style={{
-              marginTop: "0.6rem",
-              paddingTop: "0.55rem",
-              borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "0.5rem",
-              flexWrap: "wrap",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", minWidth: 0 }}>
-                <Zap size={12} style={{ color: "#22c55e", flexShrink: 0 }} />
-                <span style={{ fontSize: "0.8rem", color: t.muted, fontWeight: 500 }}>
-                  Start with:
-                </span>
-                <span style={{ fontSize: "0.8rem", color: t.text, fontWeight: 600 }}>
-                  {diagnosis.topMoves[0].title}
-                </span>
-              </div>
-              {onSimulator && (
-                <button
-                  onClick={() => {
-                    trackEvent("diagnosis_to_simulator_click", {
-                      riskLevel: diagnosis.riskLevel,
-                      topMoveTitle: diagnosis.topMoves[0].title,
-                    });
-                    onSimulator();
-                  }}
-                  style={{
-                    background: "transparent",
-                    border: `1px solid ${t.primary}40`,
-                    borderRadius: "6px",
-                    padding: "0.3rem 0.65rem",
-                    fontSize: "0.75rem",
-                    fontWeight: 600,
-                    color: t.primary,
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.3rem",
-                    whiteSpace: "nowrap",
-                    flexShrink: 0,
-                  }}
-                >
-                  Test in Simulator
-                  <ArrowRight size={11} />
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </>
-  );
-
   const visibleSignals = signals.slice(0, 3);
+
+  // ── Verdict block (reused for both premium and gated free) ──────────
+
+  const verdictBlock = (
+    <div
+      style={{
+        marginTop: "1rem",
+        marginBottom: "0.65rem",
+        borderRadius: "10px",
+        background: `linear-gradient(135deg, ${t.primary}1A, ${t.accent}1A)`,
+        border: `1px solid ${t.primary}40`,
+        overflow: "hidden",
+      }}
+    >
+      {/* Risk-colored urgency bar */}
+      <div style={{ height: "3px", background: riskColor }} />
+      <div style={{ padding: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
+          <div style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: t.primary }}>
+            Verdict
+          </div>
+          <span style={{
+            fontSize: "0.62rem",
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+            padding: "1px 6px",
+            borderRadius: "4px",
+            background: riskColor + "18",
+            color: riskColor,
+          }}>
+            {diagnosis.riskLevel === "high" ? "Act now" : diagnosis.riskLevel === "medium" ? "Room to improve" : "On track"}
+          </span>
+        </div>
+        <p style={{ margin: 0, fontSize: "0.92rem", fontWeight: 600, color: t.text, lineHeight: 1.55 }}>
+          {diagnosis.verdict}
+        </p>
+        {diagnosis.topMoves[0] && (
+          <div style={{
+            marginTop: "0.6rem",
+            paddingTop: "0.55rem",
+            borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+            flexWrap: "wrap",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", minWidth: 0 }}>
+              <Zap size={12} style={{ color: "#22c55e", flexShrink: 0 }} />
+              <span style={{ fontSize: "0.8rem", color: t.muted, fontWeight: 500 }}>
+                Start with:
+              </span>
+              <span style={{ fontSize: "0.8rem", color: t.text, fontWeight: 600 }}>
+                {diagnosis.topMoves[0].title}
+              </span>
+            </div>
+            {onSimulator && (
+              <button
+                onClick={() => {
+                  trackEvent("diagnosis_to_simulator_click", {
+                    riskLevel: diagnosis.riskLevel,
+                    topMoveTitle: diagnosis.topMoves[0].title,
+                  });
+                  onSimulator();
+                }}
+                style={{
+                  background: "transparent",
+                  border: `1px solid ${t.primary}40`,
+                  borderRadius: "6px",
+                  padding: "0.3rem 0.65rem",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  color: t.primary,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.3rem",
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                }}
+              >
+                Test in Simulator
+                <ArrowRight size={11} />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div>
@@ -459,8 +364,8 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
         )}
       </div>
 
-      {/* ── Primary Diagnosis + Why This Matters (always visible) ──────── */}
-      <div style={{ marginBottom: "1rem" }}>
+      {/* ── Primary Diagnosis (always visible) ────────────────────────── */}
+      <div style={{ marginBottom: "0" }}>
         <SectionLabel icon={AlertTriangle} label="Primary Diagnosis" color="#ef4444" />
         <div
           style={{
@@ -468,7 +373,6 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
             borderRadius: "10px",
             background: isDark ? "rgba(239,68,68,0.08)" : "rgba(239,68,68,0.06)",
             borderLeft: "3px solid #ef4444",
-            marginBottom: "0.5rem",
           }}
         >
           <div style={{ fontWeight: 700, fontSize: "0.95rem", color: t.text, lineHeight: 1.4, marginBottom: "0.35rem" }}>
@@ -488,163 +392,300 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
             </span>
           </div>
         </div>
-
-        <SectionLabel icon={Zap} label="Why This Matters" color="#f59e0b" />
-        <div style={sectionStyle("#f59e0b")}>
-          {(() => {
-            const sentences = diagnosis.summary.includes(". ")
-              ? diagnosis.summary.split(/\.\s+/).filter(Boolean)
-              : [diagnosis.summary];
-            const visibleSentences = isPremium ? sentences : sentences.slice(0, 1);
-            const hasMore = !isPremium && sentences.length > 1;
-
-            return (
-              <>
-                {visibleSentences.length > 1 ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
-                    {visibleSentences.map((sentence, i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
-                        <span style={{ color: "#f59e0b", fontSize: "0.7rem", marginTop: "3px", flexShrink: 0 }}>▸</span>
-                        <span style={{ fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>
-                          {sentence.endsWith(".") ? sentence : sentence + "."}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.55, opacity: 0.9 }}>
-                    {visibleSentences[0]?.endsWith(".") ? visibleSentences[0] : (visibleSentences[0] ?? "") + "."}
-                  </p>
-                )}
-                {hasMore && (
-                  <button
-                    onClick={() => onUpgrade("premium")}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: "0.3rem 0",
-                      marginTop: "0.35rem",
-                      fontSize: "0.78rem",
-                      fontWeight: 600,
-                      color: "#f59e0b",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "0.3rem",
-                    }}
-                  >
-                    <Lock size={11} />
-                    Unlock full analysis
-                  </button>
-                )}
-              </>
-            );
-          })()}
-        </div>
       </div>
 
-      {/* ── Key Signals (capped at 3) ──────────────────────────────────── */}
-      {visibleSignals.length > 0 && (
-        <div style={{ marginBottom: "1rem" }}>
-          <SectionLabel icon={ShieldAlert} label="Key Signals" color="#f59e0b" />
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-            {visibleSignals.map((signal, i) => (
-              <span
-                key={i}
-                style={{
-                  fontSize: "0.74rem",
-                  fontWeight: 600,
-                  padding: "4px 10px",
-                  borderRadius: "8px",
-                  background: isDark ? "rgba(245,158,11,0.1)" : "rgba(245,158,11,0.08)",
-                  border: "1px solid rgba(245,158,11,0.25)",
-                  color: "#f59e0b",
-                  lineHeight: 1.4,
-                }}
-              >
-                {signal}
-              </span>
-            ))}
+      {/* ── Verdict (always visible — gated for free users) ───────────── */}
+      {isPremium ? (
+        verdictBlock
+      ) : (
+        <div style={{ position: "relative", overflow: "hidden", marginTop: "1rem", marginBottom: "0.65rem" }}>
+          <div style={{ filter: "blur(5px)", pointerEvents: "none", userSelect: "none" }}>
+            {verdictBlock}
+          </div>
+          <div
+            className="atv-locked-overlay"
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <Lock className="atv-lock-icon-glow" size={18} style={{ color: t.primary }} />
+            <span style={{ fontSize: "0.82rem", fontWeight: 600, color: t.text }}>Unlock your verdict</span>
+            <button
+              onClick={() => onUpgrade("premium")}
+              className="atv-btn-primary"
+              style={{
+                background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                padding: "0.45rem 1.2rem",
+                fontSize: "0.8rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                boxShadow: `0 3px 10px ${t.primary}4D`,
+              }}
+            >
+              Upgrade to Premium
+            </button>
           </div>
         </div>
       )}
 
-      {/* ── #1 Action (Premium) / Locked CTA (Free) ──────────────── */}
-      {isPremium ? (
-        <div>
-          <SectionLabel icon={Zap} label="Start Here" color="#22c55e" />
-          {diagnosis.topMoves[0] && (
-            <ActionCard move={diagnosis.topMoves[0]} index={0} t={t} isDark={isDark} expanded />
-          )}
-        </div>
-      ) : (
-        <div
-          style={{
-            padding: "1rem 1.1rem",
-            borderRadius: "10px",
-            background: `linear-gradient(135deg, ${t.primary}14, ${t.accent}14)`,
-            border: `1px solid ${t.primary}33`,
-            textAlign: "center",
-          }}
-        >
-          <Lock size={16} style={{ color: t.primary, marginBottom: "0.4rem" }} />
-          <p style={{ margin: "0 0 0.5rem", fontSize: "0.88rem", fontWeight: 600, color: t.text, lineHeight: 1.45 }}>
-            Your ranked actions, scenario projections, and verdict are ready.
-          </p>
-          <p style={{ margin: "0 0 0.75rem", fontSize: "0.78rem", color: t.muted, lineHeight: 1.45 }}>
-            See what to cut first, what happens in 30 days and 12 months, and the AI's final verdict on your position.
-          </p>
-          <button
-            onClick={() => onUpgrade("premium")}
-            style={{
-              background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              padding: "0.55rem 1.5rem",
-              fontSize: "0.85rem",
-              fontWeight: 700,
-              cursor: "pointer",
-              boxShadow: `0 3px 10px ${t.primary}4D`,
-            }}
-          >
-            Unlock Full Diagnosis
-          </button>
-        </div>
-      )}
+      {/* ── Collapsible: Full Analysis ─────────────────────────────────── */}
+      <button
+        onClick={() => setShowDetails(!showDetails)}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "0.35rem",
+          background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+          border: `1px solid ${t.border}`,
+          borderRadius: "8px",
+          padding: "0.55rem",
+          fontSize: "0.8rem",
+          fontWeight: 600,
+          color: t.muted,
+          cursor: "pointer",
+        }}
+      >
+        {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        {showDetails ? "Hide details" : "See full analysis"}
+      </button>
 
-      {/* ── Premium deep-dive (collapsed by default, pro only) ───── */}
-      {isPremium && (
-        <>
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.35rem",
-              background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
-              border: `1px solid ${t.border}`,
-              borderRadius: "8px",
-              padding: "0.55rem",
-              fontSize: "0.8rem",
-              fontWeight: 600,
-              color: t.muted,
-              cursor: "pointer",
-              marginTop: "0.75rem",
-            }}
-          >
-            {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            {showDetails ? "Hide details" : "Show full diagnosis"}
-          </button>
+      {showDetails && (
+        <div style={{ marginTop: "0.75rem" }}>
+          {/* ── Why This Matters ──────────────────────────────────────── */}
+          <SectionLabel icon={Zap} label="Why This Matters" color="#f59e0b" />
+          <div style={sectionStyle("#f59e0b")}>
+            {(() => {
+              const sentences = diagnosis.summary.includes(". ")
+                ? diagnosis.summary.split(/\.\s+/).filter(Boolean)
+                : [diagnosis.summary];
+              const visibleSentences = isPremium ? sentences : sentences.slice(0, 1);
+              const hasMore = !isPremium && sentences.length > 1;
 
-          {showDetails && (
-            <div style={{ marginTop: "0.75rem" }}>
-              {premiumSections}
+              return (
+                <>
+                  {visibleSentences.length > 1 ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                      {visibleSentences.map((sentence, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
+                          <span style={{ color: "#f59e0b", fontSize: "0.7rem", marginTop: "3px", flexShrink: 0 }}>▸</span>
+                          <span style={{ fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>
+                            {sentence.endsWith(".") ? sentence : sentence + "."}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.55, opacity: 0.9 }}>
+                      {visibleSentences[0]?.endsWith(".") ? visibleSentences[0] : (visibleSentences[0] ?? "") + "."}
+                    </p>
+                  )}
+                  {hasMore && (
+                    <button
+                      onClick={() => onUpgrade("premium")}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "0.3rem 0",
+                        marginTop: "0.35rem",
+                        fontSize: "0.78rem",
+                        fontWeight: 600,
+                        color: "#f59e0b",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                      }}
+                    >
+                      <Lock size={11} />
+                      Unlock full analysis
+                    </button>
+                  )}
+                </>
+              );
+            })()}
+          </div>
+
+          {/* ── Key Signals (capped at 3) ────────────────────────────── */}
+          {visibleSignals.length > 0 && (
+            <div style={{ marginBottom: "1rem" }}>
+              <SectionLabel icon={ShieldAlert} label="Key Signals" color="#f59e0b" />
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+                {visibleSignals.map((signal, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      fontSize: "0.74rem",
+                      fontWeight: 600,
+                      padding: "4px 10px",
+                      borderRadius: "8px",
+                      background: isDark ? "rgba(245,158,11,0.1)" : "rgba(245,158,11,0.08)",
+                      border: "1px solid rgba(245,158,11,0.25)",
+                      color: "#f59e0b",
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {signal}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
-        </>
+
+          {/* ── #1 Action (Premium) / Locked CTA (Free) ──────────────── */}
+          {isPremium ? (
+            <div>
+              <SectionLabel icon={Zap} label="Start Here" color="#22c55e" />
+              {diagnosis.topMoves[0] && (
+                <ActionCard move={diagnosis.topMoves[0]} index={0} t={t} isDark={isDark} expanded />
+              )}
+            </div>
+          ) : (
+            <div
+              style={{
+                padding: "1rem 1.1rem",
+                borderRadius: "10px",
+                background: `linear-gradient(135deg, ${t.primary}14, ${t.accent}14)`,
+                border: `1px solid ${t.primary}33`,
+                textAlign: "center",
+              }}
+            >
+              <Lock size={16} style={{ color: t.primary, marginBottom: "0.4rem" }} />
+              <p style={{ margin: "0 0 0.5rem", fontSize: "0.88rem", fontWeight: 600, color: t.text, lineHeight: 1.45 }}>
+                Your ranked actions, scenario projections, and verdict are ready.
+              </p>
+              <p style={{ margin: "0 0 0.75rem", fontSize: "0.78rem", color: t.muted, lineHeight: 1.45 }}>
+                See what to cut first, what happens in 30 days and 12 months, and the AI's final verdict on your position.
+              </p>
+              <button
+                onClick={() => onUpgrade("premium")}
+                style={{
+                  background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "0.55rem 1.5rem",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  boxShadow: `0 3px 10px ${t.primary}4D`,
+                }}
+              >
+                Unlock Full Diagnosis
+              </button>
+            </div>
+          )}
+
+          {/* ── Premium deep-dive sections ────────────────────────────── */}
+          {isPremium && (
+            <div style={{ marginTop: "0.75rem" }}>
+              {/* ── Remaining Actions (2+) ─────────────────────────────── */}
+              {diagnosis.topMoves.slice(1).map((move, i) => (
+                <ActionCard key={i + 1} move={move} index={i + 1} t={t} isDark={isDark} />
+              ))}
+
+              {/* ── Scenario Comparison ────────────────────────────────── */}
+              <div style={{ marginTop: "1rem" }}>
+                <SectionLabel icon={ShieldAlert} label="Your Two Paths" color="#f59e0b" />
+
+                {/* 30 Days */}
+                <div style={{ marginBottom: "0.75rem" }}>
+                  <div style={{ fontSize: "0.7rem", fontWeight: 700, color: t.muted, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
+                    In 30 Days
+                  </div>
+                  <div
+                    style={{
+                      borderRadius: "10px",
+                      border: `1px solid ${t.border}`,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(245,158,11,0.06)" : "rgba(245,158,11,0.04)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
+                        <ArrowDown size={11} style={{ color: "#f59e0b" }} />
+                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifUnchanged30d}</p>
+                    </div>
+                    <div style={{ height: "1px", background: t.border }} />
+                    <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.04)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
+                        <ArrowUp size={11} style={{ color: "#22c55e" }} />
+                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#22c55e", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifOptimized30d}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 12 Months */}
+                <div>
+                  <div style={{ fontSize: "0.7rem", fontWeight: 700, color: t.muted, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
+                    In 12 Months
+                  </div>
+                  <div
+                    style={{
+                      borderRadius: "10px",
+                      border: `1px solid ${t.border}`,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(245,158,11,0.06)" : "rgba(245,158,11,0.04)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
+                        <ArrowDown size={11} style={{ color: "#f59e0b" }} />
+                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifUnchanged12m}</p>
+                    </div>
+                    <div style={{ height: "1px", background: t.border }} />
+                    <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.04)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
+                        <ArrowUp size={11} style={{ color: "#22c55e" }} />
+                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#22c55e", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifOptimized12m}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Cut First ──────────────────────────────────────────── */}
+              {diagnosis.cutFirst && diagnosis.cutFirst.length > 0 && (
+                <div style={{ marginTop: "0.75rem" }}>
+                  <SectionLabel icon={Scissors} label="Cut First" color="#ef4444" />
+                  <div style={sectionStyle("#ef4444")}>
+                    {diagnosis.cutFirst.map((item, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem", marginBottom: i < diagnosis.cutFirst!.length - 1 ? "0.35rem" : 0 }}>
+                        <Check size={13} style={{ color: "#ef4444", marginTop: "2px", flexShrink: 0 }} />
+                        <span style={{ fontSize: "0.84rem", color: t.text, lineHeight: 1.5 }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Hidden Strength ────────────────────────────────────── */}
+              {diagnosis.hiddenStrength && (
+                <div style={{ marginTop: "0.75rem" }}>
+                  <SectionLabel icon={Star} label="Hidden Strength" color={t.primary} />
+                  <div style={sectionStyle(t.primary)}>
+                    <p style={{ margin: 0, fontSize: "0.85rem", color: t.text, lineHeight: 1.55 }}>{diagnosis.hiddenStrength}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
