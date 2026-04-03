@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Stethoscope, RefreshCw } from "lucide-react";
 import type { ThemeConfig, UserTier, PlanId } from "@/lib/app-shared";
 import type { ExpenseData } from "@/lib/calc";
 import type { FinancialDiagnosis, DiagnosisTone, DiagnosisInput } from "@/lib/diagnosis-types";
 import { parseDiagnosis } from "@/lib/diagnosis-types";
 import { trackEvent } from "@/lib/analytics";
+import { useDiagnosisStore } from "@/lib/diagnosis-store";
 import { DiagnosisToneSelector } from "./DiagnosisToneSelector";
 import { FinancialDiagnosisCard } from "./FinancialDiagnosisCard";
 
@@ -74,7 +75,8 @@ export function FinancialDiagnosisSection({
   isDark,
 }: FinancialDiagnosisSectionProps) {
   const isPremium = userTier === "premium";
-  const [tone, setTone] = useState<DiagnosisTone>("direct");
+  const { savedDiagnosis, savedDiagnosisTone, setSavedDiagnosis } = useDiagnosisStore();
+  const [tone, setTone] = useState<DiagnosisTone>(() => savedDiagnosisTone ?? "direct");
 
   // Build the input for cache keying (without tone — tone changes should regenerate)
   const baseInput = {
@@ -88,6 +90,14 @@ export function FinancialDiagnosisSection({
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(() => readCache(fullCacheKey) !== null);
   const [error, setError] = useState<string | null>(null);
+
+  // Restore from persisted store if sessionStorage cache is empty
+  useEffect(() => {
+    if (!result && savedDiagnosis) {
+      setResult(savedDiagnosis);
+      setGenerated(true);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Determine top 3 expense categories
   const categories: { name: string; value: number }[] = [
@@ -157,6 +167,7 @@ export function FinancialDiagnosisSection({
       setResult(parsed);
       setGenerated(true);
       writeCache(cacheKey({ ...baseInput, tone }), parsed);
+      setSavedDiagnosis(parsed, tone);
       trackEvent("diagnosis_generated", { user_tier: userTier, source_page: "guided" });
     } catch {
       setError("Network error — please try again.");
@@ -253,7 +264,7 @@ export function FinancialDiagnosisSection({
               }}
             >
               <Stethoscope size={16} />
-              Generate My Diagnosis
+              {savedDiagnosis ? "Regenerate My Diagnosis" : "Generate My Diagnosis"}
             </button>
           </div>
         </>
