@@ -141,18 +141,26 @@ export default async function handler(req: Req, res: Res): Promise<void> {
 
       // Read entitlement to return plan alongside login response
       let plan: "free" | "pro" | "premium" = "free";
+      const entKey = `entitlement:${record.userId}`;
+      console.log(`[auth/login] email=${normalizedEmail} userId=${record.userId} entKey=${entKey}`);
       try {
-        const ent = await kv.get<{ plan: string; status: string; expires_at: string }>(
-          `entitlement:${record.userId}`
-        );
-        if (ent && ent.status === "active" && (!ent.expires_at || new Date(ent.expires_at) > new Date())) {
-          if (ent.plan === "pro" || ent.plan === "premium") {
-            plan = ent.plan;
+        const ent = await kv.get<Record<string, unknown>>(entKey);
+        console.log(`[auth/login] entitlement raw:`, JSON.stringify(ent));
+        if (ent) {
+          const isActive = ent.status === "active";
+          const expiresAt = typeof ent.expires_at === "string" ? ent.expires_at : null;
+          const isNotExpired = !expiresAt || new Date(expiresAt) > new Date();
+          console.log(`[auth/login] isActive=${isActive} expiresAt=${expiresAt} isNotExpired=${isNotExpired}`);
+          if (isActive && isNotExpired) {
+            if (ent.plan === "pro" || ent.plan === "premium") {
+              plan = ent.plan;
+            }
           }
         }
-      } catch {
-        // Non-fatal — default to free if entitlement read fails
+      } catch (entErr) {
+        console.error(`[auth/login] entitlement read FAILED for ${entKey}:`, entErr);
       }
+      console.log(`[auth/login] final plan=${plan}`);
 
       res.status(200).json({ ok: true, userId: record.userId, email: record.email, plan });
     }

@@ -215,8 +215,12 @@ export async function login(email: string, password: string): Promise<{ user: Us
     saveCurrentUser(user);
 
     // Sync server-side plan to localStorage so paid features unlock immediately
+    console.log(`[auth-store/login] server returned plan=${data.plan} for userId=${data.userId}`);
     if (data.plan && data.plan !== "free") {
       localStorage.setItem("incomecalc-tier", data.plan);
+      console.log(`[auth-store/login] wrote incomecalc-tier=${data.plan} to localStorage`);
+    } else {
+      console.log(`[auth-store/login] plan is free or missing, not updating tier in localStorage`);
     }
 
     const session = createSession(user);
