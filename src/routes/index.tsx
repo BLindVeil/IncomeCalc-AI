@@ -179,7 +179,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
               margin: "0 0 1.25rem",
             }}
           >
-            Know Exactly Where You Stand{" "}
+            Find Out Exactly How Much You Need to{" "}
             <span key={baseTheme} style={{
               background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
               WebkitBackgroundClip: "text",
@@ -187,11 +187,11 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
               backgroundClip: "text",
               color: "transparent",
               display: "inline-block",
-            }}>Financially.</span>
+            }}>Earn.</span>
           </h1>
 
           <p style={{ fontSize: "1.15rem", color: t.muted, maxWidth: "660px", margin: "0 auto 2.5rem", lineHeight: 1.65 }}>
-            IncomeCalc analyzes your income, expenses, tax impact, risk, and runway — and builds your financial stability plan in 60 seconds.
+            Enter your monthly expenses. Get your income number, your financial health score, and exactly what to change — in 60 seconds.
           </p>
 
           <div style={{ display: "flex", gap: "0.85rem", justifyContent: "center", flexWrap: "wrap" }}>
@@ -206,109 +206,19 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
                 gap: "0.5rem",
               }}
             >
-              Calculate My Income
-              <ArrowRight size={18} />
-            </button>
-            <button
-              onClick={onPricing}
-              className="atv-btn-secondary"
-              style={{
-                padding: "0.95rem 2rem",
-                fontSize: "1.05rem",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
-              <Star size={16} />
-              View Pricing
+              Calculate My Number →
             </button>
           </div>
 
-          {/* Trust row */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "1.5rem",
-              marginTop: "2.5rem",
-              flexWrap: "wrap",
-            }}
-          >
-            {[
-              { icon: <Target size={14} />, text: "AI-generated financial action plan" },
-              { icon: <BarChart3 size={14} />, text: "Cashflow & risk analysis" },
-              { icon: <Shield size={14} />, text: "Planner-level insights without the $3,000 fee" },
-            ].map(({ icon, text }) => (
-              <div
-                key={text}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  fontSize: "0.85rem",
-                  color: t.muted,
-                  fontWeight: 500,
-                }}
-              >
-                <span style={{ color: t.primary, display: "flex", alignItems: "center" }}>{icon}</span>
-                {text}
-              </div>
-            ))}
-          </div>
         </div>
 
-        {/* Feature cards */}
-        <div
-          className="atv-fade-in atv-fade-in-delay-1"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "1.25rem",
-            marginBottom: "3rem",
-          }}
-        >
-          {[
-            { Icon: Calculator, title: "Smart Calculator", desc: "9 expense categories with real tax calculations" },
-            { Icon: Brain, title: "AI Financial Advisor", desc: "Chat with AI about your finances — personalized to your numbers" },
-            { Icon: Lightbulb, title: "AI Income Ideas", desc: "Get realistic side hustle ideas matched to your expense profile" },
-            { Icon: Zap, title: "Instant Results", desc: "See your required income update in real time" },
-          ].map(({ Icon, title, desc }) => (
-            <div
-              key={title}
-              className="atv-glass"
-              style={{
-                padding: "1.5rem",
-              }}
-            >
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "12px",
-                  background: `${t.primary}26`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: "0.75rem",
-                  color: t.primary,
-                }}
-              >
-                <Icon size={20} />
-              </div>
-              <div style={{ fontWeight: 600, marginBottom: "0.35rem", color: t.text, letterSpacing: "-0.01em" }}>{title}</div>
-              <div style={{ fontSize: "0.9rem", color: t.muted, lineHeight: 1.5 }}>{desc}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* How Financially Stable Are You? */}
+        {/* What You'll Know in 60 Seconds */}
         <div className="atv-fade-in atv-fade-in-delay-2" style={{ textAlign: "center", marginBottom: "1.5rem" }}>
           <h2 style={{ fontSize: "1.75rem", fontWeight: 700, color: t.text, margin: "0 0 0.5rem", letterSpacing: "-0.02em" }}>
-            How Financially Stable Are You?
+            What You'll Know in 60 Seconds.
           </h2>
           <p style={{ color: t.muted, fontSize: "0.95rem", margin: 0 }}>
-            IncomeCalc measures what matters most.
+            Most people don't know these numbers. You will.
           </p>
         </div>
         <div
@@ -368,28 +278,11 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "4px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent})` }} />
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
             <Star size={18} style={{ color: "#FFB800" }} />
-            <span style={{ fontWeight: 600, color: t.text, fontSize: "1.1rem", letterSpacing: "-0.01em" }}>Unlock Premium Features</span>
+            <span style={{ fontWeight: 600, color: t.text, fontSize: "1.1rem", letterSpacing: "-0.01em" }}>Go Deeper on Your Numbers.</span>
           </div>
           <p style={{ color: t.muted, fontSize: "0.95rem", marginBottom: "1.25rem" }}>
-            Advanced analytics, AI recommendations, goal planning, PDF exports, and cloud sync.
+            Unlock AI diagnosis, scenario testing, and a plan built around your actual life.
           </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center", marginBottom: "1.5rem" }}>
-            {["AI Financial Advisor Chat", "AI Income Ideas", "Analytics Dashboard", "Goal Planning", "PDF Reports"].map((f) => (
-              <span
-                key={f}
-                style={{
-                  background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
-                  border: `1px solid ${t.border}`,
-                  borderRadius: "20px",
-                  padding: "0.35rem 0.85rem",
-                  fontSize: "0.85rem",
-                  color: t.muted,
-                }}
-              >
-                {f}
-              </span>
-            ))}
-          </div>
           <button
             onClick={onPricing}
             className="atv-btn-primary"
