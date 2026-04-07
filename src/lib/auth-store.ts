@@ -232,9 +232,9 @@ export async function login(email: string, password: string): Promise<{ user: Us
 }
 
 export function logout(): void {
+  useDiagnosisStore.getState().clearSavedDiagnosis();
   localStorage.removeItem(KEYS.SESSION);
   localStorage.removeItem(KEYS.CURRENT_USER);
-  useDiagnosisStore.getState().clearSavedDiagnosis();
 }
 
 function createSession(user: User): Session {

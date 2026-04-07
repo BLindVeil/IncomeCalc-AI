@@ -15,7 +15,10 @@ export const useDiagnosisStore = create<DiagnosisStore>()(
       savedDiagnosis: null,
       savedDiagnosisTone: null,
       setSavedDiagnosis: (d, tone) => set({ savedDiagnosis: d, savedDiagnosisTone: tone }),
-      clearSavedDiagnosis: () => set({ savedDiagnosis: null, savedDiagnosisTone: null }),
+      clearSavedDiagnosis: () => {
+        set({ savedDiagnosis: null, savedDiagnosisTone: null });
+        localStorage.removeItem("incomecalc-diagnosis");
+      },
     }),
     { name: "incomecalc-diagnosis" },
   ),
