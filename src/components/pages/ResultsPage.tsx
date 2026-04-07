@@ -626,6 +626,18 @@ export function ResultsPage({
   const healthColor =
     healthScore >= 80 ? "#22c55e" : healthScore >= 60 ? "#84cc16" : healthScore >= 40 ? "#f59e0b" : "#ef4444";
 
+  const [animatedScore, setAnimatedScore] = useState(0);
+  useEffect(() => {
+    setAnimatedScore(0);
+    const id = setInterval(() => {
+      setAnimatedScore((prev) => {
+        if (prev >= healthScore) { clearInterval(id); return healthScore; }
+        return prev + 1;
+      });
+    }, 20);
+    return () => clearInterval(id);
+  }, [healthScore]);
+
   const housingPct = grossMonthly > 0 ? (data.housing / grossMonthly) * 100 : 0;
 
   const subScores = [
@@ -734,6 +746,21 @@ export function ResultsPage({
             {fmt(grossAnnual)}
           </div>
           <div style={{ fontSize: "0.9rem", color: t.muted, marginTop: "0.25rem" }}>per year</div>
+          {userTier === "free" && (
+            <>
+              <p style={{ fontSize: "0.9rem", color: t.muted, fontStyle: "italic", margin: "0.75rem 0 0" }}>
+                Most people who see this number don't know what's pulling it up. The diagnosis does.
+              </p>
+              <p style={{ margin: "0.35rem 0 0" }}>
+                <span
+                  onClick={() => document.getElementById("diagnosis-section")?.scrollIntoView({ behavior: "smooth" })}
+                  style={{ fontSize: "0.9rem", color: t.primary, fontWeight: 600, cursor: "pointer", textDecoration: "none" }}
+                >
+                  See what's driving it &rarr;
+                </span>
+              </p>
+            </>
+          )}
           <div
             style={{
               display: "flex",
@@ -799,7 +826,7 @@ export function ResultsPage({
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
             <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Financial Health Score</span>
             <span style={{ fontWeight: 700, color: healthColor, fontSize: "1.1rem" }}>
-              {healthScore}/100 — {healthLabel}
+              {animatedScore}/100 — {healthLabel}
             </span>
           </div>
           <Progress value={healthScore} className="h-3" />
@@ -1187,6 +1214,7 @@ export function ResultsPage({
         </div>
 
         {/* AI Financial Diagnosis — premium structured analysis */}
+        <div id="diagnosis-section">
         <FinancialDiagnosisSection
           data={data}
           taxRate={taxRate}
@@ -1205,6 +1233,7 @@ export function ResultsPage({
           t={t}
           isDark={isDark}
         />
+        </div>
 
         {/* Open in Simulator + Check-In cards */}
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
