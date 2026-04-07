@@ -18,6 +18,12 @@ export const useDiagnosisStore = create<DiagnosisStore>()(
       clearSavedDiagnosis: () => {
         set({ savedDiagnosis: null, savedDiagnosisTone: null });
         localStorage.removeItem("incomecalc-diagnosis");
+        // Clear all sessionStorage diagnosis cache keys
+        Object.keys(sessionStorage).forEach(key => {
+          if (key.startsWith("ai_cache_diagnosis_")) {
+            sessionStorage.removeItem(key);
+          }
+        });
       },
     }),
     { name: "incomecalc-diagnosis" },
