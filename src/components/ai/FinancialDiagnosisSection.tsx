@@ -106,6 +106,8 @@ export function FinancialDiagnosisSection({
     if (prevFingerprint.current !== expenseFingerprint) {
       prevFingerprint.current = expenseFingerprint;
       clearSavedDiagnosis();
+      // Nuclear fallback — ensure nothing survives
+      sessionStorage.clear();
     }
   }, [expenseFingerprint, clearSavedDiagnosis]);
 
