@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, Brain, AlertTriangle, Zap, TrendingUp, RefreshCw } from "lucide-react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import type { ExpenseData } from "@/lib/calc";
@@ -47,6 +47,7 @@ export interface AIFinancialInsightsProps {
   hourlyRate: number;
   t: ThemeConfig;
   isDark: boolean;
+  onGenerated?: () => void;
 }
 
 export function AIFinancialInsights({
@@ -60,14 +61,18 @@ export function AIFinancialInsights({
   hourlyRate,
   t,
   isDark,
+  onGenerated,
 }: AIFinancialInsightsProps) {
   const cacheInput = { grossAnnual, grossMonthly, taxRate, totalMonthly, healthScore, savingsRate, hourlyRate, ...data };
   const cacheKey = getCacheKey(cacheInput);
 
+  const hasCached = readCache(cacheKey) !== null;
   const [result, setResult] = useState<FinancialInsightsResult | null>(() => readCache(cacheKey));
   const [loading, setLoading] = useState(false);
-  const [generated, setGenerated] = useState(() => readCache(cacheKey) !== null);
+  const [generated, setGenerated] = useState(() => hasCached);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => { if (hasCached) onGenerated?.(); }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   async function generateInsights() {
     setLoading(true);
@@ -111,6 +116,7 @@ export function AIFinancialInsights({
         };
         setResult(parsed);
         setGenerated(true);
+        onGenerated?.();
         writeCache(cacheKey, parsed);
       }
     } catch {

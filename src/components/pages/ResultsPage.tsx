@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { useIsMobile } from "@/lib/useIsMobile";
 import {
   Calculator,
@@ -552,6 +552,11 @@ export interface ResultsPageProps {
   fromGuidedFlow?: boolean;
 }
 
+function FadeIn({ opacity, setOpacity, children }: { opacity: number; setOpacity: (v: number) => void; children: ReactNode }) {
+  useEffect(() => { requestAnimationFrame(() => setOpacity(1)); }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+  return <div style={{ opacity, transition: "opacity 400ms ease" }}>{children}</div>;
+}
+
 export function ResultsPage({
   data,
   taxRate,
@@ -587,6 +592,10 @@ export function ResultsPage({
   const [askPlanQuestion, setAskPlanQuestion] = useState<string | null>(null);
   const [shareCardOpen, setShareCardOpen] = useState(false);
   const [alertsExpanded, setAlertsExpanded] = useState<string | null>(null);
+  const [showBudgetInsights, setShowBudgetInsights] = useState(false);
+  const [showIncomeIdeas, setShowIncomeIdeas] = useState(false);
+  const [budgetOpacity, setBudgetOpacity] = useState(0);
+  const [ideasOpacity, setIdeasOpacity] = useState(0);
   const [moreToolsOpen, setMoreToolsOpen] = useState(() => {
     try { return sessionStorage.getItem("incomecalc-tools-expanded") === "true"; } catch { return false; }
   });
@@ -1825,27 +1834,37 @@ export function ResultsPage({
           hourlyRate={hourlyRate}
           t={t}
           isDark={isDark}
+          onGenerated={() => setShowBudgetInsights(true)}
         />
 
-        {/* Live AI Budget Insights */}
-        <AIBudgetInsights
-          data={data}
-          taxRate={taxRate}
-          grossAnnual={grossAnnual}
-          grossMonthly={grossMonthly}
-          totalMonthly={totalMonthly}
-          t={t}
-          isDark={isDark}
-        />
+        {/* Live AI Budget Insights — revealed after Financial Insights generates */}
+        {showBudgetInsights && (
+          <FadeIn opacity={budgetOpacity} setOpacity={setBudgetOpacity}>
+            <AIBudgetInsights
+              data={data}
+              taxRate={taxRate}
+              grossAnnual={grossAnnual}
+              grossMonthly={grossMonthly}
+              totalMonthly={totalMonthly}
+              t={t}
+              isDark={isDark}
+              onGenerated={() => setShowIncomeIdeas(true)}
+            />
+          </FadeIn>
+        )}
 
-        {/* Live AI Income Ideas */}
-        <AIIncomeIdeas
-          data={data}
-          grossAnnual={grossAnnual}
-          totalMonthly={totalMonthly}
-          t={t}
-          isDark={isDark}
-        />
+        {/* Live AI Income Ideas — revealed after Budget Insights generates */}
+        {showIncomeIdeas && (
+          <FadeIn opacity={ideasOpacity} setOpacity={setIdeasOpacity}>
+            <AIIncomeIdeas
+              data={data}
+              grossAnnual={grossAnnual}
+              totalMonthly={totalMonthly}
+              t={t}
+              isDark={isDark}
+            />
+          </FadeIn>
+        )}
 
         {/* AI Action Plan */}
         <div
