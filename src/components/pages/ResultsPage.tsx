@@ -596,6 +596,16 @@ export function ResultsPage({
   const [showIncomeIdeas, setShowIncomeIdeas] = useState(false);
   const [budgetOpacity, setBudgetOpacity] = useState(0);
   const [ideasOpacity, setIdeasOpacity] = useState(0);
+
+  // Progressive reveal: for free users, Budget Insights is locked so onGenerated never fires.
+  // Trigger showIncomeIdeas after a short delay once Budget Insights section appears.
+  useEffect(() => {
+    if (showBudgetInsights && userTier === "free") {
+      const timer = setTimeout(() => setShowIncomeIdeas(true), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [showBudgetInsights, userTier]);
+
   const [moreToolsOpen, setMoreToolsOpen] = useState(() => {
     try { return sessionStorage.getItem("incomecalc-tools-expanded") === "true"; } catch { return false; }
   });
@@ -1840,29 +1850,153 @@ export function ResultsPage({
         {/* Live AI Budget Insights — revealed after Financial Insights generates */}
         {showBudgetInsights && (
           <FadeIn opacity={budgetOpacity} setOpacity={setBudgetOpacity}>
-            <AIBudgetInsights
-              data={data}
-              taxRate={taxRate}
-              grossAnnual={grossAnnual}
-              grossMonthly={grossMonthly}
-              totalMonthly={totalMonthly}
-              t={t}
-              isDark={isDark}
-              onGenerated={() => setShowIncomeIdeas(true)}
-            />
+            {userTier === "free" ? (
+              <div
+                style={{
+                  position: "relative",
+                  background: t.cardBg,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: "12px",
+                  padding: "1.5rem",
+                  marginBottom: "1.25rem",
+                  minHeight: "120px",
+                  overflow: "hidden",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+                  <Sparkles size={18} style={{ color: t.primary }} />
+                  <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>AI Budget Insights</span>
+                </div>
+                <div
+                  className="atv-locked-overlay"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.75rem",
+                    borderRadius: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "50%",
+                      background: `${t.primary}26`,
+                      border: `2px solid ${t.primary}4D`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Lock size={20} className="atv-lock-icon-glow" />
+                  </div>
+                  <button
+                    onClick={() => onUpgrade("pro")}
+                    className="atv-btn-primary"
+                    style={{
+                      padding: "0.55rem 1.25rem",
+                      fontSize: "0.9rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                    }}
+                  >
+                    <Lock size={14} />
+                    Unlock with Pro
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <AIBudgetInsights
+                data={data}
+                taxRate={taxRate}
+                grossAnnual={grossAnnual}
+                grossMonthly={grossMonthly}
+                totalMonthly={totalMonthly}
+                t={t}
+                isDark={isDark}
+                onGenerated={() => setShowIncomeIdeas(true)}
+              />
+            )}
           </FadeIn>
         )}
 
         {/* Live AI Income Ideas — revealed after Budget Insights generates */}
         {showIncomeIdeas && (
           <FadeIn opacity={ideasOpacity} setOpacity={setIdeasOpacity}>
-            <AIIncomeIdeas
-              data={data}
-              grossAnnual={grossAnnual}
-              totalMonthly={totalMonthly}
-              t={t}
-              isDark={isDark}
-            />
+            {userTier === "free" ? (
+              <div
+                style={{
+                  position: "relative",
+                  background: t.cardBg,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: "12px",
+                  padding: "1.5rem",
+                  marginBottom: "1.25rem",
+                  minHeight: "120px",
+                  overflow: "hidden",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+                  <Sparkles size={18} style={{ color: "#f59e0b" }} />
+                  <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>AI Income Ideas</span>
+                </div>
+                <div
+                  className="atv-locked-overlay"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.75rem",
+                    borderRadius: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "50%",
+                      background: `${t.primary}26`,
+                      border: `2px solid ${t.primary}4D`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Lock size={20} className="atv-lock-icon-glow" />
+                  </div>
+                  <button
+                    onClick={() => onUpgrade("pro")}
+                    className="atv-btn-primary"
+                    style={{
+                      padding: "0.55rem 1.25rem",
+                      fontSize: "0.9rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                    }}
+                  >
+                    <Lock size={14} />
+                    Unlock with Pro
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <AIIncomeIdeas
+                data={data}
+                grossAnnual={grossAnnual}
+                totalMonthly={totalMonthly}
+                t={t}
+                isDark={isDark}
+              />
+            )}
           </FadeIn>
         )}
 
