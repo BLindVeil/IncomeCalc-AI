@@ -5,7 +5,8 @@ import type { FinancialDiagnosis, DiagnosisTone } from "./diagnosis-types";
 interface DiagnosisStore {
   savedDiagnosis: FinancialDiagnosis | null;
   savedDiagnosisTone: DiagnosisTone | null;
-  setSavedDiagnosis: (d: FinancialDiagnosis, tone: DiagnosisTone) => void;
+  savedDiagnosisFingerprint: string | null;
+  setSavedDiagnosis: (d: FinancialDiagnosis, tone: DiagnosisTone, fingerprint: string) => void;
   clearSavedDiagnosis: () => void;
 }
 
@@ -14,9 +15,10 @@ export const useDiagnosisStore = create<DiagnosisStore>()(
     (set) => ({
       savedDiagnosis: null,
       savedDiagnosisTone: null,
-      setSavedDiagnosis: (d, tone) => set({ savedDiagnosis: d, savedDiagnosisTone: tone }),
+      savedDiagnosisFingerprint: null,
+      setSavedDiagnosis: (d, tone, fingerprint) => set({ savedDiagnosis: d, savedDiagnosisTone: tone, savedDiagnosisFingerprint: fingerprint }),
       clearSavedDiagnosis: () => {
-        set({ savedDiagnosis: null, savedDiagnosisTone: null });
+        set({ savedDiagnosis: null, savedDiagnosisTone: null, savedDiagnosisFingerprint: null });
         localStorage.removeItem("incomecalc-diagnosis");
         // Clear every single AI cache key in sessionStorage
         const keysToRemove: string[] = [];

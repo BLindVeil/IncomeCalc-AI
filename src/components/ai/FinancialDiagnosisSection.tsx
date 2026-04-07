@@ -75,7 +75,7 @@ export function FinancialDiagnosisSection({
   isDark,
 }: FinancialDiagnosisSectionProps) {
   const isPremium = userTier === "premium";
-  const { savedDiagnosis, savedDiagnosisTone, setSavedDiagnosis, clearSavedDiagnosis } = useDiagnosisStore();
+  const { savedDiagnosis, savedDiagnosisTone, savedDiagnosisFingerprint, setSavedDiagnosis, clearSavedDiagnosis } = useDiagnosisStore();
   const [tone, setTone] = useState<DiagnosisTone>(() => savedDiagnosisTone ?? "direct");
 
   // Build the input for cache keying (without tone — tone changes should regenerate)
@@ -94,6 +94,11 @@ export function FinancialDiagnosisSection({
   // Restore from persisted store if sessionStorage cache is empty
   useEffect(() => {
     if (!result && savedDiagnosis) {
+      const currentFingerprint = `${data.housing},${data.food},${data.transport},${data.healthcare},${data.utilities},${data.entertainment},${data.clothing},${data.savings},${data.other}`;
+      if (savedDiagnosisFingerprint !== currentFingerprint) {
+        clearSavedDiagnosis();
+        return;
+      }
       setResult(savedDiagnosis);
       setGenerated(true);
     }
@@ -186,7 +191,7 @@ export function FinancialDiagnosisSection({
       setResult(parsed);
       setGenerated(true);
       writeCache(cacheKey({ ...baseInput, tone }), parsed);
-      setSavedDiagnosis(parsed, tone);
+      setSavedDiagnosis(parsed, tone, expenseFingerprint);
       trackEvent("diagnosis_generated", { user_tier: userTier, source_page: "guided" });
     } catch {
       setError("Network error — please try again.");
