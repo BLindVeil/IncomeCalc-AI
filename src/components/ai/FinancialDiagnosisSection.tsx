@@ -106,8 +106,15 @@ export function FinancialDiagnosisSection({
     if (prevFingerprint.current !== expenseFingerprint) {
       prevFingerprint.current = expenseFingerprint;
       clearSavedDiagnosis();
-      // Nuclear fallback — ensure nothing survives
-      sessionStorage.clear();
+      // Targeted fallback — remove all AI cache keys without touching session/auth keys
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith("ai_cache_")) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => sessionStorage.removeItem(key));
     }
   }, [expenseFingerprint, clearSavedDiagnosis]);
 
