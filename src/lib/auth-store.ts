@@ -4,6 +4,7 @@
 // these functions with real API calls.
 
 import { calculate, type ExpenseData, type CalcOutput } from "./calc";
+import { useDiagnosisStore } from "./diagnosis-store";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -233,6 +234,7 @@ export async function login(email: string, password: string): Promise<{ user: Us
 export function logout(): void {
   localStorage.removeItem(KEYS.SESSION);
   localStorage.removeItem(KEYS.CURRENT_USER);
+  useDiagnosisStore.getState().clearSavedDiagnosis();
 }
 
 function createSession(user: User): Session {

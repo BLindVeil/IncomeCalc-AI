@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Stethoscope, RefreshCw } from "lucide-react";
 import type { ThemeConfig, UserTier, PlanId } from "@/lib/app-shared";
 import type { ExpenseData } from "@/lib/calc";
@@ -75,7 +75,7 @@ export function FinancialDiagnosisSection({
   isDark,
 }: FinancialDiagnosisSectionProps) {
   const isPremium = userTier === "premium";
-  const { savedDiagnosis, savedDiagnosisTone, setSavedDiagnosis } = useDiagnosisStore();
+  const { savedDiagnosis, savedDiagnosisTone, setSavedDiagnosis, clearSavedDiagnosis } = useDiagnosisStore();
   const [tone, setTone] = useState<DiagnosisTone>(() => savedDiagnosisTone ?? "direct");
 
   // Build the input for cache keying (without tone — tone changes should regenerate)
@@ -98,6 +98,16 @@ export function FinancialDiagnosisSection({
       setGenerated(true);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Clear persisted diagnosis when expense inputs change
+  const expenseFingerprint = `${data.housing},${data.food},${data.transport},${data.healthcare},${data.utilities},${data.entertainment},${data.clothing},${data.savings},${data.other}`;
+  const prevFingerprint = useRef(expenseFingerprint);
+  useEffect(() => {
+    if (prevFingerprint.current !== expenseFingerprint) {
+      prevFingerprint.current = expenseFingerprint;
+      clearSavedDiagnosis();
+    }
+  }, [expenseFingerprint, clearSavedDiagnosis]);
 
   // Determine top 3 expense categories
   const categories: { name: string; value: number }[] = [
