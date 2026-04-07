@@ -587,7 +587,9 @@ export function ResultsPage({
   const [askPlanQuestion, setAskPlanQuestion] = useState<string | null>(null);
   const [shareCardOpen, setShareCardOpen] = useState(false);
   const [alertsExpanded, setAlertsExpanded] = useState<string | null>(null);
-  const [moreToolsOpen, setMoreToolsOpen] = useState(false);
+  const [moreToolsOpen, setMoreToolsOpen] = useState(() => {
+    try { return sessionStorage.getItem("incomecalc-tools-expanded") === "true"; } catch { return false; }
+  });
 
   // Use shared calculation engine
   const outputs = computeForExpenses(data, taxRate);
@@ -1284,7 +1286,7 @@ export function ResultsPage({
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "1rem 0 0" }}>
           <div style={{ flex: 1, height: "1px", background: `linear-gradient(90deg, ${t.border}, transparent)` }} />
           <button
-            onClick={() => setMoreToolsOpen((v) => !v)}
+            onClick={() => setMoreToolsOpen((v) => { const next = !v; try { sessionStorage.setItem("incomecalc-tools-expanded", String(next)); } catch {} return next; })}
             style={{
               background: "transparent",
               border: "none",
@@ -1364,294 +1366,6 @@ export function ResultsPage({
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* Share Stability Score + FIRE CTA row (moved from Section 1) */}
-        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
-          <button
-            onClick={() => setShareCardOpen(true)}
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "12px",
-              padding: "1.25rem",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-              <Share2 size={16} style={{ color: t.primary }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>Share My Score</span>
-            </div>
-            <p style={{ color: t.muted, fontSize: "0.82rem", margin: 0, lineHeight: 1.5 }}>
-              Generate a branded stability card to download and share.
-            </p>
-          </button>
-          <button
-            onClick={onFire}
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "12px",
-              padding: "1.25rem",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-              <Flame size={16} style={{ color: "#f59e0b" }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>FIRE Estimator</span>
-            </div>
-            <p style={{ color: t.muted, fontSize: "0.82rem", margin: 0, lineHeight: 1.5 }}>
-              Project your retirement countdown and target balance.
-            </p>
-          </button>
-        </div>
-
-        {/* Feature Nav: Forecast, Debt, FI (moved from Section 1) */}
-        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "1.25rem" }}>
-          <button
-            onClick={onForecast}
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "12px",
-              padding: "1rem",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
-              <TrendingUp size={14} style={{ color: currentTheme.primary }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>12-Mo Forecast</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: "#f59e0b", borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40" }}>Premium</span>
-            </div>
-          </button>
-          <button
-            onClick={onDebt}
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "12px",
-              padding: "1rem",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
-              <Wallet size={14} style={{ color: "#ef4444" }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>Debt Payoff</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              <span style={{ fontSize: "0.65rem", background: currentTheme.primary + "20", color: currentTheme.primary, borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: `1px solid ${currentTheme.primary}40` }}>Pro+</span>
-            </div>
-          </button>
-          <button
-            onClick={onFI}
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "12px",
-              padding: "1rem",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
-              <Milestone size={14} style={{ color: t.primary }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>FI Date</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: "#f59e0b", borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40" }}>Premium</span>
-            </div>
-          </button>
-        </div>
-
-        {/* AI Financial Insight Engine */}
-        <AIFinancialInsights
-          data={data}
-          taxRate={taxRate}
-          grossAnnual={grossAnnual}
-          grossMonthly={grossMonthly}
-          totalMonthly={totalMonthly}
-          savingsRate={savingsRate}
-          healthScore={healthScore}
-          hourlyRate={hourlyRate}
-          t={t}
-          isDark={isDark}
-        />
-
-        {/* Live AI Budget Insights */}
-        <AIBudgetInsights
-          data={data}
-          taxRate={taxRate}
-          grossAnnual={grossAnnual}
-          grossMonthly={grossMonthly}
-          totalMonthly={totalMonthly}
-          t={t}
-          isDark={isDark}
-        />
-
-        {/* Live AI Income Ideas */}
-        <AIIncomeIdeas
-          data={data}
-          grossAnnual={grossAnnual}
-          totalMonthly={totalMonthly}
-          t={t}
-          isDark={isDark}
-        />
-
-        {/* Export block - unlocked for Pro+ */}
-        {(userTier === "pro" || userTier === "premium") ? (
-          <div
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "12px",
-              padding: "1.5rem",
-              marginBottom: "1.25rem",
-            }}
-          >
-            <div style={{ fontWeight: 700, color: t.text, marginBottom: "0.75rem", fontSize: "1.05rem" }}>
-              Export & Share
-            </div>
-            <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
-              <button
-                onClick={() => {
-                  const header = "Category,Monthly Amount,% of Total\n";
-                  const rows = breakdownItems.map((item) => `"${item.label}",${item.value.toFixed(2)},${item.pct.toFixed(1)}%`).join("\n");
-                  const summary = `\nSummary\nTotal Monthly Expenses,${totalMonthly.toFixed(2)}\nGross Monthly Required,${grossMonthly.toFixed(2)}\nGross Annual Required,${grossAnnual.toFixed(2)}\nTax Rate,${taxRate}%\nHourly Rate Required,${hourlyRate.toFixed(2)}\nSavings Rate,${savingsRate.toFixed(1)}%\nHealth Score,${healthScore}/100\n`;
-                  const blob = new Blob([header + rows + summary], { type: "text/csv" });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `incomecalc-report-${new Date().toISOString().slice(0, 10)}.csv`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
-                style={{
-                  padding: "0.6rem 1rem",
-                  border: `1px solid ${t.border}`,
-                  borderRadius: "8px",
-                  fontSize: "0.9rem",
-                  color: t.text,
-                  background: t.bg,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.35rem",
-                }}
-              >
-                <Download size={14} /> Export CSV
-              </button>
-              <button
-                onClick={() => {
-                  const lines = [
-                    "INCOMECALC REPORT",
-                    `Generated: ${new Date().toLocaleDateString()}`,
-                    "",
-                    "EXPENSE BREAKDOWN",
-                    ...breakdownItems.map((item) => `  ${item.label}: ${fmt(item.value)} (${item.pct.toFixed(1)}%)`),
-                    "",
-                    "SUMMARY",
-                    `  Total Monthly Expenses: ${fmt(totalMonthly)}`,
-                    `  Gross Monthly Required: ${fmt(grossMonthly)}`,
-                    `  Gross Annual Required: ${fmt(grossAnnual)}`,
-                    `  Tax Rate: ${taxRate}%`,
-                    `  Hourly Rate Required: ${fmt(hourlyRate)}`,
-                    `  Savings Rate: ${savingsRate.toFixed(1)}%`,
-                    `  Financial Health Score: ${healthScore}/100 (${healthLabel})`,
-                  ];
-                  const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `incomecalc-report-${new Date().toISOString().slice(0, 10)}.txt`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
-                style={{
-                  padding: "0.6rem 1rem",
-                  border: `1px solid ${t.border}`,
-                  borderRadius: "8px",
-                  fontSize: "0.9rem",
-                  color: t.text,
-                  background: t.bg,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.35rem",
-                }}
-              >
-                <FileText size={14} /> Download Report
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div
-            style={{
-              background: t.cardBg,
-              border: `1.5px dashed ${t.primary}50`,
-              borderRadius: "12px",
-              padding: "1.5rem",
-              marginBottom: "1.25rem",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <div style={{ filter: "blur(4px)", pointerEvents: "none" }}>
-              <div style={{ fontWeight: 700, color: t.text, marginBottom: "0.75rem", fontSize: "1.05rem" }}>
-                Export & Share
-              </div>
-              <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
-                {["Download PDF Report", "Export to CSV", "Share to Google Sheets"].map((btn) => (
-                  <div
-                    key={btn}
-                    style={{
-                      padding: "0.6rem 1rem",
-                      border: `1px solid ${t.border}`,
-                      borderRadius: "8px",
-                      fontSize: "0.9rem",
-                      color: t.text,
-                      background: t.bg,
-                    }}
-                  >
-                    {btn}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div
-              className="atv-locked-overlay"
-              style={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.65rem",
-                borderRadius: "20px",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <FileText size={18} className="atv-lock-icon-glow" />
-                <span style={{ fontWeight: 600, color: t.text }}>Export features require Pro</span>
-              </div>
-              <button
-                onClick={() => onUpgrade("pro")}
-                className="atv-btn-primary"
-                style={{
-                  padding: "0.5rem 1.25rem",
-                  fontSize: "0.88rem",
-                }}
-              >
-                See Pro Plan &rarr;
-              </button>
             </div>
           </div>
         )}
@@ -1964,6 +1678,146 @@ export function ResultsPage({
           </div>
         )}
 
+        {/* Share Stability Score + FIRE CTA row (moved from Section 1) */}
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
+          <button
+            onClick={() => setShareCardOpen(true)}
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: "12px",
+              padding: "1.25rem",
+              cursor: "pointer",
+              textAlign: "left",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+              <Share2 size={16} style={{ color: t.primary }} />
+              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>Share My Score</span>
+            </div>
+            <p style={{ color: t.muted, fontSize: "0.82rem", margin: 0, lineHeight: 1.5 }}>
+              Generate a branded stability card to download and share.
+            </p>
+          </button>
+          <button
+            onClick={onFire}
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: "12px",
+              padding: "1.25rem",
+              cursor: "pointer",
+              textAlign: "left",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+              <Flame size={16} style={{ color: "#f59e0b" }} />
+              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>FIRE Estimator</span>
+            </div>
+            <p style={{ color: t.muted, fontSize: "0.82rem", margin: 0, lineHeight: 1.5 }}>
+              Project your retirement countdown and target balance.
+            </p>
+          </button>
+        </div>
+
+        {/* Feature Nav: Forecast, Debt, FI (moved from Section 1) */}
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "1.25rem" }}>
+          <button
+            onClick={onForecast}
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: "12px",
+              padding: "1rem",
+              cursor: "pointer",
+              textAlign: "left",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
+              <TrendingUp size={14} style={{ color: currentTheme.primary }} />
+              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>12-Mo Forecast</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+              <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: "#f59e0b", borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40" }}>Premium</span>
+            </div>
+          </button>
+          <button
+            onClick={onDebt}
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: "12px",
+              padding: "1rem",
+              cursor: "pointer",
+              textAlign: "left",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
+              <Wallet size={14} style={{ color: "#ef4444" }} />
+              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>Debt Payoff</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+              <span style={{ fontSize: "0.65rem", background: currentTheme.primary + "20", color: currentTheme.primary, borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: `1px solid ${currentTheme.primary}40` }}>Pro+</span>
+            </div>
+          </button>
+          <button
+            onClick={onFI}
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: "12px",
+              padding: "1rem",
+              cursor: "pointer",
+              textAlign: "left",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
+              <Milestone size={14} style={{ color: t.primary }} />
+              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>FI Date</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+              <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: "#f59e0b", borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40" }}>Premium</span>
+            </div>
+          </button>
+        </div>
+
+        </div>{/* end paddingTop wrapper */}
+        </div>{/* end collapsible wrapper */}
+
+        {/* AI Financial Insight Engine */}
+        <AIFinancialInsights
+          data={data}
+          taxRate={taxRate}
+          grossAnnual={grossAnnual}
+          grossMonthly={grossMonthly}
+          totalMonthly={totalMonthly}
+          savingsRate={savingsRate}
+          healthScore={healthScore}
+          hourlyRate={hourlyRate}
+          t={t}
+          isDark={isDark}
+        />
+
+        {/* Live AI Budget Insights */}
+        <AIBudgetInsights
+          data={data}
+          taxRate={taxRate}
+          grossAnnual={grossAnnual}
+          grossMonthly={grossMonthly}
+          totalMonthly={totalMonthly}
+          t={t}
+          isDark={isDark}
+        />
+
+        {/* Live AI Income Ideas */}
+        <AIIncomeIdeas
+          data={data}
+          grossAnnual={grossAnnual}
+          totalMonthly={totalMonthly}
+          t={t}
+          isDark={isDark}
+        />
+
         {/* AI Action Plan */}
         <div
           style={{
@@ -2134,7 +1988,159 @@ export function ResultsPage({
           )}
         </div>
 
+        {/* Export block - unlocked for Pro+ */}
+        {(userTier === "pro" || userTier === "premium") ? (
+          <div
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: "12px",
+              padding: "1.5rem",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <div style={{ fontWeight: 700, color: t.text, marginBottom: "0.75rem", fontSize: "1.05rem" }}>
+              Export & Share
+            </div>
+            <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
+              <button
+                onClick={() => {
+                  const header = "Category,Monthly Amount,% of Total\n";
+                  const rows = breakdownItems.map((item) => `"${item.label}",${item.value.toFixed(2)},${item.pct.toFixed(1)}%`).join("\n");
+                  const summary = `\nSummary\nTotal Monthly Expenses,${totalMonthly.toFixed(2)}\nGross Monthly Required,${grossMonthly.toFixed(2)}\nGross Annual Required,${grossAnnual.toFixed(2)}\nTax Rate,${taxRate}%\nHourly Rate Required,${hourlyRate.toFixed(2)}\nSavings Rate,${savingsRate.toFixed(1)}%\nHealth Score,${healthScore}/100\n`;
+                  const blob = new Blob([header + rows + summary], { type: "text/csv" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `incomecalc-report-${new Date().toISOString().slice(0, 10)}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                style={{
+                  padding: "0.6rem 1rem",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: "8px",
+                  fontSize: "0.9rem",
+                  color: t.text,
+                  background: t.bg,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
+                }}
+              >
+                <Download size={14} /> Export CSV
+              </button>
+              <button
+                onClick={() => {
+                  const lines = [
+                    "INCOMECALC REPORT",
+                    `Generated: ${new Date().toLocaleDateString()}`,
+                    "",
+                    "EXPENSE BREAKDOWN",
+                    ...breakdownItems.map((item) => `  ${item.label}: ${fmt(item.value)} (${item.pct.toFixed(1)}%)`),
+                    "",
+                    "SUMMARY",
+                    `  Total Monthly Expenses: ${fmt(totalMonthly)}`,
+                    `  Gross Monthly Required: ${fmt(grossMonthly)}`,
+                    `  Gross Annual Required: ${fmt(grossAnnual)}`,
+                    `  Tax Rate: ${taxRate}%`,
+                    `  Hourly Rate Required: ${fmt(hourlyRate)}`,
+                    `  Savings Rate: ${savingsRate.toFixed(1)}%`,
+                    `  Financial Health Score: ${healthScore}/100 (${healthLabel})`,
+                  ];
+                  const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `incomecalc-report-${new Date().toISOString().slice(0, 10)}.txt`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                style={{
+                  padding: "0.6rem 1rem",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: "8px",
+                  fontSize: "0.9rem",
+                  color: t.text,
+                  background: t.bg,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
+                }}
+              >
+                <FileText size={14} /> Download Report
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div
+            style={{
+              background: t.cardBg,
+              border: `1.5px dashed ${t.primary}50`,
+              borderRadius: "12px",
+              padding: "1.5rem",
+              marginBottom: "1.25rem",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ filter: "blur(4px)", pointerEvents: "none" }}>
+              <div style={{ fontWeight: 700, color: t.text, marginBottom: "0.75rem", fontSize: "1.05rem" }}>
+                Export & Share
+              </div>
+              <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
+                {["Download PDF Report", "Export to CSV", "Share to Google Sheets"].map((btn) => (
+                  <div
+                    key={btn}
+                    style={{
+                      padding: "0.6rem 1rem",
+                      border: `1px solid ${t.border}`,
+                      borderRadius: "8px",
+                      fontSize: "0.9rem",
+                      color: t.text,
+                      background: t.bg,
+                    }}
+                  >
+                    {btn}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div
+              className="atv-locked-overlay"
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.65rem",
+                borderRadius: "20px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <FileText size={18} className="atv-lock-icon-glow" />
+                <span style={{ fontWeight: 600, color: t.text }}>Export features require Pro</span>
+              </div>
+              <button
+                onClick={() => onUpgrade("pro")}
+                className="atv-btn-primary"
+                style={{
+                  padding: "0.5rem 1.25rem",
+                  fontSize: "0.88rem",
+                }}
+              >
+                See Pro Plan &rarr;
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Premium upsell — inside collapsible, at the end */}
+        {userTier === "free" && (
         <div
           style={{
             background: `linear-gradient(135deg, ${currentTheme.primary}12, ${currentTheme.accent}08)`,
@@ -2235,9 +2241,8 @@ export function ResultsPage({
             </div>
           </div>
         </div>
+        )}
 
-        </div>{/* end paddingTop wrapper */}
-        </div>{/* end collapsible wrapper */}
 
         {/* Save Scenario */}
         {onSaveScenario && (
