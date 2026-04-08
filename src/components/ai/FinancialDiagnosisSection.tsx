@@ -306,7 +306,11 @@ export function FinancialDiagnosisSection({
       {/* Error */}
       {error && (
         <div style={{ textAlign: "center", margin: "0.75rem 0 0" }}>
-          <p style={{ color: "#ef4444", fontSize: "0.88rem", marginBottom: "0.5rem" }}>{error}</p>
+          <p style={{ color: "#ef4444", fontSize: "0.88rem", marginBottom: "0.5rem" }}>
+            {/529|overloaded/i.test(error)
+              ? "Our AI is experiencing high demand right now. Please try again in a moment."
+              : "Something went wrong. Please try again."}
+          </p>
           <button
             onClick={generateDiagnosis}
             style={{
