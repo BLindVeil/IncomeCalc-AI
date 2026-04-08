@@ -294,68 +294,68 @@ export function FinancialDiagnosisSection({
             </div>
           </>
         ) : (
-          <div style={{ position: "relative", overflow: "hidden" }}>
-            <div style={{ filter: "blur(5px)", pointerEvents: "none" }}>
-              <div style={{ marginBottom: "1rem" }}>
-                <div style={{ fontSize: "0.78rem", fontWeight: 600, color: t.muted, marginBottom: "0.45rem" }}>
-                  Choose your coaching tone
-                </div>
-                <DiagnosisToneSelector value={tone} onChange={setTone} t={t} isDark={isDark} />
+          <>
+            <div style={{ marginBottom: "1rem" }}>
+              <div style={{ fontSize: "0.78rem", fontWeight: 600, color: t.muted, marginBottom: "0.45rem" }}>
+                Choose your coaching tone
               </div>
-              <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
+              <DiagnosisToneSelector value={tone} onChange={setTone} t={t} isDark={isDark} />
+            </div>
+            <div style={{ position: "relative", textAlign: "center", marginTop: 16 }}>
+              <button
+                className="atv-btn-primary"
+                style={{
+                  filter: "blur(2px)",
+                  pointerEvents: "none",
+                  width: "100%",
+                  background: `linear-gradient(135deg, #ef4444, ${t.primary})`,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "10px",
+                  padding: "0.75rem 2rem",
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  boxShadow: `0 4px 14px ${t.primary}59`,
+                }}
+              >
+                <Stethoscope size={16} />
+                Generate My Diagnosis
+              </button>
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                }}
+              >
                 <button
+                  className="atv-btn-primary"
+                  onClick={() => onUpgrade("premium")}
                   style={{
-                    background: `linear-gradient(135deg, #ef4444, ${t.primary})`,
+                    background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
                     color: "#fff",
                     border: "none",
-                    borderRadius: "10px",
-                    padding: "0.75rem 2rem",
-                    fontSize: "0.95rem",
+                    borderRadius: "8px",
+                    padding: "0.55rem 1.4rem",
+                    fontSize: "0.85rem",
                     fontWeight: 700,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    boxShadow: `0 4px 14px ${t.primary}59`,
+                    cursor: "pointer",
+                    boxShadow: `0 3px 10px ${t.primary}4D`,
                   }}
                 >
-                  <Stethoscope size={16} />
-                  {savedDiagnosis ? "Regenerate My Diagnosis" : "Generate My Diagnosis"}
+                  Unlock with Premium →
                 </button>
               </div>
             </div>
-            <div
-              className="atv-locked-overlay"
-              style={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <p style={{ color: "#fff", fontWeight: 600, marginBottom: 12 }}>
-                Unlock AI Financial Diagnosis
-              </p>
-              <button
-                className="atv-btn-primary"
-                onClick={() => onUpgrade("premium")}
-                style={{
-                  background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "0.55rem 1.4rem",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  boxShadow: `0 3px 10px ${t.primary}4D`,
-                }}
-              >
-                Upgrade to Premium
-              </button>
-            </div>
-          </div>
+          </>
         )
       )}
 
