@@ -20,7 +20,6 @@ import {
   computeForExpenses,
   EXPENSE_FIELDS,
   type ThemeConfig,
-  type Theme,
   type UserTier,
   type PlanId,
   type ExpenseData,
@@ -49,8 +48,6 @@ export interface GuidedFlowPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
 }
 
 // ─── Step definitions ────────────────────────────────────────────────────────
@@ -226,8 +223,6 @@ export function GuidedFlowPage({
   isDark,
   setIsDark,
   currentTheme,
-  baseTheme,
-  setTheme,
 }: GuidedFlowPageProps) {
   const t = applyDark(currentTheme, isDark);
   const setStep = onStepChange;
@@ -286,7 +281,7 @@ export function GuidedFlowPage({
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text }}>
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "720px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
         {/* Back */}

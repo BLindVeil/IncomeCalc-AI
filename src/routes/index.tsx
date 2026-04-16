@@ -82,16 +82,15 @@ import {
 import {
   type Page,
   type UserTier,
-  type Theme,
   type PlanId,
   type ThemeConfig,
   type ExpenseData,
   type ExpenseKey,
-  THEMES,
   EXPENSE_FIELDS,
   DEFAULT_EXPENSES,
   fmt,
   applyDark,
+  buildTheme,
   computeForExpenses,
   genId,
   loadUserTier,
@@ -128,12 +127,10 @@ interface LandingProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
   onDevAccess?: () => void;
 }
 
-function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseTheme, setTheme, onDevAccess }: LandingProps) {
+function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAccess }: LandingProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
 
@@ -144,7 +141,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
         <div className="atv-ambient-teal" />
       </div>
 
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onDevAccess={onDevAccess} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onDevAccess={onDevAccess} />
 
       <div style={{ maxWidth: "900px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
         {/* Hero */}
@@ -180,7 +177,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, baseThem
             }}
           >
             Find Out Exactly How Much You Need to{" "}
-            <span key={baseTheme} style={{
+            <span style={{
               background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
@@ -335,8 +332,6 @@ interface CalculatorPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
   initialData: ExpenseData;
   initialTaxRate: number;
   initialCurrentIncome: number;
@@ -348,8 +343,6 @@ function CalculatorPage({
   isDark,
   setIsDark,
   currentTheme,
-  baseTheme,
-  setTheme,
   initialData,
   initialTaxRate,
   initialCurrentIncome,
@@ -402,8 +395,6 @@ function CalculatorPage({
         isDark={isDark}
         setIsDark={setIsDark}
         currentTheme={currentTheme}
-        baseTheme={baseTheme}
-        setTheme={setTheme}
         onLogoClick={onBack}
       />
 
@@ -1046,8 +1037,6 @@ interface FirePageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
 }
 
 function FirePage({
@@ -1057,8 +1046,6 @@ function FirePage({
   isDark,
   setIsDark,
   currentTheme,
-  baseTheme,
-  setTheme,
 }: FirePageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
@@ -1080,7 +1067,7 @@ function FirePage({
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "720px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
@@ -1425,8 +1412,6 @@ interface ForecastPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
 }
 
 function ForecastPage({
@@ -1438,8 +1423,6 @@ function ForecastPage({
   isDark,
   setIsDark,
   currentTheme,
-  baseTheme,
-  setTheme,
 }: ForecastPageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
@@ -1473,7 +1456,7 @@ function ForecastPage({
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "820px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
@@ -1596,8 +1579,6 @@ interface DebtPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
 }
 
 function DebtPage({
@@ -1607,8 +1588,6 @@ function DebtPage({
   isDark,
   setIsDark,
   currentTheme,
-  baseTheme,
-  setTheme,
 }: DebtPageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
@@ -1664,7 +1643,7 @@ function DebtPage({
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "820px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
@@ -1926,8 +1905,6 @@ interface FIPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
 }
 
 function FIEstimatorPage({
@@ -1939,8 +1916,6 @@ function FIEstimatorPage({
   isDark,
   setIsDark,
   currentTheme,
-  baseTheme,
-  setTheme,
 }: FIPageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
@@ -1969,7 +1944,7 @@ function FIEstimatorPage({
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "720px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
@@ -2214,8 +2189,6 @@ interface DevAccessProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
   devOverride: boolean;
   devBadgeLabel: string | null;
   effectiveTier: UserTier;
@@ -2223,12 +2196,12 @@ interface DevAccessProps {
   onBack: () => void;
 }
 
-function DevAccessPage({ isDark, setIsDark, currentTheme, baseTheme, setTheme, devOverride, devBadgeLabel, effectiveTier, onToggle, onBack }: DevAccessProps) {
+function DevAccessPage({ isDark, setIsDark, currentTheme, devOverride, devBadgeLabel, effectiveTier, onToggle, onBack }: DevAccessProps) {
   const t = applyDark(currentTheme, isDark);
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} devOverride={devOverride} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} devOverride={devOverride} />
       <div style={{ paddingTop: "80px", maxWidth: "480px", margin: "0 auto", padding: "80px 1rem 2rem" }}>
         <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "2rem", textAlign: "center" }}>
           <div style={{ fontSize: "0.7rem", fontWeight: 700, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.5rem" }}>Developer Tools</div>
@@ -2485,11 +2458,9 @@ interface DashboardPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
 }
 
-function DashboardPage({ user, onBack, onLoadScenario, onShare, isDark, setIsDark, currentTheme, baseTheme, setTheme }: DashboardPageProps) {
+function DashboardPage({ user, onBack, onLoadScenario, onShare, isDark, setIsDark, currentTheme }: DashboardPageProps) {
   const t = applyDark(currentTheme, isDark);
   const [scenarios, setScenarios] = useState<SavedScenario[]>([]);
   const [digestEnabled, setDigestEnabled] = useState(user.emailWeeklyDigestEnabled);
@@ -2528,7 +2499,7 @@ function DashboardPage({ user, onBack, onLoadScenario, onShare, isDark, setIsDar
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
       <div style={{ maxWidth: "780px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
           <ChevronLeft size={16} /> Back
@@ -2850,18 +2821,16 @@ interface SharePageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
 }
 
-function SharePage({ slug, onTryYourOwn, isDark, setIsDark, currentTheme, baseTheme, setTheme }: SharePageProps) {
+function SharePage({ slug, onTryYourOwn, isDark, setIsDark, currentTheme }: SharePageProps) {
   const t = applyDark(currentTheme, isDark);
   const scenario = getScenarioBySlug(slug);
 
   if (!scenario) {
     return (
       <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
-        <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} />
+        <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} />
         <div style={{ maxWidth: "500px", margin: "0 auto", padding: "120px 1.5rem 4rem", textAlign: "center" }}>
           <AlertTriangle size={40} style={{ color: "#f59e0b", marginBottom: "1rem" }} />
           <h2 style={{ fontWeight: 800, marginBottom: "0.5rem" }}>Scenario Not Found</h2>
@@ -2889,7 +2858,7 @@ function SharePage({ slug, onTryYourOwn, isDark, setIsDark, currentTheme, baseTh
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} />
       <div style={{ maxWidth: "600px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
         <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: t.primary + "15", border: `1px solid ${t.primary}40`, borderRadius: "20px", padding: "0.35rem 1rem", fontSize: "0.85rem", color: t.primary, fontWeight: 600, marginBottom: "1rem" }}>
@@ -2980,11 +2949,9 @@ interface DigestPreviewPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
 }
 
-function DigestPreviewPage({ user, onBack, isDark, setIsDark, currentTheme, baseTheme, setTheme }: DigestPreviewPageProps) {
+function DigestPreviewPage({ user, onBack, isDark, setIsDark, currentTheme }: DigestPreviewPageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
   const digest = generateDigestForUser(user.id);
@@ -3014,7 +2981,7 @@ function DigestPreviewPage({ user, onBack, isDark, setIsDark, currentTheme, base
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
       <div style={{ maxWidth: "700px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
           <ChevronLeft size={16} /> Back
@@ -3133,16 +3100,13 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
 function App() {
   const [page, setPage] = useState<Page>("landing");
   const [isDark, setIsDark] = useState(true);
-  const [baseTheme, setBaseTheme] = useState<Theme>("default");
-  const currentTheme = THEMES[baseTheme];
+  const currentTheme = buildTheme(isDark);
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
-    document.documentElement.style.setProperty("--theme-primary", currentTheme.primary);
-    document.documentElement.style.setProperty("--theme-accent", currentTheme.accent);
-    // Update mobile status bar color to match mode
+    // Mobile status bar color matches the active mode background
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", isDark ? "#0F1115" : "#F8F9FC");
-  }, [isDark, currentTheme]);
+    if (meta) meta.setAttribute("content", buildTheme(isDark).bg);
+  }, [isDark]);
   const [expenseData, setExpenseData] = useState<ExpenseData>(DEFAULT_EXPENSES);
   const [taxRate, setTaxRate] = useState(25);
   const [currentGrossIncome, setCurrentGrossIncome] = useState(0);
@@ -3394,8 +3358,6 @@ function handleAuthSuccess(user: AuthUser) {
     isDark,
     setIsDark,
     currentTheme,
-    baseTheme,
-    setTheme: setBaseTheme,
   };
 
   function backToResults() {

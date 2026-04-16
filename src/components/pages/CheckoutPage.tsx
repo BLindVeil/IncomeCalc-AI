@@ -16,7 +16,6 @@ import {
   applyDark,
   PLANS,
   type ThemeConfig,
-  type Theme,
   type PlanId,
 } from "@/lib/app-shared";
 import { Header } from "@/components/Header";
@@ -93,8 +92,6 @@ export interface CheckoutPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
   onRequireAuth?: (mode: "signin" | "signup") => void;
   onCheckout: (plan: PlanId, billingPeriod: "monthly" | "yearly") => void;
 }
@@ -105,8 +102,6 @@ export function CheckoutPage({
   isDark,
   setIsDark,
   currentTheme,
-  baseTheme,
-  setTheme,
   onCheckout,
   onRequireAuth: _onRequireAuth,
 }: CheckoutPageProps) {
@@ -189,8 +184,6 @@ export function CheckoutPage({
         isDark={isDark}
         setIsDark={setIsDark}
         currentTheme={currentTheme}
-        baseTheme={baseTheme}
-        setTheme={setTheme}
         onLogoClick={onBack}
       />
 

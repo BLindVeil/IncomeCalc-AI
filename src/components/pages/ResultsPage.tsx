@@ -41,7 +41,6 @@ import {
   loadSnapshots,
   EXPENSE_FIELDS,
   type ThemeConfig,
-  type Theme,
   type UserTier,
   type PlanId,
   type ExpenseData,
@@ -539,8 +538,6 @@ export interface ResultsPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
   userTier: UserTier;
   onDevAccess?: () => void;
   onSaveScenario?: () => void;
@@ -573,8 +570,6 @@ export function ResultsPage({
   isDark,
   setIsDark,
   currentTheme,
-  baseTheme,
-  setTheme,
   userTier,
   onDevAccess,
   onSaveScenario,
@@ -687,8 +682,6 @@ export function ResultsPage({
         isDark={isDark}
         setIsDark={setIsDark}
         currentTheme={currentTheme}
-        baseTheme={baseTheme}
-        setTheme={setTheme}
         onLogoClick={onBack}
         onDevAccess={onDevAccess}
         accountUser={currentUser}

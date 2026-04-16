@@ -17,7 +17,6 @@ import {
   genId,
   generateICS,
   type ThemeConfig,
-  type Theme,
   type UserTier,
   type PlanId,
   type ExpenseData,
@@ -36,8 +35,6 @@ export interface CheckInPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
 }
 
 export function CheckInPage({
@@ -50,8 +47,6 @@ export function CheckInPage({
   isDark,
   setIsDark,
   currentTheme,
-  baseTheme,
-  setTheme,
 }: CheckInPageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
@@ -133,7 +128,7 @@ export function CheckInPage({
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "780px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>

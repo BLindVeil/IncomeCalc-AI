@@ -5,8 +5,8 @@ import {
 } from "lucide-react";
 import { isDevOverrideActive } from "@/lib/dev-override";
 import { getDevBadgeLabel } from "@/lib/entitlements";
-import { applyDark, THEMES } from "@/lib/app-shared";
-import type { ThemeConfig, Theme } from "@/lib/app-shared";
+import { applyDark } from "@/lib/app-shared";
+import type { ThemeConfig } from "@/lib/app-shared";
 import { getCurrentUser, type User as AuthUser } from "@/lib/auth-store";
 
 /** Custom event name used when Header needs to open the auth modal but has no onSignIn prop. */
@@ -169,8 +169,6 @@ export interface HeaderProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
   onLogoClick?: () => void;
   devOverride?: boolean;
   onDevAccess?: () => void;
@@ -185,8 +183,6 @@ export function Header({
   isDark,
   setIsDark,
   currentTheme,
-  baseTheme,
-  setTheme,
   onLogoClick,
   devOverride: devOverrideProp,
   onDevAccess,
@@ -201,7 +197,6 @@ export function Header({
   const hdrBtnBg = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
   const hdrBtnBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
   const hdrIconColor = isDark ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.55)";
-  const [themeOpen, setThemeOpen] = useState(false);
   const showDevBadge = devOverrideProp ?? isDevOverrideActive();
   const badgeLabel = getDevBadgeLabel() ?? (showDevBadge ? "DEV: PREMIUM UNLOCKED" : null);
 
@@ -303,76 +298,6 @@ export function Header({
             Dev
           </button>
         )}
-        {/* Theme picker */}
-        <div style={{ position: "relative" }}>
-          <button
-            onClick={() => setThemeOpen(!themeOpen)}
-            style={{
-              background: hdrBtnBg,
-              border: `1px solid ${hdrBtnBorder}`,
-              borderRadius: "10px",
-              padding: "0.35rem 0.65rem",
-              fontSize: "0.9rem",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              height: "36px",
-              minWidth: "36px",
-              color: t.text,
-              transition: "background 0.2s ease",
-            }}
-            title="Change theme"
-          >
-            {currentTheme.icon}
-          </button>
-          {themeOpen && (
-            <div
-              style={{
-                position: "absolute",
-                top: "44px",
-                right: 0,
-                background: isDark ? "rgba(20,20,30,0.95)" : "rgba(255,255,255,0.98)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
-                borderRadius: "14px",
-                padding: "0.5rem",
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.25rem",
-                boxShadow: isDark ? "0 16px 48px rgba(0,0,0,0.5)" : "0 16px 48px rgba(0,0,0,0.12)",
-                zIndex: 200,
-                minWidth: "150px",
-                maxWidth: "calc(100vw - 2rem)",
-              }}
-            >
-              {(Object.entries(THEMES) as [Theme, ThemeConfig][]).map(([key, cfg]) => (
-                <button
-                  key={key}
-                  onClick={() => { setTheme(key); setThemeOpen(false); }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "0.5rem 0.7rem",
-                    borderRadius: "10px",
-                    background: baseTheme === key ? `${t.primary}33` : "transparent",
-                    border: baseTheme === key ? `1px solid ${t.primary}66` : "1px solid transparent",
-                    cursor: "pointer",
-                    fontSize: "0.88rem",
-                    color: t.text,
-                    fontWeight: baseTheme === key ? 600 : 400,
-                    transition: "background 0.15s ease",
-                  }}
-                >
-                  <span style={{ fontSize: "0.75rem" }}>{cfg.icon}</span>
-                  <span>{cfg.name}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
         {/* Dark mode */}
         <button
           onClick={() => setIsDark(!isDark)}

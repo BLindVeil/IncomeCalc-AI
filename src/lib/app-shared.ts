@@ -32,20 +32,26 @@ export type Page =
   | "digest-preview";
 
 export type UserTier = "free" | "pro" | "premium";
-export type Theme = "default" | "ocean" | "forest" | "sunset" | "lavender";
 export type PlanId = "pro" | "premium";
 
 export interface ThemeConfig {
   name: string;
   icon: string;
   primary: string;
+  primaryHover: string;
+  primarySoft: string;
   accent: string;
   bg: string;
   cardBg: string;
   text: string;
   muted: string;
+  subtle: string;
   border: string;
+  borderStrong: string;
   headerBg: string;
+  success: string;
+  warning: string;
+  danger: string;
 }
 
 export interface Scenario {
@@ -79,64 +85,65 @@ export interface Plan {
   features: PlanFeature[];
 }
 
-// ─── Themes ────────────────────────────────────────────────────────────────
+// ─── Evergreen Palette ─────────────────────────────────────────────────────
 
-// Light-mode base colors shared by all themes (themes differ only by primary/accent)
-const LIGHT_BASE = {
-  bg: "#F8F9FC",
+export const EV_50  = "#F1FAF4";
+export const EV_100 = "#D8F3DC";
+export const EV_200 = "#B7E4C7";
+export const EV_300 = "#95D5B2";
+export const EV_400 = "#74C69D";
+export const EV_500 = "#52B788";
+export const EV_600 = "#40916C";
+export const EV_700 = "#2D6A4F";
+export const EV_800 = "#1B4332"; // PRIMARY
+export const EV_900 = "#081C15";
+
+export const MONO_FONT_STACK =
+  "'Geist Mono', 'SF Mono', 'Menlo', ui-monospace, monospace";
+
+const EVERGREEN_LIGHT: ThemeConfig = {
+  name: "Evergreen",
+  icon: "▲",
+  primary: EV_800,
+  primaryHover: EV_700,
+  primarySoft: EV_100,
+  accent: EV_500,
+  bg: "#F6F7F5",
   cardBg: "#FFFFFF",
-  text: "#1A1A2E",
-  muted: "#6B7280",
-  border: "#E2E4EA",
-  headerBg: "rgba(248,249,252,0.92)",
-} as const;
-
-export const THEMES: Record<Theme, ThemeConfig> = {
-  default: {
-    name: "Cinematic",
-    icon: "◼",
-    primary: "#5E5CE6",
-    accent: "#8E44FF",
-    ...LIGHT_BASE,
-  },
-  ocean: {
-    name: "Deep Sea",
-    icon: "◆",
-    primary: "#5E5CE6",
-    accent: "#50D4DC",
-    ...LIGHT_BASE,
-  },
-  forest: {
-    name: "Aurora",
-    icon: "◇",
-    primary: "#5E5CE6",
-    accent: "#34D399",
-    ...LIGHT_BASE,
-  },
-  sunset: {
-    name: "Ember",
-    icon: "●",
-    primary: "#5E5CE6",
-    accent: "#F97316",
-    ...LIGHT_BASE,
-  },
-  lavender: {
-    name: "Prism",
-    icon: "◈",
-    primary: "#8E44FF",
-    accent: "#5E5CE6",
-    ...LIGHT_BASE,
-  },
+  text: "#0F1A14",
+  muted: "#6B7570",
+  subtle: "#9CA49E",
+  border: "#E8E9E5",
+  borderStrong: "#D4D7D0",
+  headerBg: "rgba(246,247,245,0.92)",
+  success: "#40916C",
+  warning: "#D97706",
+  danger: "#DC2626",
 };
 
-export const DARK_OVERRIDES = {
-  bg: "#0F1115",
-  cardBg: "rgba(255,255,255,0.06)",
-  text: "#FFFFFF",
-  muted: "rgba(255,255,255,0.45)",
-  border: "rgba(255,255,255,0.08)",
-  headerBg: "rgba(15,17,21,0.85)",
+const EVERGREEN_DARK: ThemeConfig = {
+  name: "Evergreen",
+  icon: "▲",
+  primary: EV_500,
+  primaryHover: EV_400,
+  primarySoft: "rgba(82, 183, 136, 0.15)",
+  accent: EV_400,
+  bg: "#0A0F0B",
+  cardBg: "#111A13",
+  text: "#E8F5EC",
+  muted: "#8B9A8F",
+  subtle: "#5C6B63",
+  border: "#1E2A22",
+  borderStrong: "#2A3A30",
+  headerBg: "rgba(10,15,11,0.88)",
+  success: EV_500,
+  warning: "#F59E0B",
+  danger: "#EF4444",
 };
+
+export function buildTheme(isDark: boolean): ThemeConfig {
+  return isDark ? EVERGREEN_DARK : EVERGREEN_LIGHT;
+}
 
 // ─── Expense fields config ──────────────────────────────────────────────────
 
@@ -220,9 +227,12 @@ export function fmt(n: number) {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
-export function applyDark(theme: ThemeConfig, isDark: boolean): ThemeConfig {
-  if (!isDark) return theme;
-  return { ...theme, ...DARK_OVERRIDES };
+// Backwards-compatible: components still call applyDark(currentTheme, isDark).
+// In the single-theme world, the `theme` argument is the light variant; we
+// swap to the dark variant when isDark is true. The first parameter is kept
+// for source compatibility with existing call sites.
+export function applyDark(_theme: ThemeConfig, isDark: boolean): ThemeConfig {
+  return buildTheme(isDark);
 }
 
 export function computeForExpenses(expenses: import("@/lib/calc").ExpenseData, taxRate: number): CalcOutput {

@@ -26,7 +26,6 @@ import {
   genId,
   EXPENSE_FIELDS,
   type ThemeConfig,
-  type Theme,
   type UserTier,
   type PlanId,
   type ExpenseData,
@@ -45,8 +44,6 @@ export interface SimulatorPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
-  baseTheme: Theme;
-  setTheme: (t: Theme) => void;
 }
 
 export function SimulatorPage({
@@ -58,8 +55,6 @@ export function SimulatorPage({
   isDark,
   setIsDark,
   currentTheme,
-  baseTheme,
-  setTheme,
 }: SimulatorPageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
@@ -198,7 +193,7 @@ export function SimulatorPage({
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} baseTheme={baseTheme} setTheme={setTheme} onLogoClick={onBack} />
+      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "900px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>

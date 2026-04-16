@@ -191,11 +191,28 @@ All AI components follow this pattern:
 
 ## Theme System
 
-**Themes**: `default` (Cinematic), `ocean` (Deep Sea), `forest` (Aurora), `sunset` (Ember), `lavender` (Prism)
+**Single evergreen identity + light/dark mode.** The 5-theme picker (Cinematic, Deep Sea, Aurora, Ember, Prism) was removed in the Phase 1 visual identity overhaul; theme picker UI and `Theme` / `THEMES` exports are gone.
 
-**ThemeConfig shape**: `{ name, primary, accent, bg, cardBg, text, muted, border, headerBg }`
+**Evergreen palette constants** (exported from `src/lib/app-shared.ts`):
 
-Every component receives `t: ThemeConfig` and `isDark: boolean`. Dark mode applies via `applyDark(theme, isDark)`.
+| Token | Hex |
+|---|---|
+| `EV_50`  | `#F1FAF4` |
+| `EV_100` | `#D8F3DC` |
+| `EV_200` | `#B7E4C7` |
+| `EV_300` | `#95D5B2` |
+| `EV_400` | `#74C69D` |
+| `EV_500` | `#52B788` |
+| `EV_600` | `#40916C` |
+| `EV_700` | `#2D6A4F` |
+| `EV_800` | `#1B4332` (PRIMARY) |
+| `EV_900` | `#081C15` |
+
+**ThemeConfig shape** (now expanded): `{ name, icon, primary, primaryHover, primarySoft, accent, bg, cardBg, text, muted, subtle, border, borderStrong, headerBg, success, warning, danger }`.
+
+**Typography**: Geist Sans body / Geist Mono for numeric displays (loaded via Google Fonts in `src/styles.css`). The `MONO_FONT_STACK` constant is exported from `app-shared.ts` for Phase 2 rollout.
+
+**Theme resolution**: `buildTheme(isDark)` returns the evergreen `ThemeConfig` for the current mode. `applyDark(theme, isDark)` is preserved as a backwards-compatible alias that delegates to `buildTheme`. Every component still receives `t: ThemeConfig` and `isDark: boolean`.
 
 ## Styling Pattern
 

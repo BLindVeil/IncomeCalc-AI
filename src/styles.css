@@ -7,8 +7,8 @@
 body {
 	@apply m-0;
 	font-family:
-		-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
-		system-ui, "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
+		'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui,
+		sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	background: var(--background);
@@ -17,8 +17,8 @@ body {
 
 code {
 	font-family:
-		"SF Mono", source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-		monospace;
+		'Geist Mono', "SF Mono", source-code-pro, Menlo, Monaco, Consolas,
+		"Courier New", monospace;
 }
 
 /* ─── Apple TV Ambient Background ────────────────────────────────────────── */
@@ -39,7 +39,7 @@ code {
 	right: -100px;
 	background: radial-gradient(
 		circle,
-		rgba(80, 120, 255, 0.15) 0%,
+		rgba(45, 106, 79, 0.18) 0%,
 		transparent 70%
 	);
 	filter: blur(120px);
@@ -55,7 +55,7 @@ code {
 	left: -50px;
 	background: radial-gradient(
 		circle,
-		rgba(255, 80, 180, 0.12) 0%,
+		rgba(82, 183, 136, 0.12) 0%,
 		transparent 70%
 	);
 	filter: blur(120px);
@@ -70,7 +70,7 @@ code {
 	left: 60%;
 	background: radial-gradient(
 		circle,
-		rgba(80, 255, 220, 0.1) 0%,
+		rgba(116, 198, 157, 0.1) 0%,
 		transparent 70%
 	);
 	filter: blur(120px);
@@ -175,7 +175,7 @@ code {
 
 /* ─── Primary CTA Button ────────────────────────────────────────────────── */
 .atv-btn-primary {
-	background: linear-gradient(135deg, var(--theme-primary, #5e5ce6), var(--theme-accent, #8e44ff));
+	background: linear-gradient(135deg, var(--theme-primary, #1b4332), var(--theme-accent, #52b788));
 	color: #ffffff;
 	border: none;
 	border-radius: 14px;
@@ -188,15 +188,15 @@ code {
 }
 
 .atv-btn-primary:hover {
-	filter: brightness(1.1);
-	box-shadow: 0 0 25px rgba(142, 68, 255, 0.5);
+	filter: brightness(1.08);
+	box-shadow: 0 0 25px rgba(82, 183, 136, 0.45);
 	transform: scale(1.02);
 }
 
 /* ─── Secondary Button ──────────────────────────────────────────────────── */
 .atv-btn-secondary {
 	background: rgba(0, 0, 0, 0.05);
-	color: #1a1a2e;
+	color: #0f1a14;
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 14px;
 	font-weight: 600;
@@ -226,15 +226,15 @@ code {
 	background: rgba(0, 0, 0, 0.03);
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 12px;
-	color: #1a1a2e;
+	color: #0f1a14;
 	transition:
 		border-color 0.2s ease,
 		box-shadow 0.2s ease;
 }
 
 .atv-input:focus {
-	border-color: var(--theme-primary, #5e5ce6);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-primary, #5e5ce6) 15%, transparent);
+	border-color: var(--theme-primary, #1b4332);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-primary, #1b4332) 15%, transparent);
 	outline: none;
 }
 
@@ -255,7 +255,7 @@ code {
 /* ─── Gradient Accent Bar ────────────────────────────────────────────────── */
 .atv-accent-bar {
 	height: 4px;
-	background: linear-gradient(90deg, var(--theme-primary, #5e5ce6), var(--theme-accent, #8e44ff));
+	background: linear-gradient(90deg, var(--theme-primary, #1b4332), var(--theme-accent, #52b788));
 	border-radius: 4px 4px 0 0;
 }
 
@@ -265,22 +265,22 @@ code {
 }
 
 .dark .atv-number-glow {
-	text-shadow: 0 0 15px rgba(142, 68, 255, 0.3);
+	text-shadow: 0 0 15px rgba(82, 183, 136, 0.35);
 }
 
 /* ─── Locked Overlay ──────────────────────────────────────────────────────── */
 .atv-locked-overlay {
-	background: linear-gradient(rgba(248, 249, 252, 0.6), rgba(248, 249, 252, 0.85));
+	background: linear-gradient(rgba(246, 247, 245, 0.6), rgba(246, 247, 245, 0.85));
 	backdrop-filter: blur(4px);
 }
 
 .dark .atv-locked-overlay {
-	background: linear-gradient(rgba(15, 17, 21, 0.6), rgba(15, 17, 21, 0.8));
+	background: linear-gradient(rgba(10, 15, 11, 0.6), rgba(10, 15, 11, 0.82));
 }
 
 .atv-lock-icon-glow {
-	filter: drop-shadow(0 0 8px color-mix(in srgb, var(--theme-primary, #5e5ce6) 40%, transparent));
-	color: var(--theme-accent, #8e44ff);
+	filter: drop-shadow(0 0 8px color-mix(in srgb, var(--theme-primary, #1b4332) 40%, transparent));
+	color: var(--theme-accent, #52b788);
 }
 
 /* ─── Select Styling ─────────────────────────────────────────────────────── */
@@ -288,29 +288,29 @@ select.atv-select {
 	background: rgba(0, 0, 0, 0.03);
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 12px;
-	color: #1a1a2e;
+	color: #0f1a14;
 	transition: border-color 0.2s ease;
 }
 
 select.atv-select:focus {
-	border-color: var(--theme-primary, #5e5ce6);
+	border-color: var(--theme-primary, #1b4332);
 	outline: none;
 }
 
 select.atv-select option {
 	background: #ffffff;
-	color: #1a1a2e;
+	color: #0f1a14;
 }
 
 .dark select.atv-select {
 	background: rgba(255, 255, 255, 0.05);
 	border: 1px solid rgba(255, 255, 255, 0.1);
-	color: #ffffff;
+	color: #e8f5ec;
 }
 
 .dark select.atv-select option {
-	background: #1a1a2e;
-	color: #ffffff;
+	background: #111a13;
+	color: #e8f5ec;
 }
 
 /* ─── Progress Bar Override ──────────────────────────────────────────────── */
@@ -327,76 +327,80 @@ select.atv-select option {
 	border-radius: 6px;
 }
 
-/* ─── Light / Dark CSS Variables ─────────────────────────────────────────── */
+/* ─── Light / Dark CSS Variables (Evergreen) ─────────────────────────────── */
 :root {
-	--background: #F8F9FC;
-	--foreground: #1A1A2E;
+	--theme-primary: #1b4332;
+	--theme-accent: #52b788;
+	--background: #F6F7F5;
+	--foreground: #0F1A14;
 	--card: #FFFFFF;
-	--card-foreground: #1A1A2E;
+	--card-foreground: #0F1A14;
 	--popover: #FFFFFF;
-	--popover-foreground: #1A1A2E;
-	--primary: var(--theme-primary, #5e5ce6);
+	--popover-foreground: #0F1A14;
+	--primary: var(--theme-primary);
 	--primary-foreground: #ffffff;
-	--secondary: rgba(0, 0, 0, 0.04);
-	--secondary-foreground: #1A1A2E;
-	--muted: rgba(0, 0, 0, 0.03);
-	--muted-foreground: #6B7280;
-	--accent: var(--theme-accent, #8e44ff);
+	--secondary: rgba(27, 67, 50, 0.06);
+	--secondary-foreground: #0F1A14;
+	--muted: rgba(15, 26, 20, 0.04);
+	--muted-foreground: #6B7570;
+	--accent: var(--theme-accent);
 	--accent-foreground: #ffffff;
-	--destructive: #ef4444;
+	--destructive: #DC2626;
 	--destructive-foreground: #ffffff;
-	--border: #E2E4EA;
-	--input: #E2E4EA;
-	--ring: color-mix(in srgb, var(--theme-primary, #5e5ce6) 30%, transparent);
-	--chart-1: var(--theme-primary, #5e5ce6);
-	--chart-2: var(--theme-accent, #8e44ff);
-	--chart-3: #50d4dc;
-	--chart-4: #ff50b4;
-	--chart-5: #ffb800;
+	--border: #E8E9E5;
+	--input: #E8E9E5;
+	--ring: color-mix(in srgb, var(--theme-primary) 30%, transparent);
+	--chart-1: var(--theme-primary);
+	--chart-2: var(--theme-accent);
+	--chart-3: #74c69d;
+	--chart-4: #2d6a4f;
+	--chart-5: #b7e4c7;
 	--radius: 0.75rem;
-	--sidebar: #F8F9FC;
-	--sidebar-foreground: #1A1A2E;
-	--sidebar-primary: var(--theme-primary, #5e5ce6);
+	--sidebar: #F6F7F5;
+	--sidebar-foreground: #0F1A14;
+	--sidebar-primary: var(--theme-primary);
 	--sidebar-primary-foreground: #ffffff;
-	--sidebar-accent: rgba(0, 0, 0, 0.04);
-	--sidebar-accent-foreground: #1A1A2E;
-	--sidebar-border: #E2E4EA;
-	--sidebar-ring: color-mix(in srgb, var(--theme-primary, #5e5ce6) 30%, transparent);
+	--sidebar-accent: rgba(27, 67, 50, 0.06);
+	--sidebar-accent-foreground: #0F1A14;
+	--sidebar-border: #E8E9E5;
+	--sidebar-ring: color-mix(in srgb, var(--theme-primary) 30%, transparent);
 }
 
 .dark {
-	--background: #0f1115;
-	--foreground: #ffffff;
-	--card: rgba(255, 255, 255, 0.06);
-	--card-foreground: #ffffff;
-	--popover: #1a1a2e;
-	--popover-foreground: #ffffff;
-	--primary: var(--theme-primary, #5e5ce6);
-	--primary-foreground: #ffffff;
-	--secondary: rgba(255, 255, 255, 0.08);
-	--secondary-foreground: #ffffff;
-	--muted: rgba(255, 255, 255, 0.06);
-	--muted-foreground: rgba(255, 255, 255, 0.45);
-	--accent: var(--theme-accent, #8e44ff);
-	--accent-foreground: #ffffff;
-	--destructive: #ef4444;
+	--theme-primary: #52b788;
+	--theme-accent: #74c69d;
+	--background: #0A0F0B;
+	--foreground: #E8F5EC;
+	--card: #111A13;
+	--card-foreground: #E8F5EC;
+	--popover: #111A13;
+	--popover-foreground: #E8F5EC;
+	--primary: var(--theme-primary);
+	--primary-foreground: #081C15;
+	--secondary: rgba(82, 183, 136, 0.10);
+	--secondary-foreground: #E8F5EC;
+	--muted: rgba(232, 245, 236, 0.05);
+	--muted-foreground: #8B9A8F;
+	--accent: var(--theme-accent);
+	--accent-foreground: #081C15;
+	--destructive: #EF4444;
 	--destructive-foreground: #ffffff;
-	--border: rgba(255, 255, 255, 0.08);
-	--input: rgba(255, 255, 255, 0.08);
-	--ring: color-mix(in srgb, var(--theme-primary, #5e5ce6) 30%, transparent);
-	--chart-1: var(--theme-primary, #5e5ce6);
-	--chart-2: var(--theme-accent, #8e44ff);
-	--chart-3: #50d4dc;
-	--chart-4: #ff50b4;
-	--chart-5: #ffb800;
-	--sidebar: #0f1115;
-	--sidebar-foreground: #ffffff;
-	--sidebar-primary: var(--theme-primary, #5e5ce6);
-	--sidebar-primary-foreground: #ffffff;
-	--sidebar-accent: rgba(255, 255, 255, 0.08);
-	--sidebar-accent-foreground: #ffffff;
-	--sidebar-border: rgba(255, 255, 255, 0.08);
-	--sidebar-ring: color-mix(in srgb, var(--theme-primary, #5e5ce6) 30%, transparent);
+	--border: #1E2A22;
+	--input: #1E2A22;
+	--ring: color-mix(in srgb, var(--theme-primary) 30%, transparent);
+	--chart-1: var(--theme-primary);
+	--chart-2: var(--theme-accent);
+	--chart-3: #95d5b2;
+	--chart-4: #40916c;
+	--chart-5: #b7e4c7;
+	--sidebar: #0A0F0B;
+	--sidebar-foreground: #E8F5EC;
+	--sidebar-primary: var(--theme-primary);
+	--sidebar-primary-foreground: #081C15;
+	--sidebar-accent: rgba(82, 183, 136, 0.10);
+	--sidebar-accent-foreground: #E8F5EC;
+	--sidebar-border: #1E2A22;
+	--sidebar-ring: color-mix(in srgb, var(--theme-primary) 30%, transparent);
 }
 
 @theme inline {
