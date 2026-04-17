@@ -202,6 +202,7 @@ function RealScenarioCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const statusRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -367,24 +368,62 @@ function RealScenarioCard({
             >
               <PencilIcon /> Edit in Simulator
             </button>
-            <button
-              onClick={onDelete}
-              style={{
-                background: "transparent",
-                color: "#ef4444",
-                border: `1px solid rgba(239,68,68,0.3)`,
-                borderRadius: 8,
-                padding: "6px 12px",
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-              }}
-            >
-              <TrashIcon /> Delete
-            </button>
+            {deleteConfirm ? (
+              <>
+                <button
+                  onClick={() => { onDelete(); setDeleteConfirm(false); }}
+                  style={{
+                    background: "#ef4444",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 8,
+                    padding: "6px 12px",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  <TrashIcon /> Confirm
+                </button>
+                <button
+                  onClick={() => setDeleteConfirm(false)}
+                  style={{
+                    background: "transparent",
+                    color: t.muted,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 8,
+                    padding: "6px 12px",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setDeleteConfirm(true)}
+                style={{
+                  background: "transparent",
+                  color: "#ef4444",
+                  border: `1px solid rgba(239,68,68,0.3)`,
+                  borderRadius: 8,
+                  padding: "6px 12px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
+                <TrashIcon /> Delete
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -717,7 +756,6 @@ export function ScenariosPage({
   };
 
   function handleDelete(id: string) {
-    if (!window.confirm("Delete this scenario? This cannot be undone.")) return;
     deleteScenario(id);
   }
 

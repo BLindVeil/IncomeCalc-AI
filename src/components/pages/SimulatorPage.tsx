@@ -178,10 +178,11 @@ export function SimulatorPage({
   function saveToDashboard(scenarioId: string) {
     const s = savedScenarios.find((sc) => sc.id === scenarioId);
     if (!s) return;
-    const baseline = scenarios[0];
-    const baseExpenses = baseline ? baseline.expenses : initialExpenses;
+    // Always compare against the original calculator input (initialExpenses),
+    // not scenarios[0] which may be the same modified scenario for free users.
+    const baseExpenses = initialExpenses;
     const out = computeForExpenses(s.expenses, s.taxRate);
-    const baseOut = computeForExpenses(baseExpenses, baseline?.taxRate ?? initialTaxRate);
+    const baseOut = computeForExpenses(baseExpenses, initialTaxRate);
     const changes = computeChanges(baseExpenses, s.expenses, categoryLabels);
     const monthlyImpact = baseOut.monthlyExpensesTotal - out.monthlyExpensesTotal;
     const annualImpact = monthlyImpact * 12;
