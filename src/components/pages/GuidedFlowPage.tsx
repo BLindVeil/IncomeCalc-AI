@@ -19,6 +19,7 @@ import {
   fmt,
   computeForExpenses,
   EXPENSE_FIELDS,
+  MONO_FONT_STACK,
   type ThemeConfig,
   type UserTier,
   type PlanId,
@@ -347,10 +348,10 @@ export function GuidedFlowPage({
               <div style={{ marginBottom: "1.5rem" }}>
                 <div style={{ fontSize: "0.75rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>Your Financial Reality</div>
                 <h2 style={{ fontSize: "1.75rem", fontWeight: 800, color: t.text, margin: "0 0 0.35rem", lineHeight: 1.2 }}>
-                  You need to earn <span style={{ color: t.accent }}>{fmt(grossMonthly)}/month</span>
+                  You need to earn <span style={{ color: t.accent, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(grossMonthly)}/month</span>
                 </h2>
                 <p style={{ fontSize: "0.95rem", color: t.muted, margin: 0, lineHeight: 1.5 }}>
-                  That covers {fmt(totalMonthly)}/mo in expenses at a {taxRate}% effective tax rate.
+                  That covers <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(totalMonthly)}</span>/mo in expenses at a <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{taxRate}%</span> effective tax rate.
                 </p>
               </div>
 
@@ -368,7 +369,7 @@ export function GuidedFlowPage({
                   alignItems: "center",
                   gap: "0.75rem",
                 }}>
-                  <div style={{ fontSize: "1.75rem", fontWeight: 800, color: healthColor, lineHeight: 1 }}>{healthScore}</div>
+                  <div style={{ fontSize: "1.75rem", fontWeight: 800, color: healthColor, lineHeight: 1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{healthScore}</div>
                   <div>
                     <div style={{ fontSize: "0.7rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em" }}>Health</div>
                     <div style={{ fontSize: "0.82rem", fontWeight: 600, color: healthColor }}>{healthLabel}</div>
@@ -385,7 +386,7 @@ export function GuidedFlowPage({
                   padding: "0.85rem",
                 }}>
                   <div style={{ fontSize: "0.7rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "0.15rem" }}>You need to earn</div>
-                  <div style={{ fontSize: "1.05rem", fontWeight: 700, color: t.text }}>{fmt(grossAnnual)}<span style={{ fontSize: "0.78rem", fontWeight: 500, color: t.muted }}>/yr gross</span></div>
+                  <div style={{ fontSize: "1.05rem", fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(grossAnnual)}<span style={{ fontSize: "0.78rem", fontWeight: 500, color: t.muted }}>/yr gross</span></div>
                 </div>
 
                 {/* Biggest pressure */}
@@ -398,7 +399,7 @@ export function GuidedFlowPage({
                   padding: "0.85rem",
                 }}>
                   <div style={{ fontSize: "0.7rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "0.15rem" }}>Biggest cost</div>
-                  <div style={{ fontSize: "1.05rem", fontWeight: 700, color: t.text }}>{fieldLabel(biggestField)} <span style={{ fontSize: "0.78rem", fontWeight: 500, color: t.muted }}>({biggestPct}%)</span></div>
+                  <div style={{ fontSize: "1.05rem", fontWeight: 700, color: t.text }}>{fieldLabel(biggestField)} <span style={{ fontSize: "0.78rem", fontWeight: 500, color: t.muted, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>({biggestPct}%)</span></div>
                 </div>
               </div>
 
@@ -421,10 +422,10 @@ export function GuidedFlowPage({
                     border: `1px solid ${gapBorder}`,
                   }}>
                     {incomeGap.hasGap
-                      ? `Income gap: you need ${fmt(incomeGap.gapMonthly)}/mo more than your current income covers.`
+                      ? <>Income gap: you need <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(incomeGap.gapMonthly)}</span>/mo more than your current income covers.</>
                       : surplusButFragile
-                        ? `You earn enough to cover expenses (+${fmt(Math.abs(incomeGap.gapMonthly))}/mo), but your financial structure is still under pressure.`
-                        : `No income gap — you have ${fmt(Math.abs(incomeGap.gapMonthly))}/mo surplus.`
+                        ? <>You earn enough to cover expenses (<span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>+{fmt(Math.abs(incomeGap.gapMonthly))}</span>/mo), but your financial structure is still under pressure.</>
+                        : <>No income gap — you have <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(Math.abs(incomeGap.gapMonthly))}</span>/mo surplus.</>
                     }
                   </div>
                 );
@@ -474,7 +475,7 @@ export function GuidedFlowPage({
             <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: t.text, margin: "0 0 0.35rem" }}>Financial Diagnosis</h2>
             {/* Context bridge from Snapshot */}
             <p style={{ color: t.muted, fontSize: "0.88rem", margin: "0 0 1.5rem", lineHeight: 1.5 }}>
-              Your health score is <span style={{ color: healthColor, fontWeight: 700 }}>{healthScore}/100</span>
+              Your health score is <span style={{ color: healthColor, fontWeight: 700, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{healthScore}/100</span>
               {alerts.length > 0
                 ? ` with ${alerts.length} active alert${alerts.length > 1 ? "s" : ""}. Here's a deeper look at what's driving it.`
                 : ". Here's a deeper look at your financial position."
@@ -520,16 +521,16 @@ export function GuidedFlowPage({
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.85rem", borderRadius: "10px", background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)" }}>
                 <div style={{ flex: 1, textAlign: "center" }}>
                   <div style={{ fontSize: "0.62rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.2rem" }}>Now</div>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 800, color: healthColor, lineHeight: 1 }}>{topMove.currentHealth}</div>
-                  <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.1rem" }}>{fmt(topMove.currentValue)}/mo</div>
+                  <div style={{ fontSize: "1.4rem", fontWeight: 800, color: healthColor, lineHeight: 1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{topMove.currentHealth}</div>
+                  <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.1rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(topMove.currentValue)}/mo</div>
                 </div>
 
                 <ArrowRight size={18} style={{ color: t.primary, flexShrink: 0 }} />
 
                 <div style={{ flex: 1, textAlign: "center" }}>
                   <div style={{ fontSize: "0.62rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.2rem" }}>After</div>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 800, color: healthDelta > 0 ? "#22c55e" : healthColor, lineHeight: 1 }}>{topMove.projectedHealth}</div>
-                  <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.1rem" }}>{fmt(topMove.adjustedValue)}/mo</div>
+                  <div style={{ fontSize: "1.4rem", fontWeight: 800, color: healthDelta > 0 ? "#22c55e" : healthColor, lineHeight: 1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{topMove.projectedHealth}</div>
+                  <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.1rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(topMove.adjustedValue)}/mo</div>
                 </div>
 
                 {healthDelta !== 0 && (
@@ -547,7 +548,7 @@ export function GuidedFlowPage({
                     flexShrink: 0,
                   }}>
                     {healthDelta > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                    {healthDelta > 0 ? "+" : ""}{healthDelta}
+                    <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{healthDelta > 0 ? "+" : ""}{healthDelta}</span>
                   </div>
                 )}
               </div>
@@ -613,12 +614,12 @@ export function GuidedFlowPage({
               gap: "1rem",
             }}>
               <div style={{ textAlign: "center", minWidth: "56px" }}>
-                <div style={{ fontSize: "1.75rem", fontWeight: 800, color: healthColor, lineHeight: 1 }}>{healthScore}</div>
+                <div style={{ fontSize: "1.75rem", fontWeight: 800, color: healthColor, lineHeight: 1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{healthScore}</div>
                 <div style={{ fontSize: "0.65rem", color: t.muted, marginTop: "0.1rem" }}>Health</div>
               </div>
               <div style={{ fontSize: "0.88rem", color: t.text, lineHeight: 1.5 }}>
                 {healthDelta > 0
-                  ? <>Your top move — <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span> — could bring your score to <span style={{ fontWeight: 700, color: "#22c55e" }}>{topMove.projectedHealth}</span>. Test it in the Scenario Lab to see the full impact.</>
+                  ? <>Your top move — <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span> — could bring your score to <span style={{ fontWeight: 700, color: "#22c55e", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{topMove.projectedHealth}</span>. Test it in the Scenario Lab to see the full impact.</>
                   : healthScore < 40
                     ? <>Your position needs work across multiple areas. Start with <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span>, then use the Scenario Lab to test further changes.</>
                     : healthScore < 60

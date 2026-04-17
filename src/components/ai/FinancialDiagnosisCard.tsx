@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { FinancialDiagnosis, DiagnosisAction } from "@/lib/diagnosis-types";
+import { MONO_FONT_STACK } from "@/lib/app-shared";
 import type { ThemeConfig, PlanId } from "@/lib/app-shared";
 import type { ExpenseData } from "@/lib/calc";
 import { trackEvent } from "@/lib/analytics";
@@ -379,11 +380,11 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
             {diagnosis.mainIssue}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: surplusColor }}>
+            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: surplusColor, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
               {monthlySurplus >= 0 ? "+" : ""}{fmtUsd(monthlySurplus)}/mo {monthlySurplus >= 0 ? "surplus" : "deficit"}
             </span>
             <span style={{ fontSize: "0.68rem", color: t.muted }}>·</span>
-            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: savingsColor }}>
+            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: savingsColor, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
               {savingsRate.toFixed(1)}% savings rate
             </span>
             <span style={{ fontSize: "0.68rem", color: t.muted }}>·</span>

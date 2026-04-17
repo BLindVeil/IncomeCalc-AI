@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Lightbulb, RefreshCw } from "lucide-react";
-import { fmt } from "@/lib/app-shared";
+import { fmt, MONO_FONT_STACK } from "@/lib/app-shared";
 import type { ThemeConfig } from "@/lib/app-shared";
 import type { ExpenseData } from "@/lib/calc";
 
@@ -119,7 +119,7 @@ export function AIIncomeIdeas({ data, grossAnnual, totalMonthly, t, isDark }: AI
       </div>
       <p style={{ color: t.muted, fontSize: "0.85rem", marginBottom: "1rem" }}>
         Realistic ways to earn an extra{" "}
-        <strong style={{ color: t.text }}>{fmt(Math.round(gap))}/year</strong> toward financial freedom.
+        <strong style={{ color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(Math.round(gap))}/year</strong> toward financial freedom.
       </p>
 
       {!generated && !loading && (
@@ -174,7 +174,7 @@ export function AIIncomeIdeas({ data, grossAnnual, totalMonthly, t, isDark }: AI
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.35rem" }}>
                 <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>{idea.title}</span>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ fontWeight: 700, color: "#22c55e", fontSize: "0.88rem" }}>{idea.range}</span>
+                  <span style={{ fontWeight: 700, color: "#22c55e", fontSize: "0.88rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{idea.range}</span>
                   <span
                     style={{
                       fontSize: "0.72rem",

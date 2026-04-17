@@ -94,6 +94,7 @@ import {
   computeForExpenses,
   genId,
   loadUserTier,
+  MONO_FONT_STACK,
 } from "@/lib/app-shared";
 import { Header, AUTH_EVENT } from "@/components/Header";
 import { useIsMobile } from "@/lib/useIsMobile";
@@ -758,11 +759,11 @@ function CalculatorPage({
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent})` }} />
             <div>
               <div style={{ fontSize: "0.8rem", color: t.muted, marginBottom: "0.2rem" }}>Monthly expenses</div>
-              <div className="atv-number-glow" style={{ fontSize: "1.25rem", fontWeight: 700, color: t.primary }}>{fmt(total)}</div>
+              <div className="atv-number-glow" style={{ fontSize: "1.25rem", fontWeight: 700, color: t.primary, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(total)}</div>
             </div>
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: "0.8rem", color: t.muted, marginBottom: "0.2rem" }}>Gross income needed</div>
-              <div className="atv-number-glow" style={{ fontSize: "1.25rem", fontWeight: 700, color: t.text }}>{fmt(grossNeeded)}/mo</div>
+              <div className="atv-number-glow" style={{ fontSize: "1.25rem", fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(grossNeeded)}/mo</div>
             </div>
           </div>
         )}
@@ -1152,7 +1153,7 @@ function FirePage({
               }}
             >
               <div style={{ fontSize: "0.85rem", opacity: 0.8, marginBottom: "0.5rem" }}>Projected Retirement Balance</div>
-              <div style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, lineHeight: 1.1 }}>
+              <div style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, lineHeight: 1.1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                 {fmt(fireResult.projectedBalance)}
               </div>
               <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: "0.25rem" }}>
@@ -1162,11 +1163,11 @@ function FirePage({
               <div style={{ display: "flex", justifyContent: "center", gap: "2rem", marginTop: "1.5rem", flexWrap: "wrap" }}>
                 <div>
                   <div style={{ opacity: 0.75, fontSize: "0.78rem" }}>Monthly Income (4% rule)</div>
-                  <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>{fmt(fireResult.monthlyRetirementIncome)}/mo</div>
+                  <div style={{ fontWeight: 700, fontSize: "1.1rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(fireResult.monthlyRetirementIncome)}/mo</div>
                 </div>
                 <div>
                   <div style={{ opacity: 0.75, fontSize: "0.78rem" }}>Annual Withdrawal</div>
-                  <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>{fmt(fireResult.annualWithdrawal)}/yr</div>
+                  <div style={{ fontWeight: 700, fontSize: "1.1rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(fireResult.annualWithdrawal)}/yr</div>
                 </div>
                 <div>
                   <div style={{ opacity: 0.75, fontSize: "0.78rem" }}>Years to Go</div>
@@ -1244,16 +1245,16 @@ function FirePage({
                 }}
               >
                 <div style={{ fontSize: "0.8rem", opacity: 0.8, marginBottom: "0.35rem" }}>Projected Retirement Balance</div>
-                <div style={{ fontSize: "2.25rem", fontWeight: 900, lineHeight: 1.1 }}>{fmt(fireResult.projectedBalance)}</div>
+                <div style={{ fontSize: "2.25rem", fontWeight: 900, lineHeight: 1.1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(fireResult.projectedBalance)}</div>
                 <div style={{ fontSize: "0.8rem", opacity: 0.8, marginTop: "0.2rem" }}>in {fireResult.yearsUntilRetirement} years</div>
                 <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginTop: "1rem", flexWrap: "wrap" }}>
                   <div>
                     <div style={{ opacity: 0.7, fontSize: "0.72rem" }}>Monthly Income</div>
-                    <div style={{ fontWeight: 700, fontSize: "1rem" }}>{fmt(fireResult.monthlyRetirementIncome)}/mo</div>
+                    <div style={{ fontWeight: 700, fontSize: "1rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(fireResult.monthlyRetirementIncome)}/mo</div>
                   </div>
                   <div>
                     <div style={{ opacity: 0.7, fontSize: "0.72rem" }}>Annual Withdrawal</div>
-                    <div style={{ fontWeight: 700, fontSize: "1rem" }}>{fmt(fireResult.annualWithdrawal)}/yr</div>
+                    <div style={{ fontWeight: 700, fontSize: "1rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(fireResult.annualWithdrawal)}/yr</div>
                   </div>
                 </div>
               </div>
@@ -1549,10 +1550,10 @@ function ForecastPage({
                   {snapshots.slice(0, visibleMonths).map((s) => (
                     <tr key={s.month}>
                       <td style={{ padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: t.text, fontWeight: 600 }}>Mo {s.month}</td>
-                      <td style={{ padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: "#f59e0b", fontWeight: 600 }}>{fmt(s.emergencyFundBalance)}</td>
-                      <td style={{ padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: "#3b82f6", fontWeight: 600 }}>{s.runwayMonths.toFixed(1)}mo</td>
+                      <td style={{ padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: "#f59e0b", fontWeight: 600, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(s.emergencyFundBalance)}</td>
+                      <td style={{ padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: "#3b82f6", fontWeight: 600, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{s.runwayMonths.toFixed(1)}mo</td>
                       {totalDebtBalance > 0 && (
-                        <td style={{ padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: s.debtBalance > 0 ? "#ef4444" : "#22c55e", fontWeight: 600 }}>{fmt(s.debtBalance)}</td>
+                        <td style={{ padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: s.debtBalance > 0 ? "#ef4444" : "#22c55e", fontWeight: 600, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(s.debtBalance)}</td>
                       )}
                       <td style={{ padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, fontWeight: 700 }}>
                         <span style={{ color: s.stabilityScore >= 70 ? "#22c55e" : s.stabilityScore >= 50 ? "#f59e0b" : "#ef4444" }}>{s.stabilityScore}</span>
@@ -1808,7 +1809,7 @@ function DebtPage({
                       <span style={{ fontSize: "0.72rem", color: t.muted }}>(Smallest balance first)</span>
                     </div>
                     <div style={{ fontSize: "1.75rem", fontWeight: 900, color: "#3b82f6", marginBottom: "0.25rem" }}>{formatMonths(snowballResult.months)}</div>
-                    <div style={{ fontSize: "0.85rem", color: t.muted, marginBottom: "0.25rem" }}>Total interest: <strong style={{ color: "#ef4444" }}>{fmt(snowballResult.totalInterestPaid)}</strong></div>
+                    <div style={{ fontSize: "0.85rem", color: t.muted, marginBottom: "0.25rem" }}>Total interest: <strong style={{ color: "#ef4444", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(snowballResult.totalInterestPaid)}</strong></div>
                     {canSeeDetails && (
                       <div style={{ marginTop: "0.5rem" }}>
                         <div style={{ fontSize: "0.78rem", color: t.muted, marginBottom: "0.25rem" }}>Payoff order:</div>
@@ -1827,7 +1828,7 @@ function DebtPage({
                       <span style={{ fontSize: "0.72rem", color: t.muted }}>(Highest APR first)</span>
                     </div>
                     <div style={{ fontSize: "1.75rem", fontWeight: 900, color: "#22c55e", marginBottom: "0.25rem" }}>{formatMonths(avalancheResult.months)}</div>
-                    <div style={{ fontSize: "0.85rem", color: t.muted, marginBottom: "0.25rem" }}>Total interest: <strong style={{ color: "#ef4444" }}>{fmt(avalancheResult.totalInterestPaid)}</strong></div>
+                    <div style={{ fontSize: "0.85rem", color: t.muted, marginBottom: "0.25rem" }}>Total interest: <strong style={{ color: "#ef4444", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(avalancheResult.totalInterestPaid)}</strong></div>
                     {canSeeDetails && (
                       <div style={{ marginTop: "0.5rem" }}>
                         <div style={{ fontSize: "0.78rem", color: t.muted, marginBottom: "0.25rem" }}>Payoff order:</div>
@@ -1850,14 +1851,14 @@ function DebtPage({
                 </div>
                 {avalancheResult.months <= snowballResult.months ? (
                   <p style={{ fontSize: "0.88rem", color: t.muted, margin: 0, lineHeight: 1.6 }}>
-                    <strong style={{ color: "#22c55e" }}>Avalanche</strong> is the fastest strategy, saving you <strong style={{ color: "#22c55e" }}>{fmt(snowballResult.totalInterestPaid - avalancheResult.totalInterestPaid)}</strong> in interest
+                    <strong style={{ color: "#22c55e" }}>Avalanche</strong> is the fastest strategy, saving you <strong style={{ color: "#22c55e", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(snowballResult.totalInterestPaid - avalancheResult.totalInterestPaid)}</strong> in interest
                     {snowballResult.months !== avalancheResult.months && ` and ${snowballResult.months - avalancheResult.months} month${snowballResult.months - avalancheResult.months !== 1 ? "s" : ""}`}.
                     It targets the highest-interest debt first, minimizing total cost.
                   </p>
                 ) : (
                   <p style={{ fontSize: "0.88rem", color: t.muted, margin: 0, lineHeight: 1.6 }}>
                     <strong style={{ color: "#3b82f6" }}>Snowball</strong> pays off debts fastest by targeting the smallest balance first.
-                    Avalanche saves <strong style={{ color: "#22c55e" }}>{fmt(snowballResult.totalInterestPaid - avalancheResult.totalInterestPaid)}</strong> in interest but takes {avalancheResult.months - snowballResult.months} month{avalancheResult.months - snowballResult.months !== 1 ? "s" : ""} longer.
+                    Avalanche saves <strong style={{ color: "#22c55e", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(snowballResult.totalInterestPaid - avalancheResult.totalInterestPaid)}</strong> in interest but takes {avalancheResult.months - snowballResult.months} month{avalancheResult.months - snowballResult.months !== 1 ? "s" : ""} longer.
                   </p>
                 )}
               </div>
@@ -1964,7 +1965,7 @@ function FIEstimatorPage({
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0.75rem" }}>
             <div>
               <Label style={{ fontSize: "0.82rem", color: t.muted, display: "block", marginBottom: "0.3rem" }}>Annual Expenses (from calculator)</Label>
-              <div style={{ padding: "0.55rem 0.75rem", background: t.primary + "10", borderRadius: "8px", fontWeight: 700, color: t.primary, fontSize: "0.95rem" }}>{fmt(annualExpenses)}/yr</div>
+              <div style={{ padding: "0.55rem 0.75rem", background: t.primary + "10", borderRadius: "8px", fontWeight: 700, color: t.primary, fontSize: "0.95rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(annualExpenses)}/yr</div>
             </div>
             <div>
               <Label style={{ fontSize: "0.82rem", color: t.muted, display: "block", marginBottom: "0.3rem" }}>Current Invested Assets ($)</Label>
@@ -1991,7 +1992,7 @@ function FIEstimatorPage({
             {/* FI Target */}
             <div style={{ background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`, borderRadius: "16px", padding: "2rem", marginBottom: "1.25rem", color: "#fff", textAlign: "center" }}>
               <div style={{ fontSize: "0.85rem", opacity: 0.8, marginBottom: "0.5rem" }}>FI Target Net Worth</div>
-              <div style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, lineHeight: 1.1 }}>{fmt(fiResult.targetNetWorth)}</div>
+              <div style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, lineHeight: 1.1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(fiResult.targetNetWorth)}</div>
               <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: "0.25rem" }}>
                 Based on {fmt(annualExpenses)}/yr expenses at {swr}% SWR
               </div>
@@ -2007,8 +2008,8 @@ function FIEstimatorPage({
                 <div style={{ height: "100%", width: `${fiResult.currentProgress}%`, background: `linear-gradient(90deg, ${t.primary}, ${t.accent})`, borderRadius: "6px", transition: "width 0.3s" }} />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.35rem", fontSize: "0.78rem", color: t.muted }}>
-                <span>{fmt(currentAssets)} now</span>
-                <span>{fmt(fiResult.targetNetWorth)} target</span>
+                <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(currentAssets)} now</span>
+                <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(fiResult.targetNetWorth)} target</span>
               </div>
             </div>
 
@@ -2067,7 +2068,7 @@ function FIEstimatorPage({
                 }}
               >
                 <div style={{ fontSize: "0.8rem", opacity: 0.8, marginBottom: "0.35rem" }}>FI Target Net Worth</div>
-                <div style={{ fontSize: "2.25rem", fontWeight: 900, lineHeight: 1.1 }}>{fmt(fiResult.targetNetWorth)}</div>
+                <div style={{ fontSize: "2.25rem", fontWeight: 900, lineHeight: 1.1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(fiResult.targetNetWorth)}</div>
                 <div style={{ fontSize: "0.8rem", opacity: 0.8, marginTop: "0.2rem" }}>
                   Based on {fmt(annualExpenses)}/yr at {swr}% SWR
                 </div>
@@ -2300,7 +2301,7 @@ function DevAccessPage({ isDark, setIsDark, currentTheme, devOverride, devBadgeL
           {/* Info */}
           <div style={{ marginTop: "1.5rem", fontSize: "0.78rem", color: t.muted, lineHeight: 1.5, textAlign: "left" }}>
             <div style={{ fontWeight: 700, marginBottom: "0.35rem" }}>Other ways to activate:</div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.72rem", background: t.bg, border: `1px solid ${t.border}`, borderRadius: "6px", padding: "0.65rem", lineHeight: 1.8 }}>
+            <div style={{ fontFamily: MONO_FONT_STACK, fontSize: "0.72rem", background: t.bg, border: `1px solid ${t.border}`, borderRadius: "6px", padding: "0.65rem", lineHeight: 1.8 }}>
               ?dev=1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rarr; premium<br />
               ?dev=premium &nbsp;&nbsp;&nbsp;&rarr; premium<br />
               ?dev=pro &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rarr; pro
@@ -2610,7 +2611,7 @@ function DashboardPage({ user, onBack, onLoadScenario, onShare, isDark, setIsDar
                   ].map(({ label, value }) => (
                     <div key={label} style={{ textAlign: "center" }}>
                       <div style={{ fontSize: "0.68rem", color: t.muted }}>{label}</div>
-                      <div style={{ fontSize: "0.88rem", fontWeight: 700, color: t.text }}>{value}</div>
+                      <div style={{ fontSize: "0.88rem", fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{value}</div>
                     </div>
                   ))}
                 </div>
@@ -2717,8 +2718,8 @@ function ShareModal({ scenario, userId, onClose, onRefresh, t, isDark }: ShareMo
           {/* Preview card */}
           <div style={{ background: `linear-gradient(135deg, ${t.primary}12, ${t.primary}05)`, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem", marginBottom: "1rem", textAlign: "center" }}>
             <div style={{ fontWeight: 700, color: t.text, marginBottom: "0.5rem" }}>{scenario.name}</div>
-            <div style={{ fontSize: "2rem", fontWeight: 900, color: t.primary }}>${Math.round(scenario.resultsJson.hourlyRequired)}/hr</div>
-            <div style={{ fontSize: "0.85rem", color: t.muted, marginTop: "0.25rem" }}>
+            <div style={{ fontSize: "2rem", fontWeight: 900, color: t.primary, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>${Math.round(scenario.resultsJson.hourlyRequired)}/hr</div>
+            <div style={{ fontSize: "0.85rem", color: t.muted, marginTop: "0.25rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
               {fmt(scenario.resultsJson.annualGrossRequired)}/year · Score: {scenario.resultsJson.healthScore}/100
             </div>
             <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.5rem" }}>Built with IncomeCalc</div>
@@ -2871,15 +2872,15 @@ function SharePage({ slug, onTryYourOwn, isDark, setIsDark, currentTheme }: Shar
         {/* Hero card */}
         <div style={{ background: `linear-gradient(135deg, ${currentTheme.primary}, ${currentTheme.accent})`, borderRadius: "16px", padding: "2rem", marginBottom: "1.25rem", color: "#fff", textAlign: "center" }}>
           <div style={{ fontSize: "0.85rem", opacity: 0.85, marginBottom: "0.5rem" }}>Required annual income</div>
-          <div style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 900, lineHeight: 1.1 }}>{fmt(r.annualGrossRequired)}</div>
+          <div style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 900, lineHeight: 1.1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(r.annualGrossRequired)}</div>
           <div style={{ display: "flex", justifyContent: "center", gap: "2rem", marginTop: "1.25rem", flexWrap: "wrap" }}>
             <div>
               <div style={{ opacity: 0.75, fontSize: "0.78rem" }}>Hourly Rate</div>
-              <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>${Math.round(r.hourlyRequired)}/hr</div>
+              <div style={{ fontWeight: 700, fontSize: "1.1rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>${Math.round(r.hourlyRequired)}/hr</div>
             </div>
             <div>
               <div style={{ opacity: 0.75, fontSize: "0.78rem" }}>Monthly Gross</div>
-              <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>{fmt(r.grossMonthlyRequired)}</div>
+              <div style={{ fontWeight: 700, fontSize: "1.1rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(r.grossMonthlyRequired)}</div>
             </div>
           </div>
         </div>
@@ -2900,7 +2901,7 @@ function SharePage({ slug, onTryYourOwn, isDark, setIsDark, currentTheme }: Shar
               <div key={label} style={{ marginBottom: "0.6rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
                   <span style={{ fontSize: "0.88rem", color: t.text }}>{label}</span>
-                  <span style={{ fontSize: "0.85rem", fontWeight: 700, color: t.text }}>{fmt(value)}/mo ({pct.toFixed(0)}%)</span>
+                  <span style={{ fontSize: "0.85rem", fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(value)}/mo ({pct.toFixed(0)}%)</span>
                 </div>
                 <div style={{ height: "5px", background: t.border, borderRadius: "3px", overflow: "hidden" }}>
                   <div style={{ height: "100%", width: `${pct}%`, background: t.primary, borderRadius: "3px" }} />
@@ -3033,9 +3034,9 @@ function DigestPreviewPage({ user, onBack, isDark, setIsDark, currentTheme }: Di
                 ].map(({ label, value, delta }) => (
                   <div key={label} style={{ padding: "0.75rem", background: isDark ? "#2a2a2f" : "#f9f9fb", borderRadius: "8px", textAlign: "center" }}>
                     <div style={{ fontSize: "0.72rem", color: t.muted, marginBottom: "0.25rem" }}>{label}</div>
-                    <div style={{ fontSize: "1.1rem", fontWeight: 800, color: t.text }}>{value}</div>
+                    <div style={{ fontSize: "1.1rem", fontWeight: 800, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{value}</div>
                     {delta !== null && (
-                      <div style={{ fontSize: "0.72rem", fontWeight: 600, color: label === "Health Score" ? (delta > 0 ? "#22c55e" : "#ef4444") : (delta > 0 ? "#ef4444" : "#22c55e") }}>
+                      <div style={{ fontSize: "0.72rem", fontWeight: 600, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'", color: label === "Health Score" ? (delta > 0 ? "#22c55e" : "#ef4444") : (delta > 0 ? "#ef4444" : "#22c55e") }}>
                         {delta > 0 ? "+" : ""}{label === "Health Score" ? delta.toFixed(0) : fmt(delta)} vs previous
                       </div>
                     )}

@@ -16,6 +16,7 @@ import {
   saveSnapshots,
   genId,
   generateICS,
+  MONO_FONT_STACK,
   type ThemeConfig,
   type UserTier,
   type PlanId,
@@ -151,7 +152,7 @@ export function CheckInPage({
               ].map((s) => (
                 <div key={s.label}>
                   <div style={{ fontSize: "0.78rem", color: t.muted }}>{s.label}</div>
-                  <div style={{ fontSize: "1.1rem", fontWeight: 700, color: t.text }}>{s.value}</div>
+                  <div style={{ fontSize: "1.1rem", fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{s.value}</div>
                 </div>
               ))}
             </div>
@@ -177,8 +178,8 @@ export function CheckInPage({
                 return (
                   <div key={item.label}>
                     <div style={{ fontSize: "0.78rem", color: t.muted }}>{item.label}</div>
-                    <div style={{ fontSize: "1.1rem", fontWeight: 700, color: t.text }}>{isScore ? `${item.curr}${item.suffix}` : `${fmt(item.curr)}${item.suffix}`}</div>
-                    <div style={{ fontSize: "0.78rem", color, fontWeight: 600 }}>
+                    <div style={{ fontSize: "1.1rem", fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{isScore ? `${item.curr}${item.suffix}` : `${fmt(item.curr)}${item.suffix}`}</div>
+                    <div style={{ fontSize: "0.78rem", color, fontWeight: 600, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                       {diff === 0 ? "No change" : `${diff > 0 ? "+" : ""}${isScore ? diff.toFixed(0) : fmt(diff)}`}
                     </div>
                   </div>
@@ -275,9 +276,9 @@ export function CheckInPage({
                   {snap.note && <div style={{ fontSize: "0.78rem", color: t.muted, marginTop: "0.15rem" }}>{snap.note}</div>}
                 </div>
                 <div style={{ display: "flex", gap: "1rem", fontSize: "0.82rem" }}>
-                  <span style={{ color: t.muted }}>{fmt(snap.outputs.hourlyRequired)}/hr</span>
-                  <span style={{ color: t.muted }}>{fmt(snap.outputs.annualGrossRequired)}/yr</span>
-                  <span style={{ color: snap.outputs.fragilityScore >= 50 ? "#22c55e" : "#f59e0b", fontWeight: 600 }}>{snap.outputs.fragilityScore}/100</span>
+                  <span style={{ color: t.muted, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(snap.outputs.hourlyRequired)}/hr</span>
+                  <span style={{ color: t.muted, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(snap.outputs.annualGrossRequired)}/yr</span>
+                  <span style={{ color: snap.outputs.fragilityScore >= 50 ? "#22c55e" : "#f59e0b", fontWeight: 600, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{snap.outputs.fragilityScore}/100</span>
                 </div>
               </div>
             ))}

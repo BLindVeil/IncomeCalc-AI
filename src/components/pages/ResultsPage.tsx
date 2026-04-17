@@ -40,12 +40,14 @@ import {
   computeForExpenses,
   loadSnapshots,
   EXPENSE_FIELDS,
+  MONO_FONT_STACK,
   type ThemeConfig,
   type UserTier,
   type PlanId,
   type ExpenseData,
 } from "@/lib/app-shared";
 import { Header } from "@/components/Header";
+import { FormattedNumber } from "@/components/FormattedNumber";
 import { AIFinancialInsights } from "@/components/ai/AIFinancialInsights";
 import { AIBudgetInsights } from "@/components/ai/AIBudgetInsights";
 import { AIIncomeIdeas } from "@/components/ai/AIIncomeIdeas";
@@ -101,7 +103,7 @@ export function AnnualUpsellModal({ plan, onAnnual, onMonthly, onClose, t }: Ann
           Save with Annual Billing
         </h2>
         <p style={{ color: t.muted, fontSize: "0.95rem", lineHeight: 1.6, marginBottom: "1.5rem" }}>
-          Get <strong style={{ color: t.text }}>2 months free</strong> when you switch to annual! Pay ${prices.yearly}/year instead of ${(prices.monthly * 12).toFixed(0)}/year.
+          Get <strong style={{ color: t.text }}>2 months free</strong> when you switch to annual! Pay <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>${prices.yearly}</span>/year instead of <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>${(prices.monthly * 12).toFixed(0)}</span>/year.
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
@@ -125,7 +127,7 @@ export function AnnualUpsellModal({ plan, onAnnual, onMonthly, onClose, t }: Ann
               fontSize: "1rem",
             }}
           >
-            Continue Monthly — ${prices.monthly}/mo
+            Continue Monthly — <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>${prices.monthly}</span>/mo
           </button>
         </div>
       </div>
@@ -730,11 +732,11 @@ export function ResultsPage({
               ← Edit expenses
             </button>
           )}
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: t.text, margin: "0 0 0.5rem", letterSpacing: "-0.02em" }}>
+          <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted, margin: "0 0 0.35rem" }}>
             Your Income Report
-          </h1>
+          </div>
           <p style={{ color: t.muted, fontSize: "0.95rem", margin: 0 }}>
-            That covers {fmt(totalMonthly)}/mo in expenses at a {taxRate}% effective tax rate.
+            That covers <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(totalMonthly)}</span>/mo in expenses at a <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{taxRate}%</span> effective tax rate.
           </p>
         </div>
 
@@ -754,8 +756,8 @@ export function ResultsPage({
           <div style={{ fontSize: "0.9rem", color: t.muted, marginBottom: "0.5rem" }}>
             You need to earn at least
           </div>
-          <div className="atv-number-glow" style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 700, lineHeight: 1.1, color: t.text, letterSpacing: "-0.03em" }}>
-            {fmt(grossAnnual)}
+          <div className="atv-number-glow" style={{ lineHeight: 1.1 }}>
+            <FormattedNumber value={grossAnnual} fontSize="clamp(2.5rem, 6vw, 4rem)" fontWeight={700} color={t.text} centsColor={t.muted} style={{ letterSpacing: "-0.03em" }} />
           </div>
           <div style={{ fontSize: "0.9rem", color: t.muted, marginTop: "0.25rem" }}>per year</div>
           {userTier === "free" && (
@@ -783,13 +785,15 @@ export function ResultsPage({
             }}
           >
             {[
-              { label: "Monthly gross", value: fmt(grossMonthly) },
-              { label: "Hourly rate", value: `${fmt(hourlyRate)}/hr` },
-              { label: "Monthly taxes", value: fmt(taxMonthly) },
-            ].map(({ label, value }) => (
+              { label: "Monthly gross", val: grossMonthly, suffix: "" },
+              { label: "Hourly rate", val: hourlyRate, suffix: "/hr" },
+              { label: "Monthly taxes", val: taxMonthly, suffix: "" },
+            ].map(({ label, val, suffix }) => (
               <div key={label}>
                 <div style={{ color: t.muted, fontSize: "0.8rem" }}>{label}</div>
-                <div className="atv-number-glow" style={{ fontWeight: 600, fontSize: "1.1rem", color: t.text }}>{value}</div>
+                <div className="atv-number-glow">
+                  <FormattedNumber value={val} suffix={suffix} fontSize="1.1rem" fontWeight={600} color={t.text} centsColor={t.muted} />
+                </div>
               </div>
             ))}
           </div>
@@ -819,7 +823,7 @@ export function ResultsPage({
               }}
             >
               <div style={{ fontSize: "0.8rem", color: t.muted, marginBottom: "0.35rem" }}>{sub}</div>
-              <div style={{ fontSize: "1.5rem", fontWeight: 800, color }}>{fmt(value)}</div>
+              <div><FormattedNumber value={value} fontSize="1.5rem" fontWeight={800} color={color} centsColor={t.muted} /></div>
               <div style={{ fontSize: "0.9rem", fontWeight: 600, color: t.text }}>{label}/mo</div>
             </div>
           ))}
@@ -836,9 +840,11 @@ export function ResultsPage({
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
-            <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Financial Health Score</span>
-            <span style={{ fontWeight: 700, color: healthColor, fontSize: "1.1rem" }}>
-              {animatedScore}/100 — {healthLabel}
+            <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted }}>Financial Health Score</span>
+            <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
+              <span style={{ fontWeight: 700, color: healthColor, fontSize: "1.1rem" }}>{animatedScore}</span>
+              <span style={{ fontWeight: 400, color: t.muted, fontSize: "1.1rem" }}>/100</span>
+              <span style={{ fontWeight: 500, color: t.muted, fontSize: "0.95rem" }}> — {healthLabel}</span>
             </span>
           </div>
           <Progress value={healthScore} className="h-3" />
@@ -849,7 +855,7 @@ export function ResultsPage({
               <div key={s.label}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.3rem" }}>
                   <span style={{ fontSize: "0.82rem", color: t.text, fontWeight: 600 }}>{s.label}</span>
-                  <span style={{ fontSize: "0.78rem", fontWeight: 700, color: s.color }}>{s.value}/100</span>
+                  <span style={{ fontSize: "0.78rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}><span style={{ fontWeight: 700, color: s.color }}>{s.value}</span><span style={{ fontWeight: 400, color: t.muted }}>/100</span></span>
                 </div>
                 <div style={{ height: "6px", background: t.border, borderRadius: "3px", overflow: "hidden" }}>
                   <div
@@ -888,7 +894,7 @@ export function ResultsPage({
           >
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
               <Gauge size={18} style={{ color: incomeGap.hasGap ? "#ef4444" : "#22c55e" }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Income Gap</span>
+              <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted }}>Income Gap</span>
             </div>
 
             <div
@@ -897,6 +903,8 @@ export function ResultsPage({
                 fontWeight: 800,
                 color: incomeGap.hasGap ? "#ef4444" : "#22c55e",
                 marginBottom: "0.5rem",
+                fontFamily: MONO_FONT_STACK,
+                fontFeatureSettings: "'tnum', 'zero'",
               }}
             >
               {incomeGap.hasGap
@@ -907,8 +915,8 @@ export function ResultsPage({
             {/* Horizontal meter */}
             <div style={{ marginBottom: "0.75rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: t.muted, marginBottom: "0.3rem" }}>
-                <span>Current: {fmt(incomeGap.currentMonthly)}/mo</span>
-                <span>Required: {fmt(incomeGap.requiredMonthly)}/mo</span>
+                <span>Current: <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(incomeGap.currentMonthly)}</span>/mo</span>
+                <span>Required: <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(incomeGap.requiredMonthly)}</span>/mo</span>
               </div>
               <div style={{ height: "12px", background: t.border, borderRadius: "6px", overflow: "hidden", position: "relative" }}>
                 {(() => {
@@ -992,7 +1000,7 @@ export function ResultsPage({
         >
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
             <Clock size={18} style={{ color: runway.level === "Strong" ? "#22c55e" : runway.level === "Stable" ? "#84cc16" : runway.level === "Fragile" ? "#f59e0b" : "#ef4444" }} />
-            <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Financial Runway</span>
+            <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted }}>Financial Runway</span>
             <span
               style={{
                 fontSize: "0.72rem",
@@ -1028,7 +1036,7 @@ export function ResultsPage({
               marginBottom: "0.35rem",
             }}
           >
-            {runway.months.toFixed(1)} months
+            <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{runway.months.toFixed(1)}</span> months
           </div>
           <p style={{ color: t.muted, fontSize: "0.88rem", margin: 0 }}>
             {runway.label}
@@ -1048,8 +1056,8 @@ export function ResultsPage({
           >
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
               <AlertTriangle size={18} style={{ color: "#f59e0b" }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>
-                {alerts.length} Active Alert{alerts.length !== 1 ? "s" : ""}
+              <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted }}>
+                <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{alerts.length}</span> Active Alert{alerts.length !== 1 ? "s" : ""}
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -1135,7 +1143,7 @@ export function ResultsPage({
                   {/* Stability Score */}
                   <div style={{ background: t.cardBg, borderRadius: "12px", padding: "1rem", textAlign: "center", border: `1px solid ${t.border}` }}>
                     <div style={{ fontSize: "0.78rem", color: t.muted, marginBottom: "0.25rem" }}>Stability Score</div>
-                    <div style={{ fontSize: "2.5rem", fontWeight: 900, color: healthColor }}>{healthScore}</div>
+                    <div style={{ fontSize: "2.5rem", fontWeight: 900, color: healthColor, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{healthScore}</div>
                     <div style={{ fontSize: "0.85rem", fontWeight: 600, color: healthColor }}>{healthLabel}</div>
                   </div>
 
@@ -1143,7 +1151,7 @@ export function ResultsPage({
                     {/* Runway */}
                     <div style={{ background: t.cardBg, borderRadius: "10px", padding: "0.85rem", textAlign: "center", border: `1px solid ${t.border}` }}>
                       <div style={{ fontSize: "0.72rem", color: t.muted, marginBottom: "0.2rem" }}>Runway</div>
-                      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: runway.level === "Strong" ? "#22c55e" : runway.level === "Stable" ? "#84cc16" : runway.level === "Fragile" ? "#f59e0b" : "#ef4444" }}>
+                      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: runway.level === "Strong" ? "#22c55e" : runway.level === "Stable" ? "#84cc16" : runway.level === "Fragile" ? "#f59e0b" : "#ef4444", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                         {runway.months.toFixed(1)}mo
                       </div>
                       <div style={{ fontSize: "0.72rem", fontWeight: 600, color: t.muted }}>{runway.level}</div>
@@ -1152,7 +1160,7 @@ export function ResultsPage({
                     {/* Income Gap */}
                     <div style={{ background: t.cardBg, borderRadius: "10px", padding: "0.85rem", textAlign: "center", border: `1px solid ${t.border}` }}>
                       <div style={{ fontSize: "0.72rem", color: t.muted, marginBottom: "0.2rem" }}>Income Gap</div>
-                      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: currentGrossIncome > 0 ? (incomeGap.hasGap ? "#ef4444" : "#22c55e") : t.muted }}>
+                      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: currentGrossIncome > 0 ? (incomeGap.hasGap ? "#ef4444" : "#22c55e") : t.muted, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                         {currentGrossIncome > 0 ? (incomeGap.hasGap ? `-${fmt(Math.abs(incomeGap.gapMonthly))}` : `+${fmt(Math.abs(incomeGap.gapMonthly))}`) : "N/A"}
                       </div>
                       <div style={{ fontSize: "0.72rem", fontWeight: 600, color: t.muted }}>{currentGrossIncome > 0 ? (incomeGap.hasGap ? "Shortfall/mo" : "Surplus/mo") : "Not set"}</div>
@@ -1221,7 +1229,7 @@ export function ResultsPage({
           <div style={{ height: "3px", borderRadius: "2px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent})`, marginBottom: "1rem" }} />
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <Sparkles size={18} style={{ color: t.primary }} />
-            <span style={{ fontSize: "1.1rem", fontWeight: 700, color: t.text }}>Your Next Steps</span>
+            <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted }}>Your Next Steps</span>
           </div>
         </div>
 
@@ -1372,7 +1380,7 @@ export function ResultsPage({
               marginBottom: "1.25rem",
             }}
           >
-            <div style={{ fontWeight: 700, color: t.text, marginBottom: "1rem", fontSize: "1.05rem" }}>
+            <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted, marginBottom: "1rem" }}>
               Expense Breakdown
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
@@ -1391,8 +1399,8 @@ export function ResultsPage({
                       <span style={{ fontSize: "0.9rem", color: t.text }}>{label}</span>
                     </div>
                     <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-                      <span style={{ fontSize: "0.8rem", color: t.muted }}>{pct.toFixed(1)}%</span>
-                      <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>{fmt(value)}</span>
+                      <span style={{ fontSize: "0.8rem", color: t.muted, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{pct.toFixed(1)}%</span>
+                      <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(value)}</span>
                     </div>
                   </div>
                   <div style={{ height: "6px", background: t.border, borderRadius: "3px", overflow: "hidden" }}>
@@ -1439,14 +1447,14 @@ export function ResultsPage({
                   return (
                     <div key={label} style={{ padding: "0.65rem 0.85rem", background: t.primary + "10", borderRadius: "8px" }}>
                       <div style={{ fontSize: "0.75rem", color: t.muted, marginBottom: "0.2rem" }}>{label}</div>
-                      <div style={{ fontSize: "0.85rem", color: t.text, marginBottom: "0.15rem" }}>Current: {fmt(value)}/mo</div>
-                      <div style={{ fontSize: "1rem", fontWeight: 800, color: "#22c55e" }}>Save {fmt(saving)}/mo ({reductionPct}% cut)</div>
+                      <div style={{ fontSize: "0.85rem", color: t.text, marginBottom: "0.15rem" }}>Current: <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(value)}</span>/mo</div>
+                      <div style={{ fontSize: "1rem", fontWeight: 800, color: "#22c55e", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>Save {fmt(saving)}/mo ({reductionPct}% cut)</div>
                     </div>
                   );
                 })}
                 <div style={{ padding: "0.65rem 0.85rem", background: "#22c55e15", borderRadius: "8px", border: "1px solid #22c55e30" }}>
                   <div style={{ fontSize: "0.75rem", color: t.muted, marginBottom: "0.2rem" }}>Total Annual Savings</div>
-                  <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#22c55e" }}>{fmt(Math.round(totalSavings * 12))}/year</div>
+                  <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#22c55e", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(Math.round(totalSavings * 12))}/year</div>
                 </div>
               </div>
               <div style={{ fontSize: "0.78rem", color: t.muted, lineHeight: 1.5, padding: "0.75rem", background: t.bg, borderRadius: "8px", border: `1px solid ${t.border}` }}>
@@ -1597,7 +1605,7 @@ export function ResultsPage({
               </div>
               {/* Summary table */}
               <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-                <table style={{ width: "100%", minWidth: "420px", fontSize: "0.75rem", borderCollapse: "collapse" }}>
+                <table style={{ width: "100%", minWidth: "420px", fontSize: "0.75rem", borderCollapse: "collapse", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${t.border}` }}>
                       <th style={{ textAlign: "left", padding: "0.35rem 0.5rem", color: t.muted, fontWeight: 600, whiteSpace: "nowrap" }}>Month</th>

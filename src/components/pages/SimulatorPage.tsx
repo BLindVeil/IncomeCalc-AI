@@ -25,6 +25,7 @@ import {
   saveScenarios,
   genId,
   EXPENSE_FIELDS,
+  MONO_FONT_STACK,
   type ThemeConfig,
   type UserTier,
   type PlanId,
@@ -472,7 +473,7 @@ export function SimulatorPage({
                   ].map((row) => (
                     <div key={row.label} style={{ display: "flex", justifyContent: "space-between", padding: "0.4rem 0", borderBottom: `1px solid ${t.border}20`, fontSize: "0.85rem" }}>
                       <span style={{ color: t.muted }}>{row.label}</span>
-                      <span style={{ fontWeight: 600, color: t.text }}>{row.value}</span>
+                      <span style={{ fontWeight: 600, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{row.value}</span>
                     </div>
                   ))}
                 </div>
@@ -568,7 +569,7 @@ export function SimulatorPage({
                   ].map((m) => (
                     <div key={m.label} style={{ padding: "0.25rem 0", borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"}` }}>
                       <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em" }}>{m.label}</div>
-                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: t.text }}>{m.value}</div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{m.value}</div>
                     </div>
                   ))}
                 </div>
@@ -587,9 +588,9 @@ export function SimulatorPage({
                     <div key={m.label} style={{ padding: "0.25rem 0", borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"}` }}>
                       <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em" }}>{m.label}</div>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: "0.85rem", fontWeight: 700, color: t.text }}>{m.value}</span>
+                        <span style={{ fontSize: "0.85rem", fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{m.value}</span>
                         {Math.abs(m.delta) >= 0.1 && (
-                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: m.good ? "#22c55e" : "#ef4444", display: "inline-flex", alignItems: "center", gap: "2px" }}>
+                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: m.good ? "#22c55e" : "#ef4444", display: "inline-flex", alignItems: "center", gap: "2px", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                             {m.good ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                             {formatDelta(m.delta, m.unit)}
                           </span>
@@ -659,7 +660,7 @@ export function SimulatorPage({
             const Icon = value > 0 ? TrendingUp : TrendingDown;
             const sign = value > 0 ? "+" : "";
             return (
-              <span style={{ fontSize: "0.74rem", fontWeight: 600, color, display: "inline-flex", alignItems: "center", gap: "2px" }}>
+              <span style={{ fontSize: "0.74rem", fontWeight: 600, color, display: "inline-flex", alignItems: "center", gap: "2px", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                 <Icon size={11} /> {sign}{unit === "$" ? fmt(value) : value.toFixed(1) + unit}
               </span>
             );
@@ -771,7 +772,7 @@ export function SimulatorPage({
                         <div key={m.label} style={{ marginBottom: "0.45rem", padding: "0.3rem 0", borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"}` }}>
                           <div style={{ fontSize: "0.68rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "0.1rem" }}>{m.label}</div>
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <span style={{ fontSize: "0.88rem", fontWeight: 700, color: t.text }}>{m.value}</span>
+                            <span style={{ fontSize: "0.88rem", fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{m.value}</span>
                             {!isBase && <DeltaChip value={m.delta} unit={m.unit} invert={m.invert} />}
                           </div>
                         </div>
@@ -815,7 +816,7 @@ export function SimulatorPage({
                         <tr key={row.label}>
                           <td style={{ padding: "0.45rem 0.75rem", borderBottom: `1px solid ${t.border}20`, color: t.muted }}>{row.label}</td>
                           {results.map((r) => (
-                            <td key={r.scenario.id} style={{ textAlign: "right", padding: "0.45rem 0.75rem", borderBottom: `1px solid ${t.border}20`, color: t.text, fontWeight: 500 }}>
+                            <td key={r.scenario.id} style={{ textAlign: "right", padding: "0.45rem 0.75rem", borderBottom: `1px solid ${t.border}20`, color: t.text, fontWeight: 500, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                               {row.fn(r.output)}
                             </td>
                           ))}
@@ -952,7 +953,7 @@ export function SimulatorPage({
                             return (
                               <div key={d.label}>
                                 <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.15rem" }}>{d.label}</div>
-                                <div style={{ fontSize: "0.95rem", fontWeight: 700, color, display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                                <div style={{ fontSize: "0.95rem", fontWeight: 700, color, display: "flex", alignItems: "center", gap: "0.25rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                                   {isGood ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
                                   {display}
                                 </div>

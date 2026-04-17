@@ -15,6 +15,7 @@ import { trackEvent } from "@/lib/analytics";
 import {
   applyDark,
   PLANS,
+  MONO_FONT_STACK,
   type ThemeConfig,
   type PlanId,
 } from "@/lib/app-shared";
@@ -362,7 +363,7 @@ export function CheckoutPage({
                 </div>
 
                 <div style={{ marginBottom: "0.5rem" }}>
-                  <span style={{ fontSize: "2.25rem", fontWeight: 900, color: isSelected ? currentTheme.primary : t.text }}>
+                  <span style={{ fontSize: "2.25rem", fontWeight: 900, color: isSelected ? currentTheme.primary : t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                     ${displayPrice}
                   </span>
                   <span style={{ fontSize: "0.9rem", color: t.muted }}>{priceLabel}</span>
@@ -377,7 +378,7 @@ export function CheckoutPage({
                       marginBottom: "0.5rem",
                     }}
                   >
-                    Save ${monthlySave}/year vs monthly
+                    Save <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>${monthlySave}</span>/year vs monthly
                   </div>
                 )}
 
@@ -439,7 +440,7 @@ export function CheckoutPage({
             {billing === "yearly" && (
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.95rem" }}>
                 <span style={{ color: t.muted }}>Savings</span>
-                <span style={{ color: "#22c55e", fontWeight: 600 }}>-${yearlySavings} vs monthly</span>
+                <span style={{ color: "#22c55e", fontWeight: 600, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>-${yearlySavings} vs monthly</span>
               </div>
             )}
             <div
@@ -451,7 +452,7 @@ export function CheckoutPage({
             />
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "1.1rem" }}>
               <span style={{ color: t.text, fontWeight: 700 }}>Total</span>
-              <span style={{ color: t.text, fontWeight: 800 }}>
+              <span style={{ color: t.text, fontWeight: 800, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                 ${price}{billing === "monthly" ? "/mo" : "/year"}
               </span>
             </div>
@@ -472,7 +473,7 @@ export function CheckoutPage({
             }}
           >
             <CreditCard size={18} />
-            Continue to Payment — ${price}{billing === "monthly" ? "/mo" : "/year"}
+            Continue to Payment — <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>${price}</span>{billing === "monthly" ? "/mo" : "/year"}
           </button>
 
           <p style={{ color: t.muted, fontSize: "0.8rem", textAlign: "center", margin: "1rem 0 0" }}>
@@ -756,7 +757,7 @@ export function CheckoutPage({
               }}
             >
               <Target size={16} />
-              Start Pro — $4.99/mo
+              Start Pro — <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>$4.99</span>/mo
             </button>
             <button
               onClick={() => handleCheckoutClick("premium")}
@@ -778,7 +779,7 @@ export function CheckoutPage({
               }}
             >
               <Users size={16} />
-              Start Premium — $9.99/mo
+              Start Premium — <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>$9.99</span>/mo
             </button>
           </div>
         </div>
