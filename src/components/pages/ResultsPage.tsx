@@ -774,6 +774,7 @@ export function ResultsPage({
             <DashboardTopbar
               t={t}
               isDark={isDark}
+              isMobile={isMobile}
               userName={currentUser?.email?.split("@")[0] || "there"}
               onSimulator={onSimulator}
             />
