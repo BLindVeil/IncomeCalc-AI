@@ -63,6 +63,7 @@ import { IncomeBarChart } from "@/components/dashboard/IncomeBarChart";
 import { ExpenseDonut } from "@/components/dashboard/ExpenseDonut";
 import { ScenariosCard } from "@/components/dashboard/ScenariosCard";
 import { TopMoveCard } from "@/components/dashboard/TopMoveCard";
+import { BudgetPage } from "@/components/pages/BudgetPage";
 
 // ─── AnnualUpsellModal ────────────────────────────────────────────────────────
 
@@ -603,6 +604,7 @@ export function ResultsPage({
   const [showBudgetInsights, setShowBudgetInsights] = useState(false);
   const [showIncomeIdeas, setShowIncomeIdeas] = useState(false);
   const [showFullReport, setShowFullReport] = useState(false);
+  const [showBudgetAnalysis, setShowBudgetAnalysis] = useState(false);
   const [budgetOpacity, setBudgetOpacity] = useState(0);
   const [ideasOpacity, setIdeasOpacity] = useState(0);
 
@@ -1565,6 +1567,35 @@ export function ResultsPage({
             </div>
           </div>
         )}
+
+        {/* Budget Analysis */}
+        <div style={{ marginBottom: "1.25rem" }}>
+          <button
+            onClick={() => setShowBudgetAnalysis(!showBudgetAnalysis)}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              fontSize: 14,
+              fontWeight: 500,
+              color: t.primary,
+              cursor: "pointer",
+            }}
+          >
+            {showBudgetAnalysis ? "Hide budget analysis ↑" : "View full budget analysis →"}
+          </button>
+          {showBudgetAnalysis && (
+            <div style={{ marginTop: 16 }}>
+              <BudgetPage
+                t={t}
+                isDark={isDark}
+                expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
+                totalExpenses={totalMonthly}
+                grossMonthlyIncome={grossMonthly}
+              />
+            </div>
+          )}
+        </div>
 
         {/* Savings Potential - unlocked for Premium */}
         {userTier === "premium" ? (() => {
