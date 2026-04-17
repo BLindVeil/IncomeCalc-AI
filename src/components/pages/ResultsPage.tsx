@@ -737,6 +737,20 @@ export function ResultsPage({
 
   const isDesktop = typeof window !== "undefined" ? window.innerWidth > 980 : true;
 
+  // Shared CSV export handler (reused by Analytics page)
+  const handleExportCsv = () => {
+    const header = "Category,Monthly Amount,% of Total\n";
+    const rows = breakdownItems.map((item) => `"${item.label}",${item.value.toFixed(2)},${item.pct.toFixed(1)}%`).join("\n");
+    const summary = `\nSummary\nTotal Monthly Expenses,${totalMonthly.toFixed(2)}\nGross Monthly Required,${grossMonthly.toFixed(2)}\nGross Annual Required,${grossAnnual.toFixed(2)}\nTax Rate,${taxRate}%\nHourly Rate Required,${hourlyRate.toFixed(2)}\nSavings Rate,${savingsRate.toFixed(1)}%\nHealth Score,${healthScore}/100\n`;
+    const blob = new Blob([header + rows + summary], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `incomecalc-report-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" }}>
       <div style={{ display: "grid", gridTemplateColumns: isDesktop && !isMobile ? "240px 1fr" : "1fr", minHeight: "100vh" }}>
@@ -828,6 +842,7 @@ export function ResultsPage({
                 annualRequired={grossAnnual}
                 currentAnnualIncome={currentGrossIncome}
                 onBack={() => setCurrentView("dashboard")}
+                onExportCsv={handleExportCsv}
               />
             )}
 
@@ -844,6 +859,7 @@ export function ResultsPage({
                 taxRate={taxRate}
                 healthScore={healthScore}
                 onBack={() => setCurrentView("dashboard")}
+                onSimulator={onSimulator}
               />
             )}
 
@@ -856,6 +872,14 @@ export function ResultsPage({
               isMobile={isMobile}
               userName={currentUser?.email?.split("@")[0] || "there"}
               onSimulator={onSimulator}
+              alerts={alerts}
+              onNavigate={(view) => {
+                if (["dashboard", "budget", "analytics", "scenarios"].includes(view)) {
+                  setCurrentView(view);
+                  const mainEl = document.querySelector("[data-main-content]");
+                  if (mainEl) mainEl.scrollTo(0, 0);
+                }
+              }}
             />
 
             {/* 4-Metric Grid */}
@@ -1707,6 +1731,7 @@ export function ResultsPage({
                 taxRate={taxRate}
                 annualRequired={grossAnnual}
                 currentAnnualIncome={currentGrossIncome}
+                onExportCsv={handleExportCsv}
               />
             </div>
           )}
@@ -1740,6 +1765,7 @@ export function ResultsPage({
                 currentAnnualIncome={currentGrossIncome}
                 taxRate={taxRate}
                 healthScore={healthScore}
+                onSimulator={onSimulator}
               />
             </div>
           )}

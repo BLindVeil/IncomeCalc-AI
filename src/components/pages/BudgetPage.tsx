@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import { EV_500, EV_600, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
 import { FormattedNumber } from "@/components/FormattedNumber";
@@ -203,6 +203,18 @@ function CategoryBudgetCard({ category, amount, grossMonthlyIncome, customBudget
   );
 }
 
+// ─── Sort options ────────────────────────────────────────────────────────────
+
+type BudgetSortValue = "default" | "amount_high" | "amount_low" | "name" | "status";
+
+const BUDGET_SORT_OPTIONS: Array<{ value: BudgetSortValue; label: string }> = [
+  { value: "default", label: "Default" },
+  { value: "amount_high", label: "Highest spend" },
+  { value: "amount_low", label: "Lowest spend" },
+  { value: "name", label: "Name" },
+  { value: "status", label: "Status" },
+];
+
 // ─── BudgetPage ─────────────────────────────────────────────────────────────
 
 export interface BudgetPageProps {
@@ -232,8 +244,37 @@ export function BudgetPage({
 }: BudgetPageProps) {
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [showSetAll, setShowSetAll] = useState(false);
+  const [sortBy, setSortBy] = useState<BudgetSortValue>("default");
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
 
-  const activeExpenses = expenses.filter((e) => e.amount > 0);
+  // Click-outside to close sort dropdown
+  useEffect(() => {
+    if (!sortOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) setSortOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [sortOpen]);
+
+  const rawActiveExpenses = expenses.filter((e) => e.amount > 0);
+
+  // Sort active expenses
+  const activeExpenses = [...rawActiveExpenses].sort((a, b) => {
+    if (sortBy === "amount_high") return b.amount - a.amount;
+    if (sortBy === "amount_low") return a.amount - b.amount;
+    if (sortBy === "name") return a.category.localeCompare(b.category);
+    if (sortBy === "status") {
+      const statusOrder = (cat: string, amt: number) => {
+        const budget = getBudgetAmount(cat, grossMonthlyIncome, customBudgets);
+        const s = getStatus(amt, budget);
+        return s.variant === "danger" ? 0 : s.variant === "warning" ? 1 : 2;
+      };
+      return statusOrder(a.category, a.amount) - statusOrder(b.category, b.amount);
+    }
+    return 0; // default order
+  });
   const isEmpty = activeExpenses.length === 0;
 
   // Overall status
@@ -337,7 +378,45 @@ export function BudgetPage({
       {/* ─── Filter row ──────────────────────────────────────────────────── */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         <button style={chipStyle}><CalendarIcon /> This month</button>
-        <button style={chipStyle}>Sort by: Default <ChevronDownIcon /></button>
+        <div ref={sortRef} style={{ position: "relative" }}>
+          <button style={chipStyle} onClick={() => setSortOpen(!sortOpen)}>
+            Sort by: {BUDGET_SORT_OPTIONS.find((o) => o.value === sortBy)?.label} <ChevronDownIcon />
+          </button>
+          {sortOpen && (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 4px)",
+                left: 0,
+                background: t.cardBg,
+                border: `1px solid ${t.border}`,
+                borderRadius: 12,
+                padding: 4,
+                zIndex: 20,
+                minWidth: 170,
+                boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+              }}
+            >
+              {BUDGET_SORT_OPTIONS.map((opt) => (
+                <div
+                  key={opt.value}
+                  onClick={() => { setSortBy(opt.value); setSortOpen(false); }}
+                  style={{
+                    padding: "8px 12px",
+                    fontSize: 13,
+                    color: sortBy === opt.value ? t.primary : t.text,
+                    fontWeight: sortBy === opt.value ? 600 : 400,
+                    cursor: "pointer",
+                    borderRadius: 8,
+                    background: sortBy === opt.value ? (t.primarySoft ?? "rgba(82,183,136,0.1)") : "transparent",
+                  }}
+                >
+                  {opt.label}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <span style={{ fontSize: 13, color: t.muted, marginLeft: 4 }}>
           {activeExpenses.length} categories
         </span>

@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import { EV_400, EV_500, EV_600, EV_700, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
 import { FormattedNumber } from "@/components/FormattedNumber";
@@ -26,6 +27,7 @@ export interface ScenariosPageProps {
   taxRate: number;
   healthScore: number;
   onBack?: () => void;
+  onSimulator?: () => void;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -400,6 +402,15 @@ function ImpactOverviewChart({ t, totalImpact }: { t: ThemeConfig; totalImpact: 
 
 // ─── ScenariosPage ──────────────────────────────────────────────────────────
 
+type FilterValue = "all" | "in_progress" | "completed" | "draft";
+type SortValue = "impact" | "name" | "progress";
+
+const SORT_OPTIONS: Array<{ value: SortValue; label: string }> = [
+  { value: "impact", label: "Impact" },
+  { value: "name", label: "Name" },
+  { value: "progress", label: "Progress" },
+];
+
 export function ScenariosPage({
   t,
   isDark,
@@ -411,13 +422,42 @@ export function ScenariosPage({
   taxRate,
   healthScore,
   onBack,
+  onSimulator,
 }: ScenariosPageProps) {
-  const scenarios = generateScenarios(expenses, grossMonthlyIncome, taxRate);
+  const allScenarios = generateScenarios(expenses, grossMonthlyIncome, taxRate);
   const isEmpty = expenses.filter((e) => e.amount > 0).length === 0;
   const isMobile = typeof window !== "undefined" && window.innerWidth <= 980;
 
-  const totalImpact = scenarios.reduce((s, sc) => s + sc.impactAnnual, 0);
-  const countByStatus = (st: ScenarioStatus) => scenarios.filter((s) => s.status === st).length;
+  // Filter + sort state
+  const [activeFilter, setActiveFilter] = useState<FilterValue>("all");
+  const [sortBy, setSortBy] = useState<SortValue>("impact");
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
+
+  // Click-outside to close sort dropdown
+  useEffect(() => {
+    if (!sortOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) setSortOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [sortOpen]);
+
+  // Filter
+  const filtered = activeFilter === "all"
+    ? allScenarios
+    : allScenarios.filter((s) => s.status === activeFilter);
+
+  // Sort
+  const scenarios = [...filtered].sort((a, b) => {
+    if (sortBy === "impact") return b.impactAnnual - a.impactAnnual;
+    if (sortBy === "name") return a.name.localeCompare(b.name);
+    return b.progress - a.progress;
+  });
+
+  const totalImpact = allScenarios.reduce((s, sc) => s + sc.impactAnnual, 0);
+  const countByStatus = (st: ScenarioStatus) => allScenarios.filter((s) => s.status === st).length;
 
   const chipStyle: React.CSSProperties = {
     background: t.cardBg,
@@ -443,6 +483,7 @@ export function ScenariosPage({
           Start planning your financial future. Create your first scenario to test what-if changes.
         </div>
         <button
+          onClick={onSimulator}
           style={{
             background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
             color: "#fff",
@@ -478,6 +519,7 @@ export function ScenariosPage({
           <p style={{ fontSize: 14, color: t.muted, margin: "4px 0 0" }}>Create financial goals and test what-if changes</p>
         </div>
         <button
+          onClick={onSimulator}
           style={{
             background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
             color: "#fff",
@@ -500,25 +542,79 @@ export function ScenariosPage({
       {/* ─── Filter row ──────────────────────────────────────────────────── */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         <button style={chipStyle}><CalendarIcon /> This year</button>
-        <button style={chipStyle}>Sort by: Impact <ChevronDownIcon /></button>
-        {(["All", "In progress", "Completed", "Draft"] as const).map((label, i) => (
-          <button
-            key={label}
-            style={{
-              ...chipStyle,
-              background: i === 0 ? (t.primarySoft ?? "rgba(82,183,136,0.1)") : t.cardBg,
-              color: i === 0 ? t.primary : t.muted,
-              border: i === 0 ? "none" : `1px solid ${t.border}`,
-            }}
-          >
-            {label}
+
+        {/* Sort dropdown */}
+        <div ref={sortRef} style={{ position: "relative" }}>
+          <button style={chipStyle} onClick={() => setSortOpen(!sortOpen)}>
+            Sort by: {SORT_OPTIONS.find((o) => o.value === sortBy)?.label} <ChevronDownIcon />
           </button>
-        ))}
-        <button style={{ background: "none", border: "none", fontSize: 13, color: t.muted, cursor: "pointer", padding: 0 }}>
+          {sortOpen && (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 4px)",
+                left: 0,
+                background: t.cardBg,
+                border: `1px solid ${t.border}`,
+                borderRadius: 12,
+                padding: 4,
+                zIndex: 20,
+                minWidth: 160,
+                boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+              }}
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <div
+                  key={opt.value}
+                  onClick={() => { setSortBy(opt.value); setSortOpen(false); }}
+                  style={{
+                    padding: "8px 12px",
+                    fontSize: 13,
+                    color: sortBy === opt.value ? t.primary : t.text,
+                    fontWeight: sortBy === opt.value ? 600 : 400,
+                    cursor: "pointer",
+                    borderRadius: 8,
+                    background: sortBy === opt.value ? (t.primarySoft ?? "rgba(82,183,136,0.1)") : "transparent",
+                  }}
+                >
+                  {opt.label}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Filter chips */}
+        {([
+          { label: "All", value: "all" as FilterValue },
+          { label: "In progress", value: "in_progress" as FilterValue },
+          { label: "Completed", value: "completed" as FilterValue },
+          { label: "Draft", value: "draft" as FilterValue },
+        ]).map((chip) => {
+          const isActive = activeFilter === chip.value;
+          return (
+            <button
+              key={chip.value}
+              onClick={() => setActiveFilter(chip.value)}
+              style={{
+                ...chipStyle,
+                background: isActive ? (t.primarySoft ?? "rgba(82,183,136,0.1)") : t.cardBg,
+                color: isActive ? t.primary : t.muted,
+                border: isActive ? "none" : `1px solid ${t.border}`,
+              }}
+            >
+              {chip.label}
+            </button>
+          );
+        })}
+        <button
+          onClick={() => { setActiveFilter("all"); setSortBy("impact"); }}
+          style={{ background: "none", border: "none", fontSize: 13, color: t.muted, cursor: "pointer", padding: 0 }}
+        >
           Reset all
         </button>
         <span style={{ fontSize: 13, color: t.muted, marginLeft: "auto" }}>
-          {scenarios.length} scenarios
+          {scenarios.length} scenario{scenarios.length !== 1 ? "s" : ""}
         </span>
       </div>
 

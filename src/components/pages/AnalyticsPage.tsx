@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import {
   EV_200, EV_300, EV_400, EV_500, EV_600, EV_700, EV_800, EV_900,
@@ -20,6 +21,7 @@ export interface AnalyticsPageProps {
   annualRequired: number;
   currentAnnualIncome: number;
   onBack?: () => void;
+  onExportCsv?: () => void;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -94,9 +96,19 @@ function generateLinePoints(base: number, count: number) {
 
 // ─── Income Overview Line Chart ─────────────────────────────────────────────
 
-function IncomeLineChart({ t, grossMonthlyIncome }: { t: ThemeConfig; grossMonthlyIncome: number }) {
+type ChartMode = "balance" | "income" | "expenses";
+
+function IncomeLineChart({ t, grossMonthlyIncome, totalExpenses }: { t: ThemeConfig; grossMonthlyIncome: number; totalExpenses: number }) {
+  const [chartMode, setChartMode] = useState<ChartMode>("balance");
+
+  const baseValue = chartMode === "income"
+    ? grossMonthlyIncome
+    : chartMode === "expenses"
+      ? totalExpenses
+      : grossMonthlyIncome - totalExpenses;
+
   const count = 8;
-  const points = generateLinePoints(grossMonthlyIncome, count);
+  const points = generateLinePoints(Math.abs(baseValue), count);
   const maxVal = Math.max(...points) * 1.1;
   const minVal = 0;
   const chartW = 600;
@@ -164,23 +176,31 @@ function IncomeLineChart({ t, grossMonthlyIncome }: { t: ThemeConfig; grossMonth
 
       {/* Toggle row */}
       <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
-        {["Total balance", "Income", "Expenses"].map((label, i) => (
-          <span
-            key={label}
-            style={{
-              background: i === 0 ? t.primary : "transparent",
-              color: i === 0 ? "#fff" : t.muted,
-              borderRadius: 999,
-              padding: "4px 12px",
-              fontSize: 12,
-              fontWeight: 500,
-              cursor: "pointer",
-              border: i === 0 ? "none" : `1px solid ${t.border}`,
-            }}
-          >
-            {label}
-          </span>
-        ))}
+        {([
+          { label: "Total balance", mode: "balance" as ChartMode },
+          { label: "Income", mode: "income" as ChartMode },
+          { label: "Expenses", mode: "expenses" as ChartMode },
+        ]).map((item) => {
+          const isActive = chartMode === item.mode;
+          return (
+            <span
+              key={item.mode}
+              onClick={() => setChartMode(item.mode)}
+              style={{
+                background: isActive ? t.primary : "transparent",
+                color: isActive ? "#fff" : t.muted,
+                borderRadius: 999,
+                padding: "4px 12px",
+                fontSize: 12,
+                fontWeight: 500,
+                cursor: "pointer",
+                border: isActive ? "none" : `1px solid ${t.border}`,
+              }}
+            >
+              {item.label}
+            </span>
+          );
+        })}
       </div>
 
       {/* Chart area */}
@@ -500,6 +520,7 @@ export function AnalyticsPage({
   annualRequired,
   currentAnnualIncome,
   onBack,
+  onExportCsv,
 }: AnalyticsPageProps) {
   const monthlyNet = netMonthlyIncome - totalExpenses;
   const annualNet = monthlyNet * 12;
@@ -541,7 +562,7 @@ export function AnalyticsPage({
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <button style={chipStyle}><CalendarIcon /> This month</button>
-          <button style={chipStyle}><DownloadIcon /> Export CSV</button>
+          <button style={chipStyle} onClick={onExportCsv}><DownloadIcon /> Export CSV</button>
           {!isMobile && <button style={chipStyle}><GridSmIcon /> Manage widgets</button>}
           <button
             style={{
@@ -632,7 +653,7 @@ export function AnalyticsPage({
       </div>
 
       {/* ─── Income Overview Line Chart ────────────────────────────────── */}
-      <IncomeLineChart t={t} grossMonthlyIncome={grossMonthlyIncome} />
+      <IncomeLineChart t={t} grossMonthlyIncome={grossMonthlyIncome} totalExpenses={totalExpenses} />
 
       {/* ─── Two-column: Bar Chart + Statistics Donut ──────────────────── */}
       <div
