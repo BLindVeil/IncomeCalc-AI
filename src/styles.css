@@ -133,44 +133,33 @@ code {
 /* ─── Glass Card ─────────────────────────────────────────────────────────── */
 .atv-glass {
 	background: rgba(0, 0, 0, 0.03);
-	backdrop-filter: blur(20px);
-	-webkit-backdrop-filter: blur(20px);
 	border: 1px solid rgba(0, 0, 0, 0.08);
-	border-radius: 20px;
-	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+	border-radius: 16px;
 	transition:
-		transform 0.25s ease,
-		box-shadow 0.25s ease;
+		transform 0.25s ease;
 }
 
 .atv-glass:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
 }
 
 .dark .atv-glass {
 	background: rgba(255, 255, 255, 0.06);
 	border: 1px solid rgba(255, 255, 255, 0.08);
-	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
 .dark .atv-glass:hover {
-	box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
 }
 
 .atv-glass-static {
 	background: rgba(0, 0, 0, 0.03);
-	backdrop-filter: blur(20px);
-	-webkit-backdrop-filter: blur(20px);
 	border: 1px solid rgba(0, 0, 0, 0.08);
-	border-radius: 20px;
-	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+	border-radius: 16px;
 }
 
 .dark .atv-glass-static {
 	background: rgba(255, 255, 255, 0.06);
 	border: 1px solid rgba(255, 255, 255, 0.08);
-	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
 /* ─── Primary CTA Button ────────────────────────────────────────────────── */

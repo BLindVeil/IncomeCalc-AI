@@ -48,6 +48,9 @@ import {
 } from "@/lib/app-shared";
 import { Header } from "@/components/Header";
 import { FormattedNumber } from "@/components/FormattedNumber";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { StatusPill } from "@/components/ui/StatusPill";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { AIFinancialInsights } from "@/components/ai/AIFinancialInsights";
 import { AIBudgetInsights } from "@/components/ai/AIBudgetInsights";
 import { AIIncomeIdeas } from "@/components/ai/AIIncomeIdeas";
@@ -740,10 +743,13 @@ export function ResultsPage({
           </p>
         </div>
 
-        {/* Hero card — Glass with gradient accent bar */}
+        {/* Hero card */}
         <div
-          className="atv-glass-static atv-fade-in"
+          className="atv-fade-in"
           style={{
+            background: isDark ? `${t.primary}10` : `${t.primary}08`,
+            border: `1px solid ${t.border}`,
+            borderRadius: "16px",
             padding: "2rem",
             marginBottom: "1.25rem",
             textAlign: "center",
@@ -808,25 +814,9 @@ export function ResultsPage({
             marginBottom: "1.25rem",
           }}
         >
-          {[
-            { label: "Gross Income", value: grossMonthly, sub: "Before taxes", color: t.primary },
-            { label: "Taxes Paid", value: taxMonthly, sub: `${taxRate}% effective rate`, color: "#ef4444" },
-            { label: "Net Take-Home", value: totalMonthly, sub: "After taxes", color: "#22c55e" },
-          ].map(({ label, value, sub, color }) => (
-            <div
-              key={label}
-              style={{
-                background: t.cardBg,
-                border: `1px solid ${t.border}`,
-                borderRadius: "12px",
-                padding: "1.25rem",
-              }}
-            >
-              <div style={{ fontSize: "0.8rem", color: t.muted, marginBottom: "0.35rem" }}>{sub}</div>
-              <div><FormattedNumber value={value} fontSize="1.5rem" fontWeight={800} color={color} centsColor={t.muted} /></div>
-              <div style={{ fontSize: "0.9rem", fontWeight: 600, color: t.text }}>{label}/mo</div>
-            </div>
-          ))}
+          <MetricCard label="Gross Income/mo" value={grossMonthly} sub="Before taxes" color={t.primary} t={t} />
+          <MetricCard label="Taxes Paid/mo" value={taxMonthly} sub={`${taxRate}% effective rate`} color="#ef4444" t={t} />
+          <MetricCard label="Net Take-Home/mo" value={totalMonthly} sub="After taxes" color="#22c55e" t={t} />
         </div>
 
         {/* Health score 2.0 */}
@@ -834,19 +824,22 @@ export function ResultsPage({
           style={{
             background: t.cardBg,
             border: `1px solid ${t.border}`,
-            borderRadius: "12px",
+            borderRadius: "16px",
             padding: "1.5rem",
             marginBottom: "1.25rem",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
-            <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted }}>Financial Health Score</span>
-            <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
-              <span style={{ fontWeight: 700, color: healthColor, fontSize: "1.1rem" }}>{animatedScore}</span>
-              <span style={{ fontWeight: 400, color: t.muted, fontSize: "1.1rem" }}>/100</span>
-              <span style={{ fontWeight: 500, color: t.muted, fontSize: "0.95rem" }}> — {healthLabel}</span>
-            </span>
-          </div>
+          <SectionHeader
+            label="Financial Health Score"
+            t={t}
+            right={
+              <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
+                <span style={{ fontWeight: 700, color: healthColor, fontSize: "1.1rem" }}>{animatedScore}</span>
+                <span style={{ fontWeight: 400, color: t.muted, fontSize: "1.1rem" }}>/100</span>
+                <span style={{ fontWeight: 500, color: t.muted, fontSize: "0.95rem" }}> — {healthLabel}</span>
+              </span>
+            }
+          />
           <Progress value={healthScore} className="h-3" />
 
           {/* Sub-scores */}
@@ -887,15 +880,16 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.5rem",
               marginBottom: "1.25rem",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-              <Gauge size={18} style={{ color: incomeGap.hasGap ? "#ef4444" : "#22c55e" }} />
-              <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted }}>Income Gap</span>
-            </div>
+            <SectionHeader
+              icon={<Gauge size={18} style={{ color: incomeGap.hasGap ? "#ef4444" : "#22c55e" }} />}
+              label="Income Gap"
+              t={t}
+            />
 
             <div
               style={{
@@ -993,38 +987,22 @@ export function ResultsPage({
           style={{
             background: t.cardBg,
             border: `1px solid ${t.border}`,
-            borderRadius: "12px",
+            borderRadius: "16px",
             padding: "1.5rem",
             marginBottom: "1.25rem",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-            <Clock size={18} style={{ color: runway.level === "Strong" ? "#22c55e" : runway.level === "Stable" ? "#84cc16" : runway.level === "Fragile" ? "#f59e0b" : "#ef4444" }} />
-            <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted }}>Financial Runway</span>
-            <span
-              style={{
-                fontSize: "0.72rem",
-                fontWeight: 700,
-                padding: "2px 8px",
-                borderRadius: "6px",
-                background:
-                  runway.level === "Strong" ? "#22c55e15" :
-                  runway.level === "Stable" ? "#84cc1615" :
-                  runway.level === "Fragile" ? "#f59e0b15" : "#ef444415",
-                color:
-                  runway.level === "Strong" ? "#22c55e" :
-                  runway.level === "Stable" ? "#84cc16" :
-                  runway.level === "Fragile" ? "#f59e0b" : "#ef4444",
-                border: `1px solid ${
-                  runway.level === "Strong" ? "#22c55e40" :
-                  runway.level === "Stable" ? "#84cc1640" :
-                  runway.level === "Fragile" ? "#f59e0b40" : "#ef444440"
-                }`,
-              }}
-            >
-              {runway.level}
-            </span>
-          </div>
+          <SectionHeader
+            icon={<Clock size={18} style={{ color: runway.level === "Strong" ? "#22c55e" : runway.level === "Stable" ? "#84cc16" : runway.level === "Fragile" ? "#f59e0b" : "#ef4444" }} />}
+            label="Financial Runway"
+            t={t}
+            right={
+              <StatusPill
+                label={runway.level}
+                variant={runway.level === "Strong" || runway.level === "Stable" ? "good" : runway.level === "Fragile" ? "warning" : "danger"}
+              />
+            }
+          />
           <div
             style={{
               fontSize: "2rem",
@@ -1049,17 +1027,16 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.5rem",
               marginBottom: "1.25rem",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-              <AlertTriangle size={18} style={{ color: "#f59e0b" }} />
-              <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted }}>
-                <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{alerts.length}</span> Active Alert{alerts.length !== 1 ? "s" : ""}
-              </span>
-            </div>
+            <SectionHeader
+              icon={<AlertTriangle size={18} style={{ color: "#f59e0b" }} />}
+              label={`${alerts.length} Active Alert${alerts.length !== 1 ? "s" : ""}`}
+              t={t}
+            />
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               {alerts.map((alert) => (
                 <div key={alert.id}>
@@ -1123,7 +1100,7 @@ export function ResultsPage({
             }}
             onClick={(e) => { if (e.target === e.currentTarget) setShareCardOpen(false); }}
           >
-            <div style={{ width: "min(420px, 100%)", background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "20px", overflow: "hidden", boxShadow: "0 24px 80px rgba(0,0,0,0.3)" }}>
+            <div style={{ width: "min(420px, 100%)", background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "16px", overflow: "hidden", boxShadow: "0 24px 80px rgba(0,0,0,0.3)" }}>
               {/* Share card header */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 1.25rem", borderBottom: `1px solid ${t.border}` }}>
                 <span style={{ fontWeight: 700, color: t.text }}>Your Stability Card</span>
@@ -1135,13 +1112,13 @@ export function ResultsPage({
               {/* The card itself */}
               <div id="stability-share-card" style={{ padding: "1.5rem", background: `linear-gradient(135deg, ${currentTheme.primary}12, ${currentTheme.accent}08)` }}>
                 <div style={{ textAlign: "center", marginBottom: "1.25rem" }}>
-                  <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: currentTheme.primary, display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: "0.9rem", marginBottom: "0.5rem" }}>IC</div>
+                  <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: currentTheme.primary, display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: "0.9rem", marginBottom: "0.5rem" }}>IC</div>
                   <div style={{ fontWeight: 800, fontSize: "1.1rem", color: t.text }}>Financial Stability Report</div>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                   {/* Stability Score */}
-                  <div style={{ background: t.cardBg, borderRadius: "12px", padding: "1rem", textAlign: "center", border: `1px solid ${t.border}` }}>
+                  <div style={{ background: t.cardBg, borderRadius: "16px", padding: "1rem", textAlign: "center", border: `1px solid ${t.border}` }}>
                     <div style={{ fontSize: "0.78rem", color: t.muted, marginBottom: "0.25rem" }}>Stability Score</div>
                     <div style={{ fontSize: "2.5rem", fontWeight: 900, color: healthColor, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{healthScore}</div>
                     <div style={{ fontSize: "0.85rem", fontWeight: 600, color: healthColor }}>{healthLabel}</div>
@@ -1227,10 +1204,11 @@ export function ResultsPage({
         {/* ═══ SECTION 2: Your Next Steps ═══ */}
         <div style={{ marginTop: "2rem", marginBottom: "1rem" }}>
           <div style={{ height: "3px", borderRadius: "2px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent})`, marginBottom: "1rem" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <Sparkles size={18} style={{ color: t.primary }} />
-            <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted }}>Your Next Steps</span>
-          </div>
+          <SectionHeader
+            icon={<Sparkles size={18} style={{ color: t.primary }} />}
+            label="Your Next Steps"
+            t={t}
+          />
         </div>
 
         {/* AI Financial Diagnosis — premium structured analysis */}
@@ -1261,7 +1239,7 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.25rem",
             }}
           >
@@ -1296,7 +1274,7 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.25rem",
             }}
           >
@@ -1375,14 +1353,12 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.5rem",
               marginBottom: "1.25rem",
             }}
           >
-            <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: t.muted, marginBottom: "1rem" }}>
-              Expense Breakdown
-            </div>
+            <SectionHeader label="Expense Breakdown" t={t} />
             <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
               {breakdownItems.map(({ label, Icon, value, pct }) => (
                 <div key={label}>
@@ -1432,7 +1408,7 @@ export function ResultsPage({
               style={{
                 background: t.cardBg,
                 border: `1px solid ${t.border}`,
-                borderRadius: "12px",
+                borderRadius: "16px",
                 padding: "1.5rem",
                 marginBottom: "1.25rem",
               }}
@@ -1470,7 +1446,7 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1.5px dashed ${t.primary}50`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.5rem",
               marginBottom: "1.25rem",
               position: "relative",
@@ -1505,7 +1481,7 @@ export function ResultsPage({
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.75rem",
-                borderRadius: "20px",
+                borderRadius: "16px",
               }}
             >
               <div
@@ -1572,7 +1548,7 @@ export function ResultsPage({
               style={{
                 background: t.cardBg,
                 border: `1px solid ${t.border}`,
-                borderRadius: "12px",
+                borderRadius: "16px",
                 padding: "1.5rem",
                 marginBottom: "1.25rem",
               }}
@@ -1635,7 +1611,7 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1.5px dashed ${t.primary}50`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.5rem",
               marginBottom: "1.25rem",
               position: "relative",
@@ -1683,7 +1659,7 @@ export function ResultsPage({
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.75rem",
-                borderRadius: "20px",
+                borderRadius: "16px",
               }}
             >
               <div
@@ -1734,7 +1710,7 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.25rem",
               cursor: "pointer",
               textAlign: "left",
@@ -1753,7 +1729,7 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.25rem",
               cursor: "pointer",
               textAlign: "left",
@@ -1776,7 +1752,7 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1rem",
               cursor: "pointer",
               textAlign: "left",
@@ -1795,7 +1771,7 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1rem",
               cursor: "pointer",
               textAlign: "left",
@@ -1814,7 +1790,7 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1rem",
               cursor: "pointer",
               textAlign: "left",
@@ -1857,7 +1833,7 @@ export function ResultsPage({
                   position: "relative",
                   background: t.cardBg,
                   border: `1px solid ${t.border}`,
-                  borderRadius: "12px",
+                  borderRadius: "16px",
                   padding: "1.5rem",
                   marginBottom: "1.25rem",
                   minHeight: "120px",
@@ -1878,7 +1854,7 @@ export function ResultsPage({
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "0.75rem",
-                    borderRadius: "12px",
+                    borderRadius: "16px",
                   }}
                 >
                   <div
@@ -1935,7 +1911,7 @@ export function ResultsPage({
                   position: "relative",
                   background: t.cardBg,
                   border: `1px solid ${t.border}`,
-                  borderRadius: "12px",
+                  borderRadius: "16px",
                   padding: "1.5rem",
                   marginBottom: "1.25rem",
                   minHeight: "120px",
@@ -1956,7 +1932,7 @@ export function ResultsPage({
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "0.75rem",
-                    borderRadius: "12px",
+                    borderRadius: "16px",
                   }}
                 >
                   <div
@@ -2006,7 +1982,7 @@ export function ResultsPage({
           style={{
             background: t.cardBg,
             border: `1px solid ${t.border}`,
-            borderRadius: "12px",
+            borderRadius: "16px",
             padding: "1.5rem",
             marginBottom: "1.25rem",
           }}
@@ -2095,7 +2071,7 @@ export function ResultsPage({
           style={{
             background: t.cardBg,
             border: `1px solid ${t.border}`,
-            borderRadius: "12px",
+            borderRadius: "16px",
             padding: "1.5rem",
             marginBottom: "1.25rem",
           }}
@@ -2177,7 +2153,7 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.5rem",
               marginBottom: "1.25rem",
             }}
@@ -2262,7 +2238,7 @@ export function ResultsPage({
             style={{
               background: t.cardBg,
               border: `1.5px dashed ${t.primary}50`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.5rem",
               marginBottom: "1.25rem",
               position: "relative",
@@ -2301,7 +2277,7 @@ export function ResultsPage({
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.65rem",
-                borderRadius: "20px",
+                borderRadius: "16px",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -2346,7 +2322,7 @@ export function ResultsPage({
               style={{
                 background: t.cardBg,
                 border: `1px solid ${t.border}`,
-                borderRadius: "10px",
+                borderRadius: "16px",
                 padding: "0.85rem 1rem",
                 flex: 1,
                 minWidth: "160px",
@@ -2384,7 +2360,7 @@ export function ResultsPage({
             <div
               style={{
                 background: currentTheme.primary,
-                borderRadius: "10px",
+                borderRadius: "16px",
                 padding: "0.85rem 1rem",
                 flex: 1,
                 minWidth: "160px",
