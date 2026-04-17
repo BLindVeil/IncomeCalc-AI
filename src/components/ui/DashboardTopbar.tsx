@@ -169,7 +169,17 @@ export function DashboardTopbar({
         </p>
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <button style={chipStyle}><CalendarIcon /> This month</button>
+        <span
+          style={{
+            ...chipStyle,
+            background: t.primarySoft ?? "rgba(82,183,136,0.1)",
+            color: t.primary,
+            border: "none",
+            cursor: "default",
+          }}
+        >
+          <CalendarIcon /> {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+        </span>
 
         {/* ─── Search ────────────────────────────────────────────── */}
         {!isMobile && (

@@ -377,7 +377,17 @@ export function BudgetPage({
 
       {/* ─── Filter row ──────────────────────────────────────────────────── */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        <button style={chipStyle}><CalendarIcon /> This month</button>
+        <span
+          style={{
+            ...chipStyle,
+            background: t.primarySoft ?? "rgba(82,183,136,0.1)",
+            color: t.primary,
+            border: "none",
+            cursor: "default",
+          }}
+        >
+          <CalendarIcon /> {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+        </span>
         <div ref={sortRef} style={{ position: "relative" }}>
           <button style={chipStyle} onClick={() => setSortOpen(!sortOpen)}>
             Sort by: {BUDGET_SORT_OPTIONS.find((o) => o.value === sortBy)?.label} <ChevronDownIcon />

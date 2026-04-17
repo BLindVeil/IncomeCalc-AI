@@ -281,6 +281,8 @@ function ScenarioCard({ scenario, t, isDark }: { scenario: Scenario; t: ThemeCon
 // ─── Impact Overview Line Chart ─────────────────────────────────────────────
 
 function ImpactOverviewChart({ t, totalImpact }: { t: ThemeConfig; totalImpact: number }) {
+  const [impactPeriod, setImpactPeriod] = useState<string>("this_year");
+
   const count = 8;
   const chartW = 400;
   const chartH = 140;
@@ -315,23 +317,30 @@ function ImpactOverviewChart({ t, totalImpact }: { t: ThemeConfig; totalImpact: 
   return (
     <div>
       <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-        {["This year", "Same period last year"].map((label, i) => (
-          <span
-            key={label}
-            style={{
-              background: i === 0 ? (t.primarySoft ?? "rgba(82,183,136,0.1)") : "transparent",
-              color: i === 0 ? t.primary : t.muted,
-              border: i === 0 ? "none" : `1px solid ${t.border}`,
-              borderRadius: 999,
-              padding: "4px 12px",
-              fontSize: 12,
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
-          >
-            {label}
-          </span>
-        ))}
+        {([
+          { label: "This year", value: "this_year" },
+          { label: "Same period last year", value: "last_year" },
+        ]).map((item) => {
+          const isActive = impactPeriod === item.value;
+          return (
+            <span
+              key={item.value}
+              onClick={() => setImpactPeriod(item.value)}
+              style={{
+                background: isActive ? (t.primarySoft ?? "rgba(82,183,136,0.1)") : "transparent",
+                color: isActive ? t.primary : t.muted,
+                border: isActive ? "none" : `1px solid ${t.border}`,
+                borderRadius: 999,
+                padding: "4px 12px",
+                fontSize: 12,
+                fontWeight: 500,
+                cursor: "pointer",
+              }}
+            >
+              {item.label}
+            </span>
+          );
+        })}
       </div>
 
       <div style={{ display: "flex", gap: 8 }}>
@@ -396,6 +405,11 @@ function ImpactOverviewChart({ t, totalImpact }: { t: ThemeConfig; totalImpact: 
           </div>
         </div>
       </div>
+      {impactPeriod !== "this_year" && (
+        <div style={{ fontSize: 12, color: t.muted, fontStyle: "italic", marginTop: 8 }}>
+          Historical comparison available after one year of use
+        </div>
+      )}
     </div>
   );
 }
@@ -541,7 +555,17 @@ export function ScenariosPage({
 
       {/* ─── Filter row ──────────────────────────────────────────────────── */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        <button style={chipStyle}><CalendarIcon /> This year</button>
+        <span
+          style={{
+            ...chipStyle,
+            background: t.primarySoft ?? "rgba(82,183,136,0.1)",
+            color: t.primary,
+            border: "none",
+            cursor: "default",
+          }}
+        >
+          <CalendarIcon /> {new Date().getFullYear()}
+        </span>
 
         {/* Sort dropdown */}
         <div ref={sortRef} style={{ position: "relative" }}>

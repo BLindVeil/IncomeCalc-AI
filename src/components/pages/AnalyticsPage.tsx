@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import {
   EV_200, EV_300, EV_400, EV_500, EV_600, EV_700, EV_800, EV_900,
@@ -6,6 +6,7 @@ import {
 } from "@/lib/app-shared";
 import { FormattedNumber } from "@/components/FormattedNumber";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { ComingSoonToast } from "@/components/ui/ComingSoonToast";
 
 // ─── Props ──────────────────────────────────────────────────────────────────
 
@@ -100,6 +101,7 @@ type ChartMode = "balance" | "income" | "expenses";
 
 function IncomeLineChart({ t, grossMonthlyIncome, totalExpenses }: { t: ThemeConfig; grossMonthlyIncome: number; totalExpenses: number }) {
   const [chartMode, setChartMode] = useState<ChartMode>("balance");
+  const [overviewPeriod, setOverviewPeriod] = useState<string>("this_month");
 
   const baseValue = chartMode === "income"
     ? grossMonthlyIncome
@@ -154,23 +156,31 @@ function IncomeLineChart({ t, grossMonthlyIncome, totalExpenses }: { t: ThemeCon
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, color: t.text, margin: 0 }}>Income overview</h3>
         <div style={{ display: "flex", gap: 6 }}>
-          {["This month", "Same period last year", "This year"].map((label, i) => (
-            <span
-              key={label}
-              style={{
-                background: i === 0 ? t.primarySoft : "transparent",
-                color: i === 0 ? t.primary : t.muted,
-                border: i === 0 ? "none" : `1px solid ${t.border}`,
-                borderRadius: 999,
-                padding: "4px 12px",
-                fontSize: 12,
-                fontWeight: 500,
-                cursor: "pointer",
-              }}
-            >
-              {label}
-            </span>
-          ))}
+          {([
+            { label: "This month", value: "this_month" },
+            { label: "Same period last year", value: "last_year" },
+            { label: "This year", value: "this_year" },
+          ]).map((item) => {
+            const isActive = overviewPeriod === item.value;
+            return (
+              <span
+                key={item.value}
+                onClick={() => setOverviewPeriod(item.value)}
+                style={{
+                  background: isActive ? (t.primarySoft ?? "rgba(82,183,136,0.1)") : "transparent",
+                  color: isActive ? t.primary : t.muted,
+                  border: isActive ? "none" : `1px solid ${t.border}`,
+                  borderRadius: 999,
+                  padding: "4px 12px",
+                  fontSize: 12,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                }}
+              >
+                {item.label}
+              </span>
+            );
+          })}
         </div>
       </div>
 
@@ -281,13 +291,37 @@ function IncomeLineChart({ t, grossMonthlyIncome, totalExpenses }: { t: ThemeCon
           </div>
         </div>
       </div>
+      {overviewPeriod !== "this_month" && (
+        <div style={{ fontSize: 12, color: t.muted, fontStyle: "italic", marginTop: 8 }}>
+          Historical data will be available after your first month of use
+        </div>
+      )}
     </div>
   );
 }
 
 // ─── Bar Chart: Income vs Expenses ──────────────────────────────────────────
 
+const COMPARE_OPTIONS = [
+  { value: "this_year", label: "This year" },
+  { value: "last_6", label: "Last 6 months" },
+  { value: "last_3", label: "Last 3 months" },
+];
+
 function IncomeExpenseBarChart({ t, isDark, grossMonthlyIncome, totalExpenses }: { t: ThemeConfig; isDark: boolean; grossMonthlyIncome: number; totalExpenses: number }) {
+  const [compareRange, setCompareRange] = useState<string>("this_year");
+  const [compareOpen, setCompareOpen] = useState(false);
+  const compareRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!compareOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (compareRef.current && !compareRef.current.contains(e.target as Node)) setCompareOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [compareOpen]);
+
   const data = generateMonthlyData(grossMonthlyIncome, totalExpenses, 7);
   const maxVal = Math.max(...data.flatMap((d) => [d.income, d.expense])) * 1.15;
 
@@ -310,19 +344,59 @@ function IncomeExpenseBarChart({ t, isDark, grossMonthlyIncome, totalExpenses }:
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, color: t.text, margin: 0 }}>Comparing income and expenses</h3>
-        <span
-          style={{
-            background: t.cardBg,
-            border: `1px solid ${t.border}`,
-            borderRadius: 999,
-            padding: "4px 12px",
-            fontSize: 12,
-            color: t.muted,
-            cursor: "pointer",
-          }}
-        >
-          This year <ChevronDownIcon />
-        </span>
+        <div ref={compareRef} style={{ position: "relative" }}>
+          <span
+            onClick={() => setCompareOpen(!compareOpen)}
+            style={{
+              background: t.cardBg,
+              border: `1px solid ${t.border}`,
+              borderRadius: 999,
+              padding: "4px 12px",
+              fontSize: 12,
+              color: t.muted,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            {COMPARE_OPTIONS.find((o) => o.value === compareRange)?.label} <ChevronDownIcon />
+          </span>
+          {compareOpen && (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 4px)",
+                right: 0,
+                background: t.cardBg,
+                border: `1px solid ${t.border}`,
+                borderRadius: 12,
+                padding: 4,
+                zIndex: 20,
+                minWidth: 160,
+                boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+              }}
+            >
+              {COMPARE_OPTIONS.map((opt) => (
+                <div
+                  key={opt.value}
+                  onClick={() => { setCompareRange(opt.value); setCompareOpen(false); }}
+                  style={{
+                    padding: "8px 12px",
+                    fontSize: 13,
+                    color: compareRange === opt.value ? t.primary : t.text,
+                    fontWeight: compareRange === opt.value ? 600 : 400,
+                    cursor: "pointer",
+                    borderRadius: 8,
+                    background: compareRange === opt.value ? (t.primarySoft ?? "rgba(82,183,136,0.1)") : "transparent",
+                  }}
+                >
+                  {opt.label}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Legend */}
@@ -394,6 +468,11 @@ function IncomeExpenseBarChart({ t, isDark, grossMonthlyIncome, totalExpenses }:
           })}
         </div>
       </div>
+      {compareRange !== "this_year" && (
+        <div style={{ fontSize: 12, color: t.muted, fontStyle: "italic", marginTop: 8 }}>
+          Historical data will be available after your first month of use
+        </div>
+      )}
     </div>
   );
 }
@@ -531,6 +610,16 @@ export function AnalyticsPage({
   const housingRatio = grossMonthlyIncome > 0 ? (housingAmount / grossMonthlyIncome) * 100 : 0;
   const incomeGap = annualRequired - currentAnnualIncome;
 
+  // Toast states for "coming soon" buttons
+  const [showWidgetToast, setShowWidgetToast] = useState(false);
+  const [showAddWidgetToast, setShowAddWidgetToast] = useState(false);
+  const [showCurrencyToast, setShowCurrencyToast] = useState(false);
+
+  const fireToast = (setter: (v: boolean) => void) => {
+    setter(true);
+    setTimeout(() => setter(false), 2000);
+  };
+
   const chipStyle: React.CSSProperties = {
     background: t.cardBg,
     border: `1px solid ${t.border}`,
@@ -561,27 +650,46 @@ export function AnalyticsPage({
           <p style={{ fontSize: 14, color: t.muted, margin: "4px 0 0" }}>Detailed overview of your financial situation</p>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <button style={chipStyle}><CalendarIcon /> This month</button>
-          <button style={chipStyle} onClick={onExportCsv}><DownloadIcon /> Export CSV</button>
-          {!isMobile && <button style={chipStyle}><GridSmIcon /> Manage widgets</button>}
-          <button
+          <span
             style={{
-              background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
-              color: "#fff",
+              ...chipStyle,
+              background: t.primarySoft ?? "rgba(82,183,136,0.1)",
+              color: t.primary,
               border: "none",
-              borderRadius: 999,
-              padding: "8px 16px",
-              fontSize: 13,
-              fontWeight: 500,
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              boxShadow: "0 2px 8px rgba(27,67,50,0.25)",
+              cursor: "default",
             }}
           >
-            <PlusIcon /> Add new widget
-          </button>
+            <CalendarIcon /> {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+          </span>
+          <button style={chipStyle} onClick={onExportCsv}><DownloadIcon /> Export CSV</button>
+          {!isMobile && (
+            <div style={{ position: "relative" }}>
+              <button style={chipStyle} onClick={() => fireToast(setShowWidgetToast)}><GridSmIcon /> Manage widgets</button>
+              <ComingSoonToast show={showWidgetToast} message="Widget customization coming soon" t={t} />
+            </div>
+          )}
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={() => fireToast(setShowAddWidgetToast)}
+              style={{
+                background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
+                color: "#fff",
+                border: "none",
+                borderRadius: 999,
+                padding: "8px 16px",
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                boxShadow: "0 2px 8px rgba(27,67,50,0.25)",
+              }}
+            >
+              <PlusIcon /> Add new widget
+            </button>
+            <ComingSoonToast show={showAddWidgetToast} message="Widget customization coming soon" t={t} />
+          </div>
         </div>
       </div>
 
@@ -598,7 +706,15 @@ export function AnalyticsPage({
         <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: 16, padding: 20 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <span style={{ fontSize: 13, color: t.muted, fontWeight: 500 }}>Gross Income</span>
-            <span style={{ fontSize: 11, color: t.muted, border: `1px solid ${t.border}`, borderRadius: 999, padding: "2px 8px" }}>USD <ChevronDownIcon /></span>
+            <div style={{ position: "relative" }}>
+              <span
+                onClick={() => fireToast(setShowCurrencyToast)}
+                style={{ fontSize: 11, color: t.muted, border: `1px solid ${t.border}`, borderRadius: 999, padding: "2px 8px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 2 }}
+              >
+                USD <ChevronDownIcon />
+              </span>
+              <ComingSoonToast show={showCurrencyToast} message="Multi-currency support coming soon" t={t} />
+            </div>
           </div>
           <FormattedNumber value={grossMonthlyIncome * 12} fontSize={28} fontWeight={600} showCents={false} color={t.text} />
           <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 6 }}>
