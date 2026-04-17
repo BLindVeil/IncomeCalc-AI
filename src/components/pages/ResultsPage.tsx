@@ -57,6 +57,12 @@ import { AIIncomeIdeas } from "@/components/ai/AIIncomeIdeas";
 import { AIChat } from "@/components/ai/AIChat";
 import { FinancialDiagnosisSection } from "@/components/ai/FinancialDiagnosisSection";
 import type { User as AuthUser } from "@/lib/auth-store";
+import { DashboardSidebar } from "@/components/ui/DashboardSidebar";
+import { DashboardTopbar } from "@/components/ui/DashboardTopbar";
+import { IncomeBarChart } from "@/components/dashboard/IncomeBarChart";
+import { ExpenseDonut } from "@/components/dashboard/ExpenseDonut";
+import { ScenariosCard } from "@/components/dashboard/ScenariosCard";
+import { TopMoveCard } from "@/components/dashboard/TopMoveCard";
 
 // ─── AnnualUpsellModal ────────────────────────────────────────────────────────
 
@@ -596,6 +602,7 @@ export function ResultsPage({
   const [alertsExpanded, setAlertsExpanded] = useState<string | null>(null);
   const [showBudgetInsights, setShowBudgetInsights] = useState(false);
   const [showIncomeIdeas, setShowIncomeIdeas] = useState(false);
+  const [showFullReport, setShowFullReport] = useState(false);
   const [budgetOpacity, setBudgetOpacity] = useState(0);
   const [ideasOpacity, setIdeasOpacity] = useState(0);
 
@@ -680,25 +687,186 @@ export function ResultsPage({
     .filter((item) => item.value > 0)
     .sort((a, b) => b.value - a.value);
 
+  // ─── Dashboard data ───────────────────────────────────────────────
+  const DONUT_COLORS = [
+    "#1B4332", "#40916C", "#52B788", "#74C69D", "#95D5B2",
+    "#B7E4C7", "#D8F3DC", "#2D6A4F", "#081C15",
+  ];
+  const donutSlices = breakdownItems.map((item, i) => ({
+    label: item.label,
+    value: item.value,
+    color: DONUT_COLORS[i % DONUT_COLORS.length],
+  }));
+
+  const topExpense = breakdownItems[0];
+  const topExpenseSuggestion = topExpense
+    ? topExpense.pct > 35
+      ? `${topExpense.label} represents ${topExpense.pct.toFixed(0)}% of your budget — well above the recommended 30%. Consider ways to reduce this category.`
+      : `${topExpense.label} is your largest expense at ${topExpense.pct.toFixed(0)}% of budget. Explore alternatives to free up cash flow.`
+    : "";
+
+  const scenarioSuggestions = [
+    {
+      title: "Reduce housing by 10%",
+      description: "Find a cheaper rent or refinance your mortgage",
+      impact: data.housing * 0.1,
+      progress: Math.min(100, housingPct > 30 ? 30 : 70),
+    },
+    {
+      title: "Cut discretionary 15%",
+      description: "Optimize entertainment and clothing spend",
+      impact: (data.entertainment + data.clothing) * 0.15,
+      progress: savingsRate >= 20 ? 80 : 40,
+    },
+    {
+      title: "Boost savings to 20%",
+      description: "Automate transfers to reach the savings benchmark",
+      impact: Math.max(0, totalMonthly * 0.2 - data.savings),
+      progress: Math.min(100, savingsRate / 20 * 100),
+    },
+  ];
+
+  const isDesktop = typeof window !== "undefined" ? window.innerWidth > 980 : true;
+
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" }}>
-      <div className="atv-ambient-bg">
-        <div className="atv-ambient-teal" />
-      </div>
-      <Header
-        isDark={isDark}
-        setIsDark={setIsDark}
-        currentTheme={currentTheme}
-        onLogoClick={onBack}
-        onDevAccess={onDevAccess}
-        accountUser={currentUser}
-        onSignIn={onSignIn}
-        onDashboard={onDashboard}
-        onDigestPreview={onDigestPreview}
-        onSignOut={onSignOut}
-      />
+      <div style={{ display: "grid", gridTemplateColumns: isDesktop && !isMobile ? "240px 1fr" : "1fr", minHeight: "100vh" }}>
+        {/* Sidebar — desktop only */}
+        {isDesktop && !isMobile && (
+          <DashboardSidebar
+            t={t}
+            isDark={isDark}
+            setIsDark={setIsDark}
+            activeItem="dashboard"
+            onNavigate={(item) => {
+              if (item === "calculator") onRecalculate();
+              else if (item === "simulator") onSimulator();
+            }}
+            onSignOut={onSignOut}
+          />
+        )}
 
-      <div style={{ maxWidth: "780px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
+        {/* Main content */}
+        <div style={{ minHeight: "100vh", overflow: "auto" }}>
+          {/* Mobile: show Header; Desktop: hide it */}
+          {(!isDesktop || isMobile) && (
+            <>
+              <div className="atv-ambient-bg">
+                <div className="atv-ambient-teal" />
+              </div>
+              <Header
+                isDark={isDark}
+                setIsDark={setIsDark}
+                currentTheme={currentTheme}
+                onLogoClick={onBack}
+                onDevAccess={onDevAccess}
+                accountUser={currentUser}
+                onSignIn={onSignIn}
+                onDashboard={onDashboard}
+                onDigestPreview={onDigestPreview}
+                onSignOut={onSignOut}
+              />
+            </>
+          )}
+
+          <div style={{ maxWidth: "1100px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : isDesktop ? "2rem 2rem 4rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
+            {/* Dashboard Topbar */}
+            <DashboardTopbar
+              t={t}
+              isDark={isDark}
+              userName={currentUser?.email?.split("@")[0] || "there"}
+              onSimulator={onSimulator}
+            />
+
+            {/* 4-Metric Grid */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)",
+                gap: "1rem",
+                marginBottom: "1.5rem",
+              }}
+            >
+              <MetricCard label="Annual Gross" value={grossAnnual} sub="Required income" color={t.primary} t={t} />
+              <MetricCard label="Monthly Gross" value={grossMonthly} sub="Before taxes" color={t.text} t={t} />
+              <MetricCard label="Monthly Net" value={totalMonthly} sub="After taxes" color={t.success} t={t} />
+              <MetricCard label="Hourly Rate" value={hourlyRate} sub="40hrs/week" suffix="/hr" color={t.text} t={t} />
+            </div>
+
+            {/* 2-Column Charts */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                gap: "1rem",
+                marginBottom: "1.5rem",
+              }}
+            >
+              <IncomeBarChart
+                t={t}
+                isDark={isDark}
+                currentIncome={currentGrossIncome / 12}
+                requiredIncome={grossMonthly}
+              />
+              <ExpenseDonut
+                t={t}
+                slices={donutSlices}
+                total={totalMonthly}
+              />
+            </div>
+
+            {/* 2-Column: Scenarios + Top Move */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                gap: "1rem",
+                marginBottom: "1.5rem",
+              }}
+            >
+              <ScenariosCard
+                t={t}
+                scenarios={scenarioSuggestions}
+                onSimulator={onSimulator}
+              />
+              {topExpense && (
+                <TopMoveCard
+                  t={t}
+                  category={topExpense.label}
+                  amount={topExpense.value}
+                  percentOfTotal={topExpense.pct}
+                  suggestion={topExpenseSuggestion}
+                  onSimulator={onSimulator}
+                />
+              )}
+            </div>
+
+            {/* Show Full Report toggle */}
+            <button
+              onClick={() => setShowFullReport(!showFullReport)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 20px",
+                background: t.cardBg,
+                border: `1px solid ${t.border}`,
+                borderRadius: 12,
+                cursor: "pointer",
+                color: t.text,
+                fontWeight: 600,
+                fontSize: 14,
+                width: "100%",
+                justifyContent: "center",
+                marginBottom: showFullReport ? "1.5rem" : 0,
+              }}
+            >
+              {showFullReport ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {showFullReport ? "Hide full report" : "Show full report"}
+            </button>
+
+            {showFullReport && (
+            <div>
         <div className="atv-fade-in" style={{ marginBottom: "2rem" }}>
           {fromGuidedFlow ? (
             <button
@@ -2479,6 +2647,10 @@ export function ResultsPage({
             <Home size={16} />
             {fromGuidedFlow ? "Back to Your Plan" : "Start Over"}
           </button>
+        </div>
+            </div>
+            )}
+          </div>
         </div>
       </div>
 
