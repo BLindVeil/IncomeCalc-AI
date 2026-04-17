@@ -1,8 +1,11 @@
+import { useState } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import { EV_500, EV_600, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
 import { FormattedNumber } from "@/components/FormattedNumber";
 import { StatusPill } from "@/components/ui/StatusPill";
 import type { StatusPillVariant } from "@/components/ui/StatusPill";
+import { BudgetEditModal } from "@/components/ui/BudgetEditModal";
+import { SetAllBudgetsModal } from "@/components/ui/SetAllBudgetsModal";
 
 // ─── Recommended thresholds ─────────────────────────────────────────────────
 
@@ -45,6 +48,14 @@ const ChevronDownIcon = () => (
 
 function getThreshold(category: string) {
   return THRESHOLDS[category] ?? DEFAULT_THRESHOLD;
+}
+
+function getRecommendedBudget(category: string, grossMonthlyIncome: number): number {
+  return grossMonthlyIncome * getThreshold(category).recommended;
+}
+
+function getBudgetAmount(category: string, grossMonthlyIncome: number, customBudgets: Record<string, number>): number {
+  return customBudgets[category] ?? getRecommendedBudget(category, grossMonthlyIncome);
 }
 
 function getStatus(actual: number, budget: number): { variant: StatusPillVariant; label: string } {
@@ -107,26 +118,19 @@ function HalfDonutGauge({ spent, total, t }: { spent: number; total: number; t: 
   return (
     <div style={{ textAlign: "center" }}>
       <svg width={200} height={120} viewBox="0 0 200 120">
-        {/* Background arc */}
         <path
           d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
-          fill="none" stroke={t.border} strokeWidth={strokeWidth}
-          strokeLinecap="round"
+          fill="none" stroke={t.border} strokeWidth={strokeWidth} strokeLinecap="round"
         />
-        {/* Progress arc */}
         <path
           d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
-          fill="none" stroke={EV_500} strokeWidth={strokeWidth}
-          strokeLinecap="round"
+          fill="none" stroke={EV_500} strokeWidth={strokeWidth} strokeLinecap="round"
           strokeDasharray={dasharray}
         />
-        {/* Center text */}
         <text x={cx} y={72} textAnchor="middle" style={{ fontSize: 18, fontWeight: 700, fontFamily: MONO_FONT_STACK, fill: t.text }}>
           {Math.round(pct * 100)}%
         </text>
-        <text x={cx} y={88} textAnchor="middle" style={{ fontSize: 10, fill: t.muted }}>
-          used
-        </text>
+        <text x={cx} y={88} textAnchor="middle" style={{ fontSize: 10, fill: t.muted }}>used</text>
       </svg>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: -4, padding: "0 12px" }}>
         <span style={{ fontSize: 12, color: t.muted, fontFamily: MONO_FONT_STACK }}>{fmtCompact(spent)} spent</span>
@@ -142,15 +146,18 @@ interface CategoryCardProps {
   category: string;
   amount: number;
   grossMonthlyIncome: number;
+  customBudgets: Record<string, number>;
   t: ThemeConfig;
+  onEdit: () => void;
 }
 
-function CategoryBudgetCard({ category, amount, grossMonthlyIncome, t }: CategoryCardProps) {
+function CategoryBudgetCard({ category, amount, grossMonthlyIncome, customBudgets, t, onEdit }: CategoryCardProps) {
   const threshold = getThreshold(category);
-  const budgetAmount = grossMonthlyIncome * threshold.recommended;
+  const budgetAmount = getBudgetAmount(category, grossMonthlyIncome, customBudgets);
   const percentage = budgetAmount > 0 ? (amount / budgetAmount) * 100 : 0;
   const status = getStatus(amount, budgetAmount);
   const color = statusColor(status.variant, t);
+  const isCustom = category in customBudgets;
 
   return (
     <div
@@ -164,8 +171,15 @@ function CategoryBudgetCard({ category, amount, grossMonthlyIncome, t }: Categor
     >
       {/* Top row */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-        <span style={{ fontSize: 15, fontWeight: 600, color: t.text }}>{category}</span>
-        <span style={{ color: t.muted, cursor: "pointer", flexShrink: 0 }}><PencilIcon /></span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 15, fontWeight: 600, color: t.text }}>{category}</span>
+          {isCustom && (
+            <span style={{ fontSize: 10, fontWeight: 500, background: t.primarySoft, color: t.primary, padding: "2px 6px", borderRadius: 4 }}>
+              Custom
+            </span>
+          )}
+        </div>
+        <span onClick={onEdit} style={{ color: t.muted, cursor: "pointer", flexShrink: 0 }}><PencilIcon /></span>
       </div>
 
       {/* Middle: donut + amounts */}
@@ -183,7 +197,7 @@ function CategoryBudgetCard({ category, amount, grossMonthlyIncome, t }: Categor
       {/* Bottom: status + threshold label */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <StatusPill label={status.label} variant={status.variant} />
-        <span style={{ fontSize: 11, color: t.muted }}>{threshold.label}</span>
+        <span style={{ fontSize: 11, color: t.muted }}>{isCustom ? "Custom limit" : threshold.label}</span>
       </div>
     </div>
   );
@@ -198,9 +212,27 @@ export interface BudgetPageProps {
   totalExpenses: number;
   grossMonthlyIncome: number;
   onBack?: () => void;
+  customBudgets?: Record<string, number>;
+  onSetCustomBudget?: (category: string, amount: number) => void;
+  onClearCustomBudget?: (category: string) => void;
+  onClearAllCustomBudgets?: () => void;
 }
 
-export function BudgetPage({ t, isDark, expenses, totalExpenses, grossMonthlyIncome, onBack }: BudgetPageProps) {
+export function BudgetPage({
+  t,
+  isDark,
+  expenses,
+  totalExpenses,
+  grossMonthlyIncome,
+  onBack,
+  customBudgets = {},
+  onSetCustomBudget,
+  onClearCustomBudget,
+  onClearAllCustomBudgets,
+}: BudgetPageProps) {
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [showSetAll, setShowSetAll] = useState(false);
+
   const activeExpenses = expenses.filter((e) => e.amount > 0);
   const isEmpty = activeExpenses.length === 0;
 
@@ -215,6 +247,12 @@ export function BudgetPage({ t, isDark, expenses, totalExpenses, grossMonthlyInc
   // Top 5 for summary
   const ranked = [...activeExpenses].sort((a, b) => b.amount - a.amount).slice(0, 5);
 
+  // Precompute recommended budgets map for the "set all" modal
+  const recommendedBudgets: Record<string, number> = {};
+  for (const e of activeExpenses) {
+    recommendedBudgets[e.category] = getRecommendedBudget(e.category, grossMonthlyIncome);
+  }
+
   const chipStyle: React.CSSProperties = {
     background: t.cardBg,
     border: `1px solid ${t.border}`,
@@ -228,6 +266,11 @@ export function BudgetPage({ t, isDark, expenses, totalExpenses, grossMonthlyInc
     gap: 6,
     fontWeight: 500,
   };
+
+  // Editing state helpers
+  const editingExpense = editingCategory ? activeExpenses.find((e) => e.category === editingCategory) : null;
+  const editingRecommended = editingCategory ? getRecommendedBudget(editingCategory, grossMonthlyIncome) : 0;
+  const editingBudget = editingCategory ? getBudgetAmount(editingCategory, grossMonthlyIncome, customBudgets) : 0;
 
   // ─── Empty state ────────────────────────────────────────────────────────
   if (isEmpty) {
@@ -271,10 +314,11 @@ export function BudgetPage({ t, isDark, expenses, totalExpenses, grossMonthlyInc
             Budget
           </h2>
           <p style={{ fontSize: 14, color: t.muted, margin: "4px 0 0" }}>
-            How your spending compares to recommended limits
+            How your spending compares to {Object.keys(customBudgets).length > 0 ? "your custom" : "recommended"} limits
           </p>
         </div>
         <button
+          onClick={() => setShowSetAll(true)}
           style={{
             background: "transparent",
             border: `1px solid ${t.border}`,
@@ -316,7 +360,9 @@ export function BudgetPage({ t, isDark, expenses, totalExpenses, grossMonthlyInc
               category={expense.category}
               amount={expense.amount}
               grossMonthlyIncome={grossMonthlyIncome}
+              customBudgets={customBudgets}
               t={t}
+              onEdit={() => setEditingCategory(expense.category)}
             />
           ))}
         </div>
@@ -342,7 +388,6 @@ export function BudgetPage({ t, isDark, expenses, totalExpenses, grossMonthlyInc
             total gross income
           </div>
 
-          {/* Half-donut gauge */}
           <HalfDonutGauge spent={totalExpenses} total={grossMonthlyIncome} t={t} />
 
           {/* Most expenses ranked list */}
@@ -351,8 +396,7 @@ export function BudgetPage({ t, isDark, expenses, totalExpenses, grossMonthlyInc
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {ranked.map((expense) => {
                 const pctOfTotal = totalExpenses > 0 ? (expense.amount / totalExpenses) * 100 : 0;
-                const threshold = getThreshold(expense.category);
-                const budgetAmount = grossMonthlyIncome * threshold.recommended;
+                const budgetAmount = getBudgetAmount(expense.category, grossMonthlyIncome, customBudgets);
                 const isOver = expense.amount > budgetAmount;
 
                 return (
@@ -389,6 +433,44 @@ export function BudgetPage({ t, isDark, expenses, totalExpenses, grossMonthlyInc
           </div>
         </div>
       </div>
+
+      {/* ─── Edit single category modal ──────────────────────────────────── */}
+      {editingCategory && (
+        <BudgetEditModal
+          t={t}
+          isDark={isDark}
+          isOpen
+          onClose={() => setEditingCategory(null)}
+          category={editingCategory}
+          currentBudget={editingBudget}
+          actualSpent={editingExpense?.amount ?? 0}
+          recommendedBudget={editingRecommended}
+          grossMonthlyIncome={grossMonthlyIncome}
+          onSave={(amount) => onSetCustomBudget?.(editingCategory, amount)}
+          onReset={() => onClearCustomBudget?.(editingCategory)}
+        />
+      )}
+
+      {/* ─── Set all budgets modal ───────────────────────────────────────── */}
+      {showSetAll && (
+        <SetAllBudgetsModal
+          t={t}
+          isDark={isDark}
+          isOpen
+          onClose={() => setShowSetAll(false)}
+          expenses={activeExpenses}
+          currentBudgets={customBudgets}
+          recommendedBudgets={recommendedBudgets}
+          grossMonthlyIncome={grossMonthlyIncome}
+          onSaveAll={(budgets) => {
+            // Clear all first, then set each
+            onClearAllCustomBudgets?.();
+            for (const [cat, amt] of Object.entries(budgets)) {
+              onSetCustomBudget?.(cat, amt);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

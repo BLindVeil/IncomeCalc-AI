@@ -66,6 +66,7 @@ import { TopMoveCard } from "@/components/dashboard/TopMoveCard";
 import { BudgetPage } from "@/components/pages/BudgetPage";
 import { AnalyticsPage } from "@/components/pages/AnalyticsPage";
 import { ScenariosPage } from "@/components/pages/ScenariosPage";
+import { useBudgetStore } from "@/lib/budget-store";
 
 // ─── AnnualUpsellModal ────────────────────────────────────────────────────────
 
@@ -598,6 +599,7 @@ export function ResultsPage({
 }: ResultsPageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
+  const { customBudgets, setCustomBudget, clearCustomBudget, clearAllCustomBudgets } = useBudgetStore();
   const [currentView, setCurrentView] = useState<string>("dashboard");
   const [chatOpen, setChatOpen] = useState(false);
   const [askPlanOpen, setAskPlanOpen] = useState(false);
@@ -805,6 +807,10 @@ export function ResultsPage({
                 totalExpenses={totalMonthly}
                 grossMonthlyIncome={grossMonthly}
                 onBack={() => setCurrentView("dashboard")}
+                customBudgets={customBudgets}
+                onSetCustomBudget={setCustomBudget}
+                onClearCustomBudget={clearCustomBudget}
+                onClearAllCustomBudgets={clearAllCustomBudgets}
               />
             )}
 
@@ -1663,6 +1669,10 @@ export function ResultsPage({
                 expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
                 totalExpenses={totalMonthly}
                 grossMonthlyIncome={grossMonthly}
+                customBudgets={customBudgets}
+                onSetCustomBudget={setCustomBudget}
+                onClearCustomBudget={clearCustomBudget}
+                onClearAllCustomBudgets={clearAllCustomBudgets}
               />
             </div>
           )}
