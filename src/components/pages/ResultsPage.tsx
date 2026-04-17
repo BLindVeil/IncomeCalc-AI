@@ -64,6 +64,8 @@ import { ExpenseDonut } from "@/components/dashboard/ExpenseDonut";
 import { ScenariosCard } from "@/components/dashboard/ScenariosCard";
 import { TopMoveCard } from "@/components/dashboard/TopMoveCard";
 import { BudgetPage } from "@/components/pages/BudgetPage";
+import { AnalyticsPage } from "@/components/pages/AnalyticsPage";
+import { ScenariosPage } from "@/components/pages/ScenariosPage";
 
 // ─── AnnualUpsellModal ────────────────────────────────────────────────────────
 
@@ -605,6 +607,8 @@ export function ResultsPage({
   const [showIncomeIdeas, setShowIncomeIdeas] = useState(false);
   const [showFullReport, setShowFullReport] = useState(false);
   const [showBudgetAnalysis, setShowBudgetAnalysis] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showScenarios, setShowScenarios] = useState(false);
   const [budgetOpacity, setBudgetOpacity] = useState(0);
   const [ideasOpacity, setIdeasOpacity] = useState(0);
 
@@ -1592,6 +1596,73 @@ export function ResultsPage({
                 expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
                 totalExpenses={totalMonthly}
                 grossMonthlyIncome={grossMonthly}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Analytics */}
+        <div style={{ marginBottom: "1.25rem" }}>
+          <button
+            onClick={() => setShowAnalytics(!showAnalytics)}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              fontSize: 14,
+              fontWeight: 500,
+              color: t.primary,
+              cursor: "pointer",
+            }}
+          >
+            {showAnalytics ? "Hide detailed analytics ↑" : "View detailed analytics →"}
+          </button>
+          {showAnalytics && (
+            <div style={{ marginTop: 16 }}>
+              <AnalyticsPage
+                t={t}
+                isDark={isDark}
+                grossMonthlyIncome={grossMonthly}
+                netMonthlyIncome={grossMonthly - taxMonthly}
+                totalExpenses={totalMonthly}
+                expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
+                healthScore={healthScore}
+                taxRate={taxRate}
+                annualRequired={grossAnnual}
+                currentAnnualIncome={currentGrossIncome}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Scenarios */}
+        <div style={{ marginBottom: "1.25rem" }}>
+          <button
+            onClick={() => setShowScenarios(!showScenarios)}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              fontSize: 14,
+              fontWeight: 500,
+              color: t.primary,
+              cursor: "pointer",
+            }}
+          >
+            {showScenarios ? "Hide all scenarios ↑" : "View all scenarios →"}
+          </button>
+          {showScenarios && (
+            <div style={{ marginTop: 16 }}>
+              <ScenariosPage
+                t={t}
+                isDark={isDark}
+                expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
+                totalExpenses={totalMonthly}
+                grossMonthlyIncome={grossMonthly}
+                annualRequired={grossAnnual}
+                currentAnnualIncome={currentGrossIncome}
+                taxRate={taxRate}
+                healthScore={healthScore}
               />
             </div>
           )}

@@ -27,9 +27,9 @@ const PulseIcon = () => (
     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
   </svg>
 );
-const ChartUpIcon = () => (
+const ScenariosIcon = () => (
   <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-    <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>
   </svg>
 );
 const ClockIcon = () => (
@@ -70,13 +70,20 @@ const BudgetIcon = () => (
   </svg>
 );
 
+const AnalyticsIcon = () => (
+  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-6"/>
+  </svg>
+);
+
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", icon: GridIcon },
   { id: "calculator", label: "Calculator", icon: DocIcon },
   { id: "diagnosis", label: "Diagnosis", icon: PulseIcon },
   { id: "simulator", label: "Simulator", icon: ClockIcon },
   { id: "budget", label: "Budget", icon: BudgetIcon },
-  { id: "plan", label: "Plan", icon: ChartUpIcon },
+  { id: "analytics", label: "Analytics", icon: AnalyticsIcon },
+  { id: "scenarios", label: "Scenarios", icon: ScenariosIcon },
   { id: "settings", label: "Settings", icon: GearIcon },
 ];
 
