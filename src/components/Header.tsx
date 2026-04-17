@@ -235,20 +235,19 @@ export function Header({
           style={{
             width: "32px",
             height: "32px",
-            borderRadius: "10px",
+            borderRadius: "8px",
             background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: "0.75rem",
+            display: "grid",
+            placeItems: "center",
             flexShrink: 0,
           }}
         >
-          IC
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 3L17 15H13L10 9.5L7 15H3L10 3Z" fill="white"/>
+            <line x1="6" y1="13" x2="14" y2="13" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
         </div>
-        {!isMobile && <span style={{ fontWeight: 600, fontSize: "1rem", color: t.text, letterSpacing: "-0.01em" }}>IncomeCalc</span>}
+        {!isMobile && <span style={{ fontWeight: 600, fontSize: "1rem", color: t.text, letterSpacing: "-0.01em" }}>Ascentra</span>}
       </button>
 
       <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "0.35rem" : "0.5rem", flexShrink: 0, position: "relative", flexWrap: "wrap" }}>

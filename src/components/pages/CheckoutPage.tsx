@@ -52,7 +52,7 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
         <a href="mailto:incomecalcai@proton.me" style={{ color: t.muted, textDecoration: "none" }}>Contact</a>
       </div>
       <div style={{ fontSize: "0.78rem", color: t.muted, opacity: 0.6 }}>
-        IncomeCalc is not financial, tax, or legal advice. For informational and educational purposes only.
+        Ascentra is not financial, tax, or legal advice. For informational and educational purposes only.
       </div>
     </footer>
   );
@@ -226,7 +226,7 @@ export function CheckoutPage({
             }}
           >
             <CreditCard size={14} />
-            Upgrade IncomeCalc
+            Upgrade Ascentra
           </div>
           <h1 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 700, color: t.text, margin: "0 0 0.75rem", letterSpacing: "-0.02em" }}>
             Choose Your Plan
@@ -428,7 +428,7 @@ export function CheckoutPage({
           <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.25rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.95rem" }}>
               <span style={{ color: t.muted }}>Plan</span>
-              <span style={{ color: t.text, fontWeight: 600 }}>IncomeCalc {plan.name}</span>
+              <span style={{ color: t.text, fontWeight: 600 }}>Ascentra {plan.name}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.95rem" }}>
               <span style={{ color: t.muted }}>Billing</span>

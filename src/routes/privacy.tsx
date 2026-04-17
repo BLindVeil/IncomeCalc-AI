@@ -10,7 +10,7 @@ function PrivacyPage() {
       {/* Minimal nav header */}
       <div style={{ borderBottom: "1px solid var(--muted)", padding: "0.75rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: "720px", margin: "0 auto" }}>
         <Link to="/" style={{ color: "var(--foreground)", fontSize: "1rem", fontWeight: 700, textDecoration: "none", letterSpacing: "-0.02em" }}>
-          IncomeCalc
+          Ascentra
         </Link>
         <Link to="/" style={{ color: "var(--muted-foreground)", fontSize: "0.85rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
           ← Back
@@ -23,10 +23,10 @@ function PrivacyPage() {
 
         <div style={{ lineHeight: 1.8, fontSize: "0.95rem", color: "color-mix(in srgb, var(--foreground) 75%, transparent)" }}>
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>1. Overview</h2>
-          <p>IncomeCalc ("we", "our", "the Service") respects your privacy. This policy explains what information we collect, how we use it, and your rights.</p>
+          <p>Ascentra ("we", "our", "the Service") respects your privacy. This policy explains what information we collect, how we use it, and your rights.</p>
 
           <p style={{ background: "color-mix(in srgb, var(--foreground) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--foreground) 12%, transparent)", borderRadius: "8px", padding: "1rem", fontWeight: 500, color: "var(--foreground)" }}>
-            <strong>IncomeCalc is not financial, tax, or legal advice.</strong> All data you enter is used solely to provide calculations and features. We do not sell your personal data to third parties.
+            <strong>Ascentra is not financial, tax, or legal advice.</strong> All data you enter is used solely to provide calculations and features. We do not sell your personal data to third parties.
           </p>
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>2. Information We Collect</h2>

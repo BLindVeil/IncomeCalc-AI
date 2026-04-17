@@ -685,7 +685,7 @@ export function buildDigestEmailHtml(digest: DigestData, appBaseUrl: string): st
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
 <div style="max-width:600px;margin:0 auto;padding:20px;">
 <div style="background:#18181b;border-radius:12px 12px 0 0;padding:24px;text-align:center;">
-<div style="color:#fff;font-size:24px;font-weight:800;">IncomeCalc</div>
+<div style="color:#fff;font-size:24px;font-weight:800;">Ascentra</div>
 <div style="color:#a1a1aa;font-size:14px;margin-top:4px;">Weekly Financial Report</div>
 </div>
 <div style="background:#fff;padding:24px;border:1px solid #e4e4e7;border-top:none;">
@@ -722,7 +722,7 @@ ${digest.recommendations.map((r) => `<div style="display:flex;gap:8px;padding:8p
 </div>
 
 <div style="text-align:center;padding:16px 0;">
-<a href="${appBaseUrl}" style="background:#18181b;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block;">Open IncomeCalc</a>
+<a href="${appBaseUrl}" style="background:#18181b;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block;">Open Ascentra</a>
 </div>
 </div>
 

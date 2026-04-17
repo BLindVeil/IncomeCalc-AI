@@ -139,22 +139,22 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 32, paddingLeft: 4 }}>
         <div
           style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            background: `linear-gradient(135deg, ${EV_500}, ${EV_800})`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: 14,
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            background: `linear-gradient(135deg, ${EV_800}, ${EV_500})`,
+            display: "grid",
+            placeItems: "center",
+            flexShrink: 0,
           }}
         >
-          IC
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 3L17 15H13L10 9.5L7 15H3L10 3Z" fill="white"/>
+            <line x1="6" y1="13" x2="14" y2="13" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
         </div>
-        <span style={{ fontWeight: 700, fontSize: 16, color: t.text, letterSpacing: "-0.02em" }}>
-          IncomeCalc
+        <span style={{ fontWeight: 600, fontSize: 17, color: t.text, letterSpacing: "-0.01em" }}>
+          Ascentra
         </span>
       </div>
 

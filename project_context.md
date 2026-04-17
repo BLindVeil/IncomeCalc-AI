@@ -1,4 +1,4 @@
-# IncomeCalc AI — Project Context
+# Ascentra — Project Context
 
 Use this document to restore full codebase context in a new AI chat session.
 
@@ -255,7 +255,7 @@ All AI components follow this pattern:
 
 ## Product Strategy
 
-IncomeCalc AI is not a generic AI finance app, a budgeting dashboard, or a broad personal finance platform.
+Ascentra is not a generic AI finance app, a budgeting dashboard, or a broad personal finance platform.
 
 It is a **financial clarity and scenario engine** focused on one core value:
 
@@ -407,4 +407,13 @@ The moat should become:
 
 ### Operating Principle
 
-**IncomeCalc AI should become the fastest, clearest way for someone to understand what their life costs, what they can afford, and what to do next.**
+**Ascentra should become the fastest, clearest way for someone to understand what their life costs, what they can afford, and what to do next.**
+
+## Brand Identity
+
+- **Name**: Ascentra
+- **Domain**: ascentra.finance
+- **Brand mark**: Geometric "A" — upward-pointing triangle with horizontal bar (ascent motif), rendered as inline SVG
+- **Brand mark container**: Evergreen gradient (`#1B4332` → `#52B788`), rounded square
+- **Sizes**: 36x36 (sidebar), 32x32 (header), 48x48 (share card), 32x32 (favicon)
+- **Favicon**: SVG at `/public/favicon.svg` — same geometric "A" on `#1B4332` background

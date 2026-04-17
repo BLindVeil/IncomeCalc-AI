@@ -78,7 +78,7 @@ function BillingCancelPage() {
               marginTop: "0.5rem",
             }}
           >
-            Back to IncomeCalc
+            Back to Ascentra
             <ArrowRight size={18} />
           </Link>
         </div>

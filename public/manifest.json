@@ -1,6 +1,6 @@
 {
-  "short_name": "Creao",
-  "name": "Creao",
+  "short_name": "Ascentra",
+  "name": "Ascentra",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,13 +8,13 @@
       "sizes": "256x256"
     },
     {
-      "src": "creao_icon.svg",
+      "src": "favicon.svg",
       "type": "image/svg+xml",
       "sizes": "192x192 512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#1B4332",
   "background_color": "#ffffff"
 }

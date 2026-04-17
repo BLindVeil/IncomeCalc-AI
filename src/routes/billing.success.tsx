@@ -120,7 +120,7 @@ function BillingSuccessPage() {
                 marginTop: "0.5rem",
               }}
             >
-              Go to IncomeCalc
+              Go to Ascentra
               <ArrowRight size={18} />
             </Link>
           </div>
@@ -131,7 +131,7 @@ function BillingSuccessPage() {
             <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#ef4444" }}>Something went wrong</h1>
             <p style={{ color: "rgba(255,255,255,0.55)" }}>We couldn't verify your payment. Please contact support.</p>
             <Link to="/" style={{ color: "#8b8bf5", textDecoration: "underline", fontSize: "0.95rem" }}>
-              Return to IncomeCalc
+              Return to Ascentra
             </Link>
           </div>
         )}

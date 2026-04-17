@@ -163,7 +163,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
             }}
           >
             <Sparkles size={14} />
-            Free Income Calculator · Now with AI
+            Financial Clarity Platform · Free to Start
           </div>
 
           <h1
@@ -2733,7 +2733,7 @@ function ShareModal({ scenario, userId, onClose, onRefresh, t, isDark }: ShareMo
             <div style={{ fontSize: "0.85rem", color: t.muted, marginTop: "0.25rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
               {fmt(scenario.resultsJson.annualGrossRequired)}/year · Score: {scenario.resultsJson.healthScore}/100
             </div>
-            <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.5rem" }}>Built with IncomeCalc</div>
+            <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.5rem" }}>Built with Ascentra</div>
           </div>
 
           {!published ? (
@@ -2945,7 +2945,7 @@ function SharePage({ slug, onTryYourOwn, isDark, setIsDark, currentTheme }: Shar
             Try Your Own — Free
           </button>
           <p style={{ color: t.muted, fontSize: "0.82rem", marginTop: "0.75rem" }}>
-            Built with IncomeCalc · Free income calculator
+            Built with Ascentra · Financial clarity platform
           </p>
         </div>
       </div>
@@ -3100,7 +3100,7 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
         <a href="mailto:incomecalcai@proton.me" style={{ color: t.muted, textDecoration: "none" }}>Contact</a>
       </div>
       <div style={{ fontSize: "0.78rem", color: t.muted, opacity: 0.6 }}>
-        IncomeCalc is not financial, tax, or legal advice. For informational and educational purposes only.
+        Ascentra is not financial, tax, or legal advice. For informational and educational purposes only.
       </div>
     </footer>
   );

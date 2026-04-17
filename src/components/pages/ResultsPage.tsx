@@ -1386,7 +1386,12 @@ export function ResultsPage({
               {/* The card itself */}
               <div id="stability-share-card" style={{ padding: "1.5rem", background: `linear-gradient(135deg, ${currentTheme.primary}12, ${currentTheme.accent}08)` }}>
                 <div style={{ textAlign: "center", marginBottom: "1.25rem" }}>
-                  <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: currentTheme.primary, display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: "0.9rem", marginBottom: "0.5rem" }}>IC</div>
+                  <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: `linear-gradient(135deg, ${currentTheme.primary}, ${currentTheme.accent})`, display: "inline-grid", placeItems: "center", marginBottom: "0.5rem" }}>
+                    <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                      <path d="M10 3L17 15H13L10 9.5L7 15H3L10 3Z" fill="white"/>
+                      <line x1="6" y1="13" x2="14" y2="13" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </div>
                   <div style={{ fontWeight: 800, fontSize: "1.1rem", color: t.text }}>Financial Stability Report</div>
                 </div>
 
