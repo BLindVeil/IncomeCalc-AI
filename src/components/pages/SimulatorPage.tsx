@@ -14,6 +14,7 @@ import {
   Minus,
   RotateCcw,
   CheckCircle,
+  Save,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,7 @@ import {
 } from "@/lib/app-shared";
 import { Header } from "@/components/Header";
 import { trackEvent } from "@/lib/analytics";
+import { useScenarioStore, computeChanges } from "@/lib/scenario-store";
 import type { CalcOutput } from "@/lib/calc";
 
 export interface SimulatorPageProps {
@@ -84,6 +86,9 @@ export function SimulatorPage({
   const [activeId, setActiveId] = useState<string>(workspaceIds[0] ?? "");
   const [editingName, setEditingName] = useState<string | null>(null);
   const [addedToast, setAddedToast] = useState<string | null>(null);
+  const [savedToast, setSavedToast] = useState<string | null>(null);
+
+  const addDashboardScenario = useScenarioStore((s) => s.addScenario);
 
   useEffect(() => { saveScenarios(savedScenarios); }, [savedScenarios]);
 
@@ -165,6 +170,41 @@ export function SimulatorPage({
         s.id === id ? { ...s, expenses: { ...s.expenses, [field]: value } } : s
       )
     );
+  }
+
+  const categoryLabels: Record<string, string> = {};
+  for (const f of EXPENSE_FIELDS) categoryLabels[f.name] = f.label;
+
+  function saveToDashboard(scenarioId: string) {
+    const s = savedScenarios.find((sc) => sc.id === scenarioId);
+    if (!s) return;
+    const baseline = scenarios[0];
+    const baseExpenses = baseline ? baseline.expenses : initialExpenses;
+    const out = computeForExpenses(s.expenses, s.taxRate);
+    const baseOut = computeForExpenses(baseExpenses, baseline?.taxRate ?? initialTaxRate);
+    const changes = computeChanges(baseExpenses, s.expenses, categoryLabels);
+    const monthlyImpact = baseOut.monthlyExpensesTotal - out.monthlyExpensesTotal;
+    const annualImpact = monthlyImpact * 12;
+
+    addDashboardScenario({
+      name: s.name,
+      description: changes.length > 0
+        ? changes.map((c) => `${c.category}: $${c.before} → $${c.after}`).join(", ")
+        : "No changes from baseline",
+      status: "draft",
+      progress: 0,
+      changes,
+      monthlyImpact,
+      annualImpact,
+      adjustedAnnualRequired: out.annualGrossRequired,
+      taxRate: s.taxRate,
+      expenses: { ...s.expenses },
+      baselineExpenses: { ...baseExpenses },
+    });
+
+    setSavedToast(s.name);
+    setTimeout(() => setSavedToast(null), 2500);
+    trackEvent("scenario_saved_to_dashboard", { scenario_name: s.name, changes_count: changes.length });
   }
 
   // Compute results for all scenarios
@@ -315,6 +355,11 @@ export function SimulatorPage({
           {addedToast && (
             <span style={{ fontSize: "0.76rem", fontWeight: 600, color: "#22c55e", marginLeft: "auto", whiteSpace: "nowrap" }}>
               {addedToast} added — ready to edit
+            </span>
+          )}
+          {savedToast && (
+            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: "#22c55e", marginLeft: "auto", whiteSpace: "nowrap" }}>
+              {savedToast} saved to Dashboard
             </span>
           )}
         </div>
@@ -476,6 +521,31 @@ export function SimulatorPage({
                       <span style={{ fontWeight: 600, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{row.value}</span>
                     </div>
                   ))}
+
+                  {/* Save to Dashboard button */}
+                  {hasPaidAccess && (
+                    <button
+                      onClick={() => saveToDashboard(activeScenario.id)}
+                      style={{
+                        marginTop: "1rem",
+                        width: "100%",
+                        background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 10,
+                        padding: "0.55rem 1rem",
+                        fontSize: "0.82rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.4rem",
+                      }}
+                    >
+                      <Save size={14} /> Save to Dashboard
+                    </button>
+                  )}
                 </div>
               );
             })()}

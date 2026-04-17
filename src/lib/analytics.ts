@@ -50,7 +50,8 @@ export type AnalyticsEvent =
   | "diagnosis_to_simulator_click"
   | "scenario_added"
   | "scenario_closed"
-  | "scenario_reopened";
+  | "scenario_reopened"
+  | "scenario_saved_to_dashboard";
 
 export interface EventProps {
   plan?: "pro" | "premium";
