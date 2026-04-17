@@ -598,6 +598,7 @@ export function ResultsPage({
 }: ResultsPageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
+  const [currentView, setCurrentView] = useState<string>("dashboard");
   const [chatOpen, setChatOpen] = useState(false);
   const [askPlanOpen, setAskPlanOpen] = useState(false);
   const [askPlanQuestion, setAskPlanQuestion] = useState<string | null>(null);
@@ -743,17 +744,35 @@ export function ResultsPage({
             t={t}
             isDark={isDark}
             setIsDark={setIsDark}
-            activeItem="dashboard"
-            onNavigate={(item) => {
-              if (item === "calculator") onRecalculate();
-              else if (item === "simulator") onSimulator();
+            activeItem={currentView}
+            onNavigate={(view) => {
+              // In-page sub-views
+              if (["dashboard", "budget", "analytics", "scenarios"].includes(view)) {
+                setCurrentView(view);
+                const mainEl = document.querySelector("[data-main-content]");
+                if (mainEl) mainEl.scrollTo(0, 0);
+                return;
+              }
+              // App-level page navigation
+              if (view === "calculator") onRecalculate();
+              else if (view === "simulator") onSimulator();
+              else if (view === "diagnosis") {
+                setCurrentView("dashboard");
+                setShowFullReport(true);
+                // scroll to diagnosis after a tick
+                requestAnimationFrame(() => {
+                  const el = document.getElementById("diagnosis-section");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                });
+              }
+              // settings — not yet implemented
             }}
             onSignOut={onSignOut}
           />
         )}
 
         {/* Main content */}
-        <div style={{ minHeight: "100vh", overflow: "auto" }}>
+        <div data-main-content style={{ minHeight: "100vh", overflow: "auto" }}>
           {/* Mobile: show Header; Desktop: hide it */}
           {(!isDesktop || isMobile) && (
             <>
@@ -776,6 +795,54 @@ export function ResultsPage({
           )}
 
           <div style={{ maxWidth: "1100px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : isDesktop ? "2rem 2rem 4rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
+
+            {/* ─── Budget view ─────────────────────────────────────────── */}
+            {currentView === "budget" && (
+              <BudgetPage
+                t={t}
+                isDark={isDark}
+                expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
+                totalExpenses={totalMonthly}
+                grossMonthlyIncome={grossMonthly}
+                onBack={() => setCurrentView("dashboard")}
+              />
+            )}
+
+            {/* ─── Analytics view ──────────────────────────────────────── */}
+            {currentView === "analytics" && (
+              <AnalyticsPage
+                t={t}
+                isDark={isDark}
+                grossMonthlyIncome={grossMonthly}
+                netMonthlyIncome={grossMonthly - taxMonthly}
+                totalExpenses={totalMonthly}
+                expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
+                healthScore={healthScore}
+                taxRate={taxRate}
+                annualRequired={grossAnnual}
+                currentAnnualIncome={currentGrossIncome}
+                onBack={() => setCurrentView("dashboard")}
+              />
+            )}
+
+            {/* ─── Scenarios view ──────────────────────────────────────── */}
+            {currentView === "scenarios" && (
+              <ScenariosPage
+                t={t}
+                isDark={isDark}
+                expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
+                totalExpenses={totalMonthly}
+                grossMonthlyIncome={grossMonthly}
+                annualRequired={grossAnnual}
+                currentAnnualIncome={currentGrossIncome}
+                taxRate={taxRate}
+                healthScore={healthScore}
+                onBack={() => setCurrentView("dashboard")}
+              />
+            )}
+
+            {/* ─── Dashboard view (default) ────────────────────────────── */}
+            {currentView === "dashboard" && <>
             {/* Dashboard Topbar */}
             <DashboardTopbar
               t={t}
@@ -2753,6 +2820,7 @@ export function ResultsPage({
         </div>
             </div>
             )}
+            </>}
           </div>
         </div>
       </div>

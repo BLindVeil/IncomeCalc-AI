@@ -19,6 +19,7 @@ export interface AnalyticsPageProps {
   taxRate: number;
   annualRequired: number;
   currentAnnualIncome: number;
+  onBack?: () => void;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -498,6 +499,7 @@ export function AnalyticsPage({
   taxRate,
   annualRequired,
   currentAnnualIncome,
+  onBack,
 }: AnalyticsPageProps) {
   const monthlyNet = netMonthlyIncome - totalExpenses;
   const annualNet = monthlyNet * 12;
@@ -526,6 +528,11 @@ export function AnalyticsPage({
 
   return (
     <div>
+      {onBack && (
+        <div onClick={onBack} style={{ fontSize: 14, color: t.muted, cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+          ← Back to Dashboard
+        </div>
+      )}
       {/* ─── Page Header ───────────────────────────────────────────────── */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>

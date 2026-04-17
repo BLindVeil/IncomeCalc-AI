@@ -25,6 +25,7 @@ export interface ScenariosPageProps {
   currentAnnualIncome: number;
   taxRate: number;
   healthScore: number;
+  onBack?: () => void;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -409,6 +410,7 @@ export function ScenariosPage({
   currentAnnualIncome,
   taxRate,
   healthScore,
+  onBack,
 }: ScenariosPageProps) {
   const scenarios = generateScenarios(expenses, grossMonthlyIncome, taxRate);
   const isEmpty = expenses.filter((e) => e.amount > 0).length === 0;
@@ -464,6 +466,11 @@ export function ScenariosPage({
 
   return (
     <div>
+      {onBack && (
+        <div onClick={onBack} style={{ fontSize: 14, color: t.muted, cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+          ← Back to Dashboard
+        </div>
+      )}
       {/* ─── Header ──────────────────────────────────────────────────────── */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
