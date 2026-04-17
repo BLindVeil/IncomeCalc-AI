@@ -323,7 +323,7 @@ export function SimulatorPage({
         {activeScenario && (
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1.25rem", marginBottom: "1.5rem" }}>
             {/* Left: form */}
-            <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem", position: "relative" }}>
+            <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "16px", padding: "1.25rem", position: "relative" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <span style={{ fontWeight: 700, color: t.text }}>{hasPaidAccess ? activeScenario.name : "Your Current Baseline"}</span>
@@ -459,7 +459,7 @@ export function SimulatorPage({
             {(() => {
               const out = computeForExpenses(activeScenario.expenses, activeScenario.taxRate);
               return (
-                <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.25rem" }}>
+                <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "16px", padding: "1.25rem" }}>
                   <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem", display: "block", marginBottom: "1rem" }}>{hasPaidAccess ? "Results" : "Your Numbers"}</span>
                   {[
                     { label: "Hourly Required", value: `${fmt(out.hourlyRequired)}/hr` },
@@ -558,7 +558,7 @@ export function SimulatorPage({
               {/* Side-by-side preview: current vs hypothetical */}
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0.65rem", marginBottom: "1rem" }}>
                 {/* Baseline card */}
-                <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1rem" }}>
+                <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "16px", padding: "1rem" }}>
                   <div style={{ fontWeight: 700, fontSize: "0.85rem", color: t.text, marginBottom: "0.6rem" }}>
                     Your Current Numbers
                   </div>
@@ -575,7 +575,7 @@ export function SimulatorPage({
                 </div>
 
                 {/* Preview "what if" card */}
-                <div style={{ background: t.cardBg, border: `1px solid ${t.primary}40`, borderRadius: "12px", padding: "1rem", position: "relative", overflow: "hidden" }}>
+                <div style={{ background: t.cardBg, border: `1px solid ${t.primary}40`, borderRadius: "16px", padding: "1rem", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent})` }} />
                   <div style={{ fontWeight: 700, fontSize: "0.85rem", color: t.text, marginBottom: "0.6rem" }}>
                     After This Change
@@ -605,7 +605,7 @@ export function SimulatorPage({
               <div
                 style={{
                   padding: "1rem 1.25rem",
-                  borderRadius: "12px",
+                  borderRadius: "16px",
                   background: isDark ? `${t.primary}14` : `${t.primary}0D`,
                   border: `1px solid ${t.primary}33`,
                   display: "flex",
@@ -728,7 +728,7 @@ export function SimulatorPage({
                       style={{
                         background: t.cardBg,
                         border: `${isWinner ? "2px" : "1px"} solid ${isWinner ? "#f59e0b50" : t.border}`,
-                        borderRadius: "12px",
+                        borderRadius: "16px",
                         padding: "1rem",
                         position: "relative",
                       }}
@@ -783,7 +783,7 @@ export function SimulatorPage({
               </div>
 
               {/* ── Detailed comparison table ─────────────────────── */}
-              <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+              <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "16px", padding: "1.5rem", marginBottom: "1.5rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
                   <BarChart3 size={18} style={{ color: t.primary }} />
                   <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Full Breakdown</span>

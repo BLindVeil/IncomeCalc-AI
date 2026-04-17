@@ -46,7 +46,7 @@ function TermsPage() {
           <p>Some features require a paid subscription (Pro or Premium). Subscriptions are billed through Stripe. By subscribing, you authorize recurring charges according to your selected billing cycle (monthly or yearly). You may cancel at any time.</p>
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>6. Refund Policy</h2>
-          <p>We offer a <strong>7-day money-back guarantee</strong>. If you are not satisfied, contact us within 7 days of purchase for a full refund. See our <Link to="/refund-policy" style={{ color: "color-mix(in srgb, var(--foreground) 65%, #5E5CE6)", textDecoration: "underline" }}>Refund Policy</Link> for details.</p>
+          <p>We offer a <strong>7-day money-back guarantee</strong>. If you are not satisfied, contact us within 7 days of purchase for a full refund. See our <Link to="/refund-policy" style={{ color: "var(--theme-primary)", textDecoration: "underline" }}>Refund Policy</Link> for details.</p>
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>7. Intellectual Property</h2>
           <p>All content, design, code, and features of IncomeCalc are the property of IncomeCalc and are protected by applicable intellectual property laws.</p>
@@ -58,7 +58,7 @@ function TermsPage() {
           <p>We reserve the right to modify these terms at any time. Continued use of the Service after changes constitutes acceptance of the updated terms.</p>
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>10. Contact</h2>
-          <p>Questions about these terms? Contact us at <a href="mailto:incomecalcai@proton.me" style={{ color: "color-mix(in srgb, var(--foreground) 65%, #5E5CE6)" }}>incomecalcai@proton.me</a>.</p>
+          <p>Questions about these terms? Contact us at <a href="mailto:incomecalcai@proton.me" style={{ color: "var(--theme-primary)" }}>incomecalcai@proton.me</a>.</p>
         </div>
       </div>
     </div>

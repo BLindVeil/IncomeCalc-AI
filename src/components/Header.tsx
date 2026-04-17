@@ -96,7 +96,7 @@ function AccountMenu({ user, onSignIn, onDashboard, onDigestPreview, onSignOut, 
             right: 0,
             background: t.cardBg,
             border: `1px solid ${t.border}`,
-            borderRadius: "10px",
+            borderRadius: "12px",
             padding: "0.35rem",
             boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
             zIndex: 200,
@@ -208,10 +208,8 @@ export function Header({
         left: 0,
         right: 0,
         height: "60px",
-        background: t.headerBg,
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
-        borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+        background: t.cardBg,
+        borderBottom: '1px solid ' + t.border,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -246,7 +244,6 @@ export function Header({
             fontWeight: 700,
             fontSize: "0.75rem",
             flexShrink: 0,
-            boxShadow: `0 0 12px ${t.primary}4D`,
           }}
         >
           IC
@@ -303,7 +300,7 @@ export function Header({
           onClick={() => setIsDark(!isDark)}
           style={{
             background: hdrBtnBg,
-            border: `1px solid ${hdrBtnBorder}`,
+            border: `1px solid ${t.border}`,
             borderRadius: "10px",
             padding: "0.35rem 0.65rem",
             cursor: "pointer",

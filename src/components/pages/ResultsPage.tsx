@@ -89,8 +89,10 @@ export function AnnualUpsellModal({ plan, onAnnual, onMonthly, onClose, t }: Ann
       onClick={onClose}
     >
       <div
-        className="atv-glass-static"
         style={{
+          background: t.cardBg,
+          border: `1px solid ${t.border}`,
+          borderRadius: "16px",
           padding: "2rem",
           maxWidth: "420px",
           width: "100%",

@@ -32,7 +32,6 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
         padding: "1.5rem",
         textAlign: "center",
         background: t.headerBg,
-        backdropFilter: "blur(12px)",
         position: "relative",
         zIndex: 1,
       }}
@@ -240,12 +239,13 @@ export function CheckoutPage({
         {/* Billing toggle */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
           <div
-            className="atv-glass-static"
             style={{
               display: "inline-flex",
               padding: "4px",
               gap: "4px",
-              borderRadius: "14px",
+              background: t.cardBg,
+              border: '1px solid ' + t.border,
+              borderRadius: "16px",
             }}
           >
             {(["monthly", "yearly"] as const).map((b) => (
@@ -308,18 +308,16 @@ export function CheckoutPage({
               <div
                 key={p.id}
                 onClick={() => setSelectedPlan(p.id)}
-                className="atv-glass"
                 style={{
                   padding: "1.75rem",
                   cursor: "pointer",
                   position: "relative",
+                  background: t.cardBg,
                   border: isSelected
-                    ? `2px solid ${t.primary}99`
-                    : `2px solid ${t.border}`,
-                  boxShadow: isSelected
-                    ? `0 20px 40px rgba(0,0,0,0.35), 0 0 20px ${t.primary}26`
-                    : "0 20px 40px rgba(0,0,0,0.35)",
-                  transition: "border-color 0.2s, box-shadow 0.2s",
+                    ? `2px solid ${t.primary}`
+                    : `1px solid ${t.border}`,
+                  borderRadius: "16px",
+                  transition: "border-color 0.2s",
                 }}
               >
                 {p.badge && (
@@ -329,14 +327,13 @@ export function CheckoutPage({
                       top: "-12px",
                       left: "50%",
                       transform: "translateX(-50%)",
-                      background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-                      color: "#fff",
-                      fontSize: "0.7rem",
-                      fontWeight: 700,
-                      padding: "3px 12px",
-                      borderRadius: "20px",
+                      background: t.primarySoft,
+                      color: t.primary,
+                      fontSize: "12px",
+                      fontWeight: 500,
+                      padding: "4px 12px",
+                      borderRadius: "999px",
                       whiteSpace: "nowrap",
-                      boxShadow: `0 0 12px ${t.primary}66`,
                     }}
                   >
                     {p.badge}
@@ -460,7 +457,6 @@ export function CheckoutPage({
 
           <button
             onClick={() => handleCheckoutClick(selectedPlan)}
-            className="atv-btn-primary"
             style={{
               display: "flex",
               alignItems: "center",
@@ -470,6 +466,13 @@ export function CheckoutPage({
               padding: "0.95rem",
               fontSize: "1.05rem",
               boxSizing: "border-box",
+              background: 'linear-gradient(135deg, #1B4332, #40916C)',
+              color: "#fff",
+              border: "none",
+              borderRadius: "16px",
+              boxShadow: "0 4px 14px rgba(27, 67, 50, 0.25)",
+              fontWeight: 700,
+              cursor: "pointer",
             }}
           >
             <CreditCard size={18} />
@@ -556,7 +559,7 @@ export function CheckoutPage({
                 style={{
                   background: t.cardBg,
                   border: `1px solid ${t.border}`,
-                  borderRadius: "12px",
+                  borderRadius: "16px",
                   padding: "1.25rem",
                 }}
               >
@@ -600,7 +603,7 @@ export function CheckoutPage({
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               overflow: "hidden",
             }}
           >
@@ -704,7 +707,7 @@ export function CheckoutPage({
                 style={{
                   background: t.cardBg,
                   border: `1px solid ${t.border}`,
-                  borderRadius: "10px",
+                  borderRadius: "16px",
                   padding: "1rem 1.25rem",
                 }}
               >

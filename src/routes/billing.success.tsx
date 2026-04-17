@@ -91,7 +91,7 @@ function BillingSuccessPage() {
       <div style={{ maxWidth: "480px", width: "100%", textAlign: "center" }}>
         {status === "verifying" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
-            <Loader2 size={48} style={{ color: "#5E5CE6", animation: "spin 1s linear infinite" }} />
+            <Loader2 size={48} style={{ color: "var(--theme-primary)", animation: "spin 1s linear infinite" }} />
             <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#ffffff" }}>Verifying your payment...</h1>
             <p style={{ color: "rgba(255,255,255,0.55)" }}>Please wait while we confirm your subscription.</p>
             <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>

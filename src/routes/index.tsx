@@ -110,7 +110,7 @@ const CheckInPage = lazy(() => import("@/components/pages/CheckInPage").then(m =
 function PageLoader() {
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "var(--background)" }}>
-      <div style={{ width: "32px", height: "32px", border: "3px solid rgba(255,255,255,0.1)", borderTopColor: "var(--theme-primary, #5E5CE6)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+      <div style={{ width: "32px", height: "32px", border: "3px solid rgba(0,0,0,0.08)", borderTopColor: "var(--theme-primary, #1B4332)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
@@ -152,15 +152,14 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
               display: "inline-flex",
               alignItems: "center",
               gap: "0.5rem",
-              background: `${t.primary}1F`,
-              border: `1px solid ${t.primary}40`,
-              borderRadius: "20px",
+              background: t.primarySoft,
+              border: `1px solid ${isDark ? "rgba(82,183,136,0.2)" : "rgba(27,67,50,0.1)"}`,
+              borderRadius: "999px",
               padding: "0.4rem 1.1rem",
-              fontSize: "0.85rem",
+              fontSize: "13px",
               color: t.primary,
-              fontWeight: 600,
+              fontWeight: 500,
               marginBottom: "1.5rem",
-              backdropFilter: "blur(8px)",
             }}
           >
             <Sparkles size={14} />
@@ -172,37 +171,39 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
               fontSize: "clamp(2.25rem, 5vw, 3.75rem)",
               fontWeight: 700,
               lineHeight: 1.08,
-              letterSpacing: "-0.025em",
+              letterSpacing: "-0.03em",
               color: t.text,
               margin: "0 0 1.25rem",
             }}
           >
             Find Out Exactly How Much You Need to{" "}
-            <span style={{
-              background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              color: "transparent",
-              display: "inline-block",
-            }}>Earn.</span>
+            <span style={{ color: t.accent }}>Earn.</span>
           </h1>
 
-          <p style={{ fontSize: "1.15rem", color: t.muted, maxWidth: "660px", margin: "0 auto 2.5rem", lineHeight: 1.65 }}>
+          <p style={{ fontSize: "18px", color: t.muted, maxWidth: "620px", margin: "0 auto 2.5rem", lineHeight: 1.6 }}>
             Enter your monthly expenses. Get your income number, your financial health score, and exactly what to change — in 60 seconds.
           </p>
 
           <div style={{ display: "flex", gap: "0.85rem", justifyContent: "center", flexWrap: "wrap" }}>
             <button
               onClick={onStart}
-              className="atv-btn-primary"
               style={{
-                padding: "0.95rem 2.5rem",
-                fontSize: "1.05rem",
+                background: `linear-gradient(135deg, #1B4332, #40916C)`,
+                color: "#fff",
+                border: "none",
+                borderRadius: "16px",
+                padding: "18px 40px",
+                fontSize: "17px",
+                fontWeight: 600,
+                cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "0.5rem",
+                boxShadow: "0 4px 14px rgba(27, 67, 50, 0.25)",
+                transition: "transform 0.2s ease, opacity 0.2s ease",
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
             >
               Calculate My Number →
             </button>
@@ -229,43 +230,48 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
           }}
         >
           {[
-            { Icon: Gauge, title: "Income Gap", desc: "See exactly how much more you need to earn — or how much surplus you have.", color: "#FF6B6B" },
-            { Icon: Clock, title: "Runway", desc: "Know how many months you can survive without income.", color: "#FFB800" },
-            { Icon: Shield, title: "Stability Score", desc: "A single score that measures your overall financial health.", color: "#34D399" },
-            { Icon: AlertTriangle, title: "Alerts", desc: "Instant warnings when your housing, debt, or savings ratios are risky.", color: t.primary },
-          ].map(({ Icon, title, desc, color }) => (
+            { Icon: Gauge, title: "Income Gap", desc: "See exactly how much more you need to earn — or how much surplus you have." },
+            { Icon: Clock, title: "Runway", desc: "Know how many months you can survive without income." },
+            { Icon: Shield, title: "Stability Score", desc: "A single score that measures your overall financial health." },
+            { Icon: AlertTriangle, title: "Alerts", desc: "Instant warnings when your housing, debt, or savings ratios are risky." },
+          ].map(({ Icon, title, desc }) => (
             <div
               key={title}
-              className="atv-glass"
               style={{
-                padding: "1.25rem",
+                background: t.cardBg,
+                border: `1px solid ${t.border}`,
+                borderRadius: "16px",
+                padding: "24px",
               }}
             >
               <div
                 style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "10px",
-                  background: color + "18",
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "12px",
+                  background: t.primarySoft,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   marginBottom: "0.65rem",
-                  color,
+                  color: t.primary,
                 }}
               >
                 <Icon size={18} />
               </div>
-              <div style={{ fontWeight: 600, marginBottom: "0.25rem", color: t.text, fontSize: "0.95rem" }}>{title}</div>
-              <div style={{ fontSize: "0.85rem", color: t.muted, lineHeight: 1.5 }}>{desc}</div>
+              <div style={{ fontWeight: 600, marginBottom: "0.25rem", color: t.text, fontSize: "16px" }}>{title}</div>
+              <div style={{ fontSize: "14px", color: t.muted, lineHeight: 1.5 }}>{desc}</div>
             </div>
           ))}
         </div>
 
         {/* Premium teaser */}
         <div
-          className="atv-glass-static atv-fade-in atv-fade-in-delay-3"
+          className="atv-fade-in atv-fade-in-delay-3"
           style={{
+            background: t.primarySoft,
+            border: `1px solid ${t.border}`,
+            borderRadius: "16px",
             padding: "2rem",
             textAlign: "center",
             position: "relative",
@@ -428,8 +434,10 @@ function CalculatorPage({
 
         {/* Tax rate estimation card */}
         <div
-          className="atv-glass-static"
           style={{
+            background: t.cardBg,
+            border: `1px solid ${t.border}`,
+            borderRadius: "16px",
             padding: "1.25rem",
             marginBottom: "1.25rem",
           }}
@@ -594,8 +602,10 @@ function CalculatorPage({
 
         {/* Current Gross Annual Income (optional) */}
         <div
-          className="atv-glass-static"
           style={{
+            background: t.cardBg,
+            border: `1px solid ${t.border}`,
+            borderRadius: "16px",
             padding: "1rem 1.25rem",
             marginBottom: "1.25rem",
             display: "flex",
@@ -669,8 +679,10 @@ function CalculatorPage({
             return (
               <div
                 key={field.name}
-                className="atv-glass-static"
                 style={{
+                  background: t.cardBg,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: "16px",
                   padding: "1rem 1.25rem",
                   display: "flex",
                   alignItems: "center",
@@ -740,8 +752,8 @@ function CalculatorPage({
         {/* Live summary bar */}
         {total > 0 && (
           <div
-            className="atv-glass-static"
             style={{
+              background: t.cardBg,
               padding: "1.15rem 1.35rem",
               marginBottom: "1.5rem",
               display: "flex",
@@ -749,9 +761,8 @@ function CalculatorPage({
               alignItems: "center",
               flexWrap: "wrap",
               gap: "0.5rem",
-              borderRadius: "14px",
+              borderRadius: "16px",
               border: `1px solid ${t.primary}30`,
-              boxShadow: `0 4px 24px ${t.primary}1A, 0 1px 0 ${t.primary}15 inset`,
               position: "relative",
               overflow: "hidden",
             }}
@@ -771,13 +782,12 @@ function CalculatorPage({
         <button
           onClick={() => onResults(formData, effectiveTax, currentIncome)}
           disabled={total === 0}
-          className={total === 0 ? "" : "atv-btn-primary"}
           style={{
             width: "100%",
-            background: total === 0 ? "rgba(255,255,255,0.08)" : undefined,
-            color: total === 0 ? "rgba(255,255,255,0.3)" : "#fff",
+            background: total === 0 ? (isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)") : "linear-gradient(135deg, #1B4332, #40916C)",
+            color: total === 0 ? (isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.25)") : "#fff",
             border: "none",
-            borderRadius: "14px",
+            borderRadius: "16px",
             padding: "0.95rem",
             fontSize: "1.05rem",
             fontWeight: 600,
@@ -786,6 +796,7 @@ function CalculatorPage({
             alignItems: "center",
             justifyContent: "center",
             gap: "0.5rem",
+            boxShadow: total === 0 ? "none" : "0 4px 14px rgba(27, 67, 50, 0.25)",
           }}
         >
           <BarChart3 size={18} />
@@ -3068,8 +3079,7 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
         borderTop: `1px solid ${t.border}`,
         padding: "1.5rem",
         textAlign: "center",
-        background: t.headerBg,
-        backdropFilter: "blur(12px)",
+        background: t.cardBg,
         position: "relative",
         zIndex: 1,
       }}
@@ -3100,7 +3110,7 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
 
 function App() {
   const [page, setPage] = useState<Page>("landing");
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
   const currentTheme = buildTheme(isDark);
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);

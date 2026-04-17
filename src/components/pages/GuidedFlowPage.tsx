@@ -558,7 +558,7 @@ export function GuidedFlowPage({
             <div style={{
               background: isDark ? `${t.primary}0F` : `${t.primary}0A`,
               border: `1px solid ${t.primary}20`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1rem 1.25rem",
               display: "flex",
               alignItems: "center",
@@ -606,7 +606,7 @@ export function GuidedFlowPage({
             <div style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,
-              borderRadius: "12px",
+              borderRadius: "16px",
               padding: "1.15rem",
               marginBottom: "1.25rem",
               display: "flex",
@@ -731,7 +731,7 @@ export function GuidedFlowPage({
             {!hasPaidAccess && (
               <div style={{
                 padding: "1.25rem",
-                borderRadius: "12px",
+                borderRadius: "16px",
                 background: isDark ? `${t.primary}14` : `${t.primary}0D`,
                 border: `1px solid ${t.primary}33`,
               }}>
