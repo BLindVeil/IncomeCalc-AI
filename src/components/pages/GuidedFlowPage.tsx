@@ -249,8 +249,8 @@ export function GuidedFlowPage({
     trackEvent("signup_prompt_dismissed", { step });
   };
 
-  const handleSignupClick = (intent?: "google" | "email") => {
-    trackEvent("signup_prompt_clicked", { step, variant: step === 0 ? "inline" : "sticky", intent });
+  const handleSignupClick = () => {
+    trackEvent("signup_prompt_clicked", { step, variant: step === 0 ? "inline" : "sticky" });
     if (onSignup) { onSignup(); }
   };
 
@@ -319,7 +319,7 @@ export function GuidedFlowPage({
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
 
-      <div style={{ maxWidth: "720px", margin: "0 auto", padding: "96px 1.5rem 4rem", paddingBottom: showSignupPrompt && (step === 1 || step === 2) ? "88px" : undefined }}>
+      <div style={{ maxWidth: "720px", margin: "0 auto", padding: "96px 1.5rem 4rem", paddingBottom: showSignupPrompt && (step === 1 || step === 2) ? "88px" : "48px" }}>
         {/* Back */}
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1.25rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
           <ChevronLeft size={16} /> Back

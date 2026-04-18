@@ -6,28 +6,14 @@ interface SignupPromptCardProps {
   t: ThemeConfig;
   isDark: boolean;
   variant: "inline" | "sticky";
-  onSignup: (intent?: "google" | "email") => void;
+  onSignup: () => void;
   onDismiss: () => void;
-}
-
-// ─── Google "G" icon ──────────────────────────────────────────────────────────
-
-function GoogleIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M15.68 8.18c0-.57-.05-1.12-.15-1.64H8v3.1h4.3c-.19 1-.75 1.85-1.6 2.42v2.01h2.58c1.51-1.39 2.4-3.44 2.4-5.89Z" fill="#4285F4"/>
-      <path d="M8 16c2.16 0 3.97-.72 5.29-1.94l-2.58-2.01c-.72.48-1.63.77-2.71.77-2.08 0-3.85-1.4-4.48-3.3H.85v2.07A7.996 7.996 0 0 0 8 16Z" fill="#34A853"/>
-      <path d="M3.52 9.52A4.8 4.8 0 0 1 3.27 8c0-.53.09-1.04.25-1.52V4.41H.85A7.996 7.996 0 0 0 0 8c0 1.29.31 2.51.85 3.59l2.67-2.07Z" fill="#FBBC05"/>
-      <path d="M8 3.18c1.17 0 2.22.4 3.05 1.19l2.29-2.29C11.97.79 10.16 0 8 0A7.996 7.996 0 0 0 .85 4.41l2.67 2.07C4.15 4.58 5.92 3.18 8 3.18Z" fill="#EA4335"/>
-    </svg>
-  );
 }
 
 // ─── Inline variant ───────────────────────────────────────────────────────────
 
 function InlinePrompt({ t, isDark, onSignup, onDismiss }: Omit<SignupPromptCardProps, "variant">) {
-  const [hoverGoogle, setHoverGoogle] = useState(false);
-  const [hoverEmail, setHoverEmail] = useState(false);
+  const [hoverCta, setHoverCta] = useState(false);
   const [hoverX, setHoverX] = useState(false);
 
   return (
@@ -100,14 +86,14 @@ function InlinePrompt({ t, isDark, onSignup, onDismiss }: Omit<SignupPromptCardP
         this number so you can watch it move with you — free forever.
       </div>
 
-      {/* CTA row */}
-      <div style={{ display: "flex", gap: 12, marginTop: 4, flexWrap: "wrap" }}>
+      {/* CTA */}
+      <div style={{ marginTop: 4 }}>
         <button
-          onClick={() => onSignup("google")}
-          onMouseEnter={() => setHoverGoogle(true)}
-          onMouseLeave={() => setHoverGoogle(false)}
+          onClick={() => onSignup()}
+          onMouseEnter={() => setHoverCta(true)}
+          onMouseLeave={() => setHoverCta(false)}
           style={{
-            padding: "11px 18px",
+            padding: "11px 20px",
             background: t.text,
             color: t.cardBg,
             fontSize: 14,
@@ -116,33 +102,10 @@ function InlinePrompt({ t, isDark, onSignup, onDismiss }: Omit<SignupPromptCardP
             borderRadius: 999,
             cursor: "pointer",
             transition: "opacity 150ms",
-            opacity: hoverGoogle ? 0.9 : 1,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
+            opacity: hoverCta ? 0.9 : 1,
           }}
         >
-          <GoogleIcon />
-          Continue with Google
-        </button>
-
-        <button
-          onClick={() => onSignup("email")}
-          onMouseEnter={() => setHoverEmail(true)}
-          onMouseLeave={() => setHoverEmail(false)}
-          style={{
-            padding: "11px 18px",
-            background: hoverEmail ? (isDark ? "rgba(82,183,136,0.08)" : "#F1FAF4") : "transparent",
-            border: `1px solid ${t.border}`,
-            color: t.text,
-            fontSize: 14,
-            fontWeight: 500,
-            borderRadius: 999,
-            cursor: "pointer",
-            transition: "background 150ms",
-          }}
-        >
-          Sign up with email
+          Sign up — free forever
         </button>
       </div>
 
