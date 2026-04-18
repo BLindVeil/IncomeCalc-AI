@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ArrowRight,
   ArrowLeft,
@@ -28,7 +28,9 @@ import {
 import { computeIncomeGap, computeRunway, computeAlerts } from "@/lib/stabilityMetrics";
 import { trackEvent } from "@/lib/analytics";
 import { FinancialDiagnosisSection } from "@/components/ai/FinancialDiagnosisSection";
+import { SignupPromptCard } from "@/components/auth/SignupPromptCard";
 import { Header } from "@/components/Header";
+import type { User as AuthUser } from "@/lib/auth-store";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -49,6 +51,8 @@ export interface GuidedFlowPageProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
+  currentUser?: AuthUser | null;
+  onSignup?: () => void;
 }
 
 // ─── Step definitions ────────────────────────────────────────────────────────
@@ -224,9 +228,40 @@ export function GuidedFlowPage({
   isDark,
   setIsDark,
   currentTheme,
+  currentUser,
+  onSignup,
 }: GuidedFlowPageProps) {
   const t = applyDark(currentTheme, isDark);
   const setStep = onStepChange;
+
+  // ── Signup prompt dismiss (per-session) ──
+  const DISMISS_KEY = "ascentra-signup-prompt-dismissed";
+  const [promptDismissed, setPromptDismissed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem(DISMISS_KEY) === "true";
+  });
+
+  const showSignupPrompt = !currentUser && !promptDismissed && step < 3;
+
+  const handlePromptDismiss = () => {
+    setPromptDismissed(true);
+    try { sessionStorage.setItem(DISMISS_KEY, "true"); } catch { /* incognito */ }
+    trackEvent("signup_prompt_dismissed", { step });
+  };
+
+  const handleSignupClick = (intent?: "google" | "email") => {
+    trackEvent("signup_prompt_clicked", { step, variant: step === 0 ? "inline" : "sticky", intent });
+    if (onSignup) { onSignup(); }
+  };
+
+  // ── Track first prompt render ──
+  const promptShownRef = useRef(false);
+  useEffect(() => {
+    if (showSignupPrompt && !promptShownRef.current) {
+      promptShownRef.current = true;
+      trackEvent("signup_prompt_shown", { step });
+    }
+  }, [showSignupPrompt, step]);
 
   // Shared calculation
   const outputs = computeForExpenses(data, taxRate);
@@ -284,7 +319,7 @@ export function GuidedFlowPage({
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
 
-      <div style={{ maxWidth: "720px", margin: "0 auto", padding: "96px 1.5rem 4rem" }}>
+      <div style={{ maxWidth: "720px", margin: "0 auto", padding: "96px 1.5rem 4rem", paddingBottom: showSignupPrompt && (step === 1 || step === 2) ? "88px" : undefined }}>
         {/* Back */}
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1.25rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
           <ChevronLeft size={16} /> Back
@@ -452,6 +487,17 @@ export function GuidedFlowPage({
                     </div>
                   ))}
                 </div>
+              )}
+
+              {/* Signup prompt — inline */}
+              {showSignupPrompt && step === 0 && (
+                <SignupPromptCard
+                  t={t}
+                  isDark={isDark}
+                  variant="inline"
+                  onSignup={handleSignupClick}
+                  onDismiss={handlePromptDismiss}
+                />
               )}
 
               {/* Bridge to Diagnosis */}
@@ -822,6 +868,17 @@ export function GuidedFlowPage({
           )}
         </div>
       </div>
+
+      {/* Signup prompt — sticky bar for Diagnosis & Top Move steps */}
+      {showSignupPrompt && (step === 1 || step === 2) && (
+        <SignupPromptCard
+          t={t}
+          isDark={isDark}
+          variant="sticky"
+          onSignup={handleSignupClick}
+          onDismiss={handlePromptDismiss}
+        />
+      )}
     </div>
   );
 }

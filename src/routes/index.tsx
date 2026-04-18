@@ -3468,6 +3468,8 @@ function handleAuthSuccess(user: AuthUser) {
           onSaveScenario={handleSaveScenario}
           onDashboard={currentUser ? () => { savedScrollY.current = window.scrollY; setReturnTo({ page: "guided", guidedStep }); setPage("dashboard"); } : undefined}
           userTier={effectiveTier}
+          currentUser={currentUser}
+          onSignup={() => openAuthModal("signup")}
           {...sharedProps}
         />
       </Suspense>

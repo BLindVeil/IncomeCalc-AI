@@ -51,7 +51,11 @@ export type AnalyticsEvent =
   | "scenario_added"
   | "scenario_closed"
   | "scenario_reopened"
-  | "scenario_saved_to_dashboard";
+  | "scenario_saved_to_dashboard"
+  // Signup prompt
+  | "signup_prompt_shown"
+  | "signup_prompt_clicked"
+  | "signup_prompt_dismissed";
 
 export interface EventProps {
   plan?: "pro" | "premium";
