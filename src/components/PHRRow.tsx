@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import { PHRAccentCard, type PHRAccentKind } from "@/components/PHRAccentCard";
-import { useIsMobile } from "@/lib/useIsMobile";
+import { PHRCard } from "@/components/PHRCard";
+import { PHRArrow } from "@/components/PHRArrow";
 
 interface PHRRowProps {
   t: ThemeConfig;
@@ -12,72 +14,34 @@ interface PHRRowProps {
   accentSide: "left" | "right";
 }
 
-function TextCard({
-  t,
-  isDark,
-  label,
-  body,
-  variant,
-}: {
-  t: ThemeConfig;
-  isDark: boolean;
-  label: string;
-  body: string;
-  variant: "problem" | "hypothesis" | "result";
-}) {
-  const pillColors = {
-    problem: {
-      bg: isDark ? "rgba(239,68,68,0.15)" : "#FDECEA",
-      color: isDark ? "#FCA5A5" : "#8B2C1E",
-    },
-    hypothesis: {
-      bg: isDark ? "rgba(234,179,8,0.15)" : "#FFF4D6",
-      color: isDark ? "#FDE68A" : "#7A5210",
-    },
-    result: {
-      bg: isDark ? "rgba(82,183,136,0.15)" : "#F1FAF4",
-      color: isDark ? "#95D5B2" : "#1B4332",
-    },
-  };
+function useBreakpoint() {
+  const [bp, setBp] = useState<"mobile" | "tablet" | "desktop">(() => {
+    if (typeof window === "undefined") return "desktop";
+    const w = window.innerWidth;
+    if (w < 768) return "mobile";
+    if (w < 1024) return "tablet";
+    return "desktop";
+  });
 
-  const pc = pillColors[variant];
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    function onResize() {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const w = window.innerWidth;
+        if (w < 768) setBp("mobile");
+        else if (w < 1024) setBp("tablet");
+        else setBp("desktop");
+      }, 150);
+    }
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, []);
 
-  return (
-    <div
-      style={{
-        background: t.cardBg,
-        border: `1px solid ${t.border}`,
-        borderRadius: 16,
-        padding: 24,
-      }}
-    >
-      <div
-        style={{
-          display: "inline-block",
-          textTransform: "uppercase",
-          fontSize: 11,
-          fontWeight: 500,
-          letterSpacing: "0.08em",
-          padding: "4px 10px",
-          borderRadius: 999,
-          background: pc.bg,
-          color: pc.color,
-        }}
-      >
-        {label}
-      </div>
-      <div
-        style={{
-          fontSize: 16,
-          lineHeight: 1.55,
-          color: t.text,
-          marginTop: 16,
-        }}
-      >
-        {body}
-      </div>
-    </div>
-  );
+  return bp;
 }
 
 export function PHRRow({
@@ -89,63 +53,61 @@ export function PHRRow({
   accentKind,
   accentSide,
 }: PHRRowProps) {
-  const isMobile = useIsMobile();
-  const isTablet = typeof window !== "undefined" && window.innerWidth >= 768 && window.innerWidth < 1024;
-
-  const textCards = (
-    <>
-      <TextCard t={t} isDark={isDark} label="Problem" body={problem} variant="problem" />
-      <TextCard t={t} isDark={isDark} label="Hypothesis" body={hypothesis} variant="hypothesis" />
-      <TextCard t={t} isDark={isDark} label="Result" body={result} variant="result" />
-    </>
-  );
+  const bp = useBreakpoint();
 
   const accentCard = <PHRAccentCard t={t} isDark={isDark} kind={accentKind} />;
 
-  // Mobile: single column, accent last
-  if (isMobile) {
+  // Mobile + Tablet: single-column stack, no arrows
+  if (bp === "mobile" || bp === "tablet") {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        {textCards}
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <PHRCard t={t} isDark={isDark} kind="problem" body={problem} />
+        <PHRCard t={t} isDark={isDark} kind="hypothesis" body={hypothesis} />
+        <PHRCard t={t} isDark={isDark} kind="result" body={result} />
         {accentCard}
       </div>
     );
   }
 
-  // Tablet: 2×2 grid, accent spans bottom
-  if (isTablet) {
-    return (
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: 20,
-        }}
-      >
-        {textCards}
-        <div style={{ gridColumn: "1 / -1" }}>{accentCard}</div>
-      </div>
-    );
-  }
-
-  // Desktop: 4-column grid
-  return (
+  // Desktop: argument cluster + accent card
+  const argumentCluster = (
     <div
       style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(4, 1fr)",
-        gap: 20,
+        display: "flex",
+        gap: 0,
+        alignItems: "start",
+        flex: 3,
       }}
     >
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <PHRCard t={t} isDark={isDark} kind="problem" body={problem} />
+      </div>
+      <div style={{ flexShrink: 0, width: 40, display: "flex", alignItems: "center", justifyContent: "center", alignSelf: "stretch" }}>
+        <PHRArrow t={t} isDark={isDark} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <PHRCard t={t} isDark={isDark} kind="hypothesis" body={hypothesis} />
+      </div>
+      <div style={{ flexShrink: 0, width: 40, display: "flex", alignItems: "center", justifyContent: "center", alignSelf: "stretch" }}>
+        <PHRArrow t={t} isDark={isDark} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <PHRCard t={t} isDark={isDark} kind="result" body={result} />
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ display: "flex", gap: 24, alignItems: "stretch" }}>
       {accentSide === "left" ? (
         <>
-          {accentCard}
-          {textCards}
+          <div style={{ flex: 1, minWidth: 240 }}>{accentCard}</div>
+          {argumentCluster}
         </>
       ) : (
         <>
-          {textCards}
-          {accentCard}
+          {argumentCluster}
+          <div style={{ flex: 1, minWidth: 240 }}>{accentCard}</div>
         </>
       )}
     </div>

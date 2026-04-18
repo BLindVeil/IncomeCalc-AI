@@ -56,7 +56,7 @@ export function ProblemHypothesisResultSection({
   return (
     <section
       style={{
-        background: t.bg,
+        background: t.cardBg,
         padding: isMobile ? "48px 0" : "96px 0",
       }}
     >
