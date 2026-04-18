@@ -7,6 +7,7 @@ import {
   markWelcomeSeenServer,
   type PendingSignupData,
 } from "@/lib/pending-signup-data";
+import { stashResumeFlow } from "@/lib/resume-flow";
 
 const HERO_BG =
   "radial-gradient(ellipse 1600px 900px at 50% 0%, #2D6A4F 0%, #1B4332 42%, #0A2418 80%, #081C15 100%)";
@@ -51,6 +52,17 @@ export function WelcomeScreen() {
     if (!user || !session) return;
     markWelcomeSeen(user.id);
     await markWelcomeSeenServer(user.id, session.token);
+  };
+
+  const handleContinue = async () => {
+    if (pendingData) {
+      stashResumeFlow({
+        expenseData: pendingData.expenseData,
+        taxRate: pendingData.taxRate,
+        currentGrossIncome: pendingData.currentGrossIncome,
+      });
+    }
+    await handleMarkSeen();
   };
 
   if (!user) return null;
@@ -179,7 +191,7 @@ export function WelcomeScreen() {
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link
             to="/"
-            onClick={handleMarkSeen}
+            onClick={handleContinue}
             style={{
               padding: "14px 24px",
               background: CTA_ORANGE,

@@ -109,6 +109,7 @@ import {
   hasSeenWelcome,
   checkWelcomeSeenServer,
 } from "@/lib/pending-signup-data";
+import { readResumeFlow, clearResumeFlow } from "@/lib/resume-flow";
 
 // ─── Lazy-loaded page components ─────────────────────────────────────────────
 
@@ -255,7 +256,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text }}>
       {/* Hero — full-bleed above sidebar layout */}
-      <LandingHero onStart={onStart} onSignIn={onSignIn} isSignedIn={!!currentUser} userName={currentUser?.email} />
+      <LandingHero onStart={onStart} onSignIn={onSignIn} isSignedIn={!!currentUser} userName={currentUser?.email} onDashboard={onDashboard} onSignOut={onSignOut} />
 
       <div
         style={{
@@ -2322,7 +2323,7 @@ function DevAccessPage({ isDark, setIsDark, currentTheme, devOverride, devBadgeL
 interface AuthModalProps {
   mode: "signin" | "signup";
   onClose: () => void;
-  onSuccess: (user: AuthUser) => void;
+  onSuccess: (user: AuthUser, mode: "signin" | "signup") => void;
   t: ThemeConfig;
   isDark: boolean;
 }
@@ -2357,7 +2358,7 @@ function AuthModal({ mode: initialMode, onClose, onSuccess, t, isDark }: AuthMod
       return;
     }
 
-    onSuccess(result.user);
+    onSuccess(result.user, mode);
     setLoading(false);
     onClose();
   }
@@ -3132,6 +3133,20 @@ function App() {
   const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
   const [shareSlug, setShareSlug] = useState<string | null>(null);
 
+  // ── Resume flow from /welcome ──
+  useEffect(() => {
+    const resume = readResumeFlow();
+    if (resume) {
+      clearResumeFlow();
+      setExpenseData(resume.expenseData);
+      setTaxRate(resume.taxRate);
+      setCurrentGrossIncome(resume.currentGrossIncome);
+      setGuidedStep(0);
+      setReturnTo(null);
+      setPage("guided");
+    }
+  }, []);
+
   // ── Auth handlers ──
   function openAuthModal(mode: "signin" | "signup" = "signin") {
     setAuthModalMode(mode);
@@ -3143,6 +3158,13 @@ function App() {
   }
 
   function handleSignOut() {
+    // Clear session-scoped storage keys
+    try {
+      sessionStorage.removeItem("ascentra-resume-flow");
+      sessionStorage.removeItem("ascentra-pending-signup-data");
+      sessionStorage.removeItem("ascentra-signup-prompt-dismissed");
+    } catch { /* ignore */ }
+
     try {
       import("@/lib/auth-store").then(({ logout }) => {
         logout();
@@ -3315,7 +3337,7 @@ function handleUpgrade(plan: PlanId = "pro") {
   window.scrollTo(0, 0);
 }
 
-async function handleAuthSuccess(user: AuthUser) {
+async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
   setCurrentUser(user);
   // Re-read tier from localStorage — login may have written a paid plan
   setUserTier(loadUserTier());
@@ -3326,9 +3348,9 @@ async function handleAuthSuccess(user: AuthUser) {
   }
 
   const session = getSession();
-  const isNewUser = authModalMode === "signup";
+  const isNewAccount = mode === "signup";
 
-  if (isNewUser) {
+  if (isNewAccount) {
     // Attach any pending expense data captured before signup
     const pending = readPendingData();
     if (pending && session) {
