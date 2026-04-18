@@ -75,9 +75,10 @@ function CheckSVG() {
 interface LandingHeroProps {
   onStart: () => void;
   onSignIn?: () => void;
+  isSignedIn?: boolean;
 }
 
-export function LandingHero({ onStart, onSignIn }: LandingHeroProps) {
+export function LandingHero({ onStart, onSignIn, isSignedIn }: LandingHeroProps) {
   const bp = useHeroBreakpoint();
   const isMobile = bp === "mobile";
   const isDesktop = bp === "desktop";
@@ -100,7 +101,7 @@ export function LandingHero({ onStart, onSignIn }: LandingHeroProps) {
     >
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
         {/* Top nav */}
-        <HeroTopNav isMobile={isMobile} onStart={onStart} onSignIn={onSignIn} />
+        <HeroTopNav isMobile={isMobile} onStart={onStart} onSignIn={onSignIn} isSignedIn={isSignedIn} />
 
         {/* Spacer */}
         <div style={{ height: 48 }} />

@@ -4,9 +4,10 @@ interface HeroTopNavProps {
   isMobile: boolean;
   onStart: () => void;
   onSignIn?: () => void;
+  isSignedIn?: boolean;
 }
 
-export function HeroTopNav({ isMobile, onStart, onSignIn }: HeroTopNavProps) {
+export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn }: HeroTopNavProps) {
   const [hoverSignIn, setHoverSignIn] = useState(false);
   const [hoverGetStarted, setHoverGetStarted] = useState(false);
 
@@ -41,7 +42,7 @@ export function HeroTopNav({ isMobile, onStart, onSignIn }: HeroTopNavProps) {
 
       {/* Right — Sign in + Get started */}
       <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        {!isMobile && (
+        {!isMobile && !isSignedIn && (
           <span
             onClick={onSignIn}
             onMouseEnter={() => setHoverSignIn(true)}

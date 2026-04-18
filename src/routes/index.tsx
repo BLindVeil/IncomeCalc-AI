@@ -135,6 +135,9 @@ interface LandingProps {
   onDevAccess?: () => void;
   onUpgrade?: (plan: "pro" | "premium") => void;
   onSignIn?: () => void;
+  onSignOut?: () => void;
+  onDashboard?: () => void;
+  currentUser?: AuthUser | null;
 }
 
 // ─── Landing sidebar nav icons ───────────────────────────────────────────────
@@ -181,7 +184,7 @@ const LANDING_BOTTOM = [
   { id: "get-started", label: "Get started →", icon: ArrowRightIcon },
 ];
 
-function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAccess, onUpgrade, onSignIn }: LandingProps) {
+function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAccess, onUpgrade, onSignIn, onSignOut, onDashboard, currentUser }: LandingProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
   const showSidebar = typeof window !== "undefined" && window.innerWidth > 980;
@@ -215,7 +218,23 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
     </div>
   );
 
-  const topbarRight = (
+  const topbarRight = currentUser ? (
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div
+        style={{
+          width: 32, height: 32, borderRadius: "50%",
+          background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
+          color: "#fff", fontWeight: 600, fontSize: 13,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer",
+        }}
+        onClick={onDashboard}
+        title={currentUser.email}
+      >
+        {currentUser.email[0].toUpperCase()}
+      </div>
+    </div>
+  ) : (
     <span
       onClick={onSignIn}
       style={{ fontSize: 14, color: t.muted, cursor: "pointer" }}
@@ -229,7 +248,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text }}>
       {/* Hero — full-bleed above sidebar layout */}
-      <LandingHero onStart={onStart} onSignIn={onSignIn} />
+      <LandingHero onStart={onStart} onSignIn={onSignIn} isSignedIn={!!currentUser} />
 
       <div
         style={{
@@ -254,7 +273,16 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
         <div style={{ minHeight: "100vh" }}>
           {/* Mobile: show Header instead of sidebar */}
           {!showSidebar && (
-            <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onDevAccess={onDevAccess} />
+            <Header
+              isDark={isDark}
+              setIsDark={setIsDark}
+              currentTheme={currentTheme}
+              onDevAccess={onDevAccess}
+              accountUser={currentUser}
+              onSignIn={onSignIn}
+              onSignOut={onSignOut}
+              onDashboard={onDashboard}
+            />
           )}
 
           <div style={{ padding: isMobile ? "24px 16px" : "32px 40px", maxWidth: 1000 }}>
@@ -3393,7 +3421,10 @@ function handleAuthSuccess(user: AuthUser) {
         onPricing={() => handleUpgrade("pro")}
         onUpgrade={(plan) => handleUpgrade(plan)}
         onSignIn={() => openAuthModal("signin")}
+        onSignOut={handleSignOut}
+        onDashboard={() => setPage("results")}
         onDevAccess={() => setPage("dev-access")}
+        currentUser={currentUser}
         {...sharedProps}
       />
     );
