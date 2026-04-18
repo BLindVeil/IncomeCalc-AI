@@ -3,6 +3,7 @@
 // then attaches it to the account via /api/pending-data after signup.
 
 import type { ExpenseData } from "@/lib/app-shared";
+import type { UserIntent } from "@/lib/intent";
 
 const PENDING_KEY = "ascentra-pending-signup-data";
 const WELCOME_SEEN_KEY_PREFIX = "ascentra-welcome-seen-";
@@ -14,6 +15,7 @@ export interface PendingSignupData {
   grossMonthlyRequired: number;
   healthScore: number;
   capturedAt: number;
+  intent?: UserIntent | null;
 }
 
 // ─── SessionStorage: capture / read / clear ──────────────────────────────────

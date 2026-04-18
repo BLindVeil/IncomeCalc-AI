@@ -38,6 +38,7 @@ interface PendingDataPayload {
   grossMonthlyRequired: number;
   healthScore: number;
   capturedAt: number;
+  intent?: "afford" | "stress_test" | "life_change" | "curious" | null;
 }
 
 // ── KV key helpers ───────────────────────────────────────────────────────────

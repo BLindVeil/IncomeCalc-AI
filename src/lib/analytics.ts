@@ -55,7 +55,10 @@ export type AnalyticsEvent =
   // Signup prompt
   | "signup_prompt_shown"
   | "signup_prompt_clicked"
-  | "signup_prompt_dismissed";
+  | "signup_prompt_dismissed"
+  // Intent picker
+  | "intent_selected"
+  | "intent_skipped";
 
 export interface EventProps {
   plan?: "pro" | "premium";

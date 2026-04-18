@@ -16,6 +16,7 @@ export type { ExpenseData } from "@/lib/calc";
 
 export type Page =
   | "landing"
+  | "intent"
   | "calculator"
   | "results"
   | "guided"

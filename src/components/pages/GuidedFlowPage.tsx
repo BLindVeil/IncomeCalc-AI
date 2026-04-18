@@ -30,6 +30,7 @@ import { trackEvent } from "@/lib/analytics";
 import { FinancialDiagnosisSection } from "@/components/ai/FinancialDiagnosisSection";
 import { SignupPromptCard } from "@/components/auth/SignupPromptCard";
 import { capturePendingData } from "@/lib/pending-signup-data";
+import { readIntent, getIntentSnapshotCopy } from "@/lib/intent";
 import { Header } from "@/components/Header";
 import type { User as AuthUser } from "@/lib/auth-store";
 
@@ -260,6 +261,7 @@ export function GuidedFlowPage({
       grossMonthlyRequired: grossMonthly,
       healthScore,
       capturedAt: Date.now(),
+      intent: readIntent(),
     });
     if (onSignup) { onSignup(); }
   };
@@ -387,8 +389,27 @@ export function GuidedFlowPage({
             .reduce((a, b) => (data[a] >= data[b] ? a : b), "housing" as keyof ExpenseData);
           const biggestPct = totalMonthly > 0 ? ((data[biggestField] / totalMonthly) * 100).toFixed(0) : "0";
 
+          const intentCopy = getIntentSnapshotCopy(readIntent());
+
           return (
             <div>
+              {/* Intent-specific framing */}
+              {intentCopy && (
+                <div
+                  style={{
+                    fontSize: 15,
+                    color: t.muted,
+                    lineHeight: 1.55,
+                    fontStyle: "italic",
+                    marginBottom: 20,
+                    paddingBottom: 16,
+                    borderBottom: `1px solid ${t.border}`,
+                  }}
+                >
+                  {intentCopy}
+                </div>
+              )}
+
               {/* Dominant reveal */}
               <div style={{ marginBottom: "1.5rem" }}>
                 <div style={{ fontSize: "0.75rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>Your Financial Reality</div>

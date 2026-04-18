@@ -110,6 +110,7 @@ import {
   checkWelcomeSeenServer,
 } from "@/lib/pending-signup-data";
 import { readResumeFlow, clearResumeFlow } from "@/lib/resume-flow";
+import { IntentPickerPage } from "@/components/pages/IntentPickerPage";
 
 // ─── Lazy-loaded page components ─────────────────────────────────────────────
 
@@ -3163,6 +3164,7 @@ function App() {
       sessionStorage.removeItem("ascentra-resume-flow");
       sessionStorage.removeItem("ascentra-pending-signup-data");
       sessionStorage.removeItem("ascentra-signup-prompt-dismissed");
+      sessionStorage.removeItem("ascentra-intent");
     } catch { /* ignore */ }
 
     try {
@@ -3468,7 +3470,7 @@ async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
   } else if (page === "landing") {
     pageContent = (
       <Landing
-        onStart={() => setPage("calculator")}
+        onStart={() => setPage("intent")}
         onPricing={() => handleUpgrade("pro")}
         onUpgrade={(plan) => handleUpgrade(plan)}
         onSignIn={() => openAuthModal("signin")}
@@ -3477,6 +3479,16 @@ async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
         onDevAccess={() => setPage("dev-access")}
         currentUser={currentUser}
         {...sharedProps}
+      />
+    );
+  } else if (page === "intent") {
+    pageContent = (
+      <IntentPickerPage
+        t={currentTheme}
+        isDark={isDark}
+        setIsDark={setIsDark}
+        onContinue={() => setPage("calculator")}
+        onBack={() => setPage("landing")}
       />
     );
   } else if (page === "calculator") {
