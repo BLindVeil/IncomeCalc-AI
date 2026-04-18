@@ -24,6 +24,10 @@ export interface DashboardTopbarProps {
   onSimulator?: () => void;
   alerts?: AlertItem[];
   onNavigate?: (view: string) => void;
+  leftContent?: React.ReactNode;
+  ctaLabel?: string;
+  ctaOnClick?: () => void;
+  rightExtra?: React.ReactNode;
 }
 
 // ─── SVG Icons ──────────────────────────────────────────────────────────────
@@ -73,6 +77,10 @@ export function DashboardTopbar({
   onSimulator,
   alerts = [],
   onNavigate,
+  leftContent,
+  ctaLabel,
+  ctaOnClick,
+  rightExtra,
 }: DashboardTopbarProps) {
   const now = new Date();
   const month = now.toLocaleString("default", { month: "long" });
@@ -160,14 +168,16 @@ export function DashboardTopbar({
 
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28, gap: 16, flexWrap: "wrap" }}>
-      <div>
-        <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", color: t.text, margin: 0 }}>
-          Welcome back, {userName}
-        </h1>
-        <p style={{ fontSize: 14, color: t.muted, margin: "4px 0 0" }}>
-          Here's your financial assessment for {month} {year}
-        </p>
-      </div>
+      {leftContent ?? (
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", color: t.text, margin: 0 }}>
+            Welcome back, {userName}
+          </h1>
+          <p style={{ fontSize: 14, color: t.muted, margin: "4px 0 0" }}>
+            Here's your financial assessment for {month} {year}
+          </p>
+        </div>
+      )}
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <span
           style={{
@@ -325,8 +335,9 @@ export function DashboardTopbar({
           </div>
         )}
 
+        {rightExtra}
         <button
-          onClick={onSimulator}
+          onClick={ctaOnClick ?? onSimulator}
           style={{
             background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
             color: "#fff",
@@ -342,7 +353,7 @@ export function DashboardTopbar({
             boxShadow: "0 2px 8px rgba(27,67,50,0.25)",
           }}
         >
-          <PlusIcon /> New scenario
+          {ctaLabel ? ctaLabel : <><PlusIcon /> New scenario</>}
         </button>
         <div
           style={{

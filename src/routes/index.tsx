@@ -13,14 +13,11 @@ import {
   CheckCircle,
   ArrowRight,
   BarChart3,
-  Shield,
   Zap,
-  Star,
   Lock,
   Target,
   Brain,
   ChevronLeft,
-  CreditCard,
   Send,
   X,
   Lightbulb,
@@ -34,8 +31,6 @@ import {
   AlertTriangle,
   Share2,
   Flame,
-  Gauge,
-  Clock,
   TrendingDown,
   Wallet,
   Milestone,
@@ -97,8 +92,14 @@ import {
   MONO_FONT_STACK,
 } from "@/lib/app-shared";
 import { Header, AUTH_EVENT } from "@/components/Header";
-import { HeroSection } from "@/components/HeroSection";
-import { ProblemHypothesisResultSection } from "@/components/ProblemHypothesisResultSection";
+import { DashboardSidebar } from "@/components/ui/DashboardSidebar";
+import { DashboardTopbar } from "@/components/ui/DashboardTopbar";
+import { OverviewSection } from "@/components/landing/OverviewSection";
+import { WhyAscentraSection } from "@/components/landing/WhyAscentraSection";
+import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
+import { PricingSection } from "@/components/landing/PricingSection";
+import { QuestionsSection } from "@/components/landing/QuestionsSection";
+import { FinalCTABanner } from "@/components/landing/FinalCTABanner";
 import { useIsMobile } from "@/lib/useIsMobile";
 
 // ─── Lazy-loaded page components ─────────────────────────────────────────────
@@ -131,141 +132,154 @@ interface LandingProps {
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
   onDevAccess?: () => void;
+  onUpgrade?: (plan: "pro" | "premium") => void;
+  onSignIn?: () => void;
 }
 
-function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAccess }: LandingProps) {
+// ─── Landing sidebar nav icons ───────────────────────────────────────────────
+const OverviewIcon = () => (
+  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+  </svg>
+);
+const WhyIcon = () => (
+  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+);
+const HowIcon = () => (
+  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+  </svg>
+);
+const PricingIcon = () => (
+  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+  </svg>
+);
+const FAQIcon = () => (
+  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+const ArrowRightIcon = () => (
+  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+  </svg>
+);
+
+const LANDING_NAV = [
+  { id: "overview", label: "Overview", icon: OverviewIcon },
+  { id: "why", label: "Why Ascentra", icon: WhyIcon },
+  { id: "how", label: "How it works", icon: HowIcon },
+  { id: "pricing", label: "Pricing", icon: PricingIcon },
+  { id: "faq", label: "Questions", icon: FAQIcon },
+];
+
+const LANDING_BOTTOM = [
+  { id: "get-started", label: "Get started →", icon: ArrowRightIcon },
+];
+
+function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAccess, onUpgrade, onSignIn }: LandingProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
+  const showSidebar = typeof window !== "undefined" && window.innerWidth > 980;
+
+  function handleSidebarNav(id: string) {
+    if (id === "get-started") {
+      onStart();
+      return;
+    }
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  }
+
+  const topbarLeft = (
+    <div>
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 500,
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
+          color: t.muted,
+          marginBottom: 4,
+        }}
+      >
+        PREVIEW
+      </div>
+      <div style={{ fontSize: 22, fontWeight: 600, color: t.text, letterSpacing: "-0.01em" }}>
+        Know your number.
+      </div>
+    </div>
+  );
+
+  const topbarRight = (
+    <span
+      onClick={onSignIn}
+      style={{ fontSize: 14, color: t.muted, cursor: "pointer" }}
+      onMouseEnter={(e) => { e.currentTarget.style.color = t.text; }}
+      onMouseLeave={(e) => { e.currentTarget.style.color = t.muted; }}
+    >
+      Sign in
+    </span>
+  );
 
   return (
-    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" }}>
-      {/* Apple TV Ambient Background */}
-      <div className="atv-ambient-bg">
-        <div className="atv-ambient-teal" />
-      </div>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text }}>
+      <div
+        style={{
+          display: showSidebar ? "grid" : "block",
+          gridTemplateColumns: showSidebar ? "240px 1fr" : undefined,
+        }}
+      >
+        {/* Sidebar */}
+        {showSidebar && (
+          <DashboardSidebar
+            t={t}
+            isDark={isDark}
+            setIsDark={setIsDark}
+            activeItem="overview"
+            onNavigate={handleSidebarNav}
+            items={LANDING_NAV}
+            bottomItems={LANDING_BOTTOM}
+          />
+        )}
 
-      <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onDevAccess={onDevAccess} />
-
-      <HeroSection t={t} isDark={isDark} onStart={onStart} />
-
-      <ProblemHypothesisResultSection t={t} isDark={isDark} />
-
-      <div style={{ maxWidth: "900px", margin: "0 auto", padding: isMobile ? "0 1rem 3rem" : "0 1.5rem 4rem", position: "relative", zIndex: 1 }}>
-        {/* What You'll Know in 60 Seconds */}
-        <div className="atv-fade-in atv-fade-in-delay-2" style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-          <h2 style={{ fontSize: "1.75rem", fontWeight: 700, color: t.text, margin: "0 0 0.5rem", letterSpacing: "-0.02em" }}>
-            What You'll Know in 60 Seconds.
-          </h2>
-          <p style={{ color: t.muted, fontSize: "0.95rem", margin: 0 }}>
-            Most people don't know these numbers. You will.
-          </p>
-        </div>
-        <div
-          className="atv-fade-in atv-fade-in-delay-2"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "1rem",
-            marginBottom: "3rem",
-          }}
-        >
-          {[
-            { Icon: Gauge, title: "Income Gap", desc: "See exactly how much more you need to earn — or how much surplus you have." },
-            { Icon: Clock, title: "Runway", desc: "Know how many months you can survive without income." },
-            { Icon: Shield, title: "Stability Score", desc: "A single score that measures your overall financial health." },
-            { Icon: AlertTriangle, title: "Alerts", desc: "Instant warnings when your housing, debt, or savings ratios are risky." },
-          ].map(({ Icon, title, desc }) => (
-            <div
-              key={title}
-              style={{
-                background: t.cardBg,
-                border: `1px solid ${t.border}`,
-                borderRadius: "16px",
-                padding: "24px",
-              }}
-            >
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "12px",
-                  background: t.primarySoft,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: "0.65rem",
-                  color: t.primary,
-                }}
-              >
-                <Icon size={18} />
-              </div>
-              <div style={{ fontWeight: 600, marginBottom: "0.25rem", color: t.text, fontSize: "16px" }}>{title}</div>
-              <div style={{ fontSize: "14px", color: t.muted, lineHeight: 1.5 }}>{desc}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Premium teaser */}
-        <div
-          className="atv-fade-in atv-fade-in-delay-3"
-          style={{
-            background: t.primarySoft,
-            border: `1px solid ${t.border}`,
-            borderRadius: "16px",
-            padding: "2rem",
-            textAlign: "center",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          {/* Gradient accent bar at top */}
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "4px", background: `linear-gradient(90deg, ${t.primary}, ${t.accent})` }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
-            <Star size={18} style={{ color: "#FFB800" }} />
-            <span style={{ fontWeight: 600, color: t.text, fontSize: "1.1rem", letterSpacing: "-0.01em" }}>Go Deeper on Your Numbers.</span>
-          </div>
-          <p style={{ color: t.muted, fontSize: "0.95rem", marginBottom: "1.25rem" }}>
-            Unlock AI diagnosis, scenario testing, and a plan built around your actual life.
-          </p>
-          <button
-            onClick={onPricing}
-            className="atv-btn-primary"
-            style={{
-              padding: "0.75rem 2rem",
-              fontSize: "0.95rem",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
-            <CreditCard size={16} />
-            See Plans & Pricing
-          </button>
-        </div>
-
-        {/* Footer */}
-        <div style={{ textAlign: "center", marginTop: "3rem", paddingTop: "1.5rem", borderTop: `1px solid ${t.border}` }}>
-          {import.meta.env.DEV && onDevAccess && (
-            <button
-              onClick={onDevAccess}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: t.muted,
-                fontSize: "0.78rem",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.35rem",
-                opacity: 0.5,
-              }}
-            >
-              <Zap size={12} />
-              Developer Access
-            </button>
+        {/* Main content */}
+        <div style={{ minHeight: "100vh" }}>
+          {/* Mobile: show Header instead of sidebar */}
+          {!showSidebar && (
+            <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onDevAccess={onDevAccess} />
           )}
+
+          <div style={{ padding: isMobile ? "24px 16px" : "32px 40px", maxWidth: 1000 }}>
+            <DashboardTopbar
+              t={t}
+              isDark={isDark}
+              isMobile={isMobile}
+              leftContent={topbarLeft}
+              ctaLabel="Calculate my number →"
+              ctaOnClick={onStart}
+              rightExtra={topbarRight}
+              alerts={[]}
+            />
+
+            <OverviewSection t={t} isDark={isDark} isMobile={isMobile} onStart={onStart} />
+            <WhyAscentraSection t={t} isDark={isDark} />
+            <HowItWorksSection t={t} onStart={onStart} />
+            <PricingSection
+              t={t}
+              isDark={isDark}
+              onStart={onStart}
+              onUpgrade={onUpgrade ?? ((plan) => onPricing())}
+            />
+            <QuestionsSection t={t} />
+            <FinalCTABanner t={t} isMobile={isMobile} onStart={onStart} />
+          </div>
         </div>
       </div>
+
       <SiteFooter t={t} />
     </div>
   );
@@ -3373,6 +3387,8 @@ function handleAuthSuccess(user: AuthUser) {
       <Landing
         onStart={() => setPage("calculator")}
         onPricing={() => handleUpgrade("pro")}
+        onUpgrade={(plan) => handleUpgrade(plan)}
+        onSignIn={() => openAuthModal("signin")}
         onDevAccess={() => setPage("dev-access")}
         {...sharedProps}
       />

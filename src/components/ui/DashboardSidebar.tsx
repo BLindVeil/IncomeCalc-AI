@@ -2,6 +2,12 @@ import { useState } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import { EV_500, EV_600, EV_800 } from "@/lib/app-shared";
 
+export interface SidebarNavItem {
+  id: string;
+  label: string;
+  icon: React.ComponentType;
+}
+
 export interface DashboardSidebarProps {
   t: ThemeConfig;
   isDark: boolean;
@@ -9,6 +15,8 @@ export interface DashboardSidebarProps {
   activeItem?: string;
   onNavigate?: (item: string) => void;
   onSignOut?: () => void;
+  items?: SidebarNavItem[];
+  bottomItems?: SidebarNavItem[];
 }
 
 // ─── Inline SVG icons ─────────────────────────────────────────────────────
@@ -92,7 +100,9 @@ const BOTTOM_ITEMS = [
   { id: "logout", label: "Logout", icon: LogoutIcon },
 ];
 
-export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard", onNavigate, onSignOut }: DashboardSidebarProps) {
+export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard", onNavigate, onSignOut, items, bottomItems }: DashboardSidebarProps) {
+  const navItems = items ?? NAV_ITEMS;
+  const navBottomItems = bottomItems ?? BOTTOM_ITEMS;
   const [hovered, setHovered] = useState<string | null>(null);
 
   const itemStyle = (id: string): React.CSSProperties => {
@@ -160,7 +170,7 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
 
       {/* Nav items */}
       <nav style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <div
             key={item.id}
             style={itemStyle(item.id)}
@@ -226,7 +236,7 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
 
       {/* Bottom items */}
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        {BOTTOM_ITEMS.map((item) => (
+        {navBottomItems.map((item) => (
           <div
             key={item.id}
             style={itemStyle(item.id)}
