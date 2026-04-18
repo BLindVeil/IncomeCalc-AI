@@ -94,6 +94,7 @@ import {
 import { Header, AUTH_EVENT } from "@/components/Header";
 import { DashboardSidebar } from "@/components/ui/DashboardSidebar";
 import { DashboardTopbar } from "@/components/ui/DashboardTopbar";
+import { LandingHero } from "@/components/landing/LandingHero";
 import { OverviewSection } from "@/components/landing/OverviewSection";
 import { WhyAscentraSection } from "@/components/landing/WhyAscentraSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
@@ -227,6 +228,9 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text }}>
+      {/* Hero — full-bleed above sidebar layout */}
+      <LandingHero onStart={onStart} onSignIn={onSignIn} />
+
       <div
         style={{
           display: showSidebar ? "grid" : "block",
