@@ -355,17 +355,19 @@ export function DashboardTopbar({
         >
           {ctaLabel ? ctaLabel : <><PlusIcon /> New scenario</>}
         </button>
-        <div
-          style={{
-            width: 36, height: 36, borderRadius: "50%",
-            background: `linear-gradient(135deg, ${EV_500}, ${EV_800})`,
-            color: "#fff", fontWeight: 600, fontSize: 13,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          {userName !== "there" ? userName.charAt(0).toUpperCase() : "U"}
-        </div>
+        {!rightExtra && (
+          <div
+            style={{
+              width: 36, height: 36, borderRadius: "50%",
+              background: `linear-gradient(135deg, ${EV_500}, ${EV_800})`,
+              color: "#fff", fontWeight: 600, fontSize: 13,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            {userName !== "there" ? userName.charAt(0).toUpperCase() : "U"}
+          </div>
+        )}
       </div>
     </div>
   );

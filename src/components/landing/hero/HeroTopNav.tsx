@@ -1,13 +1,20 @@
 import { useState } from "react";
 
+function getInitial(name: string | undefined): string {
+  if (!name || name.trim().length === 0) return "U";
+  return name.trim()[0].toUpperCase();
+}
+
 interface HeroTopNavProps {
   isMobile: boolean;
   onStart: () => void;
   onSignIn?: () => void;
   isSignedIn?: boolean;
+  userName?: string;
+  onAvatarClick?: () => void;
 }
 
-export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn }: HeroTopNavProps) {
+export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, onAvatarClick }: HeroTopNavProps) {
   const [hoverSignIn, setHoverSignIn] = useState(false);
   const [hoverGetStarted, setHoverGetStarted] = useState(false);
 
@@ -42,21 +49,45 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn }: HeroTopN
 
       {/* Right — Sign in + Get started */}
       <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        {!isMobile && !isSignedIn && (
-          <span
-            onClick={onSignIn}
-            onMouseEnter={() => setHoverSignIn(true)}
-            onMouseLeave={() => setHoverSignIn(false)}
-            style={{
-              fontSize: 13,
-              fontWeight: 500,
-              color: hoverSignIn ? "white" : "rgba(255,255,255,0.78)",
-              cursor: "pointer",
-              transition: "color 150ms",
-            }}
-          >
-            Sign in
-          </span>
+        {!isMobile && (
+          isSignedIn ? (
+            <div
+              onClick={onAvatarClick}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.15)",
+                border: "1px solid rgba(255,255,255,0.25)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontSize: 13,
+                fontWeight: 600,
+                letterSpacing: "-0.01em",
+                cursor: "pointer",
+              }}
+              aria-label="Open user menu"
+            >
+              {getInitial(userName)}
+            </div>
+          ) : (
+            <span
+              onClick={onSignIn}
+              onMouseEnter={() => setHoverSignIn(true)}
+              onMouseLeave={() => setHoverSignIn(false)}
+              style={{
+                fontSize: 13,
+                fontWeight: 500,
+                color: hoverSignIn ? "white" : "rgba(255,255,255,0.78)",
+                cursor: "pointer",
+                transition: "color 150ms",
+              }}
+            >
+              Sign in
+            </span>
+          )
         )}
         <button
           onClick={onStart}

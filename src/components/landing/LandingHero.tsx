@@ -76,9 +76,11 @@ interface LandingHeroProps {
   onStart: () => void;
   onSignIn?: () => void;
   isSignedIn?: boolean;
+  userName?: string;
+  onAvatarClick?: () => void;
 }
 
-export function LandingHero({ onStart, onSignIn, isSignedIn }: LandingHeroProps) {
+export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onAvatarClick }: LandingHeroProps) {
   const bp = useHeroBreakpoint();
   const isMobile = bp === "mobile";
   const isDesktop = bp === "desktop";
@@ -101,7 +103,7 @@ export function LandingHero({ onStart, onSignIn, isSignedIn }: LandingHeroProps)
     >
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
         {/* Top nav */}
-        <HeroTopNav isMobile={isMobile} onStart={onStart} onSignIn={onSignIn} isSignedIn={isSignedIn} />
+        <HeroTopNav isMobile={isMobile} onStart={onStart} onSignIn={onSignIn} isSignedIn={isSignedIn} userName={userName} onAvatarClick={onAvatarClick} />
 
         {/* Spacer */}
         <div style={{ height: 48 }} />
