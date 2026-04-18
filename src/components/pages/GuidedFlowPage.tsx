@@ -29,6 +29,7 @@ import { computeIncomeGap, computeRunway, computeAlerts } from "@/lib/stabilityM
 import { trackEvent } from "@/lib/analytics";
 import { FinancialDiagnosisSection } from "@/components/ai/FinancialDiagnosisSection";
 import { SignupPromptCard } from "@/components/auth/SignupPromptCard";
+import { capturePendingData } from "@/lib/pending-signup-data";
 import { Header } from "@/components/Header";
 import type { User as AuthUser } from "@/lib/auth-store";
 
@@ -251,6 +252,15 @@ export function GuidedFlowPage({
 
   const handleSignupClick = () => {
     trackEvent("signup_prompt_clicked", { step, variant: step === 0 ? "inline" : "sticky" });
+    // Capture current expense snapshot to sessionStorage before opening auth modal
+    capturePendingData({
+      expenseData: data,
+      taxRate,
+      currentGrossIncome,
+      grossMonthlyRequired: grossMonthly,
+      healthScore,
+      capturedAt: Date.now(),
+    });
     if (onSignup) { onSignup(); }
   };
 

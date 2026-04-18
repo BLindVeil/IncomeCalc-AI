@@ -102,6 +102,13 @@ import { PricingSection } from "@/components/landing/PricingSection";
 import { QuestionsSection } from "@/components/landing/QuestionsSection";
 import { FinalCTABanner } from "@/components/landing/FinalCTABanner";
 import { useIsMobile } from "@/lib/useIsMobile";
+import {
+  readPendingData,
+  clearPendingData,
+  attachPendingDataToAccount,
+  hasSeenWelcome,
+  checkWelcomeSeenServer,
+} from "@/lib/pending-signup-data";
 
 // ─── Lazy-loaded page components ─────────────────────────────────────────────
 
@@ -3308,7 +3315,7 @@ function handleUpgrade(plan: PlanId = "pro") {
   window.scrollTo(0, 0);
 }
 
-function handleAuthSuccess(user: AuthUser) {
+async function handleAuthSuccess(user: AuthUser) {
   setCurrentUser(user);
   // Re-read tier from localStorage — login may have written a paid plan
   setUserTier(loadUserTier());
@@ -3316,6 +3323,28 @@ function handleAuthSuccess(user: AuthUser) {
   if (savePromptPending) {
     setSavePromptPending(false);
     doSaveScenario(user);
+  }
+
+  const session = getSession();
+  const isNewUser = authModalMode === "signup";
+
+  if (isNewUser) {
+    // Attach any pending expense data captured before signup
+    const pending = readPendingData();
+    if (pending && session) {
+      const attached = await attachPendingDataToAccount(user.id, session.token, pending);
+      if (attached) clearPendingData();
+    }
+    // New users always go to /welcome
+    window.location.href = "/welcome";
+  } else {
+    // Existing user sign-in — check welcome-seen flag
+    if (!hasSeenWelcome(user.id) && session) {
+      const { welcomeSeen, hasPendingData } = await checkWelcomeSeenServer(user.id, session.token);
+      if (!welcomeSeen && hasPendingData) {
+        window.location.href = "/welcome";
+      }
+    }
   }
 }
 
