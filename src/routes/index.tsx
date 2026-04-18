@@ -97,6 +97,8 @@ import {
   MONO_FONT_STACK,
 } from "@/lib/app-shared";
 import { Header, AUTH_EVENT } from "@/components/Header";
+import { HeroSection } from "@/components/HeroSection";
+import { ProblemHypothesisResultSection } from "@/components/ProblemHypothesisResultSection";
 import { useIsMobile } from "@/lib/useIsMobile";
 
 // ─── Lazy-loaded page components ─────────────────────────────────────────────
@@ -144,73 +146,11 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
 
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onDevAccess={onDevAccess} />
 
-      <div style={{ maxWidth: "900px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
-        {/* Hero */}
-        <div className="atv-fade-in" style={{ textAlign: "center", marginBottom: "4rem" }}>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              background: t.primarySoft,
-              border: `1px solid ${isDark ? "rgba(82,183,136,0.2)" : "rgba(27,67,50,0.1)"}`,
-              borderRadius: "999px",
-              padding: "0.4rem 1.1rem",
-              fontSize: "13px",
-              color: t.primary,
-              fontWeight: 500,
-              marginBottom: "1.5rem",
-            }}
-          >
-            <Sparkles size={14} />
-            Financial Clarity Platform · Free to Start
-          </div>
+      <HeroSection t={t} isDark={isDark} onStart={onStart} />
 
-          <h1
-            style={{
-              fontSize: "clamp(2.25rem, 5vw, 3.75rem)",
-              fontWeight: 700,
-              lineHeight: 1.08,
-              letterSpacing: "-0.03em",
-              color: t.text,
-              margin: "0 0 1.25rem",
-            }}
-          >
-            Find Out Exactly How Much You Need to{" "}
-            <span style={{ color: t.accent }}>Earn.</span>
-          </h1>
+      <ProblemHypothesisResultSection t={t} isDark={isDark} />
 
-          <p style={{ fontSize: "18px", color: t.muted, maxWidth: "620px", margin: "0 auto 2.5rem", lineHeight: 1.6 }}>
-            Enter your monthly expenses. Get your income number, your financial health score, and exactly what to change — in 60 seconds.
-          </p>
-
-          <div style={{ display: "flex", gap: "0.85rem", justifyContent: "center", flexWrap: "wrap" }}>
-            <button
-              onClick={onStart}
-              style={{
-                background: `linear-gradient(135deg, #1B4332, #40916C)`,
-                color: "#fff",
-                border: "none",
-                borderRadius: "16px",
-                padding: "18px 40px",
-                fontSize: "17px",
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                boxShadow: "0 4px 14px rgba(27, 67, 50, 0.25)",
-                transition: "transform 0.2s ease, opacity 0.2s ease",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
-            >
-              Calculate My Number →
-            </button>
-          </div>
-
-        </div>
-
+      <div style={{ maxWidth: "900px", margin: "0 auto", padding: isMobile ? "0 1rem 3rem" : "0 1.5rem 4rem", position: "relative", zIndex: 1 }}>
         {/* What You'll Know in 60 Seconds */}
         <div className="atv-fade-in atv-fade-in-delay-2" style={{ textAlign: "center", marginBottom: "1.5rem" }}>
           <h2 style={{ fontSize: "1.75rem", fontWeight: 700, color: t.text, margin: "0 0 0.5rem", letterSpacing: "-0.02em" }}>
