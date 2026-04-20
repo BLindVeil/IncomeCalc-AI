@@ -187,13 +187,9 @@ export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboa
             />
           </div>
         ) : (
-          /* Mobile — all three cards stacked + text */
+          /* Mobile — single card + text */
           <div style={{ marginTop: 32 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <HeroCollageIncomeCard mobile />
-              <HeroCollageStabilityCard mobile />
-              <HeroCollageTopMoveCard mobile />
-            </div>
+            <HeroCollageIncomeCard mobile />
             <div style={{ height: 32 }} />
             <RightColumn
               isMobile

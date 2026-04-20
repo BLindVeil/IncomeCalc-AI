@@ -31,15 +31,17 @@ function MiniIndicator({ label, fillPct, value }: { label: string; fillPct: stri
   );
 }
 
-export function HeroCollageStabilityCard({ mobile }: { mobile?: boolean }) {
-  const positionStyles: React.CSSProperties = mobile
-    ? { position: "static", width: "100%", transform: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }
-    : { position: "absolute", top: 50, left: 0, width: 238, transform: "rotate(-4deg)", zIndex: 1, boxShadow: CARD_SHADOW };
-
+export function HeroCollageStabilityCard() {
   return (
     <div
       style={{
-        ...positionStyles,
+        position: "absolute",
+        top: 50,
+        left: 0,
+        width: 238,
+        transform: "rotate(-4deg)",
+        zIndex: 1,
+        boxShadow: CARD_SHADOW,
         background: CARD_WHITE,
         borderRadius: 16,
         padding: 18,
