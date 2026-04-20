@@ -41,6 +41,7 @@ import {
   loadSnapshots,
   EXPENSE_FIELDS,
   MONO_FONT_STACK,
+  hasRealExpenseData,
   type ThemeConfig,
   type UserTier,
   type PlanId,
@@ -70,10 +71,6 @@ import { BudgetPage } from "@/components/pages/BudgetPage";
 import { AnalyticsPage } from "@/components/pages/AnalyticsPage";
 import { ScenariosPage } from "@/components/pages/ScenariosPage";
 import { useBudgetStore } from "@/lib/budget-store";
-
-function hasRealExpenseData(d: ExpenseData): boolean {
-  return EXPENSE_FIELDS.some((f) => (d[f.name] ?? 0) > 0);
-}
 
 // ─── AnnualUpsellModal ────────────────────────────────────────────────────────
 
@@ -890,11 +887,12 @@ export function ResultsPage({
               onDashboard={onDashboard}
               onSignOut={onSignOut}
               userEmail={currentUser?.email}
+              currentUser={currentUser}
               subtitle={hasRealExpenseData(data) ? undefined : "Let's get started"}
             />
 
             {!hasRealExpenseData(data) ? (
-              <DashboardEmptyState onGetStarted={onRecalculate} />
+              <DashboardEmptyState currentUser={currentUser} onGetStarted={onRecalculate} />
             ) : <>
 
             {/* First-visit welcome banner */}

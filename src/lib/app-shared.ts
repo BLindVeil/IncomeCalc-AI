@@ -224,6 +224,12 @@ export const DEFAULT_EXPENSES: import("@/lib/calc").ExpenseData = {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+export function hasRealExpenseData(expenseData: import("@/lib/calc").ExpenseData): boolean {
+  return Object.values(expenseData).some(
+    (v) => typeof v === "number" && v > 0
+  );
+}
+
 export function fmt(n: number) {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }

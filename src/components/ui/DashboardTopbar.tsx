@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import { EV_500, EV_600, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
+import type { User } from "@/lib/auth-store";
+import { getInitials } from "@/lib/user-display";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -32,6 +34,7 @@ export interface DashboardTopbarProps {
   onSignOut?: () => void;
   userEmail?: string;
   subtitle?: string;
+  currentUser?: User | null;
 }
 
 // ─── SVG Icons ──────────────────────────────────────────────────────────────
@@ -89,6 +92,7 @@ export function DashboardTopbar({
   onSignOut,
   userEmail,
   subtitle,
+  currentUser,
 }: DashboardTopbarProps) {
   const now = new Date();
   const month = now.toLocaleString("default", { month: "long" });
@@ -396,7 +400,7 @@ export function DashboardTopbar({
               aria-label="Open user menu"
               aria-expanded={avatarMenuOpen}
             >
-              {userName !== "there" ? userName.charAt(0).toUpperCase() : "U"}
+              {getInitials(currentUser) || (userName !== "there" ? userName.charAt(0).toUpperCase() : "U")}
             </div>
             {avatarMenuOpen && (
               <div
