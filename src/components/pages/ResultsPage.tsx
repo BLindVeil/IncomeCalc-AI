@@ -56,13 +56,14 @@ import { AIBudgetInsights } from "@/components/ai/AIBudgetInsights";
 import { AIIncomeIdeas } from "@/components/ai/AIIncomeIdeas";
 import { AIChat } from "@/components/ai/AIChat";
 import { FinancialDiagnosisSection } from "@/components/ai/FinancialDiagnosisSection";
-import type { User as AuthUser } from "@/lib/auth-store";
+import { getSession, type User as AuthUser } from "@/lib/auth-store";
 import { DashboardSidebar } from "@/components/ui/DashboardSidebar";
 import { DashboardTopbar } from "@/components/ui/DashboardTopbar";
 import { IncomeBarChart } from "@/components/dashboard/IncomeBarChart";
 import { ExpenseDonut } from "@/components/dashboard/ExpenseDonut";
 import { ScenariosCard } from "@/components/dashboard/ScenariosCard";
 import { TopMoveCard } from "@/components/dashboard/TopMoveCard";
+import { FirstVisitBanner } from "@/components/dashboard/FirstVisitBanner";
 import { BudgetPage } from "@/components/pages/BudgetPage";
 import { AnalyticsPage } from "@/components/pages/AnalyticsPage";
 import { ScenariosPage } from "@/components/pages/ScenariosPage";
@@ -881,6 +882,20 @@ export function ResultsPage({
                 }
               }}
             />
+
+            {/* First-visit welcome banner */}
+            {currentUser && (() => {
+              const session = getSession();
+              return session ? (
+                <FirstVisitBanner
+                  t={t}
+                  isDark={isDark}
+                  userId={currentUser.id}
+                  sessionToken={session.token}
+                  requiredIncomeMonthly={grossMonthly > 0 ? grossMonthly : null}
+                />
+              ) : null;
+            })()}
 
             {/* 4-Metric Grid */}
             <div

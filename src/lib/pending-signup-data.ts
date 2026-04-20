@@ -7,6 +7,7 @@ import type { UserIntent } from "@/lib/intent";
 
 const PENDING_KEY = "ascentra-pending-signup-data";
 const WELCOME_SEEN_KEY_PREFIX = "ascentra-welcome-seen-";
+const DASHBOARD_WELCOME_SEEN_KEY_PREFIX = "ascentra-dashboard-welcome-seen-";
 
 export interface PendingSignupData {
   expenseData: ExpenseData;
@@ -126,4 +127,63 @@ export async function checkWelcomeSeenServer(
     // ignore
   }
   return { welcomeSeen: true, hasPendingData: false };
+}
+
+// ─── Dashboard-welcome-seen flag (client + server) ──────────────────────────
+
+export function markDashboardWelcomeSeen(userId: string): void {
+  try {
+    localStorage.setItem(DASHBOARD_WELCOME_SEEN_KEY_PREFIX + userId, "true");
+  } catch {
+    // ignore
+  }
+}
+
+export function hasSeenDashboardWelcome(userId: string): boolean {
+  try {
+    return localStorage.getItem(DASHBOARD_WELCOME_SEEN_KEY_PREFIX + userId) === "true";
+  } catch {
+    return false;
+  }
+}
+
+export async function markDashboardWelcomeSeenServer(
+  userId: string,
+  sessionToken: string,
+): Promise<boolean> {
+  try {
+    const res = await fetch("/api/pending-data", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sessionToken}`,
+        "X-User-Id": userId,
+      },
+      body: JSON.stringify({ flag: "dashboard_welcome_seen" }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function hasSeenDashboardWelcomeServer(
+  userId: string,
+  sessionToken: string,
+): Promise<boolean> {
+  try {
+    const res = await fetch("/api/pending-data", {
+      headers: {
+        Authorization: `Bearer ${sessionToken}`,
+        "X-User-Id": userId,
+      },
+    });
+    if (!res.ok) return true;
+    const json = await res.json();
+    // No pending_data record = existing user = treat as already seen
+    if (json.pending_data === null) return true;
+    return json.dashboard_welcome_seen === true;
+  } catch {
+    return true; // Fail closed — don't show banner on error
+  }
 }

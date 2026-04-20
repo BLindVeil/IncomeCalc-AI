@@ -45,6 +45,7 @@ interface PendingDataPayload {
 
 const kvPendingData = (userId: string) => `pending_data:${userId}`;
 const kvWelcomeSeen = (userId: string) => `welcome_seen:${userId}`;
+const kvDashboardWelcomeSeen = (userId: string) => `dashboard_welcome_seen:${userId}`;
 
 // ── Handler ──────────────────────────────────────────────────────────────────
 
@@ -71,6 +72,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
 
       await kv.set(kvPendingData(userId), pendingData);
       await kv.set(kvWelcomeSeen(userId), false);
+      await kv.set(kvDashboardWelcomeSeen(userId), false);
 
       res.status(200).json({ ok: true });
       return;
@@ -79,16 +81,29 @@ export default async function handler(req: Req, res: Res): Promise<void> {
     if (req.method === "GET") {
       const pendingData = await kv.get(kvPendingData(userId));
       const welcomeSeen = await kv.get(kvWelcomeSeen(userId));
+      const dashboardWelcomeSeen = await kv.get(kvDashboardWelcomeSeen(userId));
 
       res.status(200).json({
         pending_data: pendingData ?? null,
         welcome_seen: welcomeSeen === true,
+        dashboard_welcome_seen: dashboardWelcomeSeen === true,
       });
       return;
     }
 
     if (req.method === "PATCH") {
-      await kv.set(kvWelcomeSeen(userId), true);
+      const body = req.body as { flag?: string } | undefined;
+      const flag = body?.flag;
+
+      if (!flag || flag === "welcome_seen") {
+        await kv.set(kvWelcomeSeen(userId), true);
+      } else if (flag === "dashboard_welcome_seen") {
+        await kv.set(kvDashboardWelcomeSeen(userId), true);
+      } else {
+        res.status(400).json({ error: "invalid_flag" });
+        return;
+      }
+
       res.status(200).json({ ok: true });
       return;
     }
