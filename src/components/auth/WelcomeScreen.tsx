@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+
 import { MONO_FONT_STACK } from "@/lib/app-shared";
 import { getCurrentUser, getSession } from "@/lib/auth-store";
 import {
@@ -63,14 +63,14 @@ export function WelcomeScreen() {
       });
     }
     await handleMarkSeen();
-    // Belt-and-suspenders: resume-flow effect will set the page, but also set the marker
     try { sessionStorage.setItem("ascentra-last-page", "guided"); } catch { /* ignore */ }
+    window.location.href = "/";
   };
 
   const handleSkipToDashboard = async () => {
     await handleMarkSeen();
-    // Tell index.tsx's page-persistence to land on the results/dashboard view
     try { sessionStorage.setItem("ascentra-last-page", "results"); } catch { /* ignore */ }
+    window.location.href = "/";
   };
 
   if (!user) return null;
@@ -197,8 +197,7 @@ export function WelcomeScreen() {
 
         {/* CTAs */}
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link
-            to="/"
+          <button
             onClick={handleContinue}
             style={{
               padding: "14px 24px",
@@ -211,18 +210,16 @@ export function WelcomeScreen() {
               cursor: "pointer",
               letterSpacing: "-0.005em",
               fontFamily: "inherit",
-              textDecoration: "none",
               display: "inline-flex",
               alignItems: "center",
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = CTA_ORANGE_HOVER; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = CTA_ORANGE; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = CTA_ORANGE_HOVER; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = CTA_ORANGE; }}
           >
             Continue where I left off →
-          </Link>
+          </button>
 
-          <Link
-            to="/"
+          <button
             onClick={handleSkipToDashboard}
             style={{
               padding: "14px 20px",
@@ -234,13 +231,12 @@ export function WelcomeScreen() {
               borderRadius: 999,
               cursor: "pointer",
               fontFamily: "inherit",
-              textDecoration: "none",
               display: "inline-flex",
               alignItems: "center",
             }}
           >
             Skip to my dashboard
-          </Link>
+          </button>
         </div>
       </div>
     </div>
