@@ -112,6 +112,8 @@ import {
 } from "@/lib/pending-signup-data";
 import { readResumeFlow, clearResumeFlow } from "@/lib/resume-flow";
 import { IntentPickerPage } from "@/components/pages/IntentPickerPage";
+import { MobileNavShell } from "@/components/mobile/MobileNavShell";
+import type { MobileTab } from "@/components/mobile/MobileBottomNav";
 
 // ─── Lazy-loaded page components ─────────────────────────────────────────────
 
@@ -3144,6 +3146,7 @@ function App() {
   };
   const [isDark, setIsDark] = useState(false);
   const currentTheme = buildTheme(isDark);
+  const isMobile = useIsMobile();
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
     // Mobile status bar color matches the active mode background
@@ -3480,6 +3483,28 @@ async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
     setPage(expenseData.housing || expenseData.food ? "guided" : "landing");
   }
 
+  // ── Mobile nav helpers ──
+  function handleMobileTabChange(tab: MobileTab) {
+    switch (tab) {
+      case "dashboard": setPage("dashboard"); break;
+      case "calculator": setPage("calculator"); break;
+      case "diagnosis": setPage("results"); break;
+      case "scenarios": setPage("results"); break;
+    }
+  }
+
+  function handleMobileMoreNavigate(id: string) {
+    switch (id) {
+      case "simulator": setPage("simulator"); break;
+      case "budget": setPage("results"); break;
+      case "analytics": setPage("results"); break;
+      case "forecast": setPage("forecast"); break;
+      case "fire": setPage("fire"); break;
+      case "fi": setPage("fi"); break;
+      case "debt": setPage("debt"); break;
+    }
+  }
+
   // ── Page content (AuthModal rendered globally below) ──
   let pageContent: React.ReactNode;
 
@@ -3510,6 +3535,9 @@ async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
             t={applyDark(currentTheme, isDark)}
             isDark={isDark}
           />
+        )}
+        {isMobile && (
+          <MobileNavShell t={applyDark(currentTheme, isDark)} activeTab="dashboard" onTabChange={handleMobileTabChange} onMoreNavigate={handleMobileMoreNavigate} onSignOut={handleSignOut} />
         )}
       </>
     );
@@ -3547,14 +3575,19 @@ async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
     );
   } else if (page === "calculator") {
     pageContent = (
-      <CalculatorPage
-        onResults={handleResults}
-        onBack={() => setPage("landing")}
-        initialData={expenseData}
-        initialTaxRate={taxRate}
-        initialCurrentIncome={currentGrossIncome}
-        {...sharedProps}
-      />
+      <>
+        <CalculatorPage
+          onResults={handleResults}
+          onBack={() => setPage("landing")}
+          initialData={expenseData}
+          initialTaxRate={taxRate}
+          initialCurrentIncome={currentGrossIncome}
+          {...sharedProps}
+        />
+        {isMobile && (
+          <MobileNavShell t={applyDark(currentTheme, isDark)} activeTab="calculator" onTabChange={handleMobileTabChange} onMoreNavigate={handleMobileMoreNavigate} onSignOut={handleSignOut} />
+        )}
+      </>
     );
   } else if (page === "checkout") {
     pageContent = (
@@ -3589,6 +3622,9 @@ async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
           onSignup={() => openAuthModal("signup")}
           {...sharedProps}
         />
+        {isMobile && (
+          <MobileNavShell t={applyDark(currentTheme, isDark)} activeTab="more" onTabChange={handleMobileTabChange} onMoreNavigate={handleMobileMoreNavigate} onSignOut={handleSignOut} />
+        )}
       </Suspense>
     );
   } else if (page === "simulator") {
@@ -3602,6 +3638,9 @@ async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
           userTier={effectiveTier}
           {...sharedProps}
         />
+        {isMobile && (
+          <MobileNavShell t={applyDark(currentTheme, isDark)} activeTab="more" onTabChange={handleMobileTabChange} onMoreNavigate={handleMobileMoreNavigate} onSignOut={handleSignOut} />
+        )}
       </Suspense>
     );
   } else if (page === "checkin") {
@@ -3616,47 +3655,70 @@ async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
           userTier={effectiveTier}
           {...sharedProps}
         />
+        {isMobile && (
+          <MobileNavShell t={applyDark(currentTheme, isDark)} activeTab="more" onTabChange={handleMobileTabChange} onMoreNavigate={handleMobileMoreNavigate} onSignOut={handleSignOut} />
+        )}
       </Suspense>
     );
   } else if (page === "fire") {
     pageContent = (
-      <FirePage
-        onBack={backToResults}
-        onUpgrade={handleUpgrade}
-        userTier={effectiveTier}
-        {...sharedProps}
-      />
+      <>
+        <FirePage
+          onBack={backToResults}
+          onUpgrade={handleUpgrade}
+          userTier={effectiveTier}
+          {...sharedProps}
+        />
+        {isMobile && (
+          <MobileNavShell t={applyDark(currentTheme, isDark)} activeTab="more" onTabChange={handleMobileTabChange} onMoreNavigate={handleMobileMoreNavigate} onSignOut={handleSignOut} />
+        )}
+      </>
     );
   } else if (page === "forecast") {
     pageContent = (
-      <ForecastPage
-        expenses={expenseData}
-        taxRate={taxRate}
-        onBack={backToResults}
-        onUpgrade={handleUpgrade}
-        userTier={effectiveTier}
-        {...sharedProps}
-      />
+      <>
+        <ForecastPage
+          expenses={expenseData}
+          taxRate={taxRate}
+          onBack={backToResults}
+          onUpgrade={handleUpgrade}
+          userTier={effectiveTier}
+          {...sharedProps}
+        />
+        {isMobile && (
+          <MobileNavShell t={applyDark(currentTheme, isDark)} activeTab="more" onTabChange={handleMobileTabChange} onMoreNavigate={handleMobileMoreNavigate} onSignOut={handleSignOut} />
+        )}
+      </>
     );
   } else if (page === "debt") {
     pageContent = (
-      <DebtPage
-        onBack={backToResults}
-        onUpgrade={handleUpgrade}
-        userTier={effectiveTier}
-        {...sharedProps}
-      />
+      <>
+        <DebtPage
+          onBack={backToResults}
+          onUpgrade={handleUpgrade}
+          userTier={effectiveTier}
+          {...sharedProps}
+        />
+        {isMobile && (
+          <MobileNavShell t={applyDark(currentTheme, isDark)} activeTab="more" onTabChange={handleMobileTabChange} onMoreNavigate={handleMobileMoreNavigate} onSignOut={handleSignOut} />
+        )}
+      </>
     );
   } else if (page === "fi") {
     pageContent = (
-      <FIEstimatorPage
-        expenses={expenseData}
-        taxRate={taxRate}
-        onBack={backToResults}
-        onUpgrade={handleUpgrade}
-        userTier={effectiveTier}
-        {...sharedProps}
-      />
+      <>
+        <FIEstimatorPage
+          expenses={expenseData}
+          taxRate={taxRate}
+          onBack={backToResults}
+          onUpgrade={handleUpgrade}
+          userTier={effectiveTier}
+          {...sharedProps}
+        />
+        {isMobile && (
+          <MobileNavShell t={applyDark(currentTheme, isDark)} activeTab="more" onTabChange={handleMobileTabChange} onMoreNavigate={handleMobileMoreNavigate} onSignOut={handleSignOut} />
+        )}
+      </>
     );
   } else if (page === "dev-access") {
     pageContent = (

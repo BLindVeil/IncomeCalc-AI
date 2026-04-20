@@ -48,6 +48,8 @@ import {
   type ExpenseData,
 } from "@/lib/app-shared";
 import { Header } from "@/components/Header";
+import { MobileNavShell } from "@/components/mobile/MobileNavShell";
+import type { MobileTab } from "@/components/mobile/MobileBottomNav";
 import { FormattedNumber } from "@/components/FormattedNumber";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { StatusPill } from "@/components/ui/StatusPill";
@@ -570,6 +572,12 @@ export interface ResultsPageProps {
   fromGuidedFlow?: boolean;
 }
 
+function resolveActiveTab(currentView: string): MobileTab {
+  if (currentView === "dashboard") return "dashboard";
+  if (currentView === "scenarios") return "scenarios";
+  return "more";
+}
+
 function FadeIn({ opacity, setOpacity, children }: { opacity: number; setOpacity: (v: number) => void; children: ReactNode }) {
   useEffect(() => { requestAnimationFrame(() => setOpacity(1)); }, []);  // eslint-disable-line react-hooks/exhaustive-deps
   return <div style={{ opacity, transition: "opacity 400ms ease" }}>{children}</div>;
@@ -814,7 +822,7 @@ export function ResultsPage({
             </>
           )}
 
-          <div style={{ maxWidth: "1100px", margin: "0 auto", padding: isMobile ? "72px 1rem 3rem" : isDesktop ? "2rem 2rem 4rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
+          <div style={{ maxWidth: "1100px", margin: "0 auto", padding: isMobile ? "72px 1rem calc(80px + env(safe-area-inset-bottom, 0px))" : isDesktop ? "2rem 2rem 4rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
 
             {/* ─── Budget view ─────────────────────────────────────────── */}
             {currentView === "budget" && (
@@ -2935,6 +2943,39 @@ export function ResultsPage({
           t={t}
           isDark={isDark}
           onClose={() => setChatOpen(false)}
+        />
+      )}
+
+      {/* Mobile bottom nav */}
+      {isMobile && (
+        <MobileNavShell
+          t={t}
+          activeTab={resolveActiveTab(currentView)}
+          onTabChange={(tab) => {
+            switch (tab) {
+              case "dashboard": setCurrentView("dashboard"); break;
+              case "calculator": onRecalculate(); break;
+              case "diagnosis":
+                setCurrentView("dashboard");
+                setShowFullReport(true);
+                requestAnimationFrame(() => {
+                  const el = document.getElementById("diagnosis-section");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                });
+                break;
+              case "scenarios": setCurrentView("scenarios"); break;
+            }
+          }}
+          onMoreNavigate={(id) => {
+            if (id === "budget") { setCurrentView("budget"); return; }
+            if (id === "analytics") { setCurrentView("analytics"); return; }
+            if (id === "simulator") { onSimulator(); return; }
+            if (id === "forecast") { onForecast(); return; }
+            if (id === "fire") { onFire(); return; }
+            if (id === "fi") { onFI(); return; }
+            if (id === "debt") { onDebt(); return; }
+          }}
+          onSignOut={onSignOut ?? (() => {})}
         />
       )}
     </div>
