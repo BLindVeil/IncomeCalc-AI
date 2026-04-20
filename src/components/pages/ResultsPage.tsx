@@ -2909,7 +2909,7 @@ export function ResultsPage({
           onClick={() => setChatOpen(true)}
           style={{
             position: "fixed",
-            bottom: "1.5rem",
+            bottom: isMobile ? "calc(72px + env(safe-area-inset-bottom, 0px))" : "1.5rem",
             right: "1.5rem",
             height: "50px",
             borderRadius: "25px",

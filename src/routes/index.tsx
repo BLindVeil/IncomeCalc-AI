@@ -258,7 +258,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: t.bg, color: t.text }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, overflowX: "hidden" }}>
       {/* Hero — full-bleed above sidebar layout */}
       <LandingHero onStart={onStart} onSignIn={onSignIn} isSignedIn={!!currentUser} userName={currentUser?.email} onDashboard={onDashboard} onSignOut={onSignOut} />
 
