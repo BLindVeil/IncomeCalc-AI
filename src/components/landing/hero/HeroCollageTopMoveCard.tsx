@@ -8,17 +8,15 @@ const EV_50 = "#F1FAF4";
 const EV_800 = "#1B4332";
 const CARD_SHADOW = "0 28px 65px rgba(0,0,0,0.42), 0 8px 20px rgba(0,0,0,0.22)";
 
-export function HeroCollageTopMoveCard() {
+export function HeroCollageTopMoveCard({ mobile }: { mobile?: boolean }) {
+  const positionStyles: React.CSSProperties = mobile
+    ? { position: "static", width: "100%", transform: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }
+    : { position: "absolute", bottom: 4, left: 72, width: 264, transform: "rotate(-2deg)", zIndex: 3, boxShadow: CARD_SHADOW };
+
   return (
     <div
       style={{
-        position: "absolute",
-        bottom: 4,
-        left: 72,
-        width: 264,
-        transform: "rotate(-2deg)",
-        zIndex: 3,
-        boxShadow: CARD_SHADOW,
+        ...positionStyles,
         background: CARD_WHITE,
         borderRadius: 16,
         padding: 18,
