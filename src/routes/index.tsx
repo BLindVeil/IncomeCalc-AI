@@ -3165,7 +3165,7 @@ function App() {
         sessionStorage.removeItem(LAST_PAGE_KEY);
         return;
       }
-      const requiresData: Page[] = ["results", "guided", "simulator", "checkin", "fire", "forecast", "debt", "fi"];
+      const requiresData: Page[] = ["guided", "simulator", "checkin", "fire", "forecast", "debt", "fi"];
       if (requiresData.includes(saved as Page) && !hasExpenseData(expenseData)) return;
       setPageRaw(saved as Page);
     } catch { /* ignore */ }
