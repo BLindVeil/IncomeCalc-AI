@@ -417,3 +417,39 @@ The moat should become:
 - **Brand mark container**: Evergreen gradient (`#1B4332` → `#52B788`), rounded square
 - **Sizes**: 36x36 (sidebar), 32x32 (header), 48x48 (share card), 32x32 (favicon)
 - **Favicon**: SVG at `/public/favicon.svg` — same geometric "A" on `#1B4332` background
+
+## Phase 3e — Shipped
+
+**Name capture:**
+- User type (src/lib/auth-store.ts:14) has optional `name?: string`. Legacy users = undefined, new signups collect it.
+- Signup API (api/auth.ts) stores name in KV, login returns it.
+- AuthModal signup form collects name (optional, max 60 chars). Signin unchanged.
+
+**User display helpers (src/lib/user-display.ts):**
+- `getDisplayName(user)` → full name or email prefix fallback. Use for dashboard greetings, labels.
+- `getFirstName(user)` → first word of name, or email prefix fallback. Use for welcome screens.
+- `getInitials(user)` → "JS" for multi-word names, "J" for single-word or email fallback.
+- **Rule: never use `email.split("@")` for display in UI code.** One intentional exception remains: `auth-store.ts:702` digest email (has name-first fallback).
+
+**Dashboard empty state:**
+- `hasRealExpenseData(expenseData)` lives in `src/lib/app-shared.ts:227`. Returns true if any expense value > 0.
+- `DashboardEmptyState` component at `src/components/dashboard/DashboardEmptyState.tsx`. Centered layout matching Budget/Scenarios pattern, personalized greeting, orange CTA → intent picker.
+- ResultsPage gates the entire dashboard view on `hasRealExpenseData`. Empty state replaces metric cards + health score + runway + alerts + scenarios — none of those render for zero-data users.
+- DashboardTopbar `subtitle` prop overrides "Here's your financial assessment..." with "Let's get started" when empty.
+
+**FirstVisitBanner:**
+- Single variant only. Renders "Your $X,XXX/mo required income is saved..." when user has pendingData, else returns null.
+- Variant B (no-data "come alive" copy) deleted — absorbed by DashboardEmptyState.
+
+**Path correction:**
+- `DashboardTopbar` lives at `src/components/ui/DashboardTopbar.tsx` (NOT `src/components/dashboard/`). Prior docs had this wrong.
+
+**Infrastructure:**
+- `.gitattributes` now normalizes all source files to LF. No more CRLF/LF churn in phase diffs.
+
+## Known open items (carry forward)
+
+- **Analytics page zero-data bug** (src/components/pages/AnalyticsPage.tsx or equivalent). Same class as the dashboard bug we just fixed: "Your expenses are well distributed across categories" renders with no expenses. Apply the `hasRealExpenseData` + centered empty-state pattern. Small phase, high quality bar.
+- **incomecalai.com decommission.** Old domain still pointing at stale Vercel deployment with pre-rebrand landing. Namecheap DNS action required.
+- **TikTok rename** from @incomecalc.ai to match Ascentra brand. Business verified, content strategy paused.
+- **Post-signup personalization (was "3f").** Name capture works now — next step is slotting 1-2 financial-context questions into /welcome before dashboard hydrates. Design-heavy, save for a session where you have time to think about which questions earn their place.
