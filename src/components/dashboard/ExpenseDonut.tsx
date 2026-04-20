@@ -11,6 +11,7 @@ export interface ExpenseDonutProps {
   t: ThemeConfig;
   slices: ExpenseSlice[];
   total: number;
+  isMobile?: boolean;
 }
 
 const DONUT_COLORS = [
@@ -18,7 +19,8 @@ const DONUT_COLORS = [
   "#B7E4C7", "#D8F3DC", "#2D6A4F", "#081C15",
 ];
 
-export function ExpenseDonut({ t, slices, total }: ExpenseDonutProps) {
+export function ExpenseDonut({ t, slices, total, isMobile }: ExpenseDonutProps) {
+  const donutSize = isMobile ? 120 : 160;
   const radius = 60;
   const cx = 80;
   const cy = 80;
@@ -60,10 +62,10 @@ export function ExpenseDonut({ t, slices, total }: ExpenseDonutProps) {
         Expense Breakdown
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+      <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: "center", gap: isMobile ? 16 : 24 }}>
         {/* SVG donut */}
-        <div style={{ position: "relative", width: 160, height: 160, flexShrink: 0 }}>
-          <svg width={160} height={160} viewBox="0 0 160 160" style={{ transform: "rotate(-90deg)" }}>
+        <div style={{ position: "relative", width: donutSize, height: donutSize, flexShrink: 0 }}>
+          <svg width={donutSize} height={donutSize} viewBox="0 0 160 160" style={{ transform: "rotate(-90deg)" }}>
             {/* Background ring */}
             <circle cx={cx} cy={cy} r={radius} fill="none" stroke={t.border} strokeWidth={20} />
             {arcs}

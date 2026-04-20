@@ -946,11 +946,13 @@ export function ResultsPage({
                 isDark={isDark}
                 currentIncome={currentGrossIncome / 12}
                 requiredIncome={grossMonthly}
+                isMobile={isMobile}
               />
               <ExpenseDonut
                 t={t}
                 slices={donutSlices}
                 total={totalMonthly}
+                isMobile={isMobile}
               />
             </div>
 

@@ -217,7 +217,7 @@ function RightColumn({
   setCtaHover: (v: boolean) => void;
 }) {
   return (
-    <div style={{ padding: "12px 4px 4px" }}>
+    <div style={{ padding: isMobile ? "12px 0 4px" : "12px 4px 4px" }}>
       {/* Subtitle */}
       <div
         style={{

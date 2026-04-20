@@ -115,7 +115,7 @@ export function OverviewSection({ t, isDark, isMobile, onStart }: OverviewSectio
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
-              gap: 12,
+              gap: isMobile ? 8 : 12,
               marginBottom: 12,
             }}
           >

@@ -7,9 +7,11 @@ export interface IncomeBarChartProps {
   isDark: boolean;
   currentIncome: number;
   requiredIncome: number;
+  isMobile?: boolean;
 }
 
-export function IncomeBarChart({ t, isDark, currentIncome, requiredIncome }: IncomeBarChartProps) {
+export function IncomeBarChart({ t, isDark, currentIncome, requiredIncome, isMobile }: IncomeBarChartProps) {
+  const barW = isMobile ? 10 : 14;
   const now = new Date();
   const months: { label: string; income: number; required: number }[] = [];
 
@@ -55,7 +57,7 @@ export function IncomeBarChart({ t, isDark, currentIncome, requiredIncome }: Inc
               <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 120 }}>
                 <div
                   style={{
-                    width: 14,
+                    width: barW,
                     height: incomeH,
                     borderRadius: "4px 4px 0 0",
                     background: EV_500,
@@ -64,7 +66,7 @@ export function IncomeBarChart({ t, isDark, currentIncome, requiredIncome }: Inc
                 />
                 <div
                   style={{
-                    width: 14,
+                    width: barW,
                     height: requiredH,
                     borderRadius: "4px 4px 0 0",
                     background: isDark ? "rgba(255,255,255,0.15)" : EV_200,
