@@ -57,10 +57,10 @@ export function FirstVisitBanner({
   }
 
   if (!shouldShow) return null;
+  if (!requiredIncomeMonthly || requiredIncomeMonthly <= 0) return null;
 
   const tintBg = isDark ? "rgba(82,183,136,0.08)" : EV_50;
   const accentColor = EV_500;
-  const hasNumber = requiredIncomeMonthly != null && requiredIncomeMonthly > 0;
 
   return (
     <div
@@ -79,19 +79,11 @@ export function FirstVisitBanner({
       }}
     >
       <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.5, color: t.text, flex: 1 }}>
-        {hasNumber ? (
-          <>
-            Your{" "}
-            <span style={{ fontWeight: 700, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
-              $<FormattedNumber value={requiredIncomeMonthly!} />/mo
-            </span>{" "}
-            required income is saved. This is your dashboard — it updates as your life changes.
-          </>
-        ) : (
-          <>
-            Welcome to Ascentra. This is your dashboard — it'll come alive once you enter your expenses.
-          </>
-        )}
+        Your{" "}
+        <span style={{ fontWeight: 700, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
+          $<FormattedNumber value={requiredIncomeMonthly} />/mo
+        </span>{" "}
+        required income is saved. This is your dashboard — it updates as your life changes.
       </p>
 
       <button

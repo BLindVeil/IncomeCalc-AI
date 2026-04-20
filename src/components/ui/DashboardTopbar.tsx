@@ -31,6 +31,7 @@ export interface DashboardTopbarProps {
   onDashboard?: () => void;
   onSignOut?: () => void;
   userEmail?: string;
+  subtitle?: string;
 }
 
 // ─── SVG Icons ──────────────────────────────────────────────────────────────
@@ -87,6 +88,7 @@ export function DashboardTopbar({
   onDashboard,
   onSignOut,
   userEmail,
+  subtitle,
 }: DashboardTopbarProps) {
   const now = new Date();
   const month = now.toLocaleString("default", { month: "long" });
@@ -191,7 +193,7 @@ export function DashboardTopbar({
             Welcome back, {userName}
           </h1>
           <p style={{ fontSize: 14, color: t.muted, margin: "4px 0 0" }}>
-            Here's your financial assessment for {month} {year}
+            {subtitle ?? `Here's your financial assessment for ${month} ${year}`}
           </p>
         </div>
       )}

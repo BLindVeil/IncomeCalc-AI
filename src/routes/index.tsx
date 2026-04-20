@@ -74,6 +74,7 @@ import {
   type SavedScenario,
   type Session,
 } from "@/lib/auth-store";
+import { getDisplayName, getInitials } from "@/lib/user-display";
 import {
   type Page,
   type UserTier,
@@ -240,7 +241,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
         onClick={onDashboard}
         title={currentUser.email}
       >
-        {currentUser.email[0].toUpperCase()}
+        {getInitials(currentUser)}
       </div>
     </div>
   ) : (
@@ -2331,6 +2332,7 @@ interface AuthModalProps {
 
 function AuthModal({ mode: initialMode, onClose, onSuccess, t, isDark }: AuthModalProps) {
   const [mode, setMode] = useState(initialMode);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -2350,7 +2352,7 @@ function AuthModal({ mode: initialMode, onClose, onSuccess, t, isDark }: AuthMod
     setError("");
 
     const result = mode === "signup"
-      ? await authSignup(email, password)
+      ? await authSignup(email, password, name.trim() || undefined)
       : await authLogin(email, password);
 
     if ("error" in result) {
@@ -2395,6 +2397,20 @@ function AuthModal({ mode: initialMode, onClose, onSuccess, t, isDark }: AuthMod
               {error}
             </div>
           )}
+          {mode === "signup" && (
+            <div style={{ marginBottom: "1rem" }}>
+              <Label style={{ fontSize: "0.85rem", color: t.text, display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>Your name</Label>
+              <Input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="First name works"
+                maxLength={60}
+                autoFocus
+                style={{ background: isDark ? "#2a2a2f" : t.bg, border: `1px solid ${t.border}`, color: t.text }}
+              />
+            </div>
+          )}
           <div style={{ marginBottom: "1rem" }}>
             <Label style={{ fontSize: "0.85rem", color: t.text, display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>Email</Label>
             <Input
@@ -2402,7 +2418,7 @@ function AuthModal({ mode: initialMode, onClose, onSuccess, t, isDark }: AuthMod
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              autoFocus
+              autoFocus={mode !== "signup"}
               style={{ background: isDark ? "#2a2a2f" : t.bg, border: `1px solid ${t.border}`, color: t.text }}
             />
           </div>

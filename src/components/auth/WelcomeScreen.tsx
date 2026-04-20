@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { MONO_FONT_STACK } from "@/lib/app-shared";
+import { getFirstName } from "@/lib/user-display";
 import { getCurrentUser, getSession } from "@/lib/auth-store";
 import {
   markWelcomeSeen,
@@ -75,7 +76,7 @@ export function WelcomeScreen() {
 
   if (!user) return null;
 
-  const firstName = user.email.split("@")[0] ?? "there";
+  const firstName = getFirstName(user) || "there";
   const requiredIncome = pendingData?.grossMonthlyRequired;
 
   return (

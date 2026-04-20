@@ -47,6 +47,7 @@ interface KVUser {
   email: string;
   passwordHash: string;
   createdAt: string;
+  name?: string;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -113,6 +114,11 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         return;
       }
 
+      const rawName = (body as unknown as Record<string, unknown>).name;
+      const name = typeof rawName === "string" && rawName.trim().length > 0
+        ? rawName.trim().slice(0, 60)
+        : undefined;
+
       const passwordHash = await hashPassword(password);
       const userId = genId();
       const record: KVUser = {
@@ -120,11 +126,12 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         email: normalizedEmail,
         passwordHash,
         createdAt: new Date().toISOString(),
+        ...(name && { name }),
       };
 
       await kv.set(kvKey(normalizedEmail), record);
 
-      res.status(200).json({ ok: true, userId, email: normalizedEmail });
+      res.status(200).json({ ok: true, userId, email: normalizedEmail, ...(name && { name }) });
     } else {
       // Login
       const record = await kv.get<KVUser>(kvKey(normalizedEmail));
@@ -162,7 +169,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
       }
       console.log(`[auth/login] final plan=${plan}`);
 
-      res.status(200).json({ ok: true, userId: record.userId, email: record.email, plan });
+      res.status(200).json({ ok: true, userId: record.userId, email: record.email, plan, ...(record.name && { name: record.name }) });
     }
   } catch (err) {
     console.error("[auth] KV operation failed:", err);

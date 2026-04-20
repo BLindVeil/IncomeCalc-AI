@@ -57,6 +57,7 @@ import { AIIncomeIdeas } from "@/components/ai/AIIncomeIdeas";
 import { AIChat } from "@/components/ai/AIChat";
 import { FinancialDiagnosisSection } from "@/components/ai/FinancialDiagnosisSection";
 import { getSession, type User as AuthUser } from "@/lib/auth-store";
+import { getDisplayName } from "@/lib/user-display";
 import { DashboardSidebar } from "@/components/ui/DashboardSidebar";
 import { DashboardTopbar } from "@/components/ui/DashboardTopbar";
 import { IncomeBarChart } from "@/components/dashboard/IncomeBarChart";
@@ -64,10 +65,15 @@ import { ExpenseDonut } from "@/components/dashboard/ExpenseDonut";
 import { ScenariosCard } from "@/components/dashboard/ScenariosCard";
 import { TopMoveCard } from "@/components/dashboard/TopMoveCard";
 import { FirstVisitBanner } from "@/components/dashboard/FirstVisitBanner";
+import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
 import { BudgetPage } from "@/components/pages/BudgetPage";
 import { AnalyticsPage } from "@/components/pages/AnalyticsPage";
 import { ScenariosPage } from "@/components/pages/ScenariosPage";
 import { useBudgetStore } from "@/lib/budget-store";
+
+function hasRealExpenseData(d: ExpenseData): boolean {
+  return EXPENSE_FIELDS.some((f) => (d[f.name] ?? 0) > 0);
+}
 
 // ─── AnnualUpsellModal ────────────────────────────────────────────────────────
 
@@ -871,9 +877,9 @@ export function ResultsPage({
               t={t}
               isDark={isDark}
               isMobile={isMobile}
-              userName={currentUser?.email?.split("@")[0] || "there"}
+              userName={getDisplayName(currentUser) || "there"}
               onSimulator={onSimulator}
-              alerts={alerts}
+              alerts={hasRealExpenseData(data) ? alerts : []}
               onNavigate={(view) => {
                 if (["dashboard", "budget", "analytics", "scenarios"].includes(view)) {
                   setCurrentView(view);
@@ -884,7 +890,12 @@ export function ResultsPage({
               onDashboard={onDashboard}
               onSignOut={onSignOut}
               userEmail={currentUser?.email}
+              subtitle={hasRealExpenseData(data) ? undefined : "Let's get started"}
             />
+
+            {!hasRealExpenseData(data) ? (
+              <DashboardEmptyState onGetStarted={onRecalculate} />
+            ) : <>
 
             {/* First-visit welcome banner */}
             {currentUser && (() => {
@@ -2879,7 +2890,7 @@ export function ResultsPage({
         </div>
             </div>
             )}
-            </>}
+            </>}</>}
           </div>
         </div>
       </div>

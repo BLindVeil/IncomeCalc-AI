@@ -11,6 +11,7 @@ import { useDiagnosisStore } from "./diagnosis-store";
 export interface User {
   id: string;
   email: string;
+  name?: string; // optional — legacy users don't have this field
   createdAt: string; // ISO
   stripeCustomerId: string | null;
   isDevAdmin: boolean;
@@ -148,12 +149,12 @@ function findUserById(id: string): User | null {
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-export async function signup(email: string, password: string): Promise<{ user: User; session: Session } | { error: string }> {
+export async function signup(email: string, password: string, name?: string): Promise<{ user: User; session: Session } | { error: string }> {
   try {
     const res = await fetch("/api/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "signup", email, password }),
+      body: JSON.stringify({ action: "signup", email, password, ...(name && { name }) }),
     });
     const data = await res.json();
     if (!data.ok) {
@@ -163,6 +164,7 @@ export async function signup(email: string, password: string): Promise<{ user: U
     const user: User = {
       id: data.userId,
       email: data.email,
+      ...(data.name && { name: data.name }),
       createdAt: new Date().toISOString(),
       stripeCustomerId: null,
       isDevAdmin: false,
@@ -197,11 +199,13 @@ export async function login(email: string, password: string): Promise<{ user: Us
 
     // Create or update local user record from server response
     const users = loadUsers();
-    let user = users.find((u) => u.id === data.userId);
-    if (!user) {
+    const existing = users.find((u) => u.id === data.userId);
+    let user: User;
+    if (!existing) {
       user = {
         id: data.userId,
         email: data.email,
+        ...(data.name && { name: data.name }),
         createdAt: new Date().toISOString(),
         stripeCustomerId: null,
         isDevAdmin: false,
@@ -211,6 +215,12 @@ export async function login(email: string, password: string): Promise<{ user: Us
       };
       users.push(user);
       saveUsers(users);
+    } else {
+      user = existing;
+      if (data.name && !user.name) {
+        user.name = data.name;
+        saveUsers(users);
+      }
     }
 
     saveCurrentUser(user);
@@ -689,7 +699,7 @@ export function buildDigestEmailHtml(digest: DigestData, appBaseUrl: string): st
 <div style="color:#a1a1aa;font-size:14px;margin-top:4px;">Weekly Financial Report</div>
 </div>
 <div style="background:#fff;padding:24px;border:1px solid #e4e4e7;border-top:none;">
-<p style="color:#18181b;font-size:16px;margin:0 0 16px;">Hi ${digest.user.email.split("@")[0]},</p>
+<p style="color:#18181b;font-size:16px;margin:0 0 16px;">Hi ${digest.user.name?.trim().split(/\s+/)[0] || digest.user.email.split("@")[0]},</p>
 <p style="color:#71717a;font-size:14px;margin:0 0 20px;line-height:1.5;">Here's your weekly financial summary based on "<strong>${s.name}</strong>".</p>
 
 <div style="background:#f4f4f5;border-radius:8px;padding:16px;margin-bottom:16px;">
