@@ -28,6 +28,9 @@ export interface DashboardTopbarProps {
   ctaLabel?: string;
   ctaOnClick?: () => void;
   rightExtra?: React.ReactNode;
+  onDashboard?: () => void;
+  onSignOut?: () => void;
+  userEmail?: string;
 }
 
 // ─── SVG Icons ──────────────────────────────────────────────────────────────
@@ -81,6 +84,9 @@ export function DashboardTopbar({
   ctaLabel,
   ctaOnClick,
   rightExtra,
+  onDashboard,
+  onSignOut,
+  userEmail,
 }: DashboardTopbarProps) {
   const now = new Date();
   const month = now.toLocaleString("default", { month: "long" });
@@ -89,9 +95,11 @@ export function DashboardTopbar({
   const [bellOpen, setBellOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const avatarRef = useRef<HTMLDivElement>(null);
 
   // Click-outside handlers
   useEffect(() => {
@@ -119,6 +127,15 @@ export function DashboardTopbar({
       document.removeEventListener("keydown", keyHandler);
     };
   }, [searchOpen]);
+
+  useEffect(() => {
+    if (!avatarMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setAvatarMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [avatarMenuOpen]);
 
   const filteredNav = searchQuery.trim()
     ? QUICK_NAV.filter((n) => n.label.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -356,16 +373,86 @@ export function DashboardTopbar({
           {ctaLabel ? ctaLabel : <><PlusIcon /> New scenario</>}
         </button>
         {!rightExtra && (
-          <div
-            style={{
-              width: 36, height: 36, borderRadius: "50%",
-              background: `linear-gradient(135deg, ${EV_500}, ${EV_800})`,
-              color: "#fff", fontWeight: 600, fontSize: 13,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            {userName !== "there" ? userName.charAt(0).toUpperCase() : "U"}
+          <div ref={avatarRef} style={{ position: "relative" }}>
+            <div
+              style={{
+                width: 36, height: 36, borderRadius: "50%",
+                background: `linear-gradient(135deg, ${EV_500}, ${EV_800})`,
+                color: "#fff", fontWeight: 600, fontSize: 13,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
+                cursor: (onDashboard || onSignOut) ? "pointer" : "default",
+                transition: "opacity 150ms",
+              }}
+              onClick={() => {
+                if (onDashboard || onSignOut) {
+                  setAvatarMenuOpen(!avatarMenuOpen);
+                  setBellOpen(false);
+                  setSearchOpen(false);
+                }
+              }}
+              aria-label="Open user menu"
+              aria-expanded={avatarMenuOpen}
+            >
+              {userName !== "there" ? userName.charAt(0).toUpperCase() : "U"}
+            </div>
+            {avatarMenuOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 8px)",
+                  right: 0,
+                  background: t.cardBg,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 12,
+                  padding: 6,
+                  minWidth: 220,
+                  zIndex: 100,
+                  boxShadow: isDark ? "0 8px 24px rgba(0,0,0,0.4)" : "0 8px 24px rgba(0,0,0,0.08)",
+                }}
+              >
+                {userEmail && (
+                  <>
+                    <div
+                      style={{
+                        padding: "10px 12px",
+                        color: t.muted,
+                        fontSize: 11,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase" as const,
+                        fontWeight: 500,
+                        whiteSpace: "nowrap" as const,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {userEmail}
+                    </div>
+                    <div style={{ height: 1, background: t.border, margin: "4px 0" }} />
+                  </>
+                )}
+                {onDashboard && (
+                  <div
+                    style={{ padding: "10px 12px", fontSize: 14, color: t.text, cursor: "pointer", borderRadius: 8, fontWeight: 500 }}
+                    onClick={() => { setAvatarMenuOpen(false); onDashboard(); }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                  >
+                    Dashboard
+                  </div>
+                )}
+                {onSignOut && (
+                  <div
+                    style={{ padding: "10px 12px", fontSize: 14, color: t.text, cursor: "pointer", borderRadius: 8, fontWeight: 500 }}
+                    onClick={() => { setAvatarMenuOpen(false); onSignOut(); }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                  >
+                    Sign out
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

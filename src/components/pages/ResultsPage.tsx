@@ -881,6 +881,9 @@ export function ResultsPage({
                   if (mainEl) mainEl.scrollTo(0, 0);
                 }
               }}
+              onDashboard={onDashboard}
+              onSignOut={onSignOut}
+              userEmail={currentUser?.email}
             />
 
             {/* First-visit welcome banner */}

@@ -63,6 +63,14 @@ export function WelcomeScreen() {
       });
     }
     await handleMarkSeen();
+    // Belt-and-suspenders: resume-flow effect will set the page, but also set the marker
+    try { sessionStorage.setItem("ascentra-last-page", "guided"); } catch { /* ignore */ }
+  };
+
+  const handleSkipToDashboard = async () => {
+    await handleMarkSeen();
+    // Tell index.tsx's page-persistence to land on the results/dashboard view
+    try { sessionStorage.setItem("ascentra-last-page", "results"); } catch { /* ignore */ }
   };
 
   if (!user) return null;
@@ -215,7 +223,7 @@ export function WelcomeScreen() {
 
           <Link
             to="/"
-            onClick={handleMarkSeen}
+            onClick={handleSkipToDashboard}
             style={{
               padding: "14px 20px",
               background: "transparent",
