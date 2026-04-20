@@ -15,6 +15,11 @@ interface HeroTopNavProps {
   onSignOut?: () => void;
 }
 
+const EV_800 = "#1B4332";
+const TEXT = "#111827";
+const MUTED = "#6B7280";
+const BORDER = "#E5E7EB";
+
 export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, onDashboard, onSignOut }: HeroTopNavProps) {
   const [hoverSignIn, setHoverSignIn] = useState(false);
   const [hoverGetStarted, setHoverGetStarted] = useState(false);
@@ -56,7 +61,7 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
             fontSize: 16,
             fontWeight: 600,
             letterSpacing: "-0.01em",
-            color: "white",
+            color: TEXT,
           }}
         >
           Ascentra
@@ -74,8 +79,7 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
                   width: 32,
                   height: 32,
                   borderRadius: "50%",
-                  background: "rgba(255,255,255,0.15)",
-                  border: "1px solid rgba(255,255,255,0.25)",
+                  background: EV_800,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -98,11 +102,12 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
                     top: 40,
                     right: 0,
                     minWidth: 160,
-                    background: "#1B4332",
-                    border: "1px solid rgba(255,255,255,0.15)",
+                    background: "white",
+                    border: `1px solid ${BORDER}`,
                     borderRadius: 12,
                     padding: "6px 0",
                     zIndex: 200,
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
                   }}
                 >
                   <button
@@ -113,9 +118,9 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
                       display: "block",
                       width: "100%",
                       padding: "10px 16px",
-                      background: hoverItem === "dashboard" ? "rgba(255,255,255,0.08)" : "transparent",
+                      background: hoverItem === "dashboard" ? "#F3F4F6" : "transparent",
                       border: "none",
-                      color: "white",
+                      color: TEXT,
                       fontSize: 13,
                       fontWeight: 500,
                       textAlign: "left",
@@ -133,9 +138,9 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
                       display: "block",
                       width: "100%",
                       padding: "10px 16px",
-                      background: hoverItem === "signout" ? "rgba(255,255,255,0.08)" : "transparent",
+                      background: hoverItem === "signout" ? "#F3F4F6" : "transparent",
                       border: "none",
-                      color: "rgba(255,255,255,0.7)",
+                      color: MUTED,
                       fontSize: 13,
                       fontWeight: 500,
                       textAlign: "left",
@@ -156,7 +161,7 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
               style={{
                 fontSize: 13,
                 fontWeight: 500,
-                color: hoverSignIn ? "white" : "rgba(255,255,255,0.78)",
+                color: hoverSignIn ? TEXT : MUTED,
                 cursor: "pointer",
                 transition: "color 150ms",
               }}
@@ -171,12 +176,12 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
           onMouseLeave={() => setHoverGetStarted(false)}
           style={{
             padding: "8px 16px",
-            border: "1px solid rgba(255,255,255,0.25)",
+            border: `1px solid ${BORDER}`,
             borderRadius: 999,
             fontSize: 13,
             fontWeight: 500,
-            color: "white",
-            background: hoverGetStarted ? "rgba(255,255,255,0.08)" : "transparent",
+            color: TEXT,
+            background: hoverGetStarted ? "#F9FAFB" : "transparent",
             cursor: "pointer",
             transition: "background 150ms",
           }}
