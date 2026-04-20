@@ -3103,8 +3103,29 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
 
 // ─── Root App ─────────────────────────────────────────────────────────────────
 
+const LAST_PAGE_KEY = "ascentra-last-page";
+
+const PERSISTABLE_PAGES: Page[] = [
+  "landing", "intent", "calculator", "results", "guided", "dashboard",
+  "simulator", "checkin", "fire", "forecast", "debt", "fi",
+];
+
+function hasExpenseData(data: ExpenseData): boolean {
+  return EXPENSE_FIELDS.some((f) => (data[f.name] ?? 0) > 0);
+}
+
 function App() {
-  const [page, setPage] = useState<Page>("landing");
+  const [page, setPageRaw] = useState<Page>("landing");
+  const setPage = (next: Page) => {
+    setPageRaw(next);
+    try {
+      if ((PERSISTABLE_PAGES as string[]).includes(next)) {
+        sessionStorage.setItem(LAST_PAGE_KEY, next);
+      } else {
+        sessionStorage.removeItem(LAST_PAGE_KEY);
+      }
+    } catch { /* sessionStorage can fail in private mode */ }
+  };
   const [isDark, setIsDark] = useState(false);
   const currentTheme = buildTheme(isDark);
   useEffect(() => {
@@ -3133,6 +3154,22 @@ function App() {
   const [savePromptPending, setSavePromptPending] = useState(false);
   const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
   const [shareSlug, setShareSlug] = useState<string | null>(null);
+
+  // ── Restore last page from sessionStorage on mount ──
+  useEffect(() => {
+    if (!currentUser) return;
+    try {
+      const saved = sessionStorage.getItem(LAST_PAGE_KEY);
+      if (!saved) return;
+      if (!(PERSISTABLE_PAGES as string[]).includes(saved)) {
+        sessionStorage.removeItem(LAST_PAGE_KEY);
+        return;
+      }
+      const requiresData: Page[] = ["results", "guided", "simulator", "checkin", "fire", "forecast", "debt", "fi"];
+      if (requiresData.includes(saved as Page) && !hasExpenseData(expenseData)) return;
+      setPageRaw(saved as Page);
+    } catch { /* ignore */ }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Resume flow from /welcome ──
   useEffect(() => {
@@ -3165,6 +3202,7 @@ function App() {
       sessionStorage.removeItem("ascentra-pending-signup-data");
       sessionStorage.removeItem("ascentra-signup-prompt-dismissed");
       sessionStorage.removeItem("ascentra-intent");
+      sessionStorage.removeItem(LAST_PAGE_KEY);
     } catch { /* ignore */ }
 
     try {
