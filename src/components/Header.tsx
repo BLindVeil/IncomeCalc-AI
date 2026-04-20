@@ -247,7 +247,7 @@ export function Header({
             <line x1="6" y1="13" x2="14" y2="13" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
         </div>
-        {!isMobile && <span style={{ fontWeight: 600, fontSize: "1rem", color: t.text, letterSpacing: "-0.01em" }}>Ascentra</span>}
+        <span style={{ fontWeight: 600, fontSize: "1rem", color: t.text, letterSpacing: "-0.01em" }}>Ascentra</span>
       </button>
 
       <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "0.35rem" : "0.5rem", flexShrink: 0, position: "relative", flexWrap: "wrap" }}>
