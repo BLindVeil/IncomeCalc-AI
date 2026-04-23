@@ -42,7 +42,6 @@ export function HeroAnimatedPills() {
         nextOut = (nextOut + 1) % PILLS.length;
         return next;
       });
-      nextOut++;
     }, CYCLE_MS);
     return () => clearInterval(interval);
   }, []);

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { EV_800, NEUTRAL_TEXT, NEUTRAL_MUTED, NEUTRAL_BORDER } from "@/lib/app-shared";
 
 function getInitial(name: string | undefined): string {
   if (!name || name.trim().length === 0) return "U";
@@ -15,10 +16,9 @@ interface HeroTopNavProps {
   onSignOut?: () => void;
 }
 
-const EV_800 = "#1B4332";
-const TEXT = "#111827";
-const MUTED = "#6B7280";
-const BORDER = "#E5E7EB";
+const TEXT = NEUTRAL_TEXT;
+const MUTED = NEUTRAL_MUTED;
+const BORDER = NEUTRAL_BORDER;
 
 export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, onDashboard, onSignOut }: HeroTopNavProps) {
   const [hoverSignIn, setHoverSignIn] = useState(false);
@@ -154,7 +154,8 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
               )}
             </div>
           ) : (
-            <span
+            <button
+              type="button"
               onClick={onSignIn}
               onMouseEnter={() => setHoverSignIn(true)}
               onMouseLeave={() => setHoverSignIn(false)}
@@ -164,13 +165,17 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
                 color: hoverSignIn ? TEXT : MUTED,
                 cursor: "pointer",
                 transition: "color 150ms",
+                background: "none",
+                border: "none",
+                padding: 0,
               }}
             >
               Sign in
-            </span>
+            </button>
           )
         )}
         <button
+          type="button"
           onClick={onStart}
           onMouseEnter={() => setHoverGetStarted(true)}
           onMouseLeave={() => setHoverGetStarted(false)}

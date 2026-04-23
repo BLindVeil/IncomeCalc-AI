@@ -1,15 +1,9 @@
-import { MONO_FONT_STACK } from "@/lib/app-shared";
+import { MONO_FONT_STACK, EV_50, EV_200, EV_500, EV_700, EV_800, EV_900, NEUTRAL_TEXT, NEUTRAL_MUTED, NEUTRAL_BORDER } from "@/lib/app-shared";
 
-const EV_50 = "#F1FAF4";
-const EV_200 = "#B7E4C7";
-const EV_500 = "#52B788";
-const EV_700 = "#2D6A4F";
-const EV_800 = "#1B4332";
-const EV_900 = "#081C15";
-const BORDER = "#E5E7EB";
+const BORDER = NEUTRAL_BORDER;
 const CARD_BG = "#FFFFFF";
-const TEXT = "#111827";
-const MUTED = "#6B7280";
+const TEXT = NEUTRAL_TEXT;
+const MUTED = NEUTRAL_MUTED;
 
 function MockMetricCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
@@ -43,7 +37,6 @@ export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
         width: "100%",
         maxWidth: mockupWidth * scale,
         margin: "0 auto",
-        transform: isMobile ? undefined : undefined,
       }}
     >
       {/* Browser chrome */}
@@ -146,7 +139,7 @@ export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
         <div style={{ flex: 1, padding: isMobile ? "10px 12px" : "16px 20px", overflow: "hidden" }}>
           {/* Greeting */}
           <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 600, color: TEXT, marginBottom: 2 }}>Welcome back, Alex</div>
-          <div style={{ fontSize: isMobile ? 7 : 9, color: MUTED, marginBottom: isMobile ? 8 : 14 }}>Here's your financial assessment for April 2026</div>
+          <div style={{ fontSize: isMobile ? 7 : 9, color: MUTED, marginBottom: isMobile ? 8 : 14 }}>Here's your financial assessment for {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</div>
 
           {/* 4 Metric cards */}
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr 1fr", gap: isMobile ? 4 : 8, marginBottom: isMobile ? 8 : 14 }}>
@@ -162,13 +155,13 @@ export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
             <div style={{ flex: 1, background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 10, padding: isMobile ? "8px 6px" : "10px 12px" }}>
               <div style={{ fontSize: isMobile ? 8 : 10, fontWeight: 700, color: TEXT, marginBottom: 6 }}>Income vs Required</div>
               <div style={{ display: "flex", gap: 3, alignItems: "flex-end" }}>
-                <MockBarGroup h1={40} h2={52} label="Oct" />
-                <MockBarGroup h1={40} h2={52} label="Nov" />
-                <MockBarGroup h1={40} h2={52} label="Dec" />
-                <MockBarGroup h1={40} h2={52} label="Jan" />
-                <MockBarGroup h1={40} h2={52} label="Feb" />
-                <MockBarGroup h1={40} h2={52} label="Mar" />
-                <MockBarGroup h1={40} h2={52} label="Apr" />
+                <MockBarGroup h1={32} h2={52} label="Oct" />
+                <MockBarGroup h1={36} h2={52} label="Nov" />
+                <MockBarGroup h1={34} h2={52} label="Dec" />
+                <MockBarGroup h1={38} h2={52} label="Jan" />
+                <MockBarGroup h1={42} h2={52} label="Feb" />
+                <MockBarGroup h1={44} h2={52} label="Mar" />
+                <MockBarGroup h1={48} h2={52} label="Apr" />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, paddingTop: 4, borderTop: `1px solid ${BORDER}` }}>
                 <div>

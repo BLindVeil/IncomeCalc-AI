@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { EV_500, EV_800, NEUTRAL_TEXT, NEUTRAL_MUTED } from "@/lib/app-shared";
 import { HeroTopNav } from "./hero/HeroTopNav";
 import { HeroDashboardMockup } from "./HeroDashboardMockup";
 import { HeroAnimatedPills } from "./HeroAnimatedPills";
@@ -6,10 +7,8 @@ import { HeroAnimatedPills } from "./HeroAnimatedPills";
 // ─── Hero-specific constants ─────────────────────────────────────────────────
 const CTA_ORANGE = "#EA580C";
 const CTA_ORANGE_HOVER = "#C2410C";
-const EV_500 = "#52B788";
-const EV_800 = "#1B4332";
-const TEXT = "#111827";
-const MUTED = "#6B7280";
+const TEXT = NEUTRAL_TEXT;
+const MUTED = NEUTRAL_MUTED;
 
 const FONT_STACK = "'Geist', -apple-system, system-ui, 'Segoe UI', sans-serif";
 
@@ -143,7 +142,6 @@ export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboa
               fontSize: isMobile ? 15 : 17,
               color: MUTED,
               lineHeight: 1.6,
-              marginTop: isMobile ? 16 : 20,
               maxWidth: 540,
               margin: `${isMobile ? 16 : 20}px auto 0`,
             }}
@@ -164,6 +162,7 @@ export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboa
             }}
           >
             <button
+              type="button"
               onClick={onStart}
               onMouseEnter={() => setCtaHover(true)}
               onMouseLeave={() => setCtaHover(false)}
@@ -204,7 +203,7 @@ export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboa
         <div style={{ height: isMobile ? 32 : 48 }} />
 
         {/* Checklist */}
-        <div
+        <ul
           style={{
             display: "flex",
             flexWrap: "wrap",
@@ -212,10 +211,12 @@ export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboa
             gap: isMobile ? 10 : 14,
             maxWidth: 800,
             margin: "0 auto",
+            listStyle: "none",
+            padding: 0,
           }}
         >
           {CHECKLIST_ITEMS.map((label) => (
-            <div
+            <li
               key={label}
               style={{
                 display: "flex",
@@ -234,9 +235,9 @@ export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboa
               >
                 {label}
               </span>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
 
         {/* Spacer */}
         <div style={{ height: isMobile ? 36 : 56 }} />

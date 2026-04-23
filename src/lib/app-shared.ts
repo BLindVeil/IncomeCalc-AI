@@ -99,6 +99,11 @@ export const EV_700 = "#2D6A4F";
 export const EV_800 = "#1B4332"; // PRIMARY
 export const EV_900 = "#081C15";
 
+// ─── Neutral palette (used by hero / landing) ────────────────────────────────
+export const NEUTRAL_TEXT = "#111827";
+export const NEUTRAL_MUTED = "#6B7280";
+export const NEUTRAL_BORDER = "#E5E7EB";
+
 export const MONO_FONT_STACK =
   "'Geist Mono', 'SF Mono', 'Menlo', ui-monospace, monospace";
 
