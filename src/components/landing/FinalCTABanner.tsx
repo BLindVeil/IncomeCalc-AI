@@ -14,7 +14,7 @@ export function FinalCTABanner({ t, isMobile, onStart }: FinalCTABannerProps) {
         background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
         borderRadius: 16,
         padding: isMobile ? "32px 24px" : "40px 32px",
-        marginTop: 32,
+        marginTop: 48,
         marginBottom: 48,
         display: "flex",
         justifyContent: "space-between",
@@ -24,11 +24,11 @@ export function FinalCTABanner({ t, isMobile, onStart }: FinalCTABannerProps) {
       }}
     >
       <div>
-        <div style={{ fontSize: 20, fontWeight: 600, color: "#fff", lineHeight: 1.3 }}>
-          Know your number in 60 seconds.
+        <div style={{ fontSize: 22, fontWeight: 600, color: "#fff", lineHeight: 1.3 }}>
+          Stop guessing. Start planning.
         </div>
         <div style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
-          Free forever. No bank linking. No credit pull.
+          Free forever. No bank linking required.
         </div>
       </div>
       <button
@@ -46,6 +46,7 @@ export function FinalCTABanner({ t, isMobile, onStart }: FinalCTABannerProps) {
           alignItems: "center",
           gap: 6,
           flexShrink: 0,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
         }}
       >
         Calculate my number →

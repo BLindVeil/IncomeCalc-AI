@@ -311,7 +311,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
 
             <OverviewSection t={t} isDark={isDark} isMobile={isMobile} onStart={onStart} />
             <WhyAscentraSection t={t} isDark={isDark} />
-            <HowItWorksSection t={t} onStart={onStart} />
+            <HowItWorksSection t={t} isDark={isDark} onStart={onStart} />
             <PricingSection
               t={t}
               isDark={isDark}

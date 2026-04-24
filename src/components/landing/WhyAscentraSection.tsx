@@ -1,5 +1,5 @@
 import type { ThemeConfig } from "@/lib/app-shared";
-import { EV_50, EV_500, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
+import { EV_500, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
 
 interface WhyAscentraSectionProps {
   t: ThemeConfig;
@@ -25,12 +25,12 @@ const INSIGHTS: InsightCard[] = [
     category: "CLARITY",
     title: "One number beats forty charts.",
     description:
-      "Budgeting apps dump twelve dashboards on you and call it insight. Ascentra shows you one required-income number and one next move. That's the product.",
+      "Budgeting apps show you twelve dashboards and call it insight. Ascentra gives you one required-income number and one next move.",
     numeric: "60 sec",
   },
   {
     category: "STABILITY",
-    title: "A single score for how okay you actually are.",
+    title: "A single score for your financial health.",
     description:
       "Your stability score combines runway, debt ratio, and savings rate into one number. Watch it move as your situation changes — no spreadsheet required.",
     numeric: "82",
@@ -40,20 +40,20 @@ const INSIGHTS: InsightCard[] = [
     category: "SCENARIO",
     title: "Test decisions before you make them.",
     description:
-      "Moving to a cheaper apartment, taking a different job offer, cutting subscriptions — see the required-income impact of every change in real time against your actual numbers.",
+      "Moving to a cheaper apartment, taking a different job, cutting subscriptions — see the required-income impact of every change against your actual numbers.",
     numeric: "−$400/mo",
   },
   {
-    category: "FOR YOU",
-    title: "Built for 20-somethings who hate finance apps.",
+    category: "SIMPLICITY",
+    title: "No bank linking. No credit pull. No onboarding quiz.",
     description:
-      "No bank linking. No credit pull. No 40-question onboarding. Enter what you spend, get your number, get on with your life.",
+      "Enter what you spend, get your number, get on with your life. Most people finish in under a minute.",
   },
   {
     category: "TRANSPARENCY",
-    title: "You can leave any time with your number.",
+    title: "Your number is yours. No lock-in.",
     description:
-      "No lock-in, no data hostage situation. Free tier gives you your number forever. Pro unlocks the diagnosis, scenarios, and plan.",
+      "Free tier gives you your required income forever. Pro and Premium unlock deeper insights, scenarios, and AI-powered planning.",
   },
 ];
 
@@ -81,7 +81,7 @@ export function WhyAscentraSection({ t, isDark }: WhyAscentraSectionProps) {
               background: t.cardBg,
               border: `1px solid ${t.border}`,
               borderRadius: 16,
-              padding: "1.25rem",
+              padding: "1.5rem",
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
@@ -95,7 +95,7 @@ export function WhyAscentraSection({ t, isDark }: WhyAscentraSectionProps) {
                     textTransform: "uppercase",
                     padding: "3px 8px",
                     borderRadius: 999,
-                    background: isDark ? "rgba(82,183,136,0.12)" : EV_50,
+                    background: t.primarySoft,
                     color: isDark ? EV_500 : EV_800,
                     marginBottom: 10,
                   }}
@@ -128,7 +128,7 @@ export function WhyAscentraSection({ t, isDark }: WhyAscentraSectionProps) {
                       ...(card.numericLabel
                         ? {}
                         : {
-                            background: isDark ? "rgba(82,183,136,0.12)" : EV_50,
+                            background: t.primarySoft,
                             padding: "4px 10px",
                             borderRadius: 999,
                           }),

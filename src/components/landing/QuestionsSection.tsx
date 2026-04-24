@@ -12,28 +12,28 @@ interface FAQ {
 
 const FAQS: FAQ[] = [
   {
-    q: "Is this financial advice?",
-    a: "No. Ascentra is a calculator and diagnostic tool. We show you numbers; decisions are yours. We're not a licensed advisor and nothing here is legal, tax, or investment advice.",
-  },
-  {
-    q: "Why only 60 seconds?",
-    a: "Because the 22-30yo problem isn't lack of data — it's lack of clarity. We compute your required income from your expenses and tax situation directly. No bank linking, no credit pull, no 40-question intake.",
-  },
-  {
-    q: "What data do you store?",
-    a: "Your expense categories, your number, and your saved scenarios. No account numbers, no transactions, no credentials. We never link to your bank. Full details in our Privacy Policy.",
-  },
-  {
     q: "What if I don't know my exact expenses?",
-    a: "Estimate. You can refine any number later and your diagnosis updates instantly. Most people get their required income within $100 on their first pass.",
+    a: "Estimate. You can refine any number later and your results update instantly. Most people get their required income within $100 on their first pass.",
   },
   {
     q: "How do you calculate the required income?",
-    a: "We back-solve from your expenses, debt payments, savings target, and effective tax rate. The number is post-tax required take-home, grossed up to a pre-tax equivalent if you opt into that view.",
+    a: "We start from your expenses, debt payments, and savings target, then factor in your tax rate to find the gross income you actually need. You can toggle between pre-tax and post-tax views.",
+  },
+  {
+    q: "Why only 60 seconds?",
+    a: "Your required income can be computed directly from what you spend and your tax situation. No bank linking, no credit pull, no lengthy onboarding — just the inputs that matter.",
+  },
+  {
+    q: "What data do you store?",
+    a: "Your expense categories, your number, and your saved scenarios. No account numbers, no transactions, no credentials. We never link to your bank.",
   },
   {
     q: "Can I cancel anytime?",
     a: "Yes. Pro and Premium are month-to-month or yearly with no lock-in. Your free-tier number and scenarios stay yours forever.",
+  },
+  {
+    q: "Is this financial advice?",
+    a: "No. Ascentra is a calculator and diagnostic tool. We show you numbers; decisions are yours. Nothing here is legal, tax, or investment advice.",
   },
 ];
 
@@ -67,11 +67,11 @@ export function QuestionsSection({ t }: QuestionsSectionProps) {
           const isOpen = open === i;
           return (
             <div key={i}>
-              {i > 0 && <div style={{ height: 1, background: t.border, margin: "0 1.25rem" }} />}
+              {i > 0 && <div style={{ height: 1, background: t.border, margin: "0 1.5rem" }} />}
               <div
                 onClick={() => setOpen(isOpen ? null : i)}
                 style={{
-                  padding: "16px 1.25rem",
+                  padding: "16px 1.5rem",
                   cursor: "pointer",
                   display: "flex",
                   justifyContent: "space-between",
@@ -101,7 +101,7 @@ export function QuestionsSection({ t }: QuestionsSectionProps) {
                 </svg>
               </div>
               {isOpen && (
-                <div style={{ padding: "0 1.25rem 16px", fontSize: 13, color: t.muted, lineHeight: 1.6 }}>
+                <div style={{ padding: "0 1.5rem 16px", fontSize: 13, color: t.muted, lineHeight: 1.6 }}>
                   {faq.a}
                 </div>
               )}

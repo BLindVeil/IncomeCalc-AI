@@ -11,7 +11,7 @@ interface OverviewSectionProps {
 }
 
 export function OverviewSection({ t, isDark, isMobile, onStart }: OverviewSectionProps) {
-  const isDesktop = !isMobile && typeof window !== "undefined" && window.innerWidth >= 1024;
+  const isDesktop = !isMobile && typeof window !== "undefined" && window.innerWidth > 980;
 
   return (
     <section id="overview">
@@ -39,7 +39,7 @@ export function OverviewSection({ t, isDark, isMobile, onStart }: OverviewSectio
             <div
               style={{
                 fontSize: 11,
-                letterSpacing: "0.1em",
+                letterSpacing: "0.12em",
                 fontWeight: 500,
                 color: t.muted,
                 textTransform: "uppercase",
@@ -68,9 +68,8 @@ export function OverviewSection({ t, isDark, isMobile, onStart }: OverviewSectio
                 marginBottom: 0,
               }}
             >
-              Enter your monthly expenses. Get your required income, financial health score, and
-              exactly what to change. Everything below is sample data — replace it with yours in
-              60 seconds.
+              Enter your monthly expenses and get your required income, financial health score, and
+              exactly what to change — in about 60 seconds.
             </p>
             <div style={{ marginTop: "auto", paddingTop: 24 }}>
               <button
@@ -82,12 +81,12 @@ export function OverviewSection({ t, isDark, isMobile, onStart }: OverviewSectio
                   borderRadius: 999,
                   padding: "10px 20px",
                   fontSize: 14,
-                  fontWeight: 500,
+                  fontWeight: 600,
                   cursor: "pointer",
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 6,
-                  boxShadow: "0 2px 8px rgba(27,67,50,0.25)",
+                  boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.4)" : "0 2px 8px rgba(27,67,50,0.25)",
                 }}
               >
                 Calculate my number →

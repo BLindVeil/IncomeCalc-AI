@@ -1,8 +1,9 @@
 import type { ThemeConfig } from "@/lib/app-shared";
-import { EV_600, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
+import { EV_500, EV_600, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
 
 interface HowItWorksSectionProps {
   t: ThemeConfig;
+  isDark: boolean;
   onStart: () => void;
 }
 
@@ -24,7 +25,7 @@ const STEPS = [
   },
 ];
 
-export function HowItWorksSection({ t, onStart }: HowItWorksSectionProps) {
+export function HowItWorksSection({ t, isDark, onStart }: HowItWorksSectionProps) {
   return (
     <section id="how" style={{ marginTop: 48 }}>
       <div
@@ -55,17 +56,22 @@ export function HowItWorksSection({ t, onStart }: HowItWorksSectionProps) {
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {STEPS.map((step) => (
             <div key={step.num} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-              {/* Circle checkbox */}
+              {/* Step dot */}
               <div
                 style={{
                   width: 20,
                   height: 20,
                   borderRadius: "50%",
-                  border: `1.5px solid ${t.border}`,
+                  border: `1.5px solid ${EV_500}`,
                   flexShrink: 0,
                   marginTop: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-              />
+              >
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: EV_500 }} />
+              </div>
               <div>
                 <div style={{ display: "flex", gap: 8, alignItems: "baseline", marginBottom: 4 }}>
                   <span
@@ -101,15 +107,15 @@ export function HowItWorksSection({ t, onStart }: HowItWorksSectionProps) {
             borderRadius: 999,
             padding: "10px 20px",
             fontSize: 14,
-            fontWeight: 500,
+            fontWeight: 600,
             cursor: "pointer",
             display: "inline-flex",
             alignItems: "center",
             gap: 6,
-            boxShadow: "0 2px 8px rgba(27,67,50,0.25)",
+            boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.4)" : "0 2px 8px rgba(27,67,50,0.25)",
           }}
         >
-          Start with step 1 →
+          Calculate my number →
         </button>
       </div>
     </section>

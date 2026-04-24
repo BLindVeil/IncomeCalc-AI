@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
-import { EV_50, EV_500, EV_600, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
+import { EV_500, EV_600, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
 
 interface PricingSectionProps {
   t: ThemeConfig;
@@ -27,15 +27,15 @@ const TIERS: TierRow[] = [
     id: "free",
     name: "Free",
     tagline: "Know your number",
-    features: "Required income · Health score · Income gap · Top move",
+    features: "Required income · Health score · Income gap · Top move · 2 debts tracked",
     monthly: 0,
     yearly: 0,
   },
   {
     id: "pro",
     name: "Pro",
-    tagline: "Go deeper on your diagnosis",
-    features: "Everything in Free · AI diagnosis · Scenario simulator · Saved scenarios · Budget tracking",
+    tagline: "Clarity on what to change",
+    features: "Everything in Free · AI budget insights · AI income ideas · Scenario simulator · Saved scenarios · 6 debts tracked",
     monthly: 4.99,
     yearly: 49,
     yearlySavings: "save 18%",
@@ -43,8 +43,8 @@ const TIERS: TierRow[] = [
   {
     id: "premium",
     name: "Premium",
-    tagline: "The full Ascentra experience",
-    features: "Everything in Pro · AI action plan · 12-month forecast · Advanced analytics · Priority support",
+    tagline: "Full planning and forecasting",
+    features: "Everything in Pro · AI advisor · Savings analysis · 12-month forecast · FIRE planning · Unlimited debts",
     monthly: 19,
     yearly: 99,
     yearlySavings: "save 57%",
@@ -136,6 +136,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                     borderRadius: 12,
                     position: "relative",
                     borderLeft: tier.recommended ? `3px solid ${EV_500}` : "3px solid transparent",
+                    background: tier.recommended ? t.primarySoft : "transparent",
                   }}
                 >
                   {/* Radio */}
@@ -169,7 +170,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                             textTransform: "uppercase",
                             padding: "2px 8px",
                             borderRadius: 999,
-                            background: isDark ? "rgba(82,183,136,0.12)" : EV_50,
+                            background: t.primarySoft,
                             color: isDark ? EV_500 : EV_800,
                           }}
                         >
@@ -178,7 +179,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                       )}
                     </div>
                     <div style={{ fontSize: 13, color: t.muted, marginBottom: 4 }}>{tier.tagline}</div>
-                    <div style={{ fontSize: 12, color: t.muted, opacity: 0.8 }}>{tier.features}</div>
+                    <div style={{ fontSize: 12, color: t.muted, lineHeight: 1.5 }}>{tier.features}</div>
                   </div>
 
                   {/* Price */}
@@ -197,9 +198,9 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                       </span>
                       <span style={{ fontSize: 12, color: t.muted }}>{priceSuffix}</span>
                     </div>
-                    {tier.yearlySavings && billing === "monthly" && (
-                      <div style={{ fontSize: 11, color: t.muted, marginTop: 2 }}>
-                        ${tier.yearly}/yr — {tier.yearlySavings}
+                    {tier.yearlySavings && billing === "yearly" && (
+                      <div style={{ fontSize: 11, color: EV_500, fontWeight: 500, marginTop: 2 }}>
+                        {tier.yearlySavings}
                       </div>
                     )}
                   </div>
@@ -218,12 +219,12 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
             background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
             color: "#fff",
             border: "none",
-            borderRadius: 10,
+            borderRadius: 999,
             padding: "12px 0",
             fontSize: 14,
             fontWeight: 600,
             cursor: "pointer",
-            boxShadow: "0 2px 8px rgba(27,67,50,0.25)",
+            boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.4)" : "0 2px 8px rgba(27,67,50,0.25)",
           }}
         >
           Continue with {selected === "free" ? "Free" : selected === "pro" ? "Pro" : "Premium"} →
