@@ -171,8 +171,9 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
       {/* Nav items */}
       <nav style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
         {navItems.map((item) => (
-          <div
+          <button
             key={item.id}
+            type="button"
             style={itemStyle(item.id)}
             onMouseEnter={() => setHovered(item.id)}
             onMouseLeave={() => setHovered(null)}
@@ -180,7 +181,7 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
           >
             <item.icon />
             {item.label}
-          </div>
+          </button>
         ))}
       </nav>
 
@@ -237,8 +238,9 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
       {/* Bottom items */}
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         {navBottomItems.map((item) => (
-          <div
+          <button
             key={item.id}
+            type="button"
             style={itemStyle(item.id)}
             onMouseEnter={() => setHovered(item.id)}
             onMouseLeave={() => setHovered(null)}
@@ -249,7 +251,7 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
           >
             <item.icon />
             {item.label}
-          </div>
+          </button>
         ))}
       </div>
     </div>

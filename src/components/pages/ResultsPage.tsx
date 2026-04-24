@@ -64,7 +64,7 @@ import { getDisplayName } from "@/lib/user-display";
 import { DashboardSidebar } from "@/components/ui/DashboardSidebar";
 import { DashboardTopbar } from "@/components/ui/DashboardTopbar";
 import { IncomeBarChart } from "@/components/dashboard/IncomeBarChart";
-import { ExpenseDonut } from "@/components/dashboard/ExpenseDonut";
+import { ExpenseDonut, DONUT_COLORS } from "@/components/dashboard/ExpenseDonut";
 import { ScenariosCard } from "@/components/dashboard/ScenariosCard";
 import { TopMoveCard } from "@/components/dashboard/TopMoveCard";
 import { FirstVisitBanner } from "@/components/dashboard/FirstVisitBanner";
@@ -302,6 +302,17 @@ export function RestorePurchaseModal({ onClose, t }: RestorePurchaseModalProps) 
   );
 }
 
+// ─── Shared constants ─────────────────────────────────────────────────────────
+
+const ASK_YOUR_PLAN_QUESTIONS = [
+  "What should I cut first?",
+  "Is my rent too high?",
+  "How much house can I afford?",
+  "How do I get to a stable score?",
+  "What happens if I save more?",
+  "What's my fastest improvement?",
+];
+
 // ─── AskYourPlan ──────────────────────────────────────────────────────────────
 
 interface AskYourPlanProps {
@@ -322,14 +333,7 @@ function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier,
   const [aiLoading, setAiLoading] = useState(false);
   const [fallbackAnswer, setFallbackAnswer] = useState<{ text: string; bullets: string[]; showScenarioButton?: boolean } | null>(null);
 
-  const questions = [
-    "What should I cut first?",
-    "Is my rent too high?",
-    "How much house can I afford?",
-    "How do I get to a stable score?",
-    "What happens if I save more?",
-    "What's my fastest improvement?",
-  ];
+  const questions = ASK_YOUR_PLAN_QUESTIONS;
 
   async function handleQuestion(q: string) {
     setSelectedQ(q);
@@ -579,7 +583,7 @@ function resolveActiveTab(currentView: string): MobileTab {
 }
 
 function FadeIn({ opacity, setOpacity, children }: { opacity: number; setOpacity: (v: number) => void; children: ReactNode }) {
-  useEffect(() => { requestAnimationFrame(() => setOpacity(1)); }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { requestAnimationFrame(() => setOpacity(1)); }, [setOpacity]);
   return <div style={{ opacity, transition: "opacity 400ms ease" }}>{children}</div>;
 }
 
@@ -678,13 +682,15 @@ export function ResultsPage({
   const [animatedScore, setAnimatedScore] = useState(0);
   useEffect(() => {
     setAnimatedScore(0);
+    let cancelled = false;
     const id = setInterval(() => {
+      if (cancelled) return;
       setAnimatedScore((prev) => {
         if (prev >= healthScore) { clearInterval(id); return healthScore; }
         return prev + 1;
       });
     }, 20);
-    return () => clearInterval(id);
+    return () => { cancelled = true; clearInterval(id); };
   }, [healthScore]);
 
   const housingPct = grossMonthly > 0 ? (data.housing / grossMonthly) * 100 : 0;
@@ -709,10 +715,6 @@ export function ResultsPage({
     .sort((a, b) => b.value - a.value);
 
   // ─── Dashboard data ───────────────────────────────────────────────
-  const DONUT_COLORS = [
-    "#1B4332", "#40916C", "#52B788", "#74C69D", "#95D5B2",
-    "#B7E4C7", "#D8F3DC", "#2D6A4F", "#081C15",
-  ];
   const donutSlices = breakdownItems.map((item, i) => ({
     label: item.label,
     value: item.value,
@@ -747,7 +749,32 @@ export function ResultsPage({
     },
   ];
 
-  const isDesktop = typeof window !== "undefined" ? window.innerWidth > 980 : true;
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== "undefined" ? window.innerWidth > 980 : true);
+  useEffect(() => {
+    const onResize = () => setIsDesktop(window.innerWidth > 980);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // Shared navigation handler (used by sidebar + topbar)
+  const handleNavigate = (view: string) => {
+    if (["dashboard", "budget", "analytics", "scenarios"].includes(view)) {
+      setCurrentView(view);
+      const mainEl = document.querySelector("[data-main-content]");
+      if (mainEl) mainEl.scrollTo(0, 0);
+      return;
+    }
+    if (view === "calculator") onRecalculate();
+    else if (view === "simulator") onSimulator();
+    else if (view === "diagnosis") {
+      setCurrentView("dashboard");
+      setShowFullReport(true);
+      requestAnimationFrame(() => {
+        const el = document.getElementById("diagnosis-section");
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      });
+    }
+  };
 
   // Shared CSV export handler (reused by Analytics page)
   const handleExportCsv = () => {
@@ -758,7 +785,7 @@ export function ResultsPage({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `incomecalc-report-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `ascentra-report-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -773,28 +800,7 @@ export function ResultsPage({
             isDark={isDark}
             setIsDark={setIsDark}
             activeItem={currentView}
-            onNavigate={(view) => {
-              // In-page sub-views
-              if (["dashboard", "budget", "analytics", "scenarios"].includes(view)) {
-                setCurrentView(view);
-                const mainEl = document.querySelector("[data-main-content]");
-                if (mainEl) mainEl.scrollTo(0, 0);
-                return;
-              }
-              // App-level page navigation
-              if (view === "calculator") onRecalculate();
-              else if (view === "simulator") onSimulator();
-              else if (view === "diagnosis") {
-                setCurrentView("dashboard");
-                setShowFullReport(true);
-                // scroll to diagnosis after a tick
-                requestAnimationFrame(() => {
-                  const el = document.getElementById("diagnosis-section");
-                  if (el) el.scrollIntoView({ behavior: "smooth" });
-                });
-              }
-              // settings — not yet implemented
-            }}
+            onNavigate={handleNavigate}
             onSignOut={onSignOut}
           />
         )}
@@ -804,9 +810,6 @@ export function ResultsPage({
           {/* Mobile: show Header; Desktop: hide it */}
           {(!isDesktop || isMobile) && (
             <>
-              <div className="atv-ambient-bg">
-                <div className="atv-ambient-teal" />
-              </div>
               <Header
                 isDark={isDark}
                 setIsDark={setIsDark}
@@ -885,13 +888,7 @@ export function ResultsPage({
               userName={getDisplayName(currentUser) || "there"}
               onSimulator={onSimulator}
               alerts={hasRealExpenseData(data) ? alerts : []}
-              onNavigate={(view) => {
-                if (["dashboard", "budget", "analytics", "scenarios"].includes(view)) {
-                  setCurrentView(view);
-                  const mainEl = document.querySelector("[data-main-content]");
-                  if (mainEl) mainEl.scrollTo(0, 0);
-                }
-              }}
+              onNavigate={handleNavigate}
               onDashboard={onDashboard}
               onSignOut={onSignOut}
               userEmail={currentUser?.email}
@@ -900,7 +897,7 @@ export function ResultsPage({
             />
 
             {!hasRealExpenseData(data) ? (
-              <DashboardEmptyState currentUser={currentUser} onGetStarted={onRecalculate} />
+              <DashboardEmptyState currentUser={currentUser} onGetStarted={onRecalculate} t={t} />
             ) : <>
 
             {/* First-visit welcome banner */}
@@ -984,6 +981,7 @@ export function ResultsPage({
 
             {/* Show Full Report toggle */}
             <button
+              type="button"
               onClick={() => setShowFullReport(!showFullReport)}
               style={{
                 display: "flex",
@@ -1083,12 +1081,13 @@ export function ResultsPage({
                 Most people who see this number don't know what's pulling it up. The diagnosis does.
               </p>
               <p style={{ margin: "0.35rem 0 0" }}>
-                <span
+                <button
+                  type="button"
                   onClick={() => document.getElementById("diagnosis-section")?.scrollIntoView({ behavior: "smooth" })}
-                  style={{ fontSize: "0.9rem", color: t.primary, fontWeight: 600, cursor: "pointer", textDecoration: "none" }}
+                  style={{ fontSize: "0.9rem", color: t.primary, fontWeight: 600, cursor: "pointer", textDecoration: "none", background: "none", border: "none", padding: 0 }}
                 >
                   See what's driving it &rarr;
-                </span>
+                </button>
               </p>
             </>
           )}
@@ -1421,9 +1420,9 @@ export function ResultsPage({
               </div>
 
               {/* The card itself */}
-              <div id="stability-share-card" style={{ padding: "1.5rem", background: `linear-gradient(135deg, ${currentTheme.primary}12, ${currentTheme.accent}08)` }}>
+              <div id="stability-share-card" style={{ padding: "1.5rem", background: `linear-gradient(135deg, ${t.primary}12, ${t.accent}08)` }}>
                 <div style={{ textAlign: "center", marginBottom: "1.25rem" }}>
-                  <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: `linear-gradient(135deg, ${currentTheme.primary}, ${currentTheme.accent})`, display: "inline-grid", placeItems: "center", marginBottom: "0.5rem" }}>
+                  <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`, display: "inline-grid", placeItems: "center", marginBottom: "0.5rem" }}>
                     <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
                       <path d="M10 3L17 15H13L10 9.5L7 15H3L10 3Z" fill="white"/>
                       <line x1="6" y1="13" x2="14" y2="13" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
@@ -1462,36 +1461,107 @@ export function ResultsPage({
                 </div>
 
                 <div style={{ textAlign: "center", marginTop: "1rem", fontSize: "0.72rem", color: t.muted }}>
-                  incomeCalc.ai
+                  ascentra.finance
                 </div>
               </div>
 
               {/* Download button */}
               <div style={{ padding: "1rem 1.25rem", borderTop: `1px solid ${t.border}` }}>
                 <button
+                  type="button"
                   onClick={() => {
-                    const card = document.getElementById("stability-share-card");
-                    if (!card) return;
-                    const canvas = document.createElement("canvas");
+                    const W = 420;
+                    const H = 520;
                     const scale = 2;
-                    canvas.width = card.offsetWidth * scale;
-                    canvas.height = card.offsetHeight * scale;
+                    const canvas = document.createElement("canvas");
+                    canvas.width = W * scale;
+                    canvas.height = H * scale;
                     const ctx = canvas.getContext("2d");
                     if (!ctx) return;
                     ctx.scale(scale, scale);
+
+                    // Background
                     ctx.fillStyle = isDark ? "#1a1a1f" : "#ffffff";
-                    ctx.fillRect(0, 0, card.offsetWidth, card.offsetHeight);
-                    const data2 = new XMLSerializer().serializeToString(card);
-                    const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${card.offsetWidth}" height="${card.offsetHeight}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${data2}</div></foreignObject></svg>`;
-                    const img = new Image();
-                    img.onload = () => {
-                      ctx.drawImage(img, 0, 0);
-                      const link = document.createElement("a");
-                      link.download = "stability-score.png";
-                      link.href = canvas.toDataURL("image/png");
-                      link.click();
-                    };
-                    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgStr);
+                    ctx.fillRect(0, 0, W, H);
+
+                    // Header
+                    ctx.fillStyle = t.primary;
+                    ctx.fillRect(0, 0, W, 4);
+
+                    // Title
+                    ctx.textAlign = "center";
+                    ctx.fillStyle = isDark ? "#e5e5e5" : "#111827";
+                    ctx.font = "bold 18px system-ui, sans-serif";
+                    ctx.fillText("Financial Stability Report", W / 2, 50);
+
+                    // Score circle
+                    const cx = W / 2, cy = 150, r = 55;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+                    ctx.strokeStyle = isDark ? "#333" : "#e5e7eb";
+                    ctx.lineWidth = 8;
+                    ctx.stroke();
+
+                    const scoreAngle = (healthScore / 100) * 2 * Math.PI - Math.PI / 2;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, r, -Math.PI / 2, scoreAngle);
+                    ctx.strokeStyle = healthColor;
+                    ctx.lineWidth = 8;
+                    ctx.stroke();
+
+                    ctx.fillStyle = healthColor;
+                    ctx.font = "bold 36px system-ui, sans-serif";
+                    ctx.fillText(String(healthScore), cx, cy + 12);
+                    ctx.font = "600 14px system-ui, sans-serif";
+                    ctx.fillText(healthLabel, cx, cy + 32);
+
+                    // Metrics row
+                    const metricsY = 240;
+                    // Runway
+                    ctx.fillStyle = isDark ? "#e5e5e5" : "#111827";
+                    ctx.font = "600 12px system-ui, sans-serif";
+                    ctx.fillText("Runway", W * 0.3, metricsY);
+                    ctx.font = "bold 22px system-ui, sans-serif";
+                    const runwayColor = runway.level === "Strong" ? "#22c55e" : runway.level === "Stable" ? "#84cc16" : runway.level === "Fragile" ? "#f59e0b" : "#ef4444";
+                    ctx.fillStyle = runwayColor;
+                    ctx.fillText(runway.months.toFixed(1) + "mo", W * 0.3, metricsY + 28);
+                    ctx.font = "500 11px system-ui, sans-serif";
+                    ctx.fillStyle = isDark ? "#999" : "#6b7280";
+                    ctx.fillText(runway.level, W * 0.3, metricsY + 46);
+
+                    // Income Gap
+                    ctx.fillStyle = isDark ? "#e5e5e5" : "#111827";
+                    ctx.font = "600 12px system-ui, sans-serif";
+                    ctx.fillText("Income Gap", W * 0.7, metricsY);
+                    ctx.font = "bold 22px system-ui, sans-serif";
+                    if (currentGrossIncome > 0) {
+                      ctx.fillStyle = incomeGap.hasGap ? "#ef4444" : "#22c55e";
+                      ctx.fillText((incomeGap.hasGap ? "-" : "+") + fmt(Math.abs(incomeGap.gapMonthly)), W * 0.7, metricsY + 28);
+                      ctx.font = "500 11px system-ui, sans-serif";
+                      ctx.fillStyle = isDark ? "#999" : "#6b7280";
+                      ctx.fillText(incomeGap.hasGap ? "Shortfall/mo" : "Surplus/mo", W * 0.7, metricsY + 46);
+                    } else {
+                      ctx.fillStyle = isDark ? "#999" : "#6b7280";
+                      ctx.fillText("N/A", W * 0.7, metricsY + 28);
+                    }
+
+                    // Required income
+                    ctx.fillStyle = isDark ? "#e5e5e5" : "#111827";
+                    ctx.font = "600 12px system-ui, sans-serif";
+                    ctx.fillText("Required Annual Income", W / 2, 350);
+                    ctx.font = "bold 28px system-ui, sans-serif";
+                    ctx.fillText(fmt(grossAnnual), W / 2, 385);
+
+                    // Footer
+                    ctx.fillStyle = isDark ? "#666" : "#9ca3af";
+                    ctx.font = "400 11px system-ui, sans-serif";
+                    ctx.fillText("ascentra.finance", W / 2, H - 20);
+
+                    // Download
+                    const link = document.createElement("a");
+                    link.download = "stability-score.png";
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
                   }}
                   style={{
                     width: "100%",
@@ -1657,7 +1727,7 @@ export function ResultsPage({
           style={{
             overflow: "hidden",
             transition: "max-height 0.4s ease, opacity 0.3s ease",
-            maxHeight: moreToolsOpen ? "8000px" : "0px",
+            maxHeight: moreToolsOpen ? "2000px" : "0px",
             opacity: moreToolsOpen ? 1 : 0,
           }}
         >
@@ -2177,7 +2247,7 @@ export function ResultsPage({
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
-              <TrendingUp size={14} style={{ color: currentTheme.primary }} />
+              <TrendingUp size={14} style={{ color: t.primary }} />
               <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>12-Mo Forecast</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
@@ -2502,15 +2572,9 @@ export function ResultsPage({
           </div>
           {!askPlanOpen && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
-              {[
-                "What should I cut first?",
-                "Is my rent too high?",
-                "How much house can I afford?",
-                "How do I get to a stable score?",
-                "What happens if I save more?",
-                "What's my fastest improvement?",
-              ].map((q) => (
+              {ASK_YOUR_PLAN_QUESTIONS.map((q) => (
                 <button
+                  type="button"
                   key={q}
                   onClick={() => { setAskPlanQuestion(q); setAskPlanOpen(true); }}
                   style={{
@@ -2544,6 +2608,7 @@ export function ResultsPage({
           )}
           {!askPlanOpen && (
             <button
+              type="button"
               onClick={() => { setAskPlanQuestion(null); setAskPlanOpen(true); }}
               style={{
                 background: t.primary,
@@ -2581,18 +2646,8 @@ export function ResultsPage({
             </div>
             <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
               <button
-                onClick={() => {
-                  const header = "Category,Monthly Amount,% of Total\n";
-                  const rows = breakdownItems.map((item) => `"${item.label}",${item.value.toFixed(2)},${item.pct.toFixed(1)}%`).join("\n");
-                  const summary = `\nSummary\nTotal Monthly Expenses,${totalMonthly.toFixed(2)}\nGross Monthly Required,${grossMonthly.toFixed(2)}\nGross Annual Required,${grossAnnual.toFixed(2)}\nTax Rate,${taxRate}%\nHourly Rate Required,${hourlyRate.toFixed(2)}\nSavings Rate,${savingsRate.toFixed(1)}%\nHealth Score,${healthScore}/100\n`;
-                  const blob = new Blob([header + rows + summary], { type: "text/csv" });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `incomecalc-report-${new Date().toISOString().slice(0, 10)}.csv`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
+                type="button"
+                onClick={handleExportCsv}
                 style={{
                   padding: "0.6rem 1rem",
                   border: `1px solid ${t.border}`,
@@ -2609,9 +2664,10 @@ export function ResultsPage({
                 <Download size={14} /> Export CSV
               </button>
               <button
+                type="button"
                 onClick={() => {
                   const lines = [
-                    "INCOMECALC REPORT",
+                    "ASCENTRA REPORT",
                     `Generated: ${new Date().toLocaleDateString()}`,
                     "",
                     "EXPENSE BREAKDOWN",
@@ -2630,7 +2686,7 @@ export function ResultsPage({
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");
                   a.href = url;
-                  a.download = `incomecalc-report-${new Date().toISOString().slice(0, 10)}.txt`;
+                  a.download = `ascentra-report-${new Date().toISOString().slice(0, 10)}.txt`;
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
@@ -2720,8 +2776,8 @@ export function ResultsPage({
         {userTier === "free" && (
         <div
           style={{
-            background: `linear-gradient(135deg, ${currentTheme.primary}12, ${currentTheme.accent}08)`,
-            border: `1px solid ${currentTheme.primary}30`,
+            background: `linear-gradient(135deg, ${t.primary}12, ${t.accent}08)`,
+            border: `1px solid ${t.primary}30`,
             borderRadius: "16px",
             padding: "1.75rem",
             marginBottom: "1.25rem",
@@ -2828,7 +2884,7 @@ export function ResultsPage({
               onClick={onSaveScenario}
               style={{
                 width: "100%",
-                background: `linear-gradient(135deg, ${currentTheme.primary}, ${currentTheme.accent})`,
+                background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
                 border: "none",
                 borderRadius: "10px",
                 padding: "0.85rem",
@@ -2840,7 +2896,7 @@ export function ResultsPage({
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.5rem",
-                boxShadow: `0 4px 16px ${currentTheme.primary}30`,
+                boxShadow: `0 4px 16px ${t.primary}30`,
               }}
             >
               <Save size={16} />
@@ -2906,6 +2962,7 @@ export function ResultsPage({
       {/* Floating AI Chat button */}
       {!chatOpen && (
         <button
+          type="button"
           onClick={() => setChatOpen(true)}
           style={{
             position: "fixed",
@@ -2913,7 +2970,7 @@ export function ResultsPage({
             right: "1.5rem",
             height: "50px",
             borderRadius: "25px",
-            background: `linear-gradient(135deg, ${currentTheme.primary}, ${currentTheme.accent ?? currentTheme.primary})`,
+            background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
             border: "none",
             cursor: "pointer",
             display: "flex",
@@ -2921,7 +2978,7 @@ export function ResultsPage({
             justifyContent: "center",
             gap: "0.5rem",
             padding: "0 1.25rem",
-            boxShadow: `0 4px 24px ${currentTheme.primary}60`,
+            boxShadow: `0 4px 24px ${t.primary}60`,
             zIndex: 150,
             color: "#fff",
             fontWeight: 600,

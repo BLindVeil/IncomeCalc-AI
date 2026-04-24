@@ -14,7 +14,7 @@ export interface ExpenseDonutProps {
   isMobile?: boolean;
 }
 
-const DONUT_COLORS = [
+export const DONUT_COLORS = [
   "#1B4332", "#40916C", "#52B788", "#74C69D", "#95D5B2",
   "#B7E4C7", "#D8F3DC", "#2D6A4F", "#081C15",
 ];

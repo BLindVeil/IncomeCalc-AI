@@ -382,7 +382,8 @@ export function DashboardTopbar({
         </button>
         {!rightExtra && (
           <div ref={avatarRef} style={{ position: "relative" }}>
-            <div
+            <button
+              type="button"
               style={{
                 width: 36, height: 36, borderRadius: "50%",
                 background: `linear-gradient(135deg, ${EV_500}, ${EV_800})`,
@@ -391,6 +392,8 @@ export function DashboardTopbar({
                 flexShrink: 0,
                 cursor: (onDashboard || onSignOut) ? "pointer" : "default",
                 transition: "opacity 150ms",
+                border: "none",
+                padding: 0,
               }}
               onClick={() => {
                 if (onDashboard || onSignOut) {
@@ -403,7 +406,7 @@ export function DashboardTopbar({
               aria-expanded={avatarMenuOpen}
             >
               {getInitials(currentUser) || (userName !== "there" ? userName.charAt(0).toUpperCase() : "U")}
-            </div>
+            </button>
             {avatarMenuOpen && (
               <div
                 style={{
@@ -441,24 +444,26 @@ export function DashboardTopbar({
                   </>
                 )}
                 {onDashboard && (
-                  <div
-                    style={{ padding: "10px 12px", fontSize: 14, color: t.text, cursor: "pointer", borderRadius: 8, fontWeight: 500 }}
+                  <button
+                    type="button"
+                    style={{ padding: "10px 12px", fontSize: 14, color: t.text, cursor: "pointer", borderRadius: 8, fontWeight: 500, background: "transparent", border: "none", width: "100%", textAlign: "left" }}
                     onClick={() => { setAvatarMenuOpen(false); onDashboard(); }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                   >
                     Dashboard
-                  </div>
+                  </button>
                 )}
                 {onSignOut && (
-                  <div
-                    style={{ padding: "10px 12px", fontSize: 14, color: t.text, cursor: "pointer", borderRadius: 8, fontWeight: 500 }}
+                  <button
+                    type="button"
+                    style={{ padding: "10px 12px", fontSize: 14, color: t.text, cursor: "pointer", borderRadius: 8, fontWeight: 500, background: "transparent", border: "none", width: "100%", textAlign: "left" }}
                     onClick={() => { setAvatarMenuOpen(false); onSignOut(); }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                   >
                     Sign out
-                  </div>
+                  </button>
                 )}
               </div>
             )}

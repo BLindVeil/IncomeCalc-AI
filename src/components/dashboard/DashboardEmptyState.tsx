@@ -1,13 +1,15 @@
 import { BarChart3 } from "lucide-react";
 import type { User } from "@/lib/auth-store";
+import type { ThemeConfig } from "@/lib/app-shared";
 import { getFirstName } from "@/lib/user-display";
 
 interface DashboardEmptyStateProps {
   currentUser?: User | null;
   onGetStarted: () => void;
+  t: ThemeConfig;
 }
 
-export function DashboardEmptyState({ currentUser, onGetStarted }: DashboardEmptyStateProps) {
+export function DashboardEmptyState({ currentUser, onGetStarted, t }: DashboardEmptyStateProps) {
   const firstName = getFirstName(currentUser);
 
   return (
@@ -20,14 +22,14 @@ export function DashboardEmptyState({ currentUser, onGetStarted }: DashboardEmpt
       textAlign: "center",
       minHeight: "60vh",
     }}>
-      <div style={{ marginBottom: 24, color: "#6B7280" }}>
+      <div style={{ marginBottom: 24, color: t.muted }}>
         <BarChart3 size={48} style={{ opacity: 0.3 }} />
       </div>
 
       <h2 style={{
         fontSize: 24,
         fontWeight: 600,
-        color: "#111827",
+        color: t.text,
         marginBottom: 12,
         letterSpacing: "-0.01em",
         margin: "0 0 12px",
@@ -37,7 +39,7 @@ export function DashboardEmptyState({ currentUser, onGetStarted }: DashboardEmpt
 
       <p style={{
         fontSize: 15,
-        color: "#6B7280",
+        color: t.muted,
         marginBottom: 32,
         maxWidth: 440,
         lineHeight: 1.55,
@@ -49,31 +51,32 @@ export function DashboardEmptyState({ currentUser, onGetStarted }: DashboardEmpt
       </p>
 
       <button
+        type="button"
         onClick={onGetStarted}
         style={{
           display: "inline-flex",
           alignItems: "center",
           gap: 8,
           padding: "14px 28px",
-          background: "#EA580C",
+          background: t.primary,
           color: "#FFFFFF",
           border: "none",
           borderRadius: 999,
           fontSize: 15,
           fontWeight: 600,
           cursor: "pointer",
-          transition: "background 150ms ease",
+          transition: "opacity 150ms ease",
           boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = "#C2410C"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = "#EA580C"; }}
+        onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
       >
         Get started →
       </button>
 
       <p style={{
         fontSize: 13,
-        color: "#9CA3AF",
+        color: t.muted,
         marginTop: 16,
       }}>
         Takes 60 seconds. No credit card.
