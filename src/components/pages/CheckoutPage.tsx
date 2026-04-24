@@ -1,11 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useIsMobile } from "@/lib/useIsMobile";
-import {
-  CreditCard,
-  CheckCircle,
-  Shield,
-  Award,
-} from "lucide-react";
+import { CreditCard, ArrowRight } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import {
   applyDark,
@@ -20,44 +15,33 @@ import { AnnualUpsellModal, RestorePurchaseModal } from "@/components/pages/Resu
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const EVERGREEN = "#1B4332";
-const EVERGREEN_MID = "#2D6A4F";
-const MINT = "#34D399";
 const GREEN_CHECK = "#059669";
+const CHECK_FILL = "#52B788";
 const HEADLINE = "#111827";
 const MUTED_TEXT = "#6B7280";
 const BORDER_LIGHT = "#E5E7EB";
 const CARD_BG = "#FFFFFF";
-const FAQ_BG = "#FAFAFA";
-const STAR_GOLD = "#FBBF24";
+const CTA_ORANGE = "#EA580C";
+const CTA_ORANGE_HOVER = "#C2410C";
 
-// ─── Testimonials ────────────────────────────────────────────────────────────
+// ─── Inline CheckSVG (matches landing) ──────────────────────────────────────
 
-const TESTIMONIALS = [
-  {
-    name: "Sarah M.",
-    plan: "Premium",
-    featureName: "AI FINANCIAL DIAGNOSIS",
-    featureDesc: "Get a complete breakdown of your financial health with AI-powered analysis.",
-    quote: "The AI recommendations alone saved me $340/month. I had no idea my housing was eating 42% of my income.",
-    icon: "\u{1F4CA}",
-  },
-  {
-    name: "James T.",
-    plan: "Pro",
-    featureName: "SCENARIO SIMULATOR",
-    featureDesc: "Test different income and expense scenarios before making real decisions.",
-    quote: "The retirement planner showed me I was 8 years behind my goal. Now I'm on track after adjusting my savings rate.",
-    icon: "\u{1F3AF}",
-  },
-  {
-    name: "Priya K.",
-    plan: "Premium",
-    featureName: "BUDGET OPTIMIZER",
-    featureDesc: "Track spending by category and find exactly where to cut without sacrificing lifestyle.",
-    quote: "Household planning for my family of 4 is a game changer. We found $600/mo we didn't know we were wasting.",
-    icon: "\u{1F4B0}",
-  },
-];
+function CheckSVG({ muted }: { muted?: boolean }) {
+  return (
+    <svg width={18} height={18} viewBox="0 0 18 18" fill="none"
+      style={{ flexShrink: 0, marginTop: 1 }}>
+      <circle cx="9" cy="9" r="9" fill={muted ? "#D1D5DB" : CHECK_FILL} opacity={muted ? 0.6 : 1} />
+      <path
+        d="M5 9.2 L 7.8 12 L 13 6.5"
+        stroke="white"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
 
 // ─── Feature comparison data ─────────────────────────────────────────────────
 
@@ -154,6 +138,15 @@ function SiteFooter({ t }: { t: ThemeConfig }) {
   );
 }
 
+// ─── Hero trust items ────────────────────────────────────────────────────────
+
+const HERO_CHECKS = [
+  "Cancel anytime, no fees",
+  "7-day money-back guarantee",
+  "Secure Stripe checkout",
+  "Instant access after payment",
+];
+
 // ─── CheckoutPage ────────────────────────────────────────────────────────────
 
 export interface CheckoutPageProps {
@@ -184,6 +177,8 @@ export function CheckoutPage({
   const [pendingCheckoutPlan, setPendingCheckoutPlan] = useState<PlanId>("pro");
   const [showFeatureTable, setShowFeatureTable] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [ctaHover, setCtaHover] = useState(false);
+  const cardsRef = useRef<HTMLDivElement>(null);
 
   // Analytics
   const pricingTracked = useRef(false);
@@ -246,67 +241,96 @@ export function CheckoutPage({
       <div style={{ paddingTop: isMobile ? 72 : 96, textAlign: "center", position: "relative", zIndex: 1 }}>
         <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 24px" }}>
           <h1 style={{
-            fontSize: isMobile ? 28 : 42,
-            fontWeight: 800,
-            lineHeight: 1.15,
-            letterSpacing: "-0.025em",
+            fontSize: isMobile ? 32 : 56,
+            fontWeight: 700,
+            lineHeight: 1.1,
+            letterSpacing: "-0.03em",
             color: HEADLINE,
             margin: 0,
           }}>
-            The financial clarity<br />you've been meaning to find.
+            Simple pricing.
+            <br />
+            <span style={{ color: EVERGREEN }}>Real clarity.</span>
           </h1>
           <p style={{
             fontSize: isMobile ? 15 : 17,
             color: MUTED_TEXT,
-            maxWidth: 640,
-            margin: "16px auto 0",
+            maxWidth: 560,
+            margin: `${isMobile ? 16 : 20}px auto 0`,
             lineHeight: 1.6,
           }}>
-            Ascentra gives you powerful income planning tools — and Premium takes it further with advanced scenarios, AI diagnosis, and 12-month forecasting.
+            Start free. Upgrade when you're ready. Cancel anytime.
           </p>
-        </div>
 
-        {/* ── SOCIAL PROOF BANNER ── */}
-        <div style={{
-          background: EVERGREEN,
-          padding: "16px 24px",
-          marginTop: 40,
-          marginBottom: 32,
-        }}>
+          {/* Orange CTA */}
           <div style={{
             display: "flex",
             flexDirection: isMobile ? "column" : "row",
-            justifyContent: "center",
             alignItems: "center",
-            gap: isMobile ? 12 : 32,
-            maxWidth: 800,
-            margin: "0 auto",
+            justifyContent: "center",
+            gap: isMobile ? 12 : 16,
+            marginTop: isMobile ? 24 : 32,
           }}>
-            {/* Stars */}
-            <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#fff", fontSize: 14 }}>
-              <span style={{ color: STAR_GOLD, letterSpacing: 2 }}>{"\u2605\u2605\u2605\u2605\u2605"}</span>
-              <span><strong style={{ fontWeight: 700 }}>5/5</strong> <span style={{ opacity: 0.9 }}>from early users</span></span>
-            </div>
-            {!isMobile && <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.25)" }} />}
-            {/* User count */}
-            <div style={{ color: "#fff", fontSize: 14 }}>
-              <strong style={{ fontWeight: 700 }}>5,000+</strong> <span style={{ opacity: 0.9 }}>people using Ascentra</span>
-            </div>
-            {!isMobile && <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.25)" }} />}
-            {/* Stripe */}
-            <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#fff", fontSize: 14 }}>
-              <Shield size={14} style={{ opacity: 0.9 }} />
-              <span>Built with <strong style={{ fontWeight: 700 }}>Stripe</strong> <span style={{ opacity: 0.9 }}>security</span></span>
-            </div>
+            <button
+              onClick={() => cardsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              onMouseEnter={() => setCtaHover(true)}
+              onMouseLeave={() => setCtaHover(false)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: isMobile ? "14px 28px" : "14px 24px",
+                background: ctaHover ? CTA_ORANGE_HOVER : CTA_ORANGE,
+                color: "white",
+                fontSize: 15,
+                fontWeight: 600,
+                letterSpacing: "-0.005em",
+                border: "none",
+                borderRadius: 999,
+                cursor: "pointer",
+                transition: "background 150ms",
+                width: isMobile ? "100%" : "auto",
+                justifyContent: "center",
+                boxShadow: "0 2px 8px rgba(234,88,12,0.25)",
+              }}
+            >
+              See plans <ArrowRight size={17} strokeWidth={2.5} />
+            </button>
+            <span style={{
+              fontSize: 14,
+              color: "#9CA3AF",
+              textAlign: "center",
+            }}>
+              Free forever. No credit card.
+            </span>
+          </div>
+
+          {/* Green checkmark grid */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+            rowGap: 16,
+            columnGap: 32,
+            maxWidth: 700,
+            margin: "40px auto 0",
+          }}>
+            {HERO_CHECKS.map((text) => (
+              <div key={text} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                <CheckSVG />
+                <span style={{ fontSize: 14, color: "#374151", lineHeight: 1.5 }}>
+                  {text}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* ── MAIN CONTENT CONTAINER ── */}
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: isMobile ? "0 16px 48px" : "0 24px 64px", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: isMobile ? "48px 16px 48px" : "64px 24px 64px", position: "relative", zIndex: 1 }}>
 
         {/* ── BILLING TOGGLE ── */}
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 32 }}>
+        <div ref={cardsRef} style={{ display: "flex", justifyContent: "center", marginBottom: 32 }}>
           <div style={{
             display: "inline-flex",
             padding: 4,
@@ -337,7 +361,7 @@ export function CheckoutPage({
                     Yearly
                     <span style={{
                       fontSize: 11,
-                      background: MINT,
+                      background: GREEN_CHECK,
                       color: "#fff",
                       borderRadius: 6,
                       padding: "2px 8px",
@@ -375,30 +399,32 @@ export function CheckoutPage({
                 style={{
                   flex: 1,
                   minWidth: 0,
-                  padding: "36px 32px",
+                  padding: "40px 36px",
                   cursor: "pointer",
                   position: "relative",
                   background: CARD_BG,
-                  border: isPremium ? `2px solid ${EVERGREEN}` : `2px solid ${BORDER_LIGHT}`,
-                  borderRadius: 16,
+                  border: isPremium ? `1.5px solid ${EVERGREEN}` : `1px solid ${BORDER_LIGHT}`,
+                  borderRadius: 20,
                   boxShadow: isPremium
-                    ? "0 4px 16px rgba(27,67,50,0.12)"
-                    : "0 1px 3px rgba(0,0,0,0.04)",
+                    ? "0 8px 32px rgba(27,67,50,0.08)"
+                    : "none",
                 }}
               >
-                {/* Most Popular badge */}
+                {/* Most Popular badge — centered mint pill */}
                 {isPremium && (
                   <div style={{
                     position: "absolute",
-                    top: -14,
-                    right: 24,
-                    background: EVERGREEN,
-                    color: "#fff",
+                    top: -12,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "#D1FAE5",
+                    color: "#065F46",
                     fontSize: 12,
                     fontWeight: 600,
                     padding: "4px 14px",
                     borderRadius: 999,
                     letterSpacing: "0.02em",
+                    whiteSpace: "nowrap",
                   }}>
                     Most Popular
                   </div>
@@ -440,14 +466,26 @@ export function CheckoutPage({
                   onClick={(e) => { e.stopPropagation(); handleCheckoutClick(p.id); }}
                   style={{
                     width: "100%",
-                    padding: "14px 0",
+                    padding: "16px 0",
                     borderRadius: 12,
                     fontSize: 16,
                     fontWeight: 600,
-                    cursor: "pointer",
-                    background: isSelected ? "transparent" : EVERGREEN,
-                    color: isSelected ? EVERGREEN : "#fff",
-                    border: isSelected ? `2px solid ${EVERGREEN}` : "2px solid transparent",
+                    cursor: isPremium || !isSelected ? "pointer" : "not-allowed",
+                    background: isPremium
+                      ? EVERGREEN
+                      : isSelected
+                        ? "#F9FAFB"
+                        : "transparent",
+                    color: isPremium
+                      ? "#fff"
+                      : isSelected
+                        ? "#9CA3AF"
+                        : EVERGREEN,
+                    border: isPremium
+                      ? "none"
+                      : isSelected
+                        ? `1px solid ${BORDER_LIGHT}`
+                        : `1.5px solid ${EVERGREEN}`,
                   }}
                 >
                   {isSelected ? "Current Plan" : isPremium ? "Upgrade to Premium" : "Start Pro"}
@@ -456,7 +494,7 @@ export function CheckoutPage({
                 {/* Microcopy */}
                 {!isSelected && (
                   <div style={{ fontSize: 13, color: "#9CA3AF", textAlign: "center", paddingTop: 8 }}>
-                    no credit card required · Cancel anytime
+                    no credit card required
                   </div>
                 )}
 
@@ -472,15 +510,7 @@ export function CheckoutPage({
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {p.features.map((f) => (
                     <div key={f.text} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                      <span style={{
-                        fontSize: 18,
-                        lineHeight: 1,
-                        color: f.included ? GREEN_CHECK : "#D1D5DB",
-                        flexShrink: 0,
-                        marginTop: -1,
-                      }}>
-                        {"\u2713"}
-                      </span>
+                      <CheckSVG muted={!f.included} />
                       <span style={{
                         fontSize: 14,
                         color: f.included ? "#374151" : "#9CA3AF",
@@ -560,253 +590,183 @@ export function CheckoutPage({
           <p style={{ color: t.muted, fontSize: "0.8rem", textAlign: "center", margin: "1rem 0 0" }}>
             Secure checkout powered by Stripe. Cancel anytime. No hidden fees.
           </p>
-          <p style={{ color: t.primary, fontSize: "0.82rem", textAlign: "center", margin: "0.5rem 0 0", fontWeight: 500, fontStyle: "italic" }}>
-            Most users recover the subscription cost in their first month.
-          </p>
-
-          {/* Money-back guarantee */}
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.65rem",
-            background: "rgba(52,211,153,0.08)",
-            border: "1px solid rgba(52,211,153,0.2)",
-            borderRadius: 14,
-            padding: "0.75rem 1rem",
-            marginTop: "1rem",
-          }}>
-            <Award size={20} style={{ color: MINT, flexShrink: 0 }} />
-            <div>
-              <div style={{ fontWeight: 700, color: t.text, fontSize: "0.88rem" }}>7-Day Money-Back Guarantee</div>
-              <div style={{ fontSize: "0.78rem", color: t.muted }}>
-                Not satisfied? Email us within 7 days for a full refund — no questions asked.
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* ── HOW PREMIUM PAYS FOR ITSELF ── */}
-      <div style={{
-        background: EVERGREEN,
-        padding: isMobile ? "48px 16px" : "64px 24px",
-        position: "relative",
-        zIndex: 1,
-      }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-          <h2 style={{
-            fontSize: isMobile ? 24 : 32,
-            fontWeight: 800,
-            color: "#fff",
-            textAlign: "center",
-            margin: "0 0 8px",
-          }}>
-            How Premium pays for itself
-          </h2>
-          <p style={{
-            color: "rgba(255,255,255,0.7)",
-            fontSize: 16,
-            textAlign: "center",
-            margin: "0 0 40px",
-          }}>
-            Real features. Real users. Real results at $9.99/month.
-          </p>
+      {/* ── FEATURE COMPARISON TOGGLE ── */}
+      <div style={{ textAlign: "center", margin: "0 0 0", position: "relative", zIndex: 1 }}>
+        <button
+          onClick={() => setShowFeatureTable(!showFeatureTable)}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = "#F9FAFB";
+            e.currentTarget.style.borderColor = "#9CA3AF";
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.borderColor = "#D1D5DB";
+          }}
+          style={{
+            background: "transparent",
+            border: "1px solid #D1D5DB",
+            color: "#374151",
+            padding: "10px 24px",
+            borderRadius: 999,
+            fontSize: 14,
+            fontWeight: 500,
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            transition: "background 180ms, border-color 180ms",
+          }}
+        >
+          {showFeatureTable ? "Hide" : "Show"} full feature comparison
+          <svg
+            width={16}
+            height={16}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#374151"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              transition: "transform 200ms",
+              transform: showFeatureTable ? "rotate(180deg)" : "rotate(0)",
+            }}
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+      </div>
 
-          {/* Value-testimonial cards */}
+      {/* ── FEATURE COMPARISON TABLE ── */}
+      {showFeatureTable && (
+        <div style={{
+          background: CARD_BG,
+          maxWidth: 900,
+          margin: "32px auto 0",
+          borderRadius: 16,
+          overflow: "hidden",
+          border: `1px solid ${BORDER_LIGHT}`,
+          position: "relative",
+          zIndex: 1,
+        }}>
+          {/* Header row */}
           <div style={{
-            display: "flex",
-            flexDirection: isMobile ? "column" : "row",
-            gap: 24,
+            display: "grid",
+            gridTemplateColumns: "2fr 1fr 1fr",
+            padding: "16px 24px",
+            background: "#F9FAFB",
+            borderBottom: `1px solid ${BORDER_LIGHT}`,
           }}>
-            {TESTIMONIALS.map((item) => (
-              <div key={item.name} style={{
-                flex: 1,
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: 16,
-                padding: "28px 24px",
-              }}>
-                {/* Icon */}
-                <div style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  background: "rgba(255,255,255,0.15)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 18,
-                }}>
-                  {item.icon}
-                </div>
-
-                {/* Feature name */}
-                <div style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase" as const,
-                  color: MINT,
-                  marginTop: 16,
-                }}>
-                  {item.featureName}
-                </div>
-
-                {/* Feature description */}
-                <div style={{
-                  color: "rgba(255,255,255,0.85)",
-                  fontSize: 14,
-                  lineHeight: 1.5,
-                  margin: "8px 0 20px",
-                }}>
-                  {item.featureDesc}
-                </div>
-
-                {/* Divider */}
-                <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 20 }} />
-
-                {/* Quote */}
-                <div style={{
-                  color: "rgba(255,255,255,0.9)",
-                  fontSize: 14,
-                  fontStyle: "italic",
-                  lineHeight: 1.6,
-                  marginBottom: 16,
-                }}>
-                  "{item.quote}"
-                </div>
-
-                {/* Author */}
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ color: "#fff", fontWeight: 600, fontSize: 14 }}>{item.name}</span>
-                  <span style={{
-                    background: "rgba(255,255,255,0.15)",
-                    color: "#fff",
-                    fontSize: 11,
-                    padding: "2px 10px",
-                    borderRadius: 999,
-                  }}>
-                    {item.plan}
-                  </span>
-                </div>
-              </div>
-            ))}
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: MUTED_TEXT }}>Feature</div>
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: MUTED_TEXT, textAlign: "center" }}>PRO</div>
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: MUTED_TEXT, textAlign: "center" }}>PREMIUM</div>
           </div>
 
-          {/* Toggle feature comparison */}
-          <div style={{ textAlign: "center", marginTop: 40 }}>
+          {FEATURE_ROWS.map((row, i) => {
+            if (row.category) {
+              return (
+                <div key={row.category} style={{
+                  background: "#FAFAFA",
+                  padding: "12px 24px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase" as const,
+                  color: "#4B5563",
+                  borderBottom: `1px solid ${BORDER_LIGHT}`,
+                }}>
+                  {row.category}
+                </div>
+              );
+            }
+            return (
+              <div key={row.label} style={{
+                display: "grid",
+                gridTemplateColumns: "2fr 1fr 1fr",
+                padding: "14px 24px",
+                borderTop: `1px solid #F3F4F6`,
+                borderBottom: i === FEATURE_ROWS.length - 1 ? "none" : undefined,
+                alignItems: "center",
+              }}>
+                <div style={{ fontSize: 14, color: "#374151" }}>{row.label}</div>
+                <div style={{ textAlign: "center" }}>
+                  {row.pro ? (
+                    <svg width={20} height={20} viewBox="0 0 18 18" fill="none" style={{ display: "inline-block", verticalAlign: "middle" }}>
+                      <circle cx="9" cy="9" r="9" fill={GREEN_CHECK} />
+                      <path d="M5 9.2 L 7.8 12 L 13 6.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    </svg>
+                  ) : (
+                    <span style={{ color: "#D1D5DB", fontSize: 18 }}>{"\u2014"}</span>
+                  )}
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  {row.premium ? (
+                    <svg width={20} height={20} viewBox="0 0 18 18" fill="none" style={{ display: "inline-block", verticalAlign: "middle" }}>
+                      <circle cx="9" cy="9" r="9" fill={GREEN_CHECK} />
+                      <path d="M5 9.2 L 7.8 12 L 13 6.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    </svg>
+                  ) : (
+                    <span style={{ color: "#D1D5DB", fontSize: 18 }}>{"\u2014"}</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Hide button inside table */}
+          <div style={{ textAlign: "center", padding: 16, borderTop: `1px solid #F3F4F6` }}>
             <button
-              onClick={() => setShowFeatureTable(!showFeatureTable)}
+              onClick={() => setShowFeatureTable(false)}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = "#F9FAFB";
+                e.currentTarget.style.borderColor = "#9CA3AF";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.borderColor = "#D1D5DB";
+              }}
               style={{
                 background: "transparent",
-                border: "1px solid rgba(255,255,255,0.3)",
-                color: "#fff",
-                padding: "12px 28px",
+                border: "1px solid #D1D5DB",
+                color: "#374151",
+                padding: "10px 24px",
                 borderRadius: 999,
                 fontSize: 14,
                 fontWeight: 500,
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                transition: "background 180ms, border-color 180ms",
               }}
             >
-              {showFeatureTable ? "Hide feature comparison \u25B2" : "Show full feature comparison \u25BC"}
+              Hide full feature comparison
+              <svg
+                width={16}
+                height={16}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#374151"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="18 15 12 9 6 15" />
+              </svg>
             </button>
           </div>
-
-          {/* ── FEATURE COMPARISON TABLE ── */}
-          {showFeatureTable && (
-            <div style={{
-              background: CARD_BG,
-              maxWidth: 1000,
-              margin: "24px auto 0",
-              borderRadius: 16,
-              overflow: "hidden",
-              border: `1px solid ${BORDER_LIGHT}`,
-            }}>
-              {/* Header row */}
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "2fr 1fr 1fr",
-                padding: "16px 24px",
-                background: "#F9FAFB",
-                borderBottom: `1px solid ${BORDER_LIGHT}`,
-              }}>
-                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: MUTED_TEXT }}>Feature</div>
-                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: MUTED_TEXT, textAlign: "center" }}>PRO</div>
-                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: MUTED_TEXT, textAlign: "center" }}>PREMIUM</div>
-              </div>
-
-              {FEATURE_ROWS.map((row, i) => {
-                if (row.category) {
-                  return (
-                    <div key={row.category} style={{
-                      background: "#F3F4F6",
-                      padding: "12px 24px",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      letterSpacing: "0.06em",
-                      textTransform: "uppercase" as const,
-                      color: "#374151",
-                      borderBottom: `1px solid ${BORDER_LIGHT}`,
-                    }}>
-                      {row.category}
-                    </div>
-                  );
-                }
-                return (
-                  <div key={row.label} style={{
-                    display: "grid",
-                    gridTemplateColumns: "2fr 1fr 1fr",
-                    padding: "14px 24px",
-                    borderBottom: i < FEATURE_ROWS.length - 1 ? `1px solid #F3F4F6` : "none",
-                    alignItems: "center",
-                  }}>
-                    <div style={{ fontSize: 14, color: "#374151" }}>{row.label}</div>
-                    <div style={{ textAlign: "center" }}>
-                      {row.pro ? (
-                        <CheckCircle size={16} style={{ color: GREEN_CHECK }} />
-                      ) : (
-                        <span style={{ color: "#D1D5DB", fontSize: 16 }}>—</span>
-                      )}
-                    </div>
-                    <div style={{ textAlign: "center" }}>
-                      {row.premium ? (
-                        <CheckCircle size={16} style={{ color: EVERGREEN }} />
-                      ) : (
-                        <span style={{ color: "#D1D5DB", fontSize: 16 }}>—</span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Hide button */}
-              <div style={{ textAlign: "center", padding: 16 }}>
-                <button
-                  onClick={() => setShowFeatureTable(false)}
-                  style={{
-                    background: "transparent",
-                    border: `1px solid ${BORDER_LIGHT}`,
-                    color: MUTED_TEXT,
-                    padding: "10px 24px",
-                    borderRadius: 999,
-                    fontSize: 14,
-                    fontWeight: 500,
-                    cursor: "pointer",
-                  }}
-                >
-                  Hide feature comparison {"\u25B2"}
-                </button>
-              </div>
-            </div>
-          )}
         </div>
-      </div>
+      )}
 
       {/* ── FAQ ── */}
-      <div style={{ maxWidth: 800, margin: "0 auto", padding: isMobile ? "48px 16px" : "64px 24px", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: 800, margin: "0 auto", padding: isMobile ? "48px 16px" : "80px 24px 64px", position: "relative", zIndex: 1 }}>
         <h2 style={{
           fontSize: isMobile ? 24 : 32,
-          fontWeight: 800,
+          fontWeight: 700,
+          letterSpacing: "-0.02em",
           color: HEADLINE,
           textAlign: "center",
           margin: "0 0 32px",
@@ -821,17 +781,21 @@ export function CheckoutPage({
                 key={faq.q}
                 onClick={() => setOpenFaq(isOpen ? null : i)}
                 style={{
-                  background: FAQ_BG,
-                  borderRadius: 12,
+                  background: CARD_BG,
+                  border: `1px solid ${BORDER_LIGHT}`,
+                  borderRadius: 16,
                   padding: "20px 24px",
                   cursor: "pointer",
+                  transition: "border-color 180ms",
                 }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "#D1D5DB"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER_LIGHT; }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
                   <div style={{ fontWeight: 600, fontSize: 16, color: HEADLINE }}>{faq.q}</div>
                   <svg
-                    width={16}
-                    height={16}
+                    width={20}
+                    height={20}
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke={MUTED_TEXT}
@@ -840,7 +804,7 @@ export function CheckoutPage({
                     strokeLinejoin="round"
                     style={{
                       flexShrink: 0,
-                      transition: "transform 200ms",
+                      transition: "transform 200ms ease",
                       transform: isOpen ? "rotate(180deg)" : "rotate(0)",
                     }}
                   >
@@ -848,91 +812,20 @@ export function CheckoutPage({
                   </svg>
                 </div>
                 {isOpen && (
-                  <div style={{ fontSize: 15, color: MUTED_TEXT, lineHeight: 1.6, marginTop: 8 }}>
+                  <div style={{
+                    fontSize: 15,
+                    color: "#4B5563",
+                    lineHeight: 1.65,
+                    marginTop: 12,
+                    paddingTop: 12,
+                    borderTop: "1px solid #F3F4F6",
+                  }}>
                     {faq.a}
                   </div>
                 )}
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* ── BOTTOM CTA BAND ── */}
-      <div style={{ maxWidth: 1000, margin: "0 auto", padding: isMobile ? "0 16px 48px" : "0 24px 64px", position: "relative", zIndex: 1 }}>
-        <div style={{
-          background: `linear-gradient(135deg, ${EVERGREEN} 0%, ${EVERGREEN_MID} 100%)`,
-          borderRadius: 24,
-          padding: isMobile ? "32px 24px" : "48px 40px",
-          position: "relative",
-          overflow: "hidden",
-        }}>
-          {/* Geometric art — desktop only */}
-          {!isMobile && (
-            <>
-              <div style={{
-                position: "absolute",
-                right: -20,
-                top: -20,
-                width: 120,
-                height: 120,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.05)",
-              }} />
-              <div style={{
-                position: "absolute",
-                right: 60,
-                bottom: -30,
-                width: 80,
-                height: 80,
-                borderRadius: "50%",
-                background: "rgba(52,211,153,0.15)",
-              }} />
-              <div style={{
-                position: "absolute",
-                right: 160,
-                top: 10,
-                width: 50,
-                height: 50,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.08)",
-              }} />
-            </>
-          )}
-
-          <div style={{ position: "relative", zIndex: 1, maxWidth: 520 }}>
-            <div style={{
-              color: "#fff",
-              fontSize: isMobile ? 22 : 28,
-              fontWeight: 700,
-              lineHeight: 1.3,
-            }}>
-              Your path to <em style={{ fontWeight: 800, fontStyle: "italic" }}>financial clarity</em> starts here.
-            </div>
-            <div style={{
-              color: "rgba(255,255,255,0.7)",
-              fontSize: 15,
-              marginTop: 8,
-            }}>
-              Start with a free calculation, upgrade when you're ready.
-            </div>
-            <button
-              onClick={() => handleCheckoutClick(selectedPlan)}
-              style={{
-                background: "#fff",
-                color: EVERGREEN,
-                fontWeight: 600,
-                padding: "14px 28px",
-                borderRadius: 12,
-                fontSize: 16,
-                border: "none",
-                cursor: "pointer",
-                marginTop: 20,
-              }}
-            >
-              Start Your Free Trial
-            </button>
-          </div>
         </div>
       </div>
 
