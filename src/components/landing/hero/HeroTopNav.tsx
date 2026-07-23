@@ -1,13 +1,27 @@
 import { useState, useEffect, useRef } from "react";
-import { EV_800, NEUTRAL_TEXT, NEUTRAL_MUTED, NEUTRAL_BORDER } from "@/lib/app-shared";
+import { EV_800 } from "@/lib/app-shared";
+import { INK, INK_SOFT, SAGE, PAPER, GLASS_BORDER } from "../landing-theme";
 
 function getInitial(name: string | undefined): string {
   if (!name || name.trim().length === 0) return "U";
   return name.trim()[0].toUpperCase();
 }
 
+const NAV_LINKS: { label: string; target: string }[] = [
+  { label: "Overview", target: "overview" },
+  { label: "How it works", target: "how" },
+  { label: "Pricing", target: "pricing" },
+  { label: "FAQ", target: "faq" },
+];
+
+function scrollToSection(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 interface HeroTopNavProps {
   isMobile: boolean;
+  /** Center anchor links need full desktop width to avoid colliding with the controls */
+  showLinks?: boolean;
   onStart: () => void;
   onSignIn?: () => void;
   isSignedIn?: boolean;
@@ -16,13 +30,10 @@ interface HeroTopNavProps {
   onSignOut?: () => void;
 }
 
-const TEXT = NEUTRAL_TEXT;
-const MUTED = NEUTRAL_MUTED;
-const BORDER = NEUTRAL_BORDER;
-
-export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, onDashboard, onSignOut }: HeroTopNavProps) {
+export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn, userName, onDashboard, onSignOut }: HeroTopNavProps) {
   const [hoverSignIn, setHoverSignIn] = useState(false);
-  const [hoverGetStarted, setHoverGetStarted] = useState(false);
+  const [hoverCta, setHoverCta] = useState(false);
+  const [hoverLink, setHoverLink] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoverItem, setHoverItem] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -45,6 +56,8 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
+        position: "relative",
+        height: 56,
       }}
     >
       {/* Left — logo + wordmark */}
@@ -61,15 +74,52 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
             fontSize: 16,
             fontWeight: 600,
             letterSpacing: "-0.01em",
-            color: TEXT,
+            color: INK,
           }}
         >
           Ascentra
         </span>
       </div>
 
-      {/* Right — Sign in + Get started */}
-      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+      {/* Center — section links (desktop only) */}
+      {showLinks && (
+        <nav
+          style={{
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          {NAV_LINKS.map((link) => (
+            <button
+              key={link.target}
+              type="button"
+              onClick={() => scrollToSection(link.target)}
+              onMouseEnter={() => setHoverLink(link.target)}
+              onMouseLeave={() => setHoverLink(null)}
+              style={{
+                background: hoverLink === link.target ? "rgba(12,26,18,0.06)" : "transparent",
+                border: "none",
+                borderRadius: 999,
+                padding: "7px 14px",
+                fontSize: 13.5,
+                fontWeight: 500,
+                color: hoverLink === link.target ? INK : SAGE,
+                cursor: "pointer",
+                transition: "color 150ms ease, background 150ms ease",
+              }}
+            >
+              {link.label}
+            </button>
+          ))}
+        </nav>
+      )}
+
+      {/* Right — Sign in + CTA */}
+      <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 12 : 18 }}>
         {!isMobile && (
           isSignedIn ? (
             <div ref={menuRef} style={{ position: "relative" }}>
@@ -103,11 +153,11 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
                     right: 0,
                     minWidth: 160,
                     background: "white",
-                    border: `1px solid ${BORDER}`,
+                    border: `1px solid ${GLASS_BORDER}`,
                     borderRadius: 12,
                     padding: "6px 0",
                     zIndex: 200,
-                    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+                    boxShadow: "0 4px 16px rgba(27,67,50,0.12)",
                   }}
                 >
                   <button
@@ -118,9 +168,9 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
                       display: "block",
                       width: "100%",
                       padding: "10px 16px",
-                      background: hoverItem === "dashboard" ? "#F3F4F6" : "transparent",
+                      background: hoverItem === "dashboard" ? "rgba(12,26,18,0.05)" : "transparent",
                       border: "none",
-                      color: TEXT,
+                      color: INK,
                       fontSize: 13,
                       fontWeight: 500,
                       textAlign: "left",
@@ -138,9 +188,9 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
                       display: "block",
                       width: "100%",
                       padding: "10px 16px",
-                      background: hoverItem === "signout" ? "#F3F4F6" : "transparent",
+                      background: hoverItem === "signout" ? "rgba(12,26,18,0.05)" : "transparent",
                       border: "none",
-                      color: MUTED,
+                      color: INK_SOFT,
                       fontSize: 13,
                       fontWeight: 500,
                       textAlign: "left",
@@ -160,9 +210,9 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
               onMouseEnter={() => setHoverSignIn(true)}
               onMouseLeave={() => setHoverSignIn(false)}
               style={{
-                fontSize: 13,
+                fontSize: 13.5,
                 fontWeight: 500,
-                color: hoverSignIn ? TEXT : MUTED,
+                color: hoverSignIn ? INK : SAGE,
                 cursor: "pointer",
                 transition: "color 150ms",
                 background: "none",
@@ -176,22 +226,22 @@ export function HeroTopNav({ isMobile, onStart, onSignIn, isSignedIn, userName, 
         )}
         <button
           type="button"
+          className="lp-press"
           onClick={onStart}
-          onMouseEnter={() => setHoverGetStarted(true)}
-          onMouseLeave={() => setHoverGetStarted(false)}
+          onMouseEnter={() => setHoverCta(true)}
+          onMouseLeave={() => setHoverCta(false)}
           style={{
-            padding: "8px 16px",
-            border: `1px solid ${BORDER}`,
+            padding: isMobile ? "8px 14px" : "9px 18px",
+            border: "none",
             borderRadius: 999,
             fontSize: 13,
-            fontWeight: 500,
-            color: TEXT,
-            background: hoverGetStarted ? "#F9FAFB" : "transparent",
+            fontWeight: 600,
+            color: PAPER,
+            background: hoverCta ? "#1E3025" : INK,
             cursor: "pointer",
-            transition: "background 150ms",
           }}
         >
-          Get started →
+          Calculate my number →
         </button>
       </div>
     </div>

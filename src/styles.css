@@ -460,3 +460,78 @@ select.atv-select option {
 		animation: none;
 	}
 }
+
+/* ─── Landing motion utilities ──────────────────────────────────────────── */
+.lp-press {
+	transition:
+		transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+		background 180ms ease,
+		box-shadow 220ms ease;
+}
+.lp-press:active {
+	transform: scale(0.97);
+}
+
+@keyframes lpHillDrift {
+	from {
+		transform: translate3d(0, 0, 0);
+	}
+	to {
+		transform: translate3d(-28px, 12px, 0);
+	}
+}
+.lp-drift {
+	animation: lpHillDrift 26s ease-in-out infinite alternate;
+}
+
+/* FAQ accordion: interruptible height animation via grid rows */
+.lp-acc-body {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 240ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.lp-acc-body[data-open="true"] {
+	grid-template-rows: 1fr;
+}
+.lp-acc-inner {
+	overflow: hidden;
+	min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lp-drift {
+		animation: none !important;
+	}
+	.lp-press,
+	.lp-acc-body {
+		transition: none !important;
+	}
+}
+
+.lp-card {
+	transition:
+		transform 220ms cubic-bezier(0.23, 1, 0.32, 1),
+		box-shadow 220ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+	.lp-card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 10px 28px -8px rgba(27, 67, 50, 0.14);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.lp-card,
+	.lp-card:hover {
+		transition: none !important;
+		transform: none !important;
+	}
+}
+
+.lp-cta-orange {
+	background: #ea580c;
+}
+@media (hover: hover) and (pointer: fine) {
+	.lp-cta-orange:hover {
+		background: #c2410c;
+	}
+}

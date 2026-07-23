@@ -96,6 +96,7 @@ import { Header, AUTH_EVENT } from "@/components/Header";
 import { DashboardSidebar } from "@/components/ui/DashboardSidebar";
 import { DashboardTopbar } from "@/components/ui/DashboardTopbar";
 import { LandingHero } from "@/components/landing/LandingHero";
+import { Reveal } from "@/components/landing/Reveal";
 import { OverviewSection } from "@/components/landing/OverviewSection";
 import { WhyAscentraSection } from "@/components/landing/WhyAscentraSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
@@ -309,17 +310,19 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
               alerts={[]}
             />
 
-            <OverviewSection t={t} isDark={isDark} isMobile={isMobile} onStart={onStart} />
-            <WhyAscentraSection t={t} isDark={isDark} />
-            <HowItWorksSection t={t} isDark={isDark} onStart={onStart} />
-            <PricingSection
-              t={t}
-              isDark={isDark}
-              onStart={onStart}
-              onUpgrade={onUpgrade ?? ((plan) => onPricing())}
-            />
-            <QuestionsSection t={t} />
-            <FinalCTABanner t={t} isMobile={isMobile} onStart={onStart} />
+            <Reveal><OverviewSection t={t} isDark={isDark} isMobile={isMobile} onStart={onStart} /></Reveal>
+            <Reveal><WhyAscentraSection t={t} isDark={isDark} /></Reveal>
+            <Reveal><HowItWorksSection t={t} isDark={isDark} onStart={onStart} /></Reveal>
+            <Reveal>
+              <PricingSection
+                t={t}
+                isDark={isDark}
+                onStart={onStart}
+                onUpgrade={onUpgrade ?? ((plan) => onPricing())}
+              />
+            </Reveal>
+            <Reveal><QuestionsSection t={t} /></Reveal>
+            <Reveal><FinalCTABanner t={t} isMobile={isMobile} onStart={onStart} /></Reveal>
           </div>
         </div>
       </div>

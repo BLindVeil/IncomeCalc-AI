@@ -65,6 +65,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
     cursor: "pointer",
     background: active ? t.primary : "transparent",
     color: active ? "#fff" : t.muted,
+    transition: "background 180ms ease, color 180ms ease",
   });
 
   function handleContinue() {
@@ -135,6 +136,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                     cursor: "pointer",
                     borderRadius: 12,
                     position: "relative",
+                    transition: "background 200ms ease, border-color 200ms ease",
                     borderLeft: tier.recommended ? `3px solid ${EV_500}` : "3px solid transparent",
                     background: tier.recommended ? t.primarySoft : "transparent",
                   }}
@@ -150,11 +152,20 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
+                      transition: "border-color 200ms ease",
                     }}
                   >
-                    {isSelected && (
-                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: EV_500 }} />
-                    )}
+                    <div
+                      style={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        background: EV_500,
+                        transform: isSelected ? "scale(1)" : "scale(0.4)",
+                        opacity: isSelected ? 1 : 0,
+                        transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1), opacity 150ms ease",
+                      }}
+                    />
                   </div>
 
                   {/* Info */}
@@ -213,18 +224,18 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
         {/* Continue button */}
         <button
           onClick={handleContinue}
+          className="lp-press lp-cta-orange"
           style={{
             marginTop: 20,
             width: "100%",
-            background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
-            color: "#fff",
+                        color: "#fff",
             border: "none",
             borderRadius: 999,
             padding: "12px 0",
             fontSize: 14,
             fontWeight: 600,
             cursor: "pointer",
-            boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.4)" : "0 2px 8px rgba(27,67,50,0.25)",
+            boxShadow: "0 4px 14px -6px rgba(234,88,12,0.45)",
           }}
         >
           Continue with {selected === "free" ? "Free" : selected === "pro" ? "Pro" : "Premium"} →

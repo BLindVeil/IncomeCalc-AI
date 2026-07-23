@@ -99,10 +99,10 @@ export function HowItWorksSection({ t, isDark, onStart }: HowItWorksSectionProps
 
         <button
           onClick={onStart}
+          className="lp-press lp-cta-orange"
           style={{
             marginTop: 24,
-            background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
-            color: "#fff",
+                        color: "#fff",
             border: "none",
             borderRadius: 999,
             padding: "10px 20px",
@@ -112,7 +112,7 @@ export function HowItWorksSection({ t, isDark, onStart }: HowItWorksSectionProps
             display: "inline-flex",
             alignItems: "center",
             gap: 6,
-            boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.4)" : "0 2px 8px rgba(27,67,50,0.25)",
+            boxShadow: "0 4px 14px -6px rgba(234,88,12,0.45)",
           }}
         >
           Calculate my number →

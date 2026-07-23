@@ -32,7 +32,7 @@ const INSIGHTS: InsightCard[] = [
     category: "STABILITY",
     title: "A single score for your financial health.",
     description:
-      "Your stability score combines runway, debt ratio, and savings rate into one number. Watch it move as your situation changes — no spreadsheet required.",
+      "Your stability score combines runway, debt ratio, and savings rate into one number. Watch it move as your situation changes. No spreadsheet required.",
     numeric: "82",
     numericLabel: "SAMPLE SCORE",
   },
@@ -40,7 +40,7 @@ const INSIGHTS: InsightCard[] = [
     category: "SCENARIO",
     title: "Test decisions before you make them.",
     description:
-      "Moving to a cheaper apartment, taking a different job, cutting subscriptions — see the required-income impact of every change against your actual numbers.",
+      "Moving to a cheaper apartment, taking a different job, cutting subscriptions: see the required-income impact of every change against your actual numbers.",
     numeric: "−$400/mo",
   },
   {
@@ -77,6 +77,7 @@ export function WhyAscentraSection({ t, isDark }: WhyAscentraSectionProps) {
         {INSIGHTS.map((card) => (
           <div
             key={card.category}
+            className="lp-card"
             style={{
               background: t.cardBg,
               border: `1px solid ${t.border}`,

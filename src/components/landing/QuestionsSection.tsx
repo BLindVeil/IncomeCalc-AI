@@ -21,7 +21,7 @@ const FAQS: FAQ[] = [
   },
   {
     q: "Why only 60 seconds?",
-    a: "Your required income can be computed directly from what you spend and your tax situation. No bank linking, no credit pull, no lengthy onboarding — just the inputs that matter.",
+    a: "Your required income can be computed directly from what you spend and your tax situation. No bank linking, no credit pull, no lengthy onboarding, just the inputs that matter.",
   },
   {
     q: "What data do you store?",
@@ -39,6 +39,7 @@ const FAQS: FAQ[] = [
 
 export function QuestionsSection({ t }: QuestionsSectionProps) {
   const [open, setOpen] = useState<number | null>(null);
+  const [hovered, setHovered] = useState<number | null>(null);
 
   return (
     <section id="faq" style={{ marginTop: 48 }}>
@@ -68,15 +69,24 @@ export function QuestionsSection({ t }: QuestionsSectionProps) {
           return (
             <div key={i}>
               {i > 0 && <div style={{ height: 1, background: t.border, margin: "0 1.5rem" }} />}
-              <div
+              <button
+                type="button"
                 onClick={() => setOpen(isOpen ? null : i)}
+                onMouseEnter={() => setHovered(i)}
+                onMouseLeave={() => setHovered(null)}
+                aria-expanded={isOpen}
                 style={{
+                  width: "100%",
                   padding: "16px 1.5rem",
                   cursor: "pointer",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
                   gap: 12,
+                  background: hovered === i ? "rgba(82,183,136,0.05)" : "transparent",
+                  border: "none",
+                  textAlign: "left",
+                  transition: "background 180ms ease",
                 }}
               >
                 <span style={{ fontSize: 14, fontWeight: 500, color: t.text, lineHeight: 1.4 }}>
@@ -93,18 +103,29 @@ export function QuestionsSection({ t }: QuestionsSectionProps) {
                   strokeLinejoin="round"
                   style={{
                     flexShrink: 0,
-                    transition: "transform 200ms",
+                    transition: "transform 240ms cubic-bezier(0.23, 1, 0.32, 1)",
                     transform: isOpen ? "rotate(180deg)" : "rotate(0)",
                   }}
                 >
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
-              </div>
-              {isOpen && (
-                <div style={{ padding: "0 1.5rem 16px", fontSize: 13, color: t.muted, lineHeight: 1.6 }}>
-                  {faq.a}
+              </button>
+              <div className="lp-acc-body" data-open={isOpen}>
+                <div className="lp-acc-inner">
+                  <div
+                    style={{
+                      padding: "0 1.5rem 16px",
+                      fontSize: 13,
+                      color: t.muted,
+                      lineHeight: 1.6,
+                      opacity: isOpen ? 1 : 0,
+                      transition: "opacity 220ms ease",
+                    }}
+                  >
+                    {faq.a}
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           );
         })}

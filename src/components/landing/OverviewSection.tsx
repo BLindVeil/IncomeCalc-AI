@@ -69,14 +69,14 @@ export function OverviewSection({ t, isDark, isMobile, onStart }: OverviewSectio
               }}
             >
               Enter your monthly expenses and get your required income, financial health score, and
-              exactly what to change — in about 60 seconds.
+              exactly what to change, in about 60 seconds.
             </p>
             <div style={{ marginTop: "auto", paddingTop: 24 }}>
               <button
                 onClick={onStart}
+                className="lp-press lp-cta-orange"
                 style={{
-                  background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
-                  color: "#fff",
+                                    color: "#fff",
                   border: "none",
                   borderRadius: 999,
                   padding: "10px 20px",
@@ -86,7 +86,7 @@ export function OverviewSection({ t, isDark, isMobile, onStart }: OverviewSectio
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 6,
-                  boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.4)" : "0 2px 8px rgba(27,67,50,0.25)",
+                  boxShadow: "0 4px 14px -6px rgba(234,88,12,0.45)",
                 }}
               >
                 Calculate my number →
