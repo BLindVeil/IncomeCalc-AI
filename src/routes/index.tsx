@@ -96,9 +96,9 @@ import { Header, AUTH_EVENT } from "@/components/Header";
 import { DashboardSidebar } from "@/components/ui/DashboardSidebar";
 import { DashboardTopbar } from "@/components/ui/DashboardTopbar";
 import { LandingHero } from "@/components/landing/LandingHero";
-import { Reveal } from "@/components/landing/Reveal";
-import { OverviewSection } from "@/components/landing/OverviewSection";
-import { WhyAscentraSection } from "@/components/landing/WhyAscentraSection";
+import { ComparisonSection } from "@/components/landing/ComparisonSection";
+import { WHITE, CANVAS, INK, FONT_STACK } from "@/components/landing/landing-theme";
+import { CapabilitiesSection } from "@/components/landing/CapabilitiesSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { QuestionsSection } from "@/components/landing/QuestionsSection";
@@ -258,74 +258,37 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
     </span>
   );
 
+  const lt = applyDark(currentTheme, false); // landing is light-locked
+  const band = (bg: string) => ({
+    background: bg,
+    padding: isMobile ? "72px 20px" : "112px 40px",
+  });
+  const inner: React.CSSProperties = { maxWidth: 1000, margin: "0 auto" };
+
   return (
-    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, overflowX: "hidden" }}>
-      {/* Hero — full-bleed above sidebar layout */}
+    <div style={{ minHeight: "100vh", background: WHITE, color: INK, overflowX: "hidden", fontFamily: FONT_STACK }}>
       <LandingHero onStart={onStart} onSignIn={onSignIn} isSignedIn={!!currentUser} userName={currentUser?.email} onDashboard={onDashboard} onSignOut={onSignOut} />
 
-      <div
-        style={{
-          display: showSidebar ? "grid" : "block",
-          gridTemplateColumns: showSidebar ? "240px 1fr" : undefined,
-        }}
-      >
-        {/* Sidebar */}
-        {showSidebar && (
-          <DashboardSidebar
-            t={t}
-            isDark={isDark}
-            setIsDark={setIsDark}
-            activeItem="overview"
-            onNavigate={handleSidebarNav}
-            items={LANDING_NAV}
-            bottomItems={LANDING_BOTTOM}
-          />
-        )}
+      <CapabilitiesSection isMobile={isMobile} />
+      <ComparisonSection isMobile={isMobile} />
 
-        {/* Main content */}
-        <div style={{ minHeight: "100vh" }}>
-          {/* Mobile: show Header instead of sidebar */}
-          {!showSidebar && (
-            <Header
-              isDark={isDark}
-              setIsDark={setIsDark}
-              currentTheme={currentTheme}
-              onDevAccess={onDevAccess}
-              accountUser={currentUser}
-              onSignIn={onSignIn}
-              onSignOut={onSignOut}
-              onDashboard={onDashboard}
-            />
-          )}
+      <section style={band(CANVAS)}>
+        <div style={inner}><HowItWorksSection t={lt} isDark={false} onStart={onStart} /></div>
+      </section>
 
-          <div style={{ padding: isMobile ? "24px 16px" : "32px 40px", maxWidth: 1000 }}>
-            <DashboardTopbar
-              t={t}
-              isDark={isDark}
-              isMobile={isMobile}
-              leftContent={topbarLeft}
-              ctaLabel="Calculate my number →"
-              ctaOnClick={onStart}
-              rightExtra={topbarRight}
-              alerts={[]}
-            />
-
-            <Reveal><OverviewSection t={t} isDark={isDark} isMobile={isMobile} onStart={onStart} /></Reveal>
-            <Reveal><WhyAscentraSection t={t} isDark={isDark} /></Reveal>
-            <Reveal><HowItWorksSection t={t} isDark={isDark} onStart={onStart} /></Reveal>
-            <Reveal>
-              <PricingSection
-                t={t}
-                isDark={isDark}
-                onStart={onStart}
-                onUpgrade={onUpgrade ?? ((plan) => onPricing())}
-              />
-            </Reveal>
-            <Reveal><QuestionsSection t={t} /></Reveal>
-            <Reveal><FinalCTABanner t={t} isMobile={isMobile} onStart={onStart} /></Reveal>
-          </div>
+      <section style={band(WHITE)}>
+        <div style={inner}>
+          <PricingSection t={lt} isDark={false} onStart={onStart} onUpgrade={onUpgrade ?? ((plan) => onPricing())} />
         </div>
-      </div>
+      </section>
+
+      <section style={band(CANVAS)}>
+        <div style={inner}><QuestionsSection t={lt} /></div>
+      </section>
+
+      <section style={{ background: WHITE, padding: isMobile ? "0 20px 72px" : "0 40px 112px" }}>
+        <div style={inner}><FinalCTABanner t={lt} isMobile={isMobile} onStart={onStart} /></div>
+      </section>
 
       <SiteFooter t={t} />
     </div>

@@ -1,211 +1,262 @@
-import { MONO_FONT_STACK, EV_50, EV_200, EV_500, EV_700, EV_800, EV_900, NEUTRAL_TEXT, NEUTRAL_MUTED, NEUTRAL_BORDER } from "@/lib/app-shared";
+import { INK, GREY, GREY_LIGHT, HAIRLINE, GREEN, GREEN_DEEP, MONO, WHITE } from "./landing-theme";
 
-const BORDER = NEUTRAL_BORDER;
-const CARD_BG = "#FFFFFF";
-const TEXT = NEUTRAL_TEXT;
-const MUTED = NEUTRAL_MUTED;
+/**
+ * Product preview for the hero. Deliberately dense: a headline figure, supporting
+ * breakdown, a hairline activity chart and a ledger table, so it reads as real
+ * software rather than a diagram of software.
+ */
 
-function MockMetricCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
-  return (
-    <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 10, padding: "10px 12px" }}>
-      <div style={{ fontSize: 8, color: MUTED, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: color ?? TEXT, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum','zero'", marginTop: 2 }}>{value}</div>
-      {sub && <div style={{ fontSize: 7, color: MUTED, marginTop: 1 }}>{sub}</div>}
-    </div>
-  );
-}
+const SIDEBAR_GROUPS: { label: string; items: string[] }[] = [
+  { label: "", items: ["Dashboard", "Calculator"] },
+  { label: "Analysis", items: ["Diagnosis", "Stability score", "Income gap"] },
+  { label: "Planning", items: ["Scenarios", "Forecast", "Debt payoff", "FIRE"] },
+];
 
-function MockBarGroup({ h1, h2, label }: { h1: number; h2: number; label: string }) {
-  return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-      <div style={{ display: "flex", gap: 1, alignItems: "flex-end", height: 60 }}>
-        <div style={{ width: 7, height: h1, borderRadius: "2px 2px 0 0", background: EV_500 }} />
-        <div style={{ width: 7, height: h2, borderRadius: "2px 2px 0 0", background: EV_200 }} />
-      </div>
-      <span style={{ fontSize: 6, color: MUTED, fontFamily: MONO_FONT_STACK }}>{label}</span>
-    </div>
-  );
-}
+const LEDGER = [
+  ["Housing", "Rent + utilities", "$2,340", "34%"],
+  ["Transport", "Car, fuel, transit", "$1,180", "17%"],
+  ["Food", "Groceries + dining", "$1,368", "20%"],
+  ["Debt", "Minimum payments", "$612", "9%"],
+];
+
+// Deterministic bar heights: dense hairline chart, stable across renders.
+const BARS = Array.from({ length: 68 }, (_, i) => {
+  const wave = Math.sin(i / 5.5) * 0.28 + Math.sin(i / 2.1) * 0.14;
+  return 0.42 + wave + (i % 7) * 0.022;
+});
 
 export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
-  const scale = isMobile ? 0.82 : 1;
-  const mockupWidth = 880;
-
   return (
     <div
       style={{
         width: "100%",
-        maxWidth: mockupWidth * scale,
-        margin: "0 auto",
+        background: WHITE,
+        borderRadius: 12,
+        overflow: "hidden",
+        border: `1px solid ${HAIRLINE}`,
+        display: "flex",
+        height: isMobile ? 340 : 486,
+        fontSize: 10,
+        boxSizing: "border-box",
       }}
     >
-      {/* Browser chrome */}
-      <div
-        style={{
-          background: "#F3F4F6",
-          borderRadius: "12px 12px 0 0",
-          padding: "8px 12px",
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-        }}
-      >
-        <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#EF4444" }} />
-        <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#F59E0B" }} />
-        <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#22C55E" }} />
+      {/* Sidebar */}
+      {!isMobile && (
         <div
           style={{
-            flex: 1,
-            marginLeft: 8,
-            background: "#E5E7EB",
-            borderRadius: 6,
-            height: 18,
+            width: 178,
+            flexShrink: 0,
+            background: GREEN_DEEP,
+            padding: "16px 12px",
             display: "flex",
-            alignItems: "center",
-            paddingLeft: 8,
-            fontSize: 8,
-            color: MUTED,
+            flexDirection: "column",
           }}
         >
-          ascentra.finance
-        </div>
-      </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "0 6px 14px" }}>
+            <img src="/logo-mark.svg" alt="" width={19} height={19} style={{ borderRadius: 5 }} />
+            <span style={{ fontSize: 12, fontWeight: 600, color: WHITE, letterSpacing: "-0.01em" }}>
+              Ascentra
+            </span>
+          </div>
 
-      {/* App content */}
-      <div
-        style={{
-          display: "flex",
-          background: "#F9FAFB",
-          borderRadius: "0 0 12px 12px",
-          overflow: "hidden",
-          border: `1px solid ${BORDER}`,
-          borderTop: "none",
-          height: isMobile ? 280 : 380,
-        }}
-      >
-        {/* Sidebar */}
-        {!isMobile && (
-          <div
+          {SIDEBAR_GROUPS.map((group, gi) => (
+            <div key={gi} style={{ marginBottom: 8 }}>
+              {group.label && (
+                <div
+                  style={{
+                    fontSize: 8,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: "rgba(255,255,255,0.38)",
+                    padding: "8px 6px 5px",
+                  }}
+                >
+                  {group.label}
+                </div>
+              )}
+              {group.items.map((item) => {
+                const active = item === "Dashboard";
+                return (
+                  <div
+                    key={item}
+                    style={{
+                      padding: "6px 8px",
+                      borderRadius: 6,
+                      fontSize: 10.5,
+                      color: active ? WHITE : "rgba(255,255,255,0.55)",
+                      background: active ? "rgba(255,255,255,0.12)" : "transparent",
+                    }}
+                  >
+                    {item}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Main */}
+      <div style={{ flex: 1, padding: isMobile ? "14px" : "18px 22px", overflow: "hidden", minWidth: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: "50%",
+                background: "#E7E5E4",
+                fontSize: 9,
+                fontWeight: 600,
+                color: GREY,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              AR
+            </div>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: INK }}>Alex Rivera</div>
+              <div style={{ fontSize: 8.5, color: GREY_LIGHT }}>Household of 2</div>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 5 }}>
+            {["H", "D", "W", "M", "All"].map((k) => (
+              <span
+                key={k}
+                style={{
+                  fontSize: 8.5,
+                  padding: "3px 7px",
+                  borderRadius: 5,
+                  color: k === "M" ? INK : GREY_LIGHT,
+                  background: k === "M" ? "#F4F4F5" : "transparent",
+                  fontFamily: MONO,
+                }}
+              >
+                {k}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Headline figure */}
+        <div style={{ fontSize: 8.5, letterSpacing: "0.14em", color: GREY_LIGHT, textTransform: "uppercase" }}>
+          Required monthly income
+        </div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 9, marginTop: 3, flexWrap: "wrap" }}>
+          <span
             style={{
-              width: 160,
-              background: `linear-gradient(180deg, ${EV_900} 0%, ${EV_800} 100%)`,
-              padding: "14px 10px",
-              flexShrink: 0,
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
+              fontSize: isMobile ? 27 : 34,
+              fontWeight: 600,
+              letterSpacing: "-0.03em",
+              color: INK,
+              fontFamily: MONO,
+              fontFeatureSettings: "'tnum','zero'",
             }}
           >
-            {/* Logo */}
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, paddingLeft: 4 }}>
-              <div
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: 5,
-                  background: `linear-gradient(135deg, ${EV_800}, ${EV_500})`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <svg width={12} height={12} viewBox="0 0 20 20" fill="none">
-                  <path d="M10 3L17 15H13L10 9.5L7 15H3L10 3Z" fill="white" />
-                  <line x1="6" y1="13" x2="14" y2="13" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
+            $6,840.00
+          </span>
+          <span
+            style={{
+              fontSize: 9,
+              fontWeight: 600,
+              padding: "2.5px 7px",
+              borderRadius: 999,
+              background: "#DCFCE7",
+              color: "#15803D",
+            }}
+          >
+            2.4% closer
+          </span>
+          <span style={{ fontSize: 8.5, color: GREY_LIGHT }}>vs. current $5,400.00</span>
+        </div>
+
+        {/* Sub-metrics */}
+        <div style={{ display: "flex", gap: isMobile ? 14 : 26, marginTop: 12, flexWrap: "wrap" }}>
+          {([
+            ["Stability score", "82", GREEN],
+            ["Income gap", "$1,440", "#DC2626"],
+            ["Runway", "3.0 mo", INK],
+            ["Savings rate", "11.4%", INK],
+          ] as const).map(([label, value, color]) => (
+            <div key={label}>
+              <div style={{ fontSize: 8, color: GREY_LIGHT, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                {label}
               </div>
-              <span style={{ fontSize: 11, fontWeight: 600, color: "white" }}>Ascentra</span>
-            </div>
-            {/* Nav items */}
-            {["Dashboard", "Calculator", "Diagnosis", "Scenarios", "Budget", "Analytics"].map((item, i) => (
               <div
-                key={item}
                 style={{
-                  padding: "5px 10px",
-                  borderRadius: 6,
-                  fontSize: 9,
-                  fontWeight: 500,
-                  color: i === 0 ? "white" : "rgba(255,255,255,0.55)",
-                  background: i === 0 ? "rgba(255,255,255,0.1)" : "transparent",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color,
+                  fontFamily: MONO,
+                  fontFeatureSettings: "'tnum','zero'",
+                  marginTop: 2,
                 }}
               >
-                {item}
+                {value}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Hairline activity chart */}
+        <div
+          style={{
+            marginTop: 14,
+            paddingTop: 12,
+            borderTop: `1px solid ${HAIRLINE}`,
+            display: "flex",
+            alignItems: "flex-end",
+            gap: 2,
+            height: isMobile ? 52 : 78,
+          }}
+        >
+          {BARS.slice(0, isMobile ? 34 : 68).map((h, i) => (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                height: `${Math.max(8, h * 100)}%`,
+                background: i > (isMobile ? 26 : 52) ? GREEN : "#D4D4D8",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Ledger table */}
+        {!isMobile && (
+          <div style={{ marginTop: 14 }}>
+            {LEDGER.map(([cat, note, amount, share], i) => (
+              <div
+                key={cat}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1.1fr 1.4fr 0.7fr 0.4fr",
+                  gap: 8,
+                  padding: "7px 0",
+                  borderTop: i === 0 ? "none" : `1px solid ${HAIRLINE}`,
+                  alignItems: "center",
+                }}
+              >
+                <span style={{ fontSize: 10.5, fontWeight: 500, color: INK }}>{cat}</span>
+                <span style={{ fontSize: 9.5, color: GREY_LIGHT }}>{note}</span>
+                <span
+                  style={{
+                    fontSize: 10.5,
+                    color: INK,
+                    fontFamily: MONO,
+                    fontFeatureSettings: "'tnum','zero'",
+                    textAlign: "right",
+                  }}
+                >
+                  {amount}
+                </span>
+                <span style={{ fontSize: 9.5, color: GREY, fontFamily: MONO, textAlign: "right" }}>{share}</span>
               </div>
             ))}
           </div>
         )}
-
-        {/* Main content */}
-        <div style={{ flex: 1, padding: isMobile ? "10px 12px" : "16px 20px", overflow: "hidden" }}>
-          {/* Greeting */}
-          <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 600, color: TEXT, marginBottom: 2 }}>Welcome back, Alex</div>
-          <div style={{ fontSize: isMobile ? 7 : 9, color: MUTED, marginBottom: isMobile ? 8 : 14 }}>Here's your financial assessment for {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</div>
-
-          {/* 4 Metric cards */}
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr 1fr", gap: isMobile ? 4 : 8, marginBottom: isMobile ? 8 : 14 }}>
-            <MockMetricCard label="Annual Gross" value="$82,080" sub="Required income" color={EV_700} />
-            <MockMetricCard label="Monthly Gross" value="$6,840" sub="Before taxes" />
-            {!isMobile && <MockMetricCard label="Monthly Net" value="$5,472" sub="After taxes" color={EV_500} />}
-            {!isMobile && <MockMetricCard label="Hourly Rate" value="$39.46" sub="40hrs/week" />}
-          </div>
-
-          {/* Chart row */}
-          <div style={{ display: "flex", gap: isMobile ? 4 : 8 }}>
-            {/* Bar chart card */}
-            <div style={{ flex: 1, background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 10, padding: isMobile ? "8px 6px" : "10px 12px" }}>
-              <div style={{ fontSize: isMobile ? 8 : 10, fontWeight: 700, color: TEXT, marginBottom: 6 }}>Income vs Required</div>
-              <div style={{ display: "flex", gap: 3, alignItems: "flex-end" }}>
-                <MockBarGroup h1={32} h2={52} label="Oct" />
-                <MockBarGroup h1={36} h2={52} label="Nov" />
-                <MockBarGroup h1={34} h2={52} label="Dec" />
-                <MockBarGroup h1={38} h2={52} label="Jan" />
-                <MockBarGroup h1={42} h2={52} label="Feb" />
-                <MockBarGroup h1={44} h2={52} label="Mar" />
-                <MockBarGroup h1={48} h2={52} label="Apr" />
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, paddingTop: 4, borderTop: `1px solid ${BORDER}` }}>
-                <div>
-                  <div style={{ fontSize: 6, color: MUTED }}>Current Income</div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: TEXT, fontFamily: MONO_FONT_STACK }}>$5,400</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 6, color: MUTED }}>Required</div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: TEXT, fontFamily: MONO_FONT_STACK }}>$6,840</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Donut card */}
-            {!isMobile && (
-              <div style={{ flex: 1, background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: TEXT, marginBottom: 8 }}>Expense Breakdown</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <svg width={80} height={80} viewBox="0 0 80 80" style={{ flexShrink: 0 }}>
-                    <circle cx={40} cy={40} r={28} fill="none" stroke={BORDER} strokeWidth={10} />
-                    <circle cx={40} cy={40} r={28} fill="none" stroke={EV_800} strokeWidth={10} strokeDasharray="60 176" strokeDashoffset="0" style={{ transform: "rotate(-90deg)", transformOrigin: "center" }} />
-                    <circle cx={40} cy={40} r={28} fill="none" stroke={EV_700} strokeWidth={10} strokeDasharray="35 176" strokeDashoffset="-60" style={{ transform: "rotate(-90deg)", transformOrigin: "center" }} />
-                    <circle cx={40} cy={40} r={28} fill="none" stroke={EV_500} strokeWidth={10} strokeDasharray="30 176" strokeDashoffset="-95" style={{ transform: "rotate(-90deg)", transformOrigin: "center" }} />
-                    <circle cx={40} cy={40} r={28} fill="none" stroke={EV_200} strokeWidth={10} strokeDasharray="25 176" strokeDashoffset="-125" style={{ transform: "rotate(-90deg)", transformOrigin: "center" }} />
-                  </svg>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                    {[
-                      { label: "Housing", color: EV_800, pct: "34%" },
-                      { label: "Food", color: EV_700, pct: "20%" },
-                      { label: "Transport", color: EV_500, pct: "17%" },
-                      { label: "Other", color: EV_200, pct: "14%" },
-                    ].map((s) => (
-                      <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                        <div style={{ width: 6, height: 6, borderRadius: 2, background: s.color, flexShrink: 0 }} />
-                        <span style={{ fontSize: 7, color: TEXT }}>{s.label}</span>
-                        <span style={{ fontSize: 7, color: MUTED, marginLeft: "auto" }}>{s.pct}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

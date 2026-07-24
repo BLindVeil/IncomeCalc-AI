@@ -527,11 +527,3 @@ select.atv-select option {
 	}
 }
 
-.lp-cta-orange {
-	background: #ea580c;
-}
-@media (hover: hover) and (pointer: fine) {
-	.lp-cta-orange:hover {
-		background: #c2410c;
-	}
-}

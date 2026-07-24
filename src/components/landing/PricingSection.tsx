@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
-import { EV_500, EV_600, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
+import { INK, GREY, GREY_LIGHT, HAIRLINE, MINT, MONO, WHITE, RADIUS_CARD } from "./landing-theme";
+import { PillButton } from "./PillButton";
 
 interface PricingSectionProps {
   t: ThemeConfig;
@@ -63,8 +64,8 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
     borderRadius: 999,
     border: "none",
     cursor: "pointer",
-    background: active ? t.primary : "transparent",
-    color: active ? "#fff" : t.muted,
+    background: active ? INK : "transparent",
+    color: active ? WHITE : GREY,
     transition: "background 180ms ease, color 180ms ease",
   });
 
@@ -75,24 +76,24 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
 
   return (
     <section id="pricing" style={{ marginTop: 48 }}>
-      <div
+      <h2
         style={{
-          fontSize: 11,
-          fontWeight: 500,
-          textTransform: "uppercase",
-          letterSpacing: "0.12em",
-          color: t.muted,
-          marginBottom: 20,
+          fontSize: 40,
+          lineHeight: 1.1,
+          letterSpacing: "-0.032em",
+          fontWeight: 600,
+          color: INK,
+          margin: "0 0 40px",
         }}
       >
-        PLAN & BILLING
-      </div>
+        Start free. Upgrade when it pays for itself
+      </h2>
 
       <div
         style={{
-          background: t.cardBg,
-          border: `1px solid ${t.border}`,
-          borderRadius: 16,
+          background: WHITE,
+          border: `1px solid ${HAIRLINE}`,
+          borderRadius: RADIUS_CARD,
           padding: "1.5rem",
         }}
       >
@@ -102,7 +103,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
             style={{
               display: "inline-flex",
               gap: 2,
-              background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+              background: "#F4F4F5",
               borderRadius: 999,
               padding: 2,
             }}
@@ -125,7 +126,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
 
             return (
               <div key={tier.id}>
-                {i > 0 && <div style={{ height: 1, background: t.border }} />}
+                {i > 0 && <div style={{ height: 1, background: HAIRLINE }} />}
                 <div
                   onClick={() => setSelected(tier.id)}
                   style={{
@@ -137,8 +138,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                     borderRadius: 12,
                     position: "relative",
                     transition: "background 200ms ease, border-color 200ms ease",
-                    borderLeft: tier.recommended ? `3px solid ${EV_500}` : "3px solid transparent",
-                    background: tier.recommended ? t.primarySoft : "transparent",
+                    background: tier.recommended ? MINT : "transparent",
                   }}
                 >
                   {/* Radio */}
@@ -147,7 +147,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                       width: 18,
                       height: 18,
                       borderRadius: "50%",
-                      border: `2px solid ${isSelected ? EV_500 : t.border}`,
+                      border: `2px solid ${isSelected ? INK : "#D4D4D8"}`,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -160,7 +160,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                         width: 10,
                         height: 10,
                         borderRadius: "50%",
-                        background: EV_500,
+                        background: INK,
                         transform: isSelected ? "scale(1)" : "scale(0.4)",
                         opacity: isSelected ? 1 : 0,
                         transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1), opacity 150ms ease",
@@ -171,7 +171,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                   {/* Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                      <span style={{ fontSize: 14, fontWeight: 600, color: t.text }}>{tier.name}</span>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: INK }}>{tier.name}</span>
                       {tier.recommended && (
                         <span
                           style={{
@@ -181,16 +181,16 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                             textTransform: "uppercase",
                             padding: "2px 8px",
                             borderRadius: 999,
-                            background: t.primarySoft,
-                            color: isDark ? EV_500 : EV_800,
+                            background: "rgba(10,10,10,0.08)",
+                            color: INK,
                           }}
                         >
                           RECOMMENDED
                         </span>
                       )}
                     </div>
-                    <div style={{ fontSize: 13, color: t.muted, marginBottom: 4 }}>{tier.tagline}</div>
-                    <div style={{ fontSize: 12, color: t.muted, lineHeight: 1.5 }}>{tier.features}</div>
+                    <div style={{ fontSize: 13, color: GREY, marginBottom: 4 }}>{tier.tagline}</div>
+                    <div style={{ fontSize: 12, color: GREY, lineHeight: 1.5 }}>{tier.features}</div>
                   </div>
 
                   {/* Price */}
@@ -200,17 +200,17 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                         style={{
                           fontSize: 18,
                           fontWeight: 600,
-                          fontFamily: MONO_FONT_STACK,
+                          fontFamily: MONO,
                           fontFeatureSettings: "'tnum', 'zero'",
-                          color: t.text,
+                          color: INK,
                         }}
                       >
                         ${price === 0 ? "0" : price}
                       </span>
-                      <span style={{ fontSize: 12, color: t.muted }}>{priceSuffix}</span>
+                      <span style={{ fontSize: 12, color: GREY_LIGHT }}>{priceSuffix}</span>
                     </div>
                     {tier.yearlySavings && billing === "yearly" && (
-                      <div style={{ fontSize: 11, color: EV_500, fontWeight: 500, marginTop: 2 }}>
+                      <div style={{ fontSize: 11, color: GREY, fontWeight: 500, marginTop: 2 }}>
                         {tier.yearlySavings}
                       </div>
                     )}
@@ -222,24 +222,11 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
         </div>
 
         {/* Continue button */}
-        <button
-          onClick={handleContinue}
-          className="lp-press lp-cta-orange"
-          style={{
-            marginTop: 20,
-            width: "100%",
-                        color: "#fff",
-            border: "none",
-            borderRadius: 999,
-            padding: "12px 0",
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: "pointer",
-            boxShadow: "0 4px 14px -6px rgba(234,88,12,0.45)",
-          }}
-        >
-          Continue with {selected === "free" ? "Free" : selected === "pro" ? "Pro" : "Premium"} →
-        </button>
+        <div style={{ marginTop: 24 }}>
+          <PillButton onClick={handleContinue}>
+            Continue with {selected === "free" ? "Free" : selected === "pro" ? "Pro" : "Premium"}
+          </PillButton>
+        </div>
       </div>
     </section>
   );

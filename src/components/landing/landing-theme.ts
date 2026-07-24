@@ -1,31 +1,50 @@
 // ─── Landing design language ─────────────────────────────────────────────────
-// Organic-fintech palette: lime-paper canvas, green-black ink, glass surfaces.
-// One accent (CTA orange), one radius system (pill interactive / 20px cards).
+// Monochrome first: white canvas, near-black ink, grey supporting text.
+// Colour appears only where it carries meaning - brand green on data, and one
+// pale mint highlight card. Photography does the atmospheric work, not gradients.
 
-export const PAPER = "#F4F7EA";
-export const PAPER_DEEP = "#EAF1DC";
-export const INK = "#0C1A12";
-export const INK_SOFT = "#31402F";
-export const SAGE = "#5F6E58";
-export const SAGE_FAINT = "#8B977F";
+export const WHITE = "#FFFFFF";
+export const CANVAS = "#F7F7F5"; // off-white section band
+export const INK = "#0A0A0A";
+export const INK_80 = "#3F3F46";
+export const GREY = "#71717A"; // body copy
+export const GREY_LIGHT = "#A1A1AA"; // the upper, receding headline line
+export const HAIRLINE = "#E4E4E7";
 
-export const GLASS_BG = "rgba(255,255,255,0.62)";
-export const GLASS_BORDER = "rgba(12,26,18,0.10)";
-export const GLASS_HIGHLIGHT = "inset 0 1px 0 rgba(255,255,255,0.65)";
+// Single highlight: the "this is us" card in the comparison block.
+export const MINT = "#D8F3DC";
 
-export const CTA_ORANGE = "#EA580C";
-export const CTA_ORANGE_HOVER = "#C2410C";
+// Brand green stays, but only on data and marks.
+export const GREEN_DEEP = "#1B4332";
+export const GREEN = "#52B788";
 
-// Strong ease-out for entrances (feels intentional, responds instantly)
-export const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
+export const GLASS_DARK = "rgba(255,255,255,0.08)";
+export const GLASS_DARK_BORDER = "rgba(255,255,255,0.16)";
+
 export const EASE_OUT_CSS = "cubic-bezier(0.23, 1, 0.32, 1)";
+export const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
-// Green-tinted shadows only on this canvas; never pure black
-export const SHADOW_FLOAT = "0 24px 64px -16px rgba(27,67,50,0.28), 0 4px 16px rgba(27,67,50,0.10)";
-export const SHADOW_CHIP = "0 2px 10px rgba(27,67,50,0.10)";
+export const RADIUS_CARD = 16;
+export const RADIUS_IMG = 16;
 
 export const FONT_STACK = "'Geist', -apple-system, system-ui, 'Segoe UI', sans-serif";
+export const MONO = "'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
 
-// Film-grain overlay for organic surfaces (SVG turbulence, no network request)
-export const GRAIN_URI =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E\")";
+/** Small uppercase tracked label, used sparingly (max 1 per 3 sections). */
+export const eyebrow = {
+  fontSize: 11,
+  fontWeight: 500,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase" as const,
+  color: GREY,
+};
+
+/** Outline pill label, the Synex-style section marker. */
+export const pillLabel = {
+  ...eyebrow,
+  display: "inline-block",
+  padding: "6px 13px",
+  border: `1px solid ${HAIRLINE}`,
+  borderRadius: 999,
+  color: INK_80,
+};

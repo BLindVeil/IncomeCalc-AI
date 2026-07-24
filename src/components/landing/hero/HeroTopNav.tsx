@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { EV_800 } from "@/lib/app-shared";
-import { INK, INK_SOFT, SAGE, PAPER, GLASS_BORDER } from "../landing-theme";
+import { INK, INK_80, GREY, WHITE, HAIRLINE } from "../landing-theme";
 
 function getInitial(name: string | undefined): string {
   if (!name || name.trim().length === 0) return "U";
@@ -107,7 +107,7 @@ export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn,
                 padding: "7px 14px",
                 fontSize: 13.5,
                 fontWeight: 500,
-                color: hoverLink === link.target ? INK : SAGE,
+                color: hoverLink === link.target ? INK : GREY,
                 cursor: "pointer",
                 transition: "color 150ms ease, background 150ms ease",
               }}
@@ -153,7 +153,7 @@ export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn,
                     right: 0,
                     minWidth: 160,
                     background: "white",
-                    border: `1px solid ${GLASS_BORDER}`,
+                    border: `1px solid ${HAIRLINE}`,
                     borderRadius: 12,
                     padding: "6px 0",
                     zIndex: 200,
@@ -190,7 +190,7 @@ export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn,
                       padding: "10px 16px",
                       background: hoverItem === "signout" ? "rgba(12,26,18,0.05)" : "transparent",
                       border: "none",
-                      color: INK_SOFT,
+                      color: INK_80,
                       fontSize: 13,
                       fontWeight: 500,
                       textAlign: "left",
@@ -212,7 +212,7 @@ export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn,
               style={{
                 fontSize: 13.5,
                 fontWeight: 500,
-                color: hoverSignIn ? INK : SAGE,
+                color: hoverSignIn ? INK : GREY,
                 cursor: "pointer",
                 transition: "color 150ms",
                 background: "none",
@@ -236,8 +236,9 @@ export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn,
             borderRadius: 999,
             fontSize: 13,
             fontWeight: 600,
-            color: PAPER,
-            background: hoverCta ? "#1E3025" : INK,
+            color: WHITE,
+            background: INK,
+            opacity: hoverCta ? 0.86 : 1,
             cursor: "pointer",
           }}
         >

@@ -1,5 +1,6 @@
 import type { ThemeConfig } from "@/lib/app-shared";
-import { EV_500, EV_600, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
+import { INK, GREY, GREY_LIGHT, HAIRLINE, MONO } from "./landing-theme";
+import { PillButton } from "./PillButton";
 
 interface HowItWorksSectionProps {
   t: ThemeConfig;
@@ -9,114 +10,60 @@ interface HowItWorksSectionProps {
 
 const STEPS = [
   {
-    num: "01",
     label: "Enter your expenses",
-    desc: "Rent, transport, food, subscriptions, debt. Rough estimates are fine.",
+    desc: "Rent, transport, food, subscriptions, debt. Rough estimates are fine, and you can refine any figure later.",
   },
   {
-    num: "02",
     label: "Get your number",
-    desc: "Required monthly income, health score, and where you stand against benchmarks.",
+    desc: "Required monthly income, stability score, and where you stand against benchmarks for your situation.",
   },
   {
-    num: "03",
     label: "See what to change",
-    desc: "Your top moves ranked by impact. Test scenarios against your real numbers.",
+    desc: "Your moves ranked by dollar impact. Test scenarios against your real numbers before committing to any of them.",
   },
 ];
 
-export function HowItWorksSection({ t, isDark, onStart }: HowItWorksSectionProps) {
+export function HowItWorksSection({ onStart }: HowItWorksSectionProps) {
   return (
-    <section id="how" style={{ marginTop: 48 }}>
-      <div
+    <section id="how">
+      <h2
         style={{
-          fontSize: 11,
-          fontWeight: 500,
-          textTransform: "uppercase",
-          letterSpacing: "0.12em",
-          color: t.muted,
-          marginBottom: 20,
+          fontSize: 40,
+          lineHeight: 1.1,
+          letterSpacing: "-0.032em",
+          fontWeight: 600,
+          color: INK,
+          margin: 0,
         }}
       >
-        HOW IT WORKS
+        Three steps. Sixty seconds
+      </h2>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: 32,
+          marginTop: 48,
+        }}
+      >
+        {STEPS.map((step, i) => (
+          <div key={step.label} style={{ paddingTop: 20, borderTop: `1px solid ${HAIRLINE}` }}>
+            <div style={{ fontFamily: MONO, fontSize: 11.5, color: GREY_LIGHT, marginBottom: 14 }}>
+              0{i + 1}
+            </div>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: INK, margin: 0, letterSpacing: "-0.012em" }}>
+              {step.label}
+            </h3>
+            <p style={{ fontSize: 13.5, color: GREY, lineHeight: 1.65, marginTop: 8, marginBottom: 0 }}>
+              {step.desc}
+            </p>
+          </div>
+        ))}
       </div>
 
-      <div
-        style={{
-          background: t.cardBg,
-          border: `1px solid ${t.border}`,
-          borderRadius: 16,
-          padding: "1.5rem",
-        }}
-      >
-        <div style={{ fontSize: 16, fontWeight: 600, color: t.text, marginBottom: 24, lineHeight: 1.3 }}>
-          Three steps. Sixty seconds.
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          {STEPS.map((step) => (
-            <div key={step.num} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-              {/* Step dot */}
-              <div
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: "50%",
-                  border: `1.5px solid ${EV_500}`,
-                  flexShrink: 0,
-                  marginTop: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: EV_500 }} />
-              </div>
-              <div>
-                <div style={{ display: "flex", gap: 8, alignItems: "baseline", marginBottom: 4 }}>
-                  <span
-                    style={{
-                      fontSize: 12,
-                      fontFamily: MONO_FONT_STACK,
-                      fontFeatureSettings: "'tnum', 'zero'",
-                      color: t.muted,
-                      fontWeight: 500,
-                    }}
-                  >
-                    {step.num}
-                  </span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: t.text }}>
-                    {step.label}
-                  </span>
-                </div>
-                <div style={{ fontSize: 13, color: t.muted, lineHeight: 1.5 }}>
-                  {step.desc}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <button
-          onClick={onStart}
-          className="lp-press lp-cta-orange"
-          style={{
-            marginTop: 24,
-                        color: "#fff",
-            border: "none",
-            borderRadius: 999,
-            padding: "10px 20px",
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: "pointer",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            boxShadow: "0 4px 14px -6px rgba(234,88,12,0.45)",
-          }}
-        >
-          Calculate my number →
-        </button>
+      <div style={{ marginTop: 44 }}>
+        <PillButton onClick={onStart}>Calculate my number</PillButton>
       </div>
     </section>
   );

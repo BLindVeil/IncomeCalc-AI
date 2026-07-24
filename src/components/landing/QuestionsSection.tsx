@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
+import { INK, GREY, HAIRLINE, WHITE, RADIUS_CARD } from "./landing-theme";
 
 interface QuestionsSectionProps {
   t: ThemeConfig;
@@ -43,24 +44,24 @@ export function QuestionsSection({ t }: QuestionsSectionProps) {
 
   return (
     <section id="faq" style={{ marginTop: 48 }}>
-      <div
+      <h2
         style={{
-          fontSize: 11,
-          fontWeight: 500,
-          textTransform: "uppercase",
-          letterSpacing: "0.12em",
-          color: t.muted,
-          marginBottom: 20,
+          fontSize: 40,
+          lineHeight: 1.1,
+          letterSpacing: "-0.032em",
+          fontWeight: 600,
+          color: INK,
+          margin: "0 0 40px",
         }}
       >
-        QUESTIONS
-      </div>
+        Questions, answered
+      </h2>
 
       <div
         style={{
-          background: t.cardBg,
-          border: `1px solid ${t.border}`,
-          borderRadius: 16,
+          background: WHITE,
+          border: `1px solid ${HAIRLINE}`,
+          borderRadius: RADIUS_CARD,
           overflow: "hidden",
         }}
       >
@@ -68,7 +69,7 @@ export function QuestionsSection({ t }: QuestionsSectionProps) {
           const isOpen = open === i;
           return (
             <div key={i}>
-              {i > 0 && <div style={{ height: 1, background: t.border, margin: "0 1.5rem" }} />}
+              {i > 0 && <div style={{ height: 1, background: HAIRLINE, margin: "0 1.5rem" }} />}
               <button
                 type="button"
                 onClick={() => setOpen(isOpen ? null : i)}
@@ -83,13 +84,13 @@ export function QuestionsSection({ t }: QuestionsSectionProps) {
                   justifyContent: "space-between",
                   alignItems: "center",
                   gap: 12,
-                  background: hovered === i ? "rgba(82,183,136,0.05)" : "transparent",
+                  background: hovered === i ? "#FAFAFA" : "transparent",
                   border: "none",
                   textAlign: "left",
                   transition: "background 180ms ease",
                 }}
               >
-                <span style={{ fontSize: 14, fontWeight: 500, color: t.text, lineHeight: 1.4 }}>
+                <span style={{ fontSize: 14, fontWeight: 500, color: INK, lineHeight: 1.4 }}>
                   {faq.q}
                 </span>
                 <svg
@@ -97,7 +98,7 @@ export function QuestionsSection({ t }: QuestionsSectionProps) {
                   height={16}
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke={t.muted}
+                  stroke={GREY}
                   strokeWidth={2}
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -116,7 +117,7 @@ export function QuestionsSection({ t }: QuestionsSectionProps) {
                     style={{
                       padding: "0 1.5rem 16px",
                       fontSize: 13,
-                      color: t.muted,
+                      color: GREY,
                       lineHeight: 1.6,
                       opacity: isOpen ? 1 : 0,
                       transition: "opacity 220ms ease",

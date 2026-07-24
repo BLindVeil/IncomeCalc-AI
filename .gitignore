@@ -6,3 +6,6 @@ dist
 .vercel
 .env*.local
 .claude/
+
+# agent visual-review artifacts
+scripts/visual/out/
