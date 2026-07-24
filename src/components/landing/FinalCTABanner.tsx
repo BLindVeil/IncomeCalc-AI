@@ -1,6 +1,7 @@
 import type { ThemeConfig } from "@/lib/app-shared";
 import { INK, WHITE, RADIUS_CARD } from "./landing-theme";
 import { PillButton } from "./PillButton";
+import { Reveal } from "./Reveal";
 
 interface FinalCTABannerProps {
   t: ThemeConfig;
@@ -10,7 +11,8 @@ interface FinalCTABannerProps {
 
 export function FinalCTABanner({ isMobile, onStart }: FinalCTABannerProps) {
   return (
-    <div
+    <Reveal
+      as="div"
       style={{
         position: "relative",
         overflow: "hidden",
@@ -68,6 +70,6 @@ export function FinalCTABanner({ isMobile, onStart }: FinalCTABannerProps) {
           Calculate my number
         </PillButton>
       </div>
-    </div>
+    </Reveal>
   );
 }

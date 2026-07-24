@@ -1,4 +1,5 @@
 import { INK, GREY, GREY_LIGHT, HAIRLINE, GREEN, GREEN_DEEP, MONO, WHITE } from "./landing-theme";
+import { useReveal } from "./useReveal";
 
 /**
  * Product preview for the hero. Deliberately dense: a headline figure, supporting
@@ -26,6 +27,7 @@ const BARS = Array.from({ length: 68 }, (_, i) => {
 });
 
 export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
+  const barsRef = useReveal<HTMLDivElement>({ amount: 0.4 });
   return (
     <div
       style={{
@@ -121,7 +123,24 @@ export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
               <div style={{ fontSize: 8.5, color: GREY_LIGHT }}>Household of 2</div>
             </div>
           </div>
-          <div style={{ display: "flex", gap: 5 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                marginRight: 4,
+                fontSize: 8.5,
+                color: GREY,
+                fontFamily: MONO,
+              }}
+            >
+              <span
+                className="lp-breath"
+                style={{ width: 5, height: 5, borderRadius: "50%", background: GREEN, display: "inline-block" }}
+              />
+              Live
+            </span>
             {["H", "D", "W", "M", "All"].map((k) => (
               <span
                 key={k}
@@ -200,8 +219,10 @@ export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
           ))}
         </div>
 
-        {/* Hairline activity chart */}
+        {/* Hairline activity chart: bars grow in when scrolled into view */}
         <div
+          ref={barsRef}
+          className="lp-bars"
           style={{
             marginTop: 14,
             paddingTop: 12,
@@ -215,11 +236,13 @@ export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
           {BARS.slice(0, isMobile ? 34 : 68).map((h, i) => (
             <div
               key={i}
+              className="lp-bar"
               style={{
                 flex: 1,
                 height: `${Math.max(8, h * 100)}%`,
                 background: i > (isMobile ? 26 : 52) ? GREEN : "#D4D4D8",
-              }}
+                ["--lp-i" as string]: i,
+              } as React.CSSProperties}
             />
           ))}
         </div>

@@ -1,5 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type CSSProperties } from "react";
 import { WHITE, INK, GREY, GREY_LIGHT, eyebrow, FONT_STACK } from "./landing-theme";
+
+/** Per-element entrance delay as the shared --lp-delay custom property. */
+const delay = (ms: number) => ({ ["--lp-delay" as string]: `${ms}ms` }) as CSSProperties;
 import { PillButton } from "./PillButton";
 import { HeroTopNav } from "./hero/HeroTopNav";
 import { HeroDashboardMockup } from "./HeroDashboardMockup";
@@ -78,15 +81,19 @@ export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboa
         <div style={{ height: isMobile ? 52 : 88 }} />
 
         <div style={{ maxWidth: 880, margin: "0 auto", textAlign: "center" }}>
-          <div style={eyebrow}>Personal finance, clarified</div>
+          <div className="lp-in" style={{ ...eyebrow, ...delay(40) }}>
+            Personal finance, clarified
+          </div>
 
           <h1
+            className="lp-in"
             style={{
               fontSize: isMobile ? 38 : bp === "tablet" ? 56 : 72,
               lineHeight: 1.04,
               letterSpacing: "-0.038em",
               fontWeight: 600,
               margin: `${isMobile ? 16 : 22}px 0 0`,
+              ...delay(120),
             }}
           >
             <span style={{ display: "block", color: GREY_LIGHT }}>Peace of mind starts</span>
@@ -94,19 +101,21 @@ export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboa
           </h1>
 
           <p
+            className="lp-in"
             style={{
               fontSize: isMobile ? 15 : 16.5,
               color: GREY,
               lineHeight: 1.6,
               maxWidth: 500,
               margin: `${isMobile ? 18 : 24}px auto 0`,
+              ...delay(220),
             }}
           >
             Enter your expenses and get the income you actually need, your financial
             health score, and the one move that changes the most.
           </p>
 
-          <div style={{ marginTop: isMobile ? 26 : 34 }}>
+          <div className="lp-in" style={{ marginTop: isMobile ? 26 : 34, ...delay(300) }}>
             <PillButton size="lg" onClick={onStart}>
               Calculate my number
             </PillButton>
@@ -118,20 +127,24 @@ export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboa
 
         <div style={{ height: isMobile ? 44 : 72 }} />
 
-        {/* Product preview, lifted off the canvas */}
-        <div
-          style={{
-            maxWidth: 1120,
-            margin: "0 auto",
-            borderRadius: 14,
-            padding: 7,
-            background: "rgba(255,255,255,0.6)",
-            border: "1px solid rgba(10,10,10,0.06)",
-            boxShadow: "0 32px 80px -24px rgba(10,10,10,0.22)",
-            boxSizing: "border-box",
-          }}
-        >
-          <HeroDashboardMockup isMobile={isMobile} />
+        {/* Product preview: parallax outer drifts with scroll, inner enters on load */}
+        <div className={isMobile ? undefined : "lp-parallax-scroll"} style={{ ["--lp-par" as string]: "-30px" }}>
+          <div
+            className="lp-in"
+            style={{
+              maxWidth: 1120,
+              margin: "0 auto",
+              borderRadius: 14,
+              padding: 7,
+              background: "rgba(255,255,255,0.6)",
+              border: "1px solid rgba(10,10,10,0.06)",
+              boxShadow: "0 32px 80px -24px rgba(10,10,10,0.22)",
+              boxSizing: "border-box",
+              ...delay(420),
+            }}
+          >
+            <HeroDashboardMockup isMobile={isMobile} />
+          </div>
         </div>
       </div>
     </header>

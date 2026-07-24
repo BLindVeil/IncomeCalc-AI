@@ -1,4 +1,5 @@
 import { WHITE, INK, MINT, MONO, GLASS_DARK, GLASS_DARK_BORDER } from "./landing-theme";
+import { Reveal } from "./Reveal";
 
 interface ComparisonSectionProps {
   isMobile: boolean;
@@ -26,19 +27,23 @@ export function ComparisonSection({ isMobile }: ComparisonSectionProps) {
         color: WHITE,
       }}
     >
-      {/* Full-bleed photography, darkened so type stays legible */}
+      {/* Full-bleed photography, over-sized and drifting for parallax depth */}
       <img
         src="/img/section-dark.jpg"
         alt=""
         loading="lazy"
+        className="lp-parallax"
         style={{
           position: "absolute",
-          inset: 0,
+          top: "-14%",
+          left: 0,
           width: "100%",
-          height: "100%",
+          height: "128%",
           objectFit: "cover",
           zIndex: 0,
-        }}
+          ["--lp-par-from" as string]: "-56px",
+          ["--lp-par-to" as string]: "56px",
+        } as React.CSSProperties}
       />
       <div
         style={{
@@ -50,36 +55,39 @@ export function ComparisonSection({ isMobile }: ComparisonSectionProps) {
       />
 
       <div style={{ position: "relative", zIndex: 2, maxWidth: 1080, margin: "0 auto" }}>
-        <h2
-          style={{
-            fontSize: isMobile ? 30 : 46,
-            lineHeight: 1.12,
-            letterSpacing: "-0.032em",
-            fontWeight: 600,
-            textAlign: "center",
-            margin: 0,
-          }}
-        >
-          Built for real budgets.
-          <br />
-          Not another spreadsheet
-        </h2>
-        <p
-          style={{
-            fontSize: isMobile ? 14 : 15.5,
-            color: "rgba(255,255,255,0.66)",
-            lineHeight: 1.65,
-            textAlign: "center",
-            maxWidth: 520,
-            margin: "18px auto 0",
-          }}
-        >
-          Budgeting apps show you twelve dashboards and call it insight. Ascentra
-          returns one number and one next move.
-        </p>
+        <Reveal>
+          <h2
+            style={{
+              fontSize: isMobile ? 30 : 46,
+              lineHeight: 1.12,
+              letterSpacing: "-0.032em",
+              fontWeight: 600,
+              textAlign: "center",
+              margin: 0,
+            }}
+          >
+            Built for real budgets.
+            <br />
+            Not another spreadsheet
+          </h2>
+          <p
+            style={{
+              fontSize: isMobile ? 14 : 15.5,
+              color: "rgba(255,255,255,0.66)",
+              lineHeight: 1.65,
+              textAlign: "center",
+              maxWidth: 520,
+              margin: "18px auto 0",
+            }}
+          >
+            Budgeting apps show you twelve dashboards and call it insight. Ascentra
+            returns one number and one next move.
+          </p>
+        </Reveal>
 
         {/* Comparison: capability rows, us, them */}
-        <div
+        <Reveal
+          delay={80}
           style={{
             marginTop: isMobile ? 40 : 64,
             display: "grid",
@@ -231,10 +239,11 @@ export function ComparisonSection({ isMobile }: ComparisonSectionProps) {
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
 
         {/* Cost line */}
-        <div
+        <Reveal
+          delay={160}
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -262,7 +271,7 @@ export function ComparisonSection({ isMobile }: ComparisonSectionProps) {
               <div style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>Spreadsheet</div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 import type { ThemeConfig } from "@/lib/app-shared";
 import { INK, GREY, GREY_LIGHT, HAIRLINE, MONO } from "./landing-theme";
 import { PillButton } from "./PillButton";
+import { Reveal } from "./Reveal";
 
 interface HowItWorksSectionProps {
   t: ThemeConfig;
@@ -48,7 +49,7 @@ export function HowItWorksSection({ onStart }: HowItWorksSectionProps) {
         }}
       >
         {STEPS.map((step, i) => (
-          <div key={step.label} style={{ paddingTop: 20, borderTop: `1px solid ${HAIRLINE}` }}>
+          <Reveal key={step.label} delay={i * 100} style={{ paddingTop: 20, borderTop: `1px solid ${HAIRLINE}` }}>
             <div style={{ fontFamily: MONO, fontSize: 11.5, color: GREY_LIGHT, marginBottom: 14 }}>
               0{i + 1}
             </div>
@@ -58,13 +59,13 @@ export function HowItWorksSection({ onStart }: HowItWorksSectionProps) {
             <p style={{ fontSize: 13.5, color: GREY, lineHeight: 1.65, marginTop: 8, marginBottom: 0 }}>
               {step.desc}
             </p>
-          </div>
+          </Reveal>
         ))}
       </div>
 
-      <div style={{ marginTop: 44 }}>
+      <Reveal delay={320} style={{ marginTop: 44 }}>
         <PillButton onClick={onStart}>Calculate my number</PillButton>
-      </div>
+      </Reveal>
     </section>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import { INK, GREY, HAIRLINE, WHITE, RADIUS_CARD } from "./landing-theme";
+import { Reveal } from "./Reveal";
 
 interface QuestionsSectionProps {
   t: ThemeConfig;
@@ -44,20 +45,23 @@ export function QuestionsSection({ t }: QuestionsSectionProps) {
 
   return (
     <section id="faq" style={{ marginTop: 48 }}>
-      <h2
-        style={{
-          fontSize: 40,
-          lineHeight: 1.1,
-          letterSpacing: "-0.032em",
-          fontWeight: 600,
-          color: INK,
-          margin: "0 0 40px",
-        }}
-      >
-        Questions, answered
-      </h2>
+      <Reveal>
+        <h2
+          style={{
+            fontSize: 40,
+            lineHeight: 1.1,
+            letterSpacing: "-0.032em",
+            fontWeight: 600,
+            color: INK,
+            margin: "0 0 40px",
+          }}
+        >
+          Questions, answered
+        </h2>
+      </Reveal>
 
-      <div
+      <Reveal
+        delay={90}
         style={{
           background: WHITE,
           border: `1px solid ${HAIRLINE}`,
@@ -130,7 +134,7 @@ export function QuestionsSection({ t }: QuestionsSectionProps) {
             </div>
           );
         })}
-      </div>
+      </Reveal>
     </section>
   );
 }

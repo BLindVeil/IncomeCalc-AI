@@ -1,4 +1,5 @@
 import { WHITE, INK, GREY, GREY_LIGHT, HAIRLINE, MONO, pillLabel, RADIUS_IMG } from "./landing-theme";
+import { Reveal } from "./Reveal";
 
 interface CapabilitiesSectionProps {
   isMobile: boolean;
@@ -35,44 +36,46 @@ export function CapabilitiesSection({ isMobile }: CapabilitiesSectionProps) {
       }}
     >
       <div style={{ maxWidth: 1240, margin: "0 auto" }}>
-        <div style={pillLabel}>What you get</div>
+        <Reveal>
+          <div style={pillLabel}>What you get</div>
 
-        <div
-          style={{
-            display: isMobile ? "block" : "grid",
-            gridTemplateColumns: "1.35fr 1fr",
-            gap: 56,
-            alignItems: "end",
-            marginTop: 28,
-          }}
-        >
-          <h2
+          <div
             style={{
-              fontSize: isMobile ? 30 : 46,
-              lineHeight: 1.1,
-              letterSpacing: "-0.032em",
-              fontWeight: 600,
-              color: INK,
-              margin: 0,
+              display: isMobile ? "block" : "grid",
+              gridTemplateColumns: "1.35fr 1fr",
+              gap: 56,
+              alignItems: "end",
+              marginTop: 28,
             }}
           >
-            Clarity and control over
-            <br />
-            every part of your money
-          </h2>
-          <p
-            style={{
-              fontSize: 14.5,
-              color: GREY,
-              lineHeight: 1.65,
-              margin: isMobile ? "16px 0 0" : 0,
-              maxWidth: 380,
-            }}
-          >
-            One calculation turns scattered expenses into a structured view: what you
-            need to earn, how stable you are, and what to change first.
-          </p>
-        </div>
+            <h2
+              style={{
+                fontSize: isMobile ? 30 : 46,
+                lineHeight: 1.1,
+                letterSpacing: "-0.032em",
+                fontWeight: 600,
+                color: INK,
+                margin: 0,
+              }}
+            >
+              Clarity and control over
+              <br />
+              every part of your money
+            </h2>
+            <p
+              style={{
+                fontSize: 14.5,
+                color: GREY,
+                lineHeight: 1.65,
+                margin: isMobile ? "16px 0 0" : 0,
+                maxWidth: 380,
+              }}
+            >
+              One calculation turns scattered expenses into a structured view: what you
+              need to earn, how stable you are, and what to change first.
+            </p>
+          </div>
+        </Reveal>
 
         {/* Numbered columns */}
         <div
@@ -86,7 +89,7 @@ export function CapabilitiesSection({ isMobile }: CapabilitiesSectionProps) {
           }}
         >
           {COLUMNS.map((col, i) => (
-            <div key={col.title}>
+            <Reveal key={col.title} delay={i * 90}>
               <div style={{ fontFamily: MONO, fontSize: 11.5, color: GREY_LIGHT, marginBottom: 12 }}>
                 [{i + 1}]
               </div>
@@ -96,7 +99,7 @@ export function CapabilitiesSection({ isMobile }: CapabilitiesSectionProps) {
               <p style={{ fontSize: 13.5, color: GREY, lineHeight: 1.65, marginTop: 8, marginBottom: 0 }}>
                 {col.body}
               </p>
-            </div>
+            </Reveal>
           ))}
         </div>
 
@@ -109,52 +112,54 @@ export function CapabilitiesSection({ isMobile }: CapabilitiesSectionProps) {
             marginTop: isMobile ? 32 : 48,
           }}
         >
-          {CARDS.map((card) => (
-            <div
-              key={card.label}
-              style={{
-                position: "relative",
-                borderRadius: RADIUS_IMG,
-                overflow: "hidden",
-                aspectRatio: isMobile ? "16 / 10" : "4 / 5",
-              }}
-            >
-              <img
-                src={card.src}
-                alt=""
-                loading="lazy"
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              />
-              {/* Floating readout, echoing the product surface over photography */}
+          {CARDS.map((card, i) => (
+            <Reveal key={card.label} delay={i * 110}>
               <div
+                className="lp-card lp-zoom"
                 style={{
-                  position: "absolute",
-                  left: 16,
-                  right: 16,
-                  bottom: 16,
-                  padding: "14px 16px",
-                  borderRadius: 12,
-                  background: "rgba(255,255,255,0.82)",
-                  backdropFilter: "blur(14px)",
-                  WebkitBackdropFilter: "blur(14px)",
-                  border: "1px solid rgba(255,255,255,0.7)",
+                  position: "relative",
+                  borderRadius: RADIUS_IMG,
+                  overflow: "hidden",
+                  aspectRatio: isMobile ? "16 / 10" : "4 / 5",
                 }}
               >
+                <img
+                  src={card.src}
+                  alt=""
+                  loading="lazy"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+                {/* Floating readout, echoing the product surface over photography */}
                 <div
                   style={{
-                    fontSize: 24,
-                    fontWeight: 600,
-                    letterSpacing: "-0.03em",
-                    color: INK,
-                    fontFamily: MONO,
-                    fontFeatureSettings: "'tnum','zero'",
+                    position: "absolute",
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                    padding: "14px 16px",
+                    borderRadius: 12,
+                    background: "rgba(255,255,255,0.82)",
+                    backdropFilter: "blur(14px)",
+                    WebkitBackdropFilter: "blur(14px)",
+                    border: "1px solid rgba(255,255,255,0.7)",
                   }}
                 >
-                  {card.stat}
+                  <div
+                    style={{
+                      fontSize: 24,
+                      fontWeight: 600,
+                      letterSpacing: "-0.03em",
+                      color: INK,
+                      fontFamily: MONO,
+                      fontFeatureSettings: "'tnum','zero'",
+                    }}
+                  >
+                    {card.stat}
+                  </div>
+                  <div style={{ fontSize: 11.5, color: GREY, marginTop: 2 }}>{card.label}</div>
                 </div>
-                <div style={{ fontSize: 11.5, color: GREY, marginTop: 2 }}>{card.label}</div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
