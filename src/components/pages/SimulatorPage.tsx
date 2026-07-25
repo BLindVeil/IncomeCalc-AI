@@ -274,7 +274,7 @@ export function SimulatorPage({
                   position: "relative",
                 }}
               >
-                {winner && winner.scenario.id === s.id && <Trophy size={13} style={{ color: isActive ? "#fde68a" : "#f59e0b" }} />}
+                {winner && winner.scenario.id === s.id && <Trophy size={13} style={{ color: isActive ? "#fde68a" : t.warning }} />}
                 {editingName === s.id ? (
                   <input
                     autoFocus
@@ -354,12 +354,12 @@ export function SimulatorPage({
             </span>
           )}
           {addedToast && (
-            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: "#22c55e", marginLeft: "auto", whiteSpace: "nowrap" }}>
+            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: t.success, marginLeft: "auto", whiteSpace: "nowrap" }}>
               {addedToast} added — ready to edit
             </span>
           )}
           {savedToast && (
-            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: "#22c55e", marginLeft: "auto", whiteSpace: "nowrap" }}>
+            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: t.success, marginLeft: "auto", whiteSpace: "nowrap" }}>
               {savedToast} saved to Dashboard
             </span>
           )}
@@ -483,9 +483,10 @@ export function SimulatorPage({
                   </span>
                   <button
                     onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", trigger: "form_lock_banner" }); onUpgrade("pro"); }}
+                    className="lp-press"
                     style={{
-                      background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-                      color: "#fff",
+                      background: t.text,
+                      color: t.cardBg,
                       border: "none",
                       borderRadius: "6px",
                       padding: "0.35rem 0.75rem",
@@ -527,11 +528,12 @@ export function SimulatorPage({
                   {hasPaidAccess && (
                     <button
                       onClick={() => saveToDashboard(activeScenario.id)}
+                      className="lp-press"
                       style={{
                         marginTop: "1rem",
                         width: "100%",
-                        background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-                        color: "#fff",
+                        background: t.text,
+                        color: t.cardBg,
                         border: "none",
                         borderRadius: 10,
                         padding: "0.55rem 1rem",
@@ -661,7 +663,7 @@ export function SimulatorPage({
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                         <span style={{ fontSize: "0.85rem", fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{m.value}</span>
                         {Math.abs(m.delta) >= 0.1 && (
-                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: m.good ? "#22c55e" : "#ef4444", display: "inline-flex", alignItems: "center", gap: "2px", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
+                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: m.good ? t.success : t.danger, display: "inline-flex", alignItems: "center", gap: "2px", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                             {m.good ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                             {formatDelta(m.delta, m.unit)}
                           </span>
@@ -695,9 +697,10 @@ export function SimulatorPage({
                 </div>
                 <button
                   onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", plan: "pro" }); onUpgrade("pro"); }}
+                  className="lp-press"
                   style={{
-                    background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-                    color: "#fff",
+                    background: t.text,
+                    color: t.cardBg,
                     border: "none",
                     borderRadius: "8px",
                     padding: "0.55rem 1.25rem",
@@ -727,7 +730,7 @@ export function SimulatorPage({
           function DeltaChip({ value, unit, invert }: { value: number; unit: string; invert?: boolean }) {
             if (Math.abs(value) < 0.1) return <span style={{ fontSize: "0.74rem", color: t.muted, display: "inline-flex", alignItems: "center", gap: "2px" }}><Minus size={10} /> —</span>;
             const isGood = invert ? value < 0 : value > 0;
-            const color = isGood ? "#22c55e" : "#ef4444";
+            const color = isGood ? t.success : t.danger;
             const Icon = value > 0 ? TrendingUp : TrendingDown;
             const sign = value > 0 ? "+" : "";
             return (
@@ -754,7 +757,7 @@ export function SimulatorPage({
                     flexWrap: "wrap",
                   }}
                 >
-                  <Trophy size={18} style={{ color: "#f59e0b", flexShrink: 0 }} />
+                  <Trophy size={18} style={{ color: t.warning, flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: "0.92rem", color: t.text, marginBottom: "0.15rem" }}>
                       {winner.scenario.name} is your strongest scenario
@@ -810,7 +813,7 @@ export function SimulatorPage({
                           position: "absolute",
                           top: "-10px",
                           right: "12px",
-                          background: "#f59e0b",
+                          background: t.warning,
                           color: "#000",
                           fontSize: "0.65rem",
                           fontWeight: 800,
@@ -866,7 +869,7 @@ export function SimulatorPage({
                         <th style={{ textAlign: "left", padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: t.muted, fontWeight: 600 }}>Metric</th>
                         {results.map((r) => (
                           <th key={r.scenario.id} style={{ textAlign: "right", padding: "0.5rem 0.75rem", borderBottom: `1px solid ${t.border}`, color: t.text, fontWeight: 600 }}>
-                            {winner?.scenario.id === r.scenario.id && <Trophy size={12} style={{ color: "#f59e0b", marginRight: "4px" }} />}
+                            {winner?.scenario.id === r.scenario.id && <Trophy size={12} style={{ color: t.warning, marginRight: "4px" }} />}
                             {r.scenario.name}
                           </th>
                         ))}
@@ -917,13 +920,13 @@ export function SimulatorPage({
                 let assessmentColor: string;
                 if (magnitude >= 30) {
                   assessment = "This is a major shift — worth serious consideration.";
-                  assessmentColor = "#22c55e";
+                  assessmentColor = t.success;
                 } else if (magnitude >= 10) {
                   assessment = "This is a meaningful improvement that compounds over time.";
-                  assessmentColor = "#22c55e";
+                  assessmentColor = t.success;
                 } else if (magnitude >= 3) {
                   assessment = "A modest adjustment — small but real progress.";
-                  assessmentColor = "#f59e0b";
+                  assessmentColor = t.warning;
                 } else {
                   assessment = "The difference is marginal — consider testing a bolder change.";
                   assessmentColor = t.muted;
@@ -978,7 +981,7 @@ export function SimulatorPage({
 
                     {/* Header */}
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.85rem" }}>
-                      <CheckCircle size={18} style={{ color: "#22c55e" }} />
+                      <CheckCircle size={18} style={{ color: t.success }} />
                       <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Bottom Line</span>
                     </div>
 
@@ -1016,7 +1019,7 @@ export function SimulatorPage({
                           .filter((d) => Math.abs(d.value) >= 0.5)
                           .map((d) => {
                             const isGood = d.invert ? d.value < 0 : d.value > 0;
-                            const color = isGood ? "#22c55e" : "#ef4444";
+                            const color = isGood ? t.success : t.danger;
                             const sign = d.value > 0 ? "+" : "";
                             const display = d.prefix
                               ? `${sign}${fmt(d.value)}`

@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
-import { EV_500, EV_600, EV_800, MONO_FONT_STACK, fmt } from "@/lib/app-shared";
+import { EV_500, MONO_FONT_STACK, fmt } from "@/lib/app-shared";
+import { eyebrow as eyebrowStyle } from "@/components/editorial";
 
 export interface ScenarioSuggestion {
   title: string;
@@ -15,8 +17,18 @@ export interface ScenariosCardProps {
 }
 
 export function ScenariosCard({ t, scenarios, onSimulator }: ScenariosCardProps) {
+  // Progress bars fill on first paint (reduced-motion renders them filled).
+  const [filled, setFilled] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
+  );
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setFilled(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   return (
     <div
+      className="lp-in"
       style={{
         background: t.cardBg,
         border: `1px solid ${t.border}`,
@@ -25,12 +37,13 @@ export function ScenariosCard({ t, scenarios, onSimulator }: ScenariosCardProps)
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: t.text }}>Scenario Suggestions</div>
+        <div style={{ ...eyebrowStyle, color: t.muted }}>Scenario Suggestions</div>
         <button
           onClick={onSimulator}
+          className="lp-press"
           style={{
-            background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
-            color: "#fff",
+            background: t.text,
+            color: t.cardBg,
             border: "none",
             borderRadius: 999,
             padding: "6px 14px",
@@ -65,10 +78,11 @@ export function ScenariosCard({ t, scenarios, onSimulator }: ScenariosCardProps)
               <div
                 style={{
                   height: "100%",
-                  width: `${Math.min(s.progress, 100)}%`,
-                  background: `linear-gradient(90deg, ${EV_500}, ${EV_600})`,
+                  width: filled ? `${Math.min(s.progress, 100)}%` : "0%",
+                  background: t.primary,
                   borderRadius: 3,
-                  transition: "width 0.4s ease",
+                  transition: "width 0.7s cubic-bezier(0.23,1,0.32,1)",
+                  transitionDelay: `${i * 80}ms`,
                 }}
               />
             </div>

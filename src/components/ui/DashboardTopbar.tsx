@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
-import { EV_500, EV_600, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
+import { MONO_FONT_STACK } from "@/lib/app-shared";
 import type { User } from "@/lib/auth-store";
 import { getInitials } from "@/lib/user-display";
 
@@ -363,19 +363,19 @@ export function DashboardTopbar({
         {rightExtra}
         <button
           onClick={ctaOnClick ?? onSimulator}
+          className="lp-press"
           style={{
-            background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
-            color: "#fff",
+            background: t.text,
+            color: t.cardBg,
             border: "none",
             borderRadius: 999,
             padding: "8px 16px",
             fontSize: 13,
-            fontWeight: 500,
+            fontWeight: 550,
             cursor: "pointer",
             display: "inline-flex",
             alignItems: "center",
             gap: 6,
-            boxShadow: "0 2px 8px rgba(27,67,50,0.25)",
           }}
         >
           {ctaLabel ? ctaLabel : <><PlusIcon /> New scenario</>}
@@ -386,8 +386,8 @@ export function DashboardTopbar({
               type="button"
               style={{
                 width: 36, height: 36, borderRadius: "50%",
-                background: `linear-gradient(135deg, ${EV_500}, ${EV_800})`,
-                color: "#fff", fontWeight: 600, fontSize: 13,
+                background: t.text,
+                color: t.cardBg, fontWeight: 600, fontSize: 13,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 flexShrink: 0,
                 cursor: (onDashboard || onSignOut) ? "pointer" : "default",

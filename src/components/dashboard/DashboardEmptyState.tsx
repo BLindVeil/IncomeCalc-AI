@@ -13,7 +13,7 @@ export function DashboardEmptyState({ currentUser, onGetStarted, t }: DashboardE
   const firstName = getFirstName(currentUser);
 
   return (
-    <div style={{
+    <div className="lp-in" style={{
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -53,20 +53,20 @@ export function DashboardEmptyState({ currentUser, onGetStarted, t }: DashboardE
       <button
         type="button"
         onClick={onGetStarted}
+        className="lp-press"
         style={{
           display: "inline-flex",
           alignItems: "center",
           gap: 8,
           padding: "14px 28px",
-          background: t.primary,
-          color: "#FFFFFF",
+          background: t.text,
+          color: t.cardBg,
           border: "none",
           borderRadius: 999,
           fontSize: 15,
           fontWeight: 600,
           cursor: "pointer",
           transition: "opacity 150ms ease",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
         }}
         onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
         onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}

@@ -32,8 +32,8 @@ function fmtCompact(n: number): string {
 }
 
 function ratioColor(value: number, green: number, warn: number, invert = false): string {
-  if (invert) return value <= green ? "#22c55e" : value <= warn ? "#f59e0b" : "#ef4444";
-  return value >= green ? "#22c55e" : value >= warn ? "#f59e0b" : "#ef4444";
+  if (invert) return value <= green ? t.success : value <= warn ? t.warning : t.danger;
+  return value >= green ? t.success : value >= warn ? t.warning : t.danger;
 }
 
 const DONUT_COLORS = [EV_800, EV_600, EV_500, EV_400, EV_300, EV_700, EV_200, EV_900];
@@ -456,7 +456,7 @@ function IncomeExpenseBarChart({ t, isDark, grossMonthlyIncome, totalExpenses }:
                     style={{
                       width: 16,
                       height: `${expH}%`,
-                      background: exceeded ? "#ef4444" : isDark ? "rgba(82,183,136,0.3)" : EV_200,
+                      background: exceeded ? t.danger : isDark ? "rgba(82,183,136,0.3)" : EV_200,
                       borderRadius: "4px 4px 0 0",
                       minHeight: 4,
                     }}
@@ -505,9 +505,11 @@ function StatisticsDonut({ t, expenses, totalExpenses }: { t: ThemeConfig; expen
     const pct = totalExpenses > 0 ? e.amount / totalExpenses : 0;
     return pct > 0.25;
   }).length;
-  const subtitleText = overThreshold > 0
-    ? `${overThreshold} categor${overThreshold === 1 ? "y" : "ies"} above 25% of your total expenses`
-    : "Your expenses are well distributed across categories";
+  const subtitleText = sorted.length === 0
+    ? "Enter your expenses to see how they're distributed"
+    : overThreshold > 0
+      ? `${overThreshold} categor${overThreshold === 1 ? "y" : "ies"} above 25% of your total expenses`
+      : "Your expenses are well distributed across categories";
 
   return (
     <div
@@ -671,19 +673,19 @@ export function AnalyticsPage({
           <div style={{ position: "relative" }}>
             <button
               onClick={() => fireToast(setShowAddWidgetToast)}
+              className="lp-press"
               style={{
-                background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
-                color: "#fff",
+                background: t.text,
+                color: t.cardBg,
                 border: "none",
                 borderRadius: 999,
                 padding: "8px 16px",
                 fontSize: 13,
-                fontWeight: 500,
+                fontWeight: 550,
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
-                boxShadow: "0 2px 8px rgba(27,67,50,0.25)",
               }}
             >
               <PlusIcon /> Add new widget
@@ -718,7 +720,7 @@ export function AnalyticsPage({
           </div>
           <FormattedNumber value={grossMonthlyIncome * 12} fontSize={28} fontWeight={600} showCents={false} color={t.text} />
           <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 6 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: surplus > 0 ? "#22c55e" : "#ef4444" }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: surplus > 0 ? t.success : t.danger }}>
               {surplus > 0 ? "↑" : "↓"} {expenseRatio > 0 ? (100 - expenseRatio).toFixed(0) : 0}% above expenses
             </span>
           </div>
@@ -737,7 +739,7 @@ export function AnalyticsPage({
           </div>
           <FormattedNumber value={totalExpenses * 12} fontSize={28} fontWeight={600} showCents={false} color={t.text} />
           <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 6 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: expenseRatio > 80 ? "#f59e0b" : EV_500 }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: expenseRatio > 80 ? t.warning : EV_500 }}>
               {expenseRatio.toFixed(0)}% of gross
             </span>
           </div>
@@ -757,7 +759,7 @@ export function AnalyticsPage({
             fontSize={28}
             fontWeight={600}
             showCents={false}
-            color={annualNet >= 0 ? "#22c55e" : "#ef4444"}
+            color={annualNet >= 0 ? t.success : t.danger}
           />
           <div style={{ fontSize: 12, color: t.muted, marginTop: 6 }}>
             Monthly: {monthlyNet >= 0 ? "+" : "-"}{fmtCompact(Math.abs(monthlyNet))}
@@ -823,7 +825,7 @@ export function AnalyticsPage({
           <RatioItem
             label="Income gap"
             value={incomeGap <= 0 ? fmtCompact(Math.abs(incomeGap)) + " surplus" : fmtCompact(incomeGap) + " gap"}
-            color={incomeGap <= 0 ? "#22c55e" : incomeGap < 5000 ? "#f59e0b" : "#ef4444"}
+            color={incomeGap <= 0 ? t.success : incomeGap < 5000 ? t.warning : t.danger}
             t={t}
           />
         </div>

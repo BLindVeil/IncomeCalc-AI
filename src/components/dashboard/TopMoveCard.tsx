@@ -1,5 +1,6 @@
 import type { ThemeConfig } from "@/lib/app-shared";
-import { EV_500, EV_600, EV_800, MONO_FONT_STACK, fmt } from "@/lib/app-shared";
+import { EV_500, MONO_FONT_STACK, fmt } from "@/lib/app-shared";
+import { eyebrow as eyebrowStyle } from "@/components/editorial";
 
 export interface TopMoveCardProps {
   t: ThemeConfig;
@@ -13,6 +14,7 @@ export interface TopMoveCardProps {
 export function TopMoveCard({ t, category, amount, percentOfTotal, suggestion, onSimulator }: TopMoveCardProps) {
   return (
     <div
+      className="lp-in"
       style={{
         background: t.cardBg,
         border: `1px solid ${t.border}`,
@@ -20,7 +22,7 @@ export function TopMoveCard({ t, category, amount, percentOfTotal, suggestion, o
         padding: "1.25rem",
       }}
     >
-      <div style={{ fontSize: 15, fontWeight: 700, color: t.text, marginBottom: 4 }}>
+      <div style={{ ...eyebrowStyle, color: t.muted, marginBottom: 4 }}>
         Top Move
       </div>
       <div style={{ fontSize: 12, color: t.muted, marginBottom: 16 }}>
@@ -29,7 +31,7 @@ export function TopMoveCard({ t, category, amount, percentOfTotal, suggestion, o
 
       <div
         style={{
-          background: `${EV_500}10`,
+          background: t.primarySoft,
           border: `1px solid ${EV_500}25`,
           borderRadius: 12,
           padding: "1rem",
@@ -61,13 +63,14 @@ export function TopMoveCard({ t, category, amount, percentOfTotal, suggestion, o
 
       <button
         onClick={onSimulator}
+        className="lp-press"
         style={{
           width: "100%",
-          background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
-          color: "#fff",
+          background: t.text,
+          color: t.cardBg,
           border: "none",
-          borderRadius: 10,
-          padding: "10px 0",
+          borderRadius: 999,
+          padding: "11px 0",
           fontSize: 13,
           fontWeight: 600,
           cursor: "pointer",

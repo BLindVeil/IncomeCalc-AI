@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
-import { EV_400, EV_500, EV_600, EV_700, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
+import { EV_400, EV_500, EV_700, MONO_FONT_STACK } from "@/lib/app-shared";
 import { FormattedNumber } from "@/components/FormattedNumber";
 import { useScenarioStore, type DashboardScenario, type DashboardScenarioStatus } from "@/lib/scenario-store";
 
@@ -373,7 +373,7 @@ function RealScenarioCard({
                 <button
                   onClick={() => { onDelete(); setDeleteConfirm(false); }}
                   style={{
-                    background: "#ef4444",
+                    background: t.danger,
                     color: "#fff",
                     border: "none",
                     borderRadius: 8,
@@ -409,7 +409,7 @@ function RealScenarioCard({
                 onClick={() => setDeleteConfirm(true)}
                 style={{
                   background: "transparent",
-                  color: "#ef4444",
+                  color: t.danger,
                   border: `1px solid rgba(239,68,68,0.3)`,
                   borderRadius: 8,
                   padding: "6px 12px",
@@ -771,8 +771,8 @@ export function ScenariosPage({
         <button
           onClick={onSimulator}
           style={{
-            background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
-            color: "#fff",
+            background: t.text,
+            color: t.cardBg,
             border: "none",
             borderRadius: 999,
             padding: "10px 24px",
@@ -807,8 +807,8 @@ export function ScenariosPage({
         <button
           onClick={onSimulator}
           style={{
-            background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
-            color: "#fff",
+            background: t.text,
+            color: t.cardBg,
             border: "none",
             borderRadius: 999,
             padding: "8px 16px",
@@ -990,7 +990,7 @@ export function ScenariosPage({
               { label: "In progress", color: EV_500, count: countByStatus("in_progress") },
               { label: "Completed", color: EV_700, count: countByStatus("completed") },
               { label: "Draft", color: t.muted, count: countByStatus("draft") },
-              { label: "Suggested", color: "#f59e0b", count: suggestions.length },
+              { label: "Suggested", color: t.warning, count: suggestions.length },
             ] as const).map((item) => (
               <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: item.color, flexShrink: 0 }} />

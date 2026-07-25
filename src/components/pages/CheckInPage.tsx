@@ -174,7 +174,7 @@ export function CheckInPage({
               ].map((item) => {
                 const diff = item.curr - item.prev;
                 const isScore = item.label === "Fragility Score";
-                const color = diff === 0 ? t.muted : (isScore ? (diff > 0 ? "#22c55e" : "#ef4444") : (diff > 0 ? "#ef4444" : "#22c55e"));
+                const color = diff === 0 ? t.muted : (isScore ? (diff > 0 ? t.success : t.danger) : (diff > 0 ? t.danger : t.success));
                 return (
                   <div key={item.label}>
                     <div style={{ fontSize: "0.78rem", color: t.muted }}>{item.label}</div>
@@ -278,7 +278,7 @@ export function CheckInPage({
                 <div style={{ display: "flex", gap: "1rem", fontSize: "0.82rem" }}>
                   <span style={{ color: t.muted, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(snap.outputs.hourlyRequired)}/hr</span>
                   <span style={{ color: t.muted, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(snap.outputs.annualGrossRequired)}/yr</span>
-                  <span style={{ color: snap.outputs.fragilityScore >= 50 ? "#22c55e" : "#f59e0b", fontWeight: 600, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{snap.outputs.fragilityScore}/100</span>
+                  <span style={{ color: snap.outputs.fragilityScore >= 50 ? t.success : t.warning, fontWeight: 600, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{snap.outputs.fragilityScore}/100</span>
                 </div>
               </div>
             ))}
@@ -317,7 +317,7 @@ export function CheckInPage({
         >
           <TrendingUp size={16} />
           Forecast from this Check-In
-          <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: "#f59e0b", borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40", marginLeft: "0.25rem" }}>Premium</span>
+          <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: t.warning, borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40", marginLeft: "0.25rem" }}>Premium</span>
         </button>
       </div>
     </div>

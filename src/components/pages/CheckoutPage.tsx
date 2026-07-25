@@ -574,11 +574,10 @@ export function CheckoutPage({
               padding: "0.95rem",
               fontSize: "1.05rem",
               boxSizing: "border-box",
-              background: `linear-gradient(135deg, ${EVERGREEN}, #40916C)`,
-              color: "#fff",
+              background: t.text,
+              color: t.cardBg,
               border: "none",
               borderRadius: 16,
-              boxShadow: "0 4px 14px rgba(27, 67, 50, 0.25)",
               fontWeight: 700,
               cursor: "pointer",
             }}

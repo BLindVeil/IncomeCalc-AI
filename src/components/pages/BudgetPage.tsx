@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
-import { EV_500, EV_600, EV_800, MONO_FONT_STACK } from "@/lib/app-shared";
+import { EV_500, MONO_FONT_STACK } from "@/lib/app-shared";
 import { FormattedNumber } from "@/components/FormattedNumber";
 import { StatusPill } from "@/components/ui/StatusPill";
 import type { StatusPillVariant } from "@/components/ui/StatusPill";
@@ -327,16 +327,16 @@ export function BudgetPage({
         {onBack && (
           <button
             onClick={onBack}
+            className="lp-press"
             style={{
-              background: `linear-gradient(135deg, ${EV_800}, ${EV_600})`,
-              color: "#fff",
+              background: t.text,
+              color: t.cardBg,
               border: "none",
               borderRadius: 999,
               padding: "10px 24px",
               fontSize: 14,
-              fontWeight: 500,
+              fontWeight: 550,
               cursor: "pointer",
-              boxShadow: "0 2px 8px rgba(27,67,50,0.25)",
             }}
           >
             Enter expenses →

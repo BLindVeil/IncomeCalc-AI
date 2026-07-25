@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
-import { MONO_FONT_STACK, fmt } from "@/lib/app-shared";
+import { CountUpNumber, eyebrow as eyebrowStyle } from "@/components/editorial";
 
 export interface ExpenseSlice {
   label: string;
@@ -26,13 +27,24 @@ export function ExpenseDonut({ t, slices, total, isMobile }: ExpenseDonutProps) 
   const cy = 80;
   const circumference = 2 * Math.PI * radius;
 
+  // Signature draw-in: arcs grow from zero into place on first paint, honouring
+  // reduced-motion (which renders them fully drawn immediately).
+  const [drawn, setDrawn] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
+  );
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setDrawn(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   // Build SVG arcs
   let offset = 0;
   const arcs = slices.map((s, i) => {
     const pct = total > 0 ? s.value / total : 0;
-    const dashLen = pct * circumference;
+    const fullDash = pct * circumference;
+    const dashLen = drawn ? fullDash : 0;
     const dashOffset = -offset;
-    offset += dashLen;
+    offset += fullDash;
     return (
       <circle
         key={i}
@@ -44,13 +56,14 @@ export function ExpenseDonut({ t, slices, total, isMobile }: ExpenseDonutProps) 
         strokeWidth={20}
         strokeDasharray={`${dashLen} ${circumference - dashLen}`}
         strokeDashoffset={dashOffset}
-        style={{ transition: "stroke-dasharray 0.4s ease, stroke-dashoffset 0.4s ease" }}
+        style={{ transition: "stroke-dasharray 0.7s cubic-bezier(0.23,1,0.32,1)", transitionDelay: `${i * 70}ms` }}
       />
     );
   });
 
   return (
     <div
+      className="lp-in"
       style={{
         background: t.cardBg,
         border: `1px solid ${t.border}`,
@@ -58,7 +71,7 @@ export function ExpenseDonut({ t, slices, total, isMobile }: ExpenseDonutProps) 
         padding: "1.25rem",
       }}
     >
-      <div style={{ fontSize: 15, fontWeight: 700, color: t.text, marginBottom: 16 }}>
+      <div style={{ ...eyebrowStyle, color: t.muted, marginBottom: 16 }}>
         Expense Breakdown
       </div>
 
@@ -82,9 +95,7 @@ export function ExpenseDonut({ t, slices, total, isMobile }: ExpenseDonutProps) 
             }}
           >
             <div style={{ fontSize: 11, color: t.muted }}>Total</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK }}>
-              {fmt(total)}
-            </div>
+            <CountUpNumber value={total} prefix="$" style={{ fontSize: 16, fontWeight: 700, color: t.text }} />
           </div>
         </div>
 
@@ -106,7 +117,7 @@ export function ExpenseDonut({ t, slices, total, isMobile }: ExpenseDonutProps) 
                 <span style={{ fontSize: 12, color: t.text, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {s.label}
                 </span>
-                <span style={{ fontSize: 11, color: t.muted, fontFamily: MONO_FONT_STACK, flexShrink: 0 }}>
+                <span style={{ fontSize: 11, color: t.muted, fontFamily: "'Geist Mono', ui-monospace, monospace", flexShrink: 0 }}>
                   {pct}%
                 </span>
               </div>

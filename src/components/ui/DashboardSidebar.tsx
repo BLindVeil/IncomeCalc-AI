@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
-import { EV_500, EV_600, EV_800 } from "@/lib/app-shared";
+import { EV_500, EV_800 } from "@/lib/app-shared";
 
 export interface SidebarNavItem {
   id: string;
@@ -119,12 +119,11 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
       cursor: "pointer",
       transition: "background 150ms, color 150ms",
       background: isActive
-        ? `linear-gradient(135deg, ${EV_800}, ${EV_600})`
+        ? `color-mix(in srgb, ${t.text} 7%, transparent)`
         : isHover
           ? t.border
           : "transparent",
-      color: isActive ? "#fff" : t.muted,
-      boxShadow: isActive ? "0 2px 8px rgba(27,67,50,0.18)" : "none",
+      color: isActive ? t.text : t.muted,
     };
   };
 
@@ -208,8 +207,8 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
             fontWeight: 600,
             border: "none",
             cursor: "pointer",
-            background: !isDark ? t.primary : "transparent",
-            color: !isDark ? "#fff" : t.muted,
+            background: !isDark ? t.text : "transparent",
+            color: !isDark ? t.cardBg : t.muted,
           }}
         >
           <SunIcon /> Light
@@ -227,8 +226,8 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
             fontWeight: 600,
             border: "none",
             cursor: "pointer",
-            background: isDark ? t.primary : "transparent",
-            color: isDark ? "#fff" : t.muted,
+            background: isDark ? t.text : "transparent",
+            color: isDark ? t.cardBg : t.muted,
           }}
         >
           <MoonIcon /> Dark
