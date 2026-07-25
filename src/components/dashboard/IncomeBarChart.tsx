@@ -71,20 +71,24 @@ export function IncomeBarChart({ t, isDark, currentIncome, requiredIncome, isMob
                 <div
                   style={{
                     width: barW,
-                    height: grown ? incomeH : 0,
+                    height: incomeH,
                     borderRadius: "4px 4px 0 0",
                     background: EV_500,
-                    transition: "height 0.6s cubic-bezier(0.23,1,0.32,1)",
+                    transformOrigin: "bottom",
+                    transform: grown ? "scaleY(1)" : "scaleY(0)",
+                    transition: "transform 0.6s cubic-bezier(0.23,1,0.32,1)",
                     transitionDelay: delay,
                   }}
                 />
                 <div
                   style={{
                     width: barW,
-                    height: grown ? requiredH : 0,
+                    height: requiredH,
                     borderRadius: "4px 4px 0 0",
                     background: requiredFill,
-                    transition: "height 0.6s cubic-bezier(0.23,1,0.32,1)",
+                    transformOrigin: "bottom",
+                    transform: grown ? "scaleY(1)" : "scaleY(0)",
+                    transition: "transform 0.6s cubic-bezier(0.23,1,0.32,1)",
                     transitionDelay: delay,
                   }}
                 />

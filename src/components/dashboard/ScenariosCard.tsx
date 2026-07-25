@@ -78,10 +78,12 @@ export function ScenariosCard({ t, scenarios, onSimulator }: ScenariosCardProps)
               <div
                 style={{
                   height: "100%",
-                  width: filled ? `${Math.min(s.progress, 100)}%` : "0%",
+                  width: `${Math.min(s.progress, 100)}%`,
                   background: t.primary,
                   borderRadius: 3,
-                  transition: "width 0.7s cubic-bezier(0.23,1,0.32,1)",
+                  transformOrigin: "left",
+                  transform: filled ? "scaleX(1)" : "scaleX(0)",
+                  transition: "transform 0.7s cubic-bezier(0.23,1,0.32,1)",
                   transitionDelay: `${i * 80}ms`,
                 }}
               />
