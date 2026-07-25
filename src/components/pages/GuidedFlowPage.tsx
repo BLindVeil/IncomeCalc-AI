@@ -3,15 +3,11 @@ import {
   ArrowRight,
   ArrowLeft,
   ChevronLeft,
-  Activity,
-  Stethoscope,
   Target,
-  BarChart3,
   Lock,
   AlertTriangle,
   TrendingUp,
   TrendingDown,
-  CheckCircle,
   Beaker,
 } from "lucide-react";
 import {
@@ -32,6 +28,15 @@ import { SignupPromptCard } from "@/components/auth/SignupPromptCard";
 import { capturePendingData } from "@/lib/pending-signup-data";
 import { readIntent, getIntentSnapshotCopy } from "@/lib/intent";
 import { Header } from "@/components/Header";
+import {
+  StepHeader,
+  EditorialCard,
+  CountUpNumber,
+  CTAButton,
+  Reveal,
+  FONT_STACK,
+  eyebrow as eyebrowStyle,
+} from "@/components/editorial";
 import type { User as AuthUser } from "@/lib/auth-store";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -295,8 +300,9 @@ export function GuidedFlowPage({
   const healthLabel = (runway.months < 1 || criticalAlertCount >= 2)
     ? (outputs.healthLabel === "Excellent" || outputs.healthLabel === "Good" ? "Fair" : outputs.healthLabel)
     : outputs.healthLabel;
+  // Signal colours aligned to the editorial brand palette (green on data only).
   const healthColor =
-    healthScore >= 80 ? "#22c55e" : healthScore >= 60 ? "#84cc16" : healthScore >= 40 ? "#f59e0b" : "#ef4444";
+    healthScore >= 80 ? t.success : healthScore >= 60 ? t.accent : healthScore >= 40 ? t.warning : t.danger;
 
   const interpretation = buildInterpretation(healthScore, data, totalMonthly, outputs.ratios);
 
@@ -327,54 +333,41 @@ export function GuidedFlowPage({
   // Step-specific CTA labels
   const nextLabel = step === 0 ? "See What's Driving It" : step === 1 ? "See Top Move" : step === 2 ? "See Your Plan" : "";
 
+  const mono = { fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" } as const;
+
   return (
-    <div style={{ minHeight: "100vh", background: t.bg, color: t.text }}>
+    <div style={{ minHeight: "100vh", background: t.bg, color: t.text, fontFamily: FONT_STACK }}>
       <Header isDark={isDark} setIsDark={setIsDark} currentTheme={currentTheme} onLogoClick={onBack} />
 
       <div style={{ maxWidth: "720px", margin: "0 auto", padding: "96px 1.5rem 4rem", paddingBottom: showSignupPrompt && (step === 1 || step === 2) ? "88px" : "48px" }}>
         {/* Back */}
-        <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1.25rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+        <button
+          onClick={onBack}
+          className="lp-in lp-underline"
+          style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, fontSize: "0.9rem", padding: 0, marginBottom: "1.5rem", display: "inline-flex", alignItems: "center", gap: "0.3rem", fontFamily: "inherit" }}
+        >
           <ChevronLeft size={16} /> Back
         </button>
 
-        {/* ── Progress bar (minimal) ──────────────────────────── */}
-        <div style={{ display: "flex", alignItems: "center", marginBottom: "2rem" }}>
+        {/* ── Progress rail (editorial) ─────────────────────────── */}
+        <div className="lp-in" style={{ display: "flex", alignItems: "center", marginBottom: "2.25rem", ["--lp-delay" as string]: "60ms" }}>
           {STEPS.map((s, i) => {
             const isActive = i === step;
             const isCompleted = i < step;
+            const dotColor = isActive ? t.text : isCompleted ? t.primary : t.border;
             return (
               <div key={s.label} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : "none" }}>
                 <button
                   onClick={() => isCompleted && setStep(i)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.35rem",
-                    background: "transparent",
-                    border: "none",
-                    cursor: isCompleted ? "pointer" : "default",
-                    padding: 0,
-                  }}
+                  style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "transparent", border: "none", cursor: isCompleted ? "pointer" : "default", padding: 0 }}
                 >
-                  <div style={{
-                    width: isActive ? "10px" : "8px",
-                    height: isActive ? "10px" : "8px",
-                    borderRadius: "50%",
-                    background: isActive ? t.primary : isCompleted ? t.primary : t.border,
-                    transition: "all 0.2s",
-                    flexShrink: 0,
-                  }} />
-                  <span style={{
-                    fontSize: "0.72rem",
-                    fontWeight: isActive ? 700 : 500,
-                    color: isActive ? t.text : isCompleted ? t.primary : t.muted,
-                    whiteSpace: "nowrap",
-                  }}>
+                  <span style={{ width: isActive ? 9 : 7, height: isActive ? 9 : 7, borderRadius: "50%", background: dotColor, transition: "background 0.2s, width 0.2s, height 0.2s", flexShrink: 0 }} />
+                  <span style={{ ...eyebrowStyle, fontWeight: isActive ? 700 : 500, color: isActive ? t.text : isCompleted ? t.primary : t.subtle, whiteSpace: "nowrap" }}>
                     {s.label}
                   </span>
                 </button>
                 {i < STEPS.length - 1 && (
-                  <div style={{ flex: 1, height: "1px", background: isCompleted ? t.primary + "50" : t.border, margin: "0 0.6rem" }} />
+                  <span style={{ flex: 1, height: 1, background: isCompleted ? t.primary : t.border, margin: "0 0.7rem", opacity: isCompleted ? 0.5 : 1 }} />
                 )}
               </div>
             );
@@ -392,108 +385,70 @@ export function GuidedFlowPage({
           const intentCopy = getIntentSnapshotCopy(readIntent());
 
           return (
-            <div>
+            <div className="lp-page">
               {/* Intent-specific framing */}
               {intentCopy && (
-                <div
-                  style={{
-                    fontSize: 15,
-                    color: t.muted,
-                    lineHeight: 1.55,
-                    fontStyle: "italic",
-                    marginBottom: 20,
-                    paddingBottom: 16,
-                    borderBottom: `1px solid ${t.border}`,
-                  }}
-                >
+                <div style={{ fontSize: 15, color: t.muted, lineHeight: 1.55, fontStyle: "italic", marginBottom: 20, paddingBottom: 16, borderBottom: `1px solid ${t.border}` }}>
                   {intentCopy}
                 </div>
               )}
 
-              {/* Dominant reveal */}
-              <div style={{ marginBottom: "1.5rem" }}>
-                <div style={{ fontSize: "0.75rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>Your Financial Reality</div>
-                <h2 style={{ fontSize: "1.75rem", fontWeight: 800, color: t.text, margin: "0 0 0.35rem", lineHeight: 1.2 }}>
-                  You need to earn <span style={{ color: t.accent, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(grossMonthly)}/month</span>
+              {/* Dominant reveal — the funnel's signature number */}
+              <div className="lp-in" style={{ marginBottom: "1.75rem", ["--lp-delay" as string]: "120ms" }}>
+                <div style={{ ...eyebrowStyle, color: t.muted, marginBottom: "0.6rem" }}>Your financial reality</div>
+                <h2 style={{ fontSize: "2rem", fontWeight: 600, color: t.text, margin: "0 0 0.5rem", lineHeight: 1.1, letterSpacing: "-0.03em" }}>
+                  You need to earn{" "}
+                  <CountUpNumber value={grossMonthly} prefix="$" startOnView={false} style={{ color: t.text, fontWeight: 700 }} />
+                  <span style={{ color: t.muted, fontWeight: 500 }}>/month</span>
                 </h2>
-                <p style={{ fontSize: "0.95rem", color: t.muted, margin: 0, lineHeight: 1.5 }}>
-                  That covers <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(totalMonthly)}</span>/mo in expenses at a <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{taxRate}%</span> effective tax rate.
+                <p style={{ fontSize: "0.95rem", color: t.muted, margin: 0, lineHeight: 1.55 }}>
+                  That covers <span style={mono}>{fmt(totalMonthly)}</span>/mo in expenses at a <span style={mono}>{taxRate}%</span> effective tax rate.
                 </p>
               </div>
 
-              {/* Supporting facts — compact row */}
+              {/* Supporting facts — staggered reveal */}
               <div style={{ display: "flex", gap: "0.6rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
-                {/* Health Score badge */}
-                <div style={{
-                  flex: 1,
-                  minWidth: "120px",
-                  background: t.cardBg,
-                  border: `1px solid ${t.border}`,
-                  borderRadius: "10px",
-                  padding: "0.85rem",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.75rem",
-                }}>
-                  <div style={{ fontSize: "1.75rem", fontWeight: 800, color: healthColor, lineHeight: 1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{healthScore}</div>
-                  <div>
-                    <div style={{ fontSize: "0.7rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em" }}>Health</div>
-                    <div style={{ fontSize: "0.82rem", fontWeight: 600, color: healthColor }}>{healthLabel}</div>
-                  </div>
-                </div>
+                <Reveal delay={240} style={{ flex: 1, minWidth: "120px" }}>
+                  <EditorialCard t={t} padding="0.9rem" style={{ display: "flex", alignItems: "center", gap: "0.75rem", height: "100%" }}>
+                    <CountUpNumber value={healthScore} startOnView={false} style={{ fontSize: "1.75rem", fontWeight: 700, color: healthColor, lineHeight: 1 }} />
+                    <span>
+                      <span style={{ ...eyebrowStyle, color: t.subtle, display: "block" }}>Health</span>
+                      <span style={{ fontSize: "0.82rem", fontWeight: 600, color: healthColor }}>{healthLabel}</span>
+                    </span>
+                  </EditorialCard>
+                </Reveal>
 
-                {/* Gross required */}
-                <div style={{
-                  flex: 1,
-                  minWidth: "120px",
-                  background: t.cardBg,
-                  border: `1px solid ${t.border}`,
-                  borderRadius: "10px",
-                  padding: "0.85rem",
-                }}>
-                  <div style={{ fontSize: "0.7rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "0.15rem" }}>You need to earn</div>
-                  <div style={{ fontSize: "1.05rem", fontWeight: 700, color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(grossAnnual)}<span style={{ fontSize: "0.78rem", fontWeight: 500, color: t.muted }}>/yr gross</span></div>
-                </div>
+                <Reveal delay={300} style={{ flex: 1, minWidth: "120px" }}>
+                  <EditorialCard t={t} padding="0.9rem" style={{ height: "100%" }}>
+                    <span style={{ ...eyebrowStyle, color: t.subtle, display: "block", marginBottom: "0.25rem" }}>You need to earn</span>
+                    <span style={{ fontSize: "1.05rem", fontWeight: 700, color: t.text, ...mono }}>{fmt(grossAnnual)}<span style={{ fontSize: "0.78rem", fontWeight: 500, color: t.muted, fontFamily: FONT_STACK }}>/yr gross</span></span>
+                  </EditorialCard>
+                </Reveal>
 
-                {/* Biggest pressure */}
-                <div style={{
-                  flex: 1,
-                  minWidth: "120px",
-                  background: t.cardBg,
-                  border: `1px solid ${t.border}`,
-                  borderRadius: "10px",
-                  padding: "0.85rem",
-                }}>
-                  <div style={{ fontSize: "0.7rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "0.15rem" }}>Biggest cost</div>
-                  <div style={{ fontSize: "1.05rem", fontWeight: 700, color: t.text }}>{fieldLabel(biggestField)} <span style={{ fontSize: "0.78rem", fontWeight: 500, color: t.muted, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>({biggestPct}%)</span></div>
-                </div>
+                <Reveal delay={360} style={{ flex: 1, minWidth: "120px" }}>
+                  <EditorialCard t={t} padding="0.9rem" style={{ height: "100%" }}>
+                    <span style={{ ...eyebrowStyle, color: t.subtle, display: "block", marginBottom: "0.25rem" }}>Biggest cost</span>
+                    <span style={{ fontSize: "1.05rem", fontWeight: 700, color: t.text }}>{fieldLabel(biggestField)} <span style={{ fontSize: "0.78rem", fontWeight: 500, color: t.muted, ...mono }}>({biggestPct}%)</span></span>
+                  </EditorialCard>
+                </Reveal>
               </div>
 
               {/* Income gap — single line */}
               {currentGrossIncome > 0 && (() => {
                 const surplusButFragile = !incomeGap.hasGap && healthScore < 70;
-                const gapColor = incomeGap.hasGap ? "#ef4444" : surplusButFragile ? "#f59e0b" : "#22c55e";
-                const gapBg = incomeGap.hasGap ? "rgba(239,68,68,0.06)" : surplusButFragile ? "rgba(245,158,11,0.06)" : "rgba(34,197,94,0.06)";
-                const gapBorder = incomeGap.hasGap ? "rgba(239,68,68,0.15)" : surplusButFragile ? "rgba(245,158,11,0.15)" : "rgba(34,197,94,0.15)";
+                const gapColor = incomeGap.hasGap ? t.danger : surplusButFragile ? t.warning : t.success;
 
                 return (
-                  <div style={{
-                    fontSize: "0.85rem",
-                    color: gapColor,
-                    fontWeight: 600,
-                    marginBottom: "1rem",
-                    padding: "0.6rem 0.85rem",
-                    background: gapBg,
-                    borderRadius: "8px",
-                    border: `1px solid ${gapBorder}`,
-                  }}>
-                    {incomeGap.hasGap
-                      ? <>Income gap: you need <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(incomeGap.gapMonthly)}</span>/mo more than your current income covers.</>
-                      : surplusButFragile
-                        ? <>You earn enough to cover expenses (<span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>+{fmt(Math.abs(incomeGap.gapMonthly))}</span>/mo), but your financial structure is still under pressure.</>
-                        : <>No income gap — you have <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(Math.abs(incomeGap.gapMonthly))}</span>/mo surplus.</>
-                    }
-                  </div>
+                  <Reveal delay={420}>
+                    <div style={{ fontSize: "0.85rem", color: gapColor, fontWeight: 600, marginBottom: "1rem", padding: "0.65rem 0.9rem", background: `color-mix(in srgb, ${gapColor} 7%, transparent)`, borderRadius: "10px", border: `1px solid color-mix(in srgb, ${gapColor} 20%, transparent)` }}>
+                      {incomeGap.hasGap
+                        ? <>Income gap: you need <span style={mono}>{fmt(incomeGap.gapMonthly)}</span>/mo more than your current income covers.</>
+                        : surplusButFragile
+                          ? <>You earn enough to cover expenses (<span style={mono}>+{fmt(Math.abs(incomeGap.gapMonthly))}</span>/mo), but your financial structure is still under pressure.</>
+                          : <>No income gap — you have <span style={mono}>{fmt(Math.abs(incomeGap.gapMonthly))}</span>/mo surplus.</>
+                      }
+                    </div>
+                  </Reveal>
                 );
               })()}
 
@@ -501,19 +456,8 @@ export function GuidedFlowPage({
               {alerts.length > 0 && (
                 <div style={{ marginBottom: "1rem" }}>
                   {alerts.map((alert) => (
-                    <div
-                      key={alert.id}
-                      style={{
-                        padding: "0.5rem 0.75rem",
-                        marginBottom: "0.35rem",
-                        display: "flex",
-                        gap: "0.45rem",
-                        alignItems: "center",
-                        fontSize: "0.8rem",
-                        color: t.muted,
-                      }}
-                    >
-                      <AlertTriangle size={12} style={{ color: alert.severity === "critical" ? "#ef4444" : "#f59e0b", flexShrink: 0 }} />
+                    <div key={alert.id} style={{ padding: "0.5rem 0", marginBottom: "0.35rem", display: "flex", gap: "0.5rem", alignItems: "center", fontSize: "0.8rem", color: t.muted }}>
+                      <AlertTriangle size={12} style={{ color: alert.severity === "critical" ? t.danger : t.warning, flexShrink: 0 }} />
                       <span><span style={{ fontWeight: 600, color: t.text }}>{alert.title}</span> — {alert.explanation}</span>
                     </div>
                   ))}
@@ -522,13 +466,7 @@ export function GuidedFlowPage({
 
               {/* Signup prompt — inline */}
               {showSignupPrompt && step === 0 && (
-                <SignupPromptCard
-                  t={t}
-                  isDark={isDark}
-                  variant="inline"
-                  onSignup={handleSignupClick}
-                  onDismiss={handlePromptDismiss}
-                />
+                <SignupPromptCard t={t} isDark={isDark} variant="inline" onSignup={handleSignupClick} onDismiss={handlePromptDismiss} />
               )}
 
               {/* Bridge to Diagnosis */}
@@ -548,256 +486,154 @@ export function GuidedFlowPage({
 
         {/* ── Step 1: Diagnosis ────────────────────────────────── */}
         {step === 1 && (
-          <div>
-            <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: t.text, margin: "0 0 0.35rem" }}>Financial Diagnosis</h2>
-            {/* Context bridge from Snapshot */}
-            <p style={{ color: t.muted, fontSize: "0.88rem", margin: "0 0 1.5rem", lineHeight: 1.5 }}>
-              Your health score is <span style={{ color: healthColor, fontWeight: 700, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{healthScore}/100</span>
-              {alerts.length > 0
-                ? ` with ${alerts.length} active alert${alerts.length > 1 ? "s" : ""}. Here's a deeper look at what's driving it.`
-                : ". Here's a deeper look at your financial position."
+          <div className="lp-page">
+            <StepHeader
+              title="Financial Diagnosis"
+              subtitle={
+                alerts.length > 0
+                  ? `Your health score is ${healthScore}/100 with ${alerts.length} active alert${alerts.length > 1 ? "s" : ""}. Here's a deeper look at what's driving it.`
+                  : `Your health score is ${healthScore}/100. Here's a deeper look at your financial position.`
               }
-            </p>
-
-            <FinancialDiagnosisSection
-              data={data}
-              taxRate={taxRate}
-              grossAnnual={grossAnnual}
-              grossMonthly={grossMonthly}
-              totalMonthly={totalMonthly}
-              savingsRate={savingsRate}
-              healthScore={healthScore}
-              hourlyRate={hourlyRate}
-              fragilityScore={outputs.fragilityScore}
-              debtRatio={outputs.ratios.debtRatio}
-              emergencyFundTarget={outputs.emergencyFundTarget}
-              userTier={userTier}
-              onUpgrade={onUpgrade}
-              onSimulator={onSimulator}
               t={t}
-              isDark={isDark}
+              size="h2"
             />
+            <div style={{ marginTop: "1.5rem" }}>
+              <FinancialDiagnosisSection
+                data={data}
+                taxRate={taxRate}
+                grossAnnual={grossAnnual}
+                grossMonthly={grossMonthly}
+                totalMonthly={totalMonthly}
+                savingsRate={savingsRate}
+                healthScore={healthScore}
+                hourlyRate={hourlyRate}
+                fragilityScore={outputs.fragilityScore}
+                debtRatio={outputs.ratios.debtRatio}
+                emergencyFundTarget={outputs.emergencyFundTarget}
+                userTier={userTier}
+                onUpgrade={onUpgrade}
+                onSimulator={onSimulator}
+                t={t}
+                isDark={isDark}
+              />
+            </div>
           </div>
         )}
 
         {/* ── Step 2: Top Move + Scenario Lab CTA ─────────────── */}
         {step === 2 && (
-          <div>
-            <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: t.text, margin: "0 0 0.35rem" }}>Your Top Move</h2>
-            <p style={{ color: t.muted, fontSize: "0.88rem", margin: "0 0 1.5rem" }}>The single change with the biggest impact on your score.</p>
+          <div className="lp-page">
+            <StepHeader title="Your Top Move" subtitle="The single change with the biggest impact on your score." t={t} size="h2" />
 
             {/* Recommendation card */}
-            <div style={{ background: t.cardBg, border: `1px solid ${t.border}`, borderRadius: "14px", padding: "1.5rem", marginBottom: "1rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.65rem" }}>
-                <Target size={18} style={{ color: t.primary }} />
-                <span style={{ fontSize: "1.05rem", fontWeight: 700, color: t.text }}>{topMove.title}</span>
-              </div>
-              <p style={{ fontSize: "0.85rem", color: t.muted, lineHeight: 1.55, margin: "0 0 1.25rem" }}>{topMove.description}</p>
-
-              {/* Before → After inline */}
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.85rem", borderRadius: "10px", background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)" }}>
-                <div style={{ flex: 1, textAlign: "center" }}>
-                  <div style={{ fontSize: "0.62rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.2rem" }}>Now</div>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 800, color: healthColor, lineHeight: 1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{topMove.currentHealth}</div>
-                  <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.1rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(topMove.currentValue)}/mo</div>
+            <Reveal delay={120}>
+              <EditorialCard t={t} padding="1.5rem" style={{ marginTop: "1.5rem", marginBottom: "1rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.65rem" }}>
+                  <Target size={18} style={{ color: t.primary }} />
+                  <span style={{ fontSize: "1.05rem", fontWeight: 700, color: t.text, letterSpacing: "-0.01em" }}>{topMove.title}</span>
                 </div>
+                <p style={{ fontSize: "0.85rem", color: t.muted, lineHeight: 1.55, margin: "0 0 1.25rem" }}>{topMove.description}</p>
 
-                <ArrowRight size={18} style={{ color: t.primary, flexShrink: 0 }} />
-
-                <div style={{ flex: 1, textAlign: "center" }}>
-                  <div style={{ fontSize: "0.62rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.2rem" }}>After</div>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 800, color: healthDelta > 0 ? "#22c55e" : healthColor, lineHeight: 1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{topMove.projectedHealth}</div>
-                  <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.1rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(topMove.adjustedValue)}/mo</div>
-                </div>
-
-                {healthDelta !== 0 && (
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.2rem",
-                    background: healthDelta > 0 ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
-                    border: `1px solid ${healthDelta > 0 ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"}`,
-                    borderRadius: "16px",
-                    padding: "0.25rem 0.6rem",
-                    fontSize: "0.78rem",
-                    fontWeight: 700,
-                    color: healthDelta > 0 ? "#22c55e" : "#ef4444",
-                    flexShrink: 0,
-                  }}>
-                    {healthDelta > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                    <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{healthDelta > 0 ? "+" : ""}{healthDelta}</span>
+                {/* Before → After inline */}
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.9rem", borderRadius: "12px", background: t.bg, border: `1px solid ${t.border}` }}>
+                  <div style={{ flex: 1, textAlign: "center" }}>
+                    <div style={{ ...eyebrowStyle, color: t.subtle, marginBottom: "0.25rem" }}>Now</div>
+                    <div style={{ fontSize: "1.4rem", fontWeight: 800, color: healthColor, lineHeight: 1, ...mono }}>{topMove.currentHealth}</div>
+                    <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.15rem", ...mono }}>{fmt(topMove.currentValue)}/mo</div>
                   </div>
-                )}
-              </div>
-            </div>
 
-            {/* Scenario Lab CTA — not a separate step */}
-            <div style={{
-              background: isDark ? `${t.primary}0F` : `${t.primary}0A`,
-              border: `1px solid ${t.primary}20`,
-              borderRadius: "16px",
-              padding: "1rem 1.25rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "1rem",
-              flexWrap: "wrap",
-            }}>
-              <div style={{ flex: 1, minWidth: "180px" }}>
-                <div style={{ fontSize: "0.88rem", fontWeight: 700, color: t.text, marginBottom: "0.15rem" }}>Want to test this?</div>
-                <div style={{ fontSize: "0.8rem", color: t.muted, lineHeight: 1.4 }}>
-                  Open the Scenario Lab to try this change and compare outcomes side by side.
+                  <ArrowRight size={18} style={{ color: t.subtle, flexShrink: 0 }} />
+
+                  <div style={{ flex: 1, textAlign: "center" }}>
+                    <div style={{ ...eyebrowStyle, color: t.subtle, marginBottom: "0.25rem" }}>After</div>
+                    <div style={{ fontSize: "1.4rem", fontWeight: 800, color: healthDelta > 0 ? t.success : healthColor, lineHeight: 1, ...mono }}>{topMove.projectedHealth}</div>
+                    <div style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.15rem", ...mono }}>{fmt(topMove.adjustedValue)}/mo</div>
+                  </div>
+
+                  {healthDelta !== 0 && (
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.2rem", background: `color-mix(in srgb, ${healthDelta > 0 ? t.success : t.danger} 12%, transparent)`, border: `1px solid color-mix(in srgb, ${healthDelta > 0 ? t.success : t.danger} 22%, transparent)`, borderRadius: "999px", padding: "0.25rem 0.6rem", fontSize: "0.78rem", fontWeight: 700, color: healthDelta > 0 ? t.success : t.danger, flexShrink: 0 }}>
+                      {healthDelta > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                      <span style={mono}>{healthDelta > 0 ? "+" : ""}{healthDelta}</span>
+                    </div>
+                  )}
                 </div>
-              </div>
-              <button
-                onClick={() => { trackEvent("scenario_lab_opened", { user_tier: userTier, guided_step: step, source_page: "guided" }); onSimulator(); }}
-                style={{
-                  background: `linear-gradient(135deg, ${t.primary}, ${t.accent || t.primary})`,
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "0.55rem 1.15rem",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.35rem",
-                  whiteSpace: "nowrap",
-                  boxShadow: `0 2px 10px ${t.primary}25`,
-                }}
-              >
-                <Beaker size={14} />
-                Open Scenario Lab
-              </button>
-            </div>
+              </EditorialCard>
+            </Reveal>
+
+            {/* Scenario Lab CTA */}
+            <Reveal delay={200}>
+              <EditorialCard t={t} padding="1rem 1.25rem" style={{ background: t.primarySoft, borderColor: `color-mix(in srgb, ${t.primary} 22%, transparent)`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+                <div style={{ flex: 1, minWidth: "180px" }}>
+                  <div style={{ fontSize: "0.88rem", fontWeight: 700, color: t.text, marginBottom: "0.15rem" }}>Want to test this?</div>
+                  <div style={{ fontSize: "0.8rem", color: t.muted, lineHeight: 1.4 }}>
+                    Open the Scenario Lab to try this change and compare outcomes side by side.
+                  </div>
+                </div>
+                <CTAButton t={t} isDark={isDark} size="sm" onClick={() => { trackEvent("scenario_lab_opened", { user_tier: userTier, guided_step: step, source_page: "guided" }); onSimulator(); }}>
+                  Open Scenario Lab
+                </CTAButton>
+              </EditorialCard>
+            </Reveal>
           </div>
         )}
 
         {/* ── Step 3: Your Plan (conclusion) ────────────────────── */}
         {step === 3 && (
-          <div>
-            <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: t.text, margin: "0 0 0.35rem" }}>Your Plan</h2>
+          <div className="lp-page">
+            <StepHeader title="Your Plan" t={t} size="h2" />
 
             {/* Summary */}
-            <div style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "16px",
-              padding: "1.15rem",
-              marginBottom: "1.25rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "1rem",
-            }}>
-              <div style={{ textAlign: "center", minWidth: "56px" }}>
-                <div style={{ fontSize: "1.75rem", fontWeight: 800, color: healthColor, lineHeight: 1, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{healthScore}</div>
-                <div style={{ fontSize: "0.65rem", color: t.muted, marginTop: "0.1rem" }}>Health</div>
-              </div>
-              <div style={{ fontSize: "0.88rem", color: t.text, lineHeight: 1.5 }}>
-                {healthDelta > 0
-                  ? <>Your top move — <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span> — could bring your score to <span style={{ fontWeight: 700, color: "#22c55e", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{topMove.projectedHealth}</span>. Test it in the Scenario Lab to see the full impact.</>
-                  : healthScore < 40
-                    ? <>Your position needs work across multiple areas. Start with <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span>, then use the Scenario Lab to test further changes.</>
-                    : healthScore < 60
-                      ? <>Your top move — <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span> — is a solid starting point. Use the Scenario Lab to test combinations and find the strongest path forward.</>
-                      : <>Your ratios are in a healthy range. Use the Scenario Lab to explore what-if scenarios and fine-tune your position.</>
-                }
-              </div>
-            </div>
+            <Reveal delay={120}>
+              <EditorialCard t={t} padding="1.15rem" style={{ marginTop: "1.5rem", marginBottom: "1.25rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div style={{ textAlign: "center", minWidth: "56px" }}>
+                  <div style={{ fontSize: "1.75rem", fontWeight: 800, color: healthColor, lineHeight: 1, ...mono }}>{healthScore}</div>
+                  <div style={{ ...eyebrowStyle, color: t.subtle, marginTop: "0.2rem" }}>Health</div>
+                </div>
+                <div style={{ fontSize: "0.88rem", color: t.text, lineHeight: 1.5 }}>
+                  {healthDelta > 0
+                    ? <>Your top move — <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span> — could bring your score to <span style={{ fontWeight: 700, color: t.success, ...mono }}>{topMove.projectedHealth}</span>. Test it in the Scenario Lab to see the full impact.</>
+                    : healthScore < 40
+                      ? <>Your position needs work across multiple areas. Start with <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span>, then use the Scenario Lab to test further changes.</>
+                      : healthScore < 60
+                        ? <>Your top move — <span style={{ fontWeight: 700 }}>{topMove.title.toLowerCase()}</span> — is a solid starting point. Use the Scenario Lab to test combinations and find the strongest path forward.</>
+                        : <>Your ratios are in a healthy range. Use the Scenario Lab to explore what-if scenarios and fine-tune your position.</>
+                  }
+                </div>
+              </EditorialCard>
+            </Reveal>
 
             {/* Primary CTA: Scenario Lab */}
-            <button
-              onClick={() => { trackEvent("scenario_lab_opened", { user_tier: userTier, guided_step: step, source_page: "guided" }); onSimulator(); }}
-              style={{
-                width: "100%",
-                background: `linear-gradient(135deg, ${t.primary}, ${t.accent || t.primary})`,
-                color: "#fff",
-                border: "none",
-                borderRadius: "10px",
-                padding: "0.85rem",
-                fontSize: "0.95rem",
-                fontWeight: 700,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.4rem",
-                marginBottom: "0.75rem",
-                boxShadow: `0 4px 15px ${t.primary}25`,
-              }}
-            >
-              <Beaker size={16} />
-              Open Scenario Lab
-            </button>
+            <Reveal delay={200}>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+                <CTAButton t={t} isDark={isDark} size="lg" onClick={() => { trackEvent("scenario_lab_opened", { user_tier: userTier, guided_step: step, source_page: "guided" }); onSimulator(); }}>
+                  Open Scenario Lab
+                </CTAButton>
+              </div>
 
-            {/* Secondary actions row */}
-            <div style={{ display: "grid", gridTemplateColumns: (hasPaidAccess && onSaveScenario) ? "1fr 1fr" : "1fr 1fr", gap: "0.5rem", marginBottom: "0.75rem" }}>
-              <button
-                onClick={() => { trackEvent("adjust_expenses_clicked", { user_tier: userTier, source_page: "guided" }); onRecalculate(); }}
-                style={{
-                  background: t.cardBg,
-                  border: `1px solid ${t.border}`,
-                  borderRadius: "8px",
-                  padding: "0.65rem",
-                  fontSize: "0.8rem",
-                  fontWeight: 600,
-                  color: t.text,
-                  cursor: "pointer",
-                }}
-              >
-                Adjust Expenses
-              </button>
-              {hasPaidAccess && onSaveScenario ? (
-                <button
-                  onClick={onSaveScenario}
-                  style={{
-                    background: t.cardBg,
-                    border: `1px solid ${t.border}`,
-                    borderRadius: "8px",
-                    padding: "0.65rem",
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
-                    color: t.text,
-                    cursor: "pointer",
-                  }}
-                >
-                  Save Scenario
-                </button>
-              ) : (
-                <button
-                  onClick={() => { trackEvent("full_breakdown_opened", { user_tier: userTier, source_page: "guided" }); onResults(); }}
-                  style={{
-                    background: t.cardBg,
-                    border: `1px solid ${t.border}`,
-                    borderRadius: "8px",
-                    padding: "0.65rem",
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
-                    color: t.text,
-                    cursor: "pointer",
-                  }}
-                >
-                  Full Breakdown
-                </button>
-              )}
-            </div>
+              {/* Secondary actions row */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                <CTAButton t={t} variant="secondary" size="sm" style={{ justifyContent: "center", width: "100%" }} onClick={() => { trackEvent("adjust_expenses_clicked", { user_tier: userTier, source_page: "guided" }); onRecalculate(); }}>
+                  Adjust Expenses
+                </CTAButton>
+                {hasPaidAccess && onSaveScenario ? (
+                  <CTAButton t={t} variant="secondary" size="sm" style={{ justifyContent: "center", width: "100%" }} onClick={onSaveScenario}>
+                    Save Scenario
+                  </CTAButton>
+                ) : (
+                  <CTAButton t={t} variant="secondary" size="sm" style={{ justifyContent: "center", width: "100%" }} onClick={() => { trackEvent("full_breakdown_opened", { user_tier: userTier, source_page: "guided" }); onResults(); }}>
+                    Full Breakdown
+                  </CTAButton>
+                )}
+              </div>
+            </Reveal>
 
             {/* Tertiary link: Full Breakdown (shown when Save Scenario takes the grid slot) */}
             {hasPaidAccess && onSaveScenario ? (
               <div style={{ textAlign: "center", marginBottom: "1rem" }}>
                 <button
                   onClick={() => { trackEvent("full_breakdown_opened", { user_tier: userTier, source_page: "guided" }); onResults(); }}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "0.78rem",
-                    color: t.muted,
-                    textDecoration: "underline",
-                    textUnderlineOffset: "2px",
-                    padding: "0.25rem",
-                  }}
+                  className="lp-underline"
+                  style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: "0.78rem", color: t.muted, padding: "0.25rem", fontFamily: "inherit" }}
                 >
                   View full breakdown
                 </button>
@@ -806,94 +642,43 @@ export function GuidedFlowPage({
 
             {/* Upgrade CTA for free users */}
             {!hasPaidAccess && (
-              <div style={{
-                padding: "1.25rem",
-                borderRadius: "16px",
-                background: isDark ? `${t.primary}14` : `${t.primary}0D`,
-                border: `1px solid ${t.primary}33`,
-              }}>
-                <div style={{ fontWeight: 700, fontSize: "0.95rem", color: t.text, marginBottom: "0.35rem" }}>
-                  {healthScore < 60
-                    ? "Your score is " + healthScore + " — there's real room to improve"
-                    : "You've seen the snapshot — now work the problem"
-                  }
-                </div>
-                <div style={{ fontSize: "0.82rem", color: t.muted, lineHeight: 1.55, marginBottom: "0.85rem" }}>
-                  {healthScore < 60
-                    ? "Pro lets you build custom scenarios, test different expense changes, and find the specific combination that moves your score the most. See exactly which trade-offs are worth making before you commit."
-                    : "Pro lets you build and compare scenarios side by side, test real trade-offs, and find the strongest path from here. One change helped — now find the combination that helps the most."
-                  }
-                </div>
-                <button
-                  onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "guided", plan: "pro" }); onUpgrade("pro"); }}
-                  style={{
-                    background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "8px",
-                    padding: "0.55rem 1.25rem",
-                    fontSize: "0.85rem",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.35rem",
-                    boxShadow: `0 2px 10px ${t.primary}4D`,
-                  }}
-                >
-                  <Lock size={13} />
-                  Upgrade to Pro
-                </button>
-              </div>
+              <Reveal delay={260}>
+                <EditorialCard t={t} padding="1.25rem" style={{ background: t.primarySoft, borderColor: `color-mix(in srgb, ${t.primary} 30%, transparent)` }}>
+                  <div style={{ fontWeight: 700, fontSize: "0.95rem", color: t.text, marginBottom: "0.35rem" }}>
+                    {healthScore < 60
+                      ? "Your score is " + healthScore + " — there's real room to improve"
+                      : "You've seen the snapshot — now work the problem"
+                    }
+                  </div>
+                  <div style={{ fontSize: "0.82rem", color: t.muted, lineHeight: 1.55, marginBottom: "0.95rem" }}>
+                    {healthScore < 60
+                      ? "Pro lets you build custom scenarios, test different expense changes, and find the specific combination that moves your score the most. See exactly which trade-offs are worth making before you commit."
+                      : "Pro lets you build and compare scenarios side by side, test real trade-offs, and find the strongest path from here. One change helped — now find the combination that helps the most."
+                    }
+                  </div>
+                  <CTAButton t={t} isDark={isDark} size="sm" onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "guided", plan: "pro" }); onUpgrade("pro"); }}>
+                    <Lock size={13} /> Upgrade to Pro
+                  </CTAButton>
+                </EditorialCard>
+              </Reveal>
             )}
           </div>
         )}
 
         {/* ── Step navigation ──────────────────────────────────── */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "2rem", paddingTop: "1rem", borderTop: `1px solid ${t.border}20` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "2.5rem", paddingTop: "1.25rem", borderTop: `1px solid ${t.border}` }}>
           {step > 0 ? (
-            <button
-              onClick={goPrev}
-              style={{
-                background: "transparent",
-                border: `1px solid ${t.border}`,
-                borderRadius: "8px",
-                padding: "0.45rem 0.9rem",
-                fontSize: "0.82rem",
-                fontWeight: 600,
-                color: t.muted,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.25rem",
-              }}
-            >
+            <CTAButton t={t} variant="secondary" size="sm" onClick={goPrev}>
               <ArrowLeft size={13} /> Back
-            </button>
+            </CTAButton>
           ) : (
             <div />
           )}
 
           {step < STEPS.length - 1 ? (
-            <button
-              onClick={goNext}
-              style={{
-                background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-                border: "none",
-                borderRadius: "8px",
-                padding: "0.5rem 1.15rem",
-                fontSize: "0.85rem",
-                fontWeight: 700,
-                color: "#fff",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.3rem",
-              }}
-            >
+            <CTAButton t={t} isDark={isDark} size="md" onClick={goNext}>
               {nextLabel}
-              <ArrowRight size={14} />
-            </button>
+            </CTAButton>
           ) : (
             <div />
           )}
@@ -902,13 +687,7 @@ export function GuidedFlowPage({
 
       {/* Signup prompt — sticky bar for Diagnosis & Top Move steps */}
       {showSignupPrompt && (step === 1 || step === 2) && (
-        <SignupPromptCard
-          t={t}
-          isDark={isDark}
-          variant="sticky"
-          onSignup={handleSignupClick}
-          onDismiss={handlePromptDismiss}
-        />
+        <SignupPromptCard t={t} isDark={isDark} variant="sticky" onSignup={handleSignupClick} onDismiss={handlePromptDismiss} />
       )}
     </div>
   );

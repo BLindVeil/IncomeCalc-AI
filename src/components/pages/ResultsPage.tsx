@@ -51,7 +51,7 @@ import { Header } from "@/components/Header";
 import { MobileNavShell } from "@/components/mobile/MobileNavShell";
 import type { MobileTab } from "@/components/mobile/MobileBottomNav";
 import { FormattedNumber } from "@/components/FormattedNumber";
-import { MetricCard } from "@/components/ui/MetricCard";
+import { MetricStat, CountUpNumber, eyebrow as eyebrowStyle } from "@/components/editorial";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { AIFinancialInsights } from "@/components/ai/AIFinancialInsights";
@@ -118,9 +118,8 @@ export function AnnualUpsellModal({ plan, onAnnual, onMonthly, onClose, t }: Ann
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="atv-accent-bar" style={{ position: "absolute", top: 0, left: 0, right: 0 }} />
-        <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>&#x2728;</div>
-        <h2 style={{ fontSize: "1.3rem", fontWeight: 700, color: t.text, marginBottom: "0.5rem", letterSpacing: "-0.01em" }}>
+        <div style={{ ...eyebrowStyle, color: t.muted, marginBottom: "0.6rem" }}>Save 2 months</div>
+        <h2 style={{ fontSize: "1.4rem", fontWeight: 600, color: t.text, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
           Save with Annual Billing
         </h2>
         <p style={{ color: t.muted, fontSize: "0.95rem", lineHeight: 1.6, marginBottom: "1.5rem" }}>
@@ -130,23 +129,15 @@ export function AnnualUpsellModal({ plan, onAnnual, onMonthly, onClose, t }: Ann
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <button
             onClick={onAnnual}
-            className="atv-btn-primary"
-            style={{
-              width: "100%",
-              padding: "0.85rem",
-              fontSize: "1rem",
-            }}
+            className="lp-press"
+            style={{ width: "100%", padding: "0.85rem", fontSize: "1rem", fontWeight: 600, border: "none", borderRadius: 999, background: t.text, color: t.cardBg, cursor: "pointer", letterSpacing: "-0.01em" }}
           >
             Switch to Annual (Save {prices.savePercent}%)
           </button>
           <button
             onClick={onMonthly}
-            className="atv-btn-secondary"
-            style={{
-              width: "100%",
-              padding: "0.85rem",
-              fontSize: "1rem",
-            }}
+            className="lp-press"
+            style={{ width: "100%", padding: "0.85rem", fontSize: "1rem", fontWeight: 600, border: `1px solid ${t.borderStrong}`, borderRadius: 999, background: "transparent", color: t.text, cursor: "pointer" }}
           >
             Continue Monthly — <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>${prices.monthly}</span>/mo
           </button>
@@ -258,14 +249,15 @@ export function RestorePurchaseModal({ onClose, t }: RestorePurchaseModalProps) 
             <button
               onClick={handleRestore}
               disabled={status === "loading"}
+              className="lp-press"
               style={{
                 width: "100%",
-                background: t.primary,
-                color: "#fff",
+                background: t.text,
+                color: t.cardBg,
                 border: "none",
-                borderRadius: "8px",
+                borderRadius: 999,
                 padding: "0.7rem",
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: status === "loading" ? "wait" : "pointer",
                 opacity: status === "loading" ? 0.7 : 1,
               }}
@@ -279,7 +271,8 @@ export function RestorePurchaseModal({ onClose, t }: RestorePurchaseModalProps) 
             <p style={{ color: t.text, fontWeight: 600 }}>Purchase restored! Reload to access your plan.</p>
             <button
               onClick={() => window.location.reload()}
-              style={{ marginTop: "1rem", background: t.primary, color: "#fff", border: "none", borderRadius: "8px", padding: "0.6rem 1.5rem", fontWeight: 600, cursor: "pointer" }}
+              className="lp-press"
+              style={{ marginTop: "1rem", background: t.text, color: t.cardBg, border: "none", borderRadius: 999, padding: "0.6rem 1.5rem", fontWeight: 600, cursor: "pointer" }}
             >
               Reload
             </button>
@@ -291,7 +284,8 @@ export function RestorePurchaseModal({ onClose, t }: RestorePurchaseModalProps) 
             <p style={{ color: t.muted, fontSize: "0.85rem" }}>Contact incomecalcai@proton.me for help.</p>
             <button
               onClick={onClose}
-              style={{ marginTop: "1rem", background: "transparent", color: t.muted, border: `1px solid ${t.border}`, borderRadius: "8px", padding: "0.6rem 1.5rem", fontWeight: 600, cursor: "pointer" }}
+              className="lp-press"
+              style={{ marginTop: "1rem", background: "transparent", color: t.text, border: `1px solid ${t.borderStrong}`, borderRadius: 999, padding: "0.6rem 1.5rem", fontWeight: 600, cursor: "pointer" }}
             >
               Close
             </button>
@@ -677,7 +671,7 @@ export function ResultsPage({
     ? (outputs.healthLabel === "Excellent" || outputs.healthLabel === "Good" ? "Fair" : outputs.healthLabel)
     : outputs.healthLabel;
   const healthColor =
-    healthScore >= 80 ? "#22c55e" : healthScore >= 60 ? "#84cc16" : healthScore >= 40 ? "#f59e0b" : "#ef4444";
+    healthScore >= 80 ? t.success : healthScore >= 60 ? t.accent : healthScore >= 40 ? t.warning : t.danger;
 
   const [animatedScore, setAnimatedScore] = useState(0);
   useEffect(() => {
@@ -696,10 +690,10 @@ export function ResultsPage({
   const housingPct = grossMonthly > 0 ? (data.housing / grossMonthly) * 100 : 0;
 
   const subScores = [
-    { label: "Cashflow Stability", value: cashflowStability, color: cashflowStability >= 60 ? "#22c55e" : cashflowStability >= 40 ? "#f59e0b" : "#ef4444" },
-    { label: "Debt Risk", value: debtRisk, color: debtRisk >= 60 ? "#22c55e" : debtRisk >= 40 ? "#f59e0b" : "#ef4444" },
-    { label: "Savings Strength", value: savingsStrength, color: savingsStrength >= 60 ? "#22c55e" : savingsStrength >= 40 ? "#f59e0b" : "#ef4444" },
-    { label: "Income Fragility", value: incomeFragility, color: incomeFragility >= 60 ? "#22c55e" : incomeFragility >= 40 ? "#f59e0b" : "#ef4444" },
+    { label: "Cashflow Stability", value: cashflowStability, color: cashflowStability >= 60 ? t.success : cashflowStability >= 40 ? t.warning : t.danger },
+    { label: "Debt Risk", value: debtRisk, color: debtRisk >= 60 ? t.success : debtRisk >= 40 ? t.warning : t.danger },
+    { label: "Savings Strength", value: savingsStrength, color: savingsStrength >= 60 ? t.success : savingsStrength >= 40 ? t.warning : t.danger },
+    { label: "Income Fragility", value: incomeFragility, color: incomeFragility >= 60 ? t.success : incomeFragility >= 40 ? t.warning : t.danger },
   ];
 
   // Snapshots for check-in display
@@ -923,10 +917,10 @@ export function ResultsPage({
                 marginBottom: "1.5rem",
               }}
             >
-              <MetricCard label="Annual Gross" value={grossAnnual} sub="Required income" color={t.primary} t={t} />
-              <MetricCard label="Monthly Gross" value={grossMonthly} sub="Before taxes" color={t.text} t={t} />
-              <MetricCard label="Monthly Net" value={totalMonthly} sub="After taxes" color={t.success} t={t} />
-              <MetricCard label="Hourly Rate" value={hourlyRate} sub="40hrs/week" suffix="/hr" color={t.text} t={t} />
+              <MetricStat label="Annual Gross" value={grossAnnual} prefix="$" sub="Required income" valueColor={t.primary} t={t} delay={0} />
+              <MetricStat label="Monthly Gross" value={grossMonthly} prefix="$" sub="Before taxes" valueColor={t.text} t={t} delay={60} />
+              <MetricStat label="Monthly Net" value={totalMonthly} prefix="$" sub="After taxes" valueColor={t.success} t={t} delay={120} />
+              <MetricStat label="Hourly Rate" value={hourlyRate} prefix="$" suffix="/hr" decimals={2} sub="40hrs/week" valueColor={t.text} t={t} delay={180} />
             </div>
 
             {/* 2-Column Charts */}
@@ -1052,29 +1046,27 @@ export function ResultsPage({
           </p>
         </div>
 
-        {/* Hero card */}
+        {/* Hero card — the signature reveal */}
         <div
           className="atv-fade-in"
           style={{
-            background: isDark ? `${t.primary}10` : `${t.primary}08`,
+            background: t.cardBg,
             border: `1px solid ${t.border}`,
             borderRadius: "16px",
-            padding: "2rem",
+            padding: "2.5rem 2rem",
             marginBottom: "1.25rem",
             textAlign: "center",
             position: "relative",
             overflow: "hidden",
           }}
         >
-          {/* Gradient accent bar at top */}
-          <div className="atv-accent-bar" style={{ position: "absolute", top: 0, left: 0, right: 0 }} />
-          <div style={{ fontSize: "0.9rem", color: t.muted, marginBottom: "0.5rem" }}>
+          <div className="lp-in" style={{ ...eyebrowStyle, color: t.muted, marginBottom: "0.75rem" }}>
             You need to earn at least
           </div>
-          <div className="atv-number-glow" style={{ lineHeight: 1.1 }}>
-            <FormattedNumber value={grossAnnual} fontSize="clamp(2.5rem, 6vw, 4rem)" fontWeight={700} color={t.text} centsColor={t.muted} style={{ letterSpacing: "-0.03em" }} />
+          <div className="lp-in" style={{ lineHeight: 1.05, ["--lp-delay" as string]: "90ms" }}>
+            <CountUpNumber value={grossAnnual} prefix="$" startOnView={false} durationMs={1100} style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 700, color: t.text, letterSpacing: "-0.035em" }} />
           </div>
-          <div style={{ fontSize: "0.9rem", color: t.muted, marginTop: "0.25rem" }}>per year</div>
+          <div className="lp-in" style={{ fontSize: "0.9rem", color: t.muted, marginTop: "0.4rem", ["--lp-delay" as string]: "180ms" }}>per year</div>
           {userTier === "free" && (
             <>
               <p style={{ fontSize: "0.9rem", color: t.muted, fontStyle: "italic", margin: "0.75rem 0 0" }}>
@@ -1124,9 +1116,9 @@ export function ResultsPage({
             marginBottom: "1.25rem",
           }}
         >
-          <MetricCard label="Gross Income/mo" value={grossMonthly} sub="Before taxes" color={t.primary} t={t} />
-          <MetricCard label="Taxes Paid/mo" value={taxMonthly} sub={`${taxRate}% effective rate`} color="#ef4444" t={t} />
-          <MetricCard label="Net Take-Home/mo" value={totalMonthly} sub="After taxes" color="#22c55e" t={t} />
+          <MetricStat label="Gross Income/mo" value={grossMonthly} prefix="$" sub="Before taxes" valueColor={t.primary} t={t} delay={0} />
+          <MetricStat label="Taxes Paid/mo" value={taxMonthly} prefix="$" sub={`${taxRate}% effective rate`} valueColor={t.danger} t={t} delay={60} />
+          <MetricStat label="Net Take-Home/mo" value={totalMonthly} prefix="$" sub="After taxes" valueColor={t.success} t={t} delay={120} />
         </div>
 
         {/* Health score 2.0 */}
@@ -1196,7 +1188,7 @@ export function ResultsPage({
             }}
           >
             <SectionHeader
-              icon={<Gauge size={18} style={{ color: incomeGap.hasGap ? "#ef4444" : "#22c55e" }} />}
+              icon={<Gauge size={18} style={{ color: incomeGap.hasGap ? t.danger : t.success }} />}
               label="Income Gap"
               t={t}
             />
@@ -1205,7 +1197,7 @@ export function ResultsPage({
               style={{
                 fontSize: "1.35rem",
                 fontWeight: 800,
-                color: incomeGap.hasGap ? "#ef4444" : "#22c55e",
+                color: incomeGap.hasGap ? t.danger : t.success,
                 marginBottom: "0.5rem",
                 fontFamily: MONO_FONT_STACK,
                 fontFeatureSettings: "'tnum', 'zero'",
@@ -1247,7 +1239,7 @@ export function ResultsPage({
                           left: 0,
                           height: "100%",
                           width: `${currentPct}%`,
-                          background: incomeGap.hasGap ? "#f59e0b" : "#22c55e",
+                          background: incomeGap.hasGap ? t.warning : t.success,
                           borderRadius: "6px",
                           transition: "width 0.3s ease",
                         }}
@@ -1258,7 +1250,7 @@ export function ResultsPage({
               </div>
               <div style={{ display: "flex", gap: "1rem", marginTop: "0.4rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.72rem", color: t.muted }}>
-                  <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: incomeGap.hasGap ? "#f59e0b" : "#22c55e" }} />
+                  <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: incomeGap.hasGap ? t.warning : t.success }} />
                   Current Income
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.72rem", color: t.muted }}>
@@ -1303,7 +1295,7 @@ export function ResultsPage({
           }}
         >
           <SectionHeader
-            icon={<Clock size={18} style={{ color: runway.level === "Strong" ? "#22c55e" : runway.level === "Stable" ? "#84cc16" : runway.level === "Fragile" ? "#f59e0b" : "#ef4444" }} />}
+            icon={<Clock size={18} style={{ color: runway.level === "Strong" ? t.success : runway.level === "Stable" ? t.accent : runway.level === "Fragile" ? t.warning : t.danger }} />}
             label="Financial Runway"
             t={t}
             right={
@@ -1318,9 +1310,9 @@ export function ResultsPage({
               fontSize: "2rem",
               fontWeight: 900,
               color:
-                runway.level === "Strong" ? "#22c55e" :
-                runway.level === "Stable" ? "#84cc16" :
-                runway.level === "Fragile" ? "#f59e0b" : "#ef4444",
+                runway.level === "Strong" ? t.success :
+                runway.level === "Stable" ? t.accent :
+                runway.level === "Fragile" ? t.warning : t.danger,
               marginBottom: "0.35rem",
             }}
           >
@@ -1343,7 +1335,7 @@ export function ResultsPage({
             }}
           >
             <SectionHeader
-              icon={<AlertTriangle size={18} style={{ color: "#f59e0b" }} />}
+              icon={<AlertTriangle size={18} style={{ color: t.warning }} />}
               label={`${alerts.length} Active Alert${alerts.length !== 1 ? "s" : ""}`}
               t={t}
             />
@@ -1366,7 +1358,7 @@ export function ResultsPage({
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <AlertTriangle size={14} style={{ color: alert.severity === "critical" ? "#ef4444" : "#f59e0b", flexShrink: 0 }} />
+                      <AlertTriangle size={14} style={{ color: alert.severity === "critical" ? t.danger : t.warning, flexShrink: 0 }} />
                       <span style={{ fontSize: "0.88rem", fontWeight: 600, color: t.text }}>{alert.title}</span>
                     </div>
                     {alertsExpanded === alert.id ? <ChevronUp size={14} style={{ color: t.muted }} /> : <ChevronDown size={14} style={{ color: t.muted }} />}
@@ -1443,7 +1435,7 @@ export function ResultsPage({
                     {/* Runway */}
                     <div style={{ background: t.cardBg, borderRadius: "10px", padding: "0.85rem", textAlign: "center", border: `1px solid ${t.border}` }}>
                       <div style={{ fontSize: "0.72rem", color: t.muted, marginBottom: "0.2rem" }}>Runway</div>
-                      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: runway.level === "Strong" ? "#22c55e" : runway.level === "Stable" ? "#84cc16" : runway.level === "Fragile" ? "#f59e0b" : "#ef4444", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
+                      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: runway.level === "Strong" ? t.success : runway.level === "Stable" ? t.accent : runway.level === "Fragile" ? t.warning : t.danger, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                         {runway.months.toFixed(1)}mo
                       </div>
                       <div style={{ fontSize: "0.72rem", fontWeight: 600, color: t.muted }}>{runway.level}</div>
@@ -1452,7 +1444,7 @@ export function ResultsPage({
                     {/* Income Gap */}
                     <div style={{ background: t.cardBg, borderRadius: "10px", padding: "0.85rem", textAlign: "center", border: `1px solid ${t.border}` }}>
                       <div style={{ fontSize: "0.72rem", color: t.muted, marginBottom: "0.2rem" }}>Income Gap</div>
-                      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: currentGrossIncome > 0 ? (incomeGap.hasGap ? "#ef4444" : "#22c55e") : t.muted, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
+                      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: currentGrossIncome > 0 ? (incomeGap.hasGap ? t.danger : t.success) : t.muted, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
                         {currentGrossIncome > 0 ? (incomeGap.hasGap ? `-${fmt(Math.abs(incomeGap.gapMonthly))}` : `+${fmt(Math.abs(incomeGap.gapMonthly))}`) : "N/A"}
                       </div>
                       <div style={{ fontSize: "0.72rem", fontWeight: 600, color: t.muted }}>{currentGrossIncome > 0 ? (incomeGap.hasGap ? "Shortfall/mo" : "Surplus/mo") : "Not set"}</div>
@@ -1522,7 +1514,7 @@ export function ResultsPage({
                     ctx.font = "600 12px system-ui, sans-serif";
                     ctx.fillText("Runway", W * 0.3, metricsY);
                     ctx.font = "bold 22px system-ui, sans-serif";
-                    const runwayColor = runway.level === "Strong" ? "#22c55e" : runway.level === "Stable" ? "#84cc16" : runway.level === "Fragile" ? "#f59e0b" : "#ef4444";
+                    const runwayColor = runway.level === "Strong" ? t.success : runway.level === "Stable" ? t.accent : runway.level === "Fragile" ? t.warning : t.danger;
                     ctx.fillStyle = runwayColor;
                     ctx.fillText(runway.months.toFixed(1) + "mo", W * 0.3, metricsY + 28);
                     ctx.font = "500 11px system-ui, sans-serif";
@@ -1535,7 +1527,7 @@ export function ResultsPage({
                     ctx.fillText("Income Gap", W * 0.7, metricsY);
                     ctx.font = "bold 22px system-ui, sans-serif";
                     if (currentGrossIncome > 0) {
-                      ctx.fillStyle = incomeGap.hasGap ? "#ef4444" : "#22c55e";
+                      ctx.fillStyle = incomeGap.hasGap ? t.danger : t.success;
                       ctx.fillText((incomeGap.hasGap ? "-" : "+") + fmt(Math.abs(incomeGap.gapMonthly)), W * 0.7, metricsY + 28);
                       ctx.font = "500 11px system-ui, sans-serif";
                       ctx.fillStyle = isDark ? "#999" : "#6b7280";
@@ -1665,7 +1657,7 @@ export function ResultsPage({
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-              <CalendarCheck size={16} style={{ color: "#22c55e" }} />
+              <CalendarCheck size={16} style={{ color: t.success }} />
               <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>Monthly Check-In</span>
             </div>
             <p style={{ color: t.muted, fontSize: "0.82rem", margin: "0 0 0.75rem", lineHeight: 1.5 }}>
@@ -1677,7 +1669,7 @@ export function ResultsPage({
               onClick={onCheckIn}
               style={{
                 background: "#22c55e15",
-                color: "#22c55e",
+                color: t.success,
                 border: "1px solid #22c55e30",
                 borderRadius: "8px",
                 padding: "0.45rem 0.85rem",
@@ -1902,7 +1894,7 @@ export function ResultsPage({
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-                <TrendingUp size={18} style={{ color: "#22c55e" }} />
+                <TrendingUp size={18} style={{ color: t.success }} />
                 <div style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Savings Potential Analysis</div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
@@ -1912,17 +1904,17 @@ export function ResultsPage({
                     <div key={label} style={{ padding: "0.65rem 0.85rem", background: t.primary + "10", borderRadius: "8px" }}>
                       <div style={{ fontSize: "0.75rem", color: t.muted, marginBottom: "0.2rem" }}>{label}</div>
                       <div style={{ fontSize: "0.85rem", color: t.text, marginBottom: "0.15rem" }}>Current: <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(value)}</span>/mo</div>
-                      <div style={{ fontSize: "1rem", fontWeight: 800, color: "#22c55e", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>Save {fmt(saving)}/mo ({reductionPct}% cut)</div>
+                      <div style={{ fontSize: "1rem", fontWeight: 800, color: t.success, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>Save {fmt(saving)}/mo ({reductionPct}% cut)</div>
                     </div>
                   );
                 })}
                 <div style={{ padding: "0.65rem 0.85rem", background: "#22c55e15", borderRadius: "8px", border: "1px solid #22c55e30" }}>
                   <div style={{ fontSize: "0.75rem", color: t.muted, marginBottom: "0.2rem" }}>Total Annual Savings</div>
-                  <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#22c55e", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(Math.round(totalSavings * 12))}/year</div>
+                  <div style={{ fontSize: "1.1rem", fontWeight: 800, color: t.success, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(Math.round(totalSavings * 12))}/year</div>
                 </div>
               </div>
               <div style={{ fontSize: "0.78rem", color: t.muted, lineHeight: 1.5, padding: "0.75rem", background: t.bg, borderRadius: "8px", border: `1px solid ${t.border}` }}>
-                <strong>How to save:</strong> Reducing your top 3 spending categories by {reductionPct}% could free up <strong style={{ color: "#22c55e" }}>{fmt(Math.round(totalSavings))}/mo</strong>.
+                <strong>How to save:</strong> Reducing your top 3 spending categories by {reductionPct}% could free up <strong style={{ color: t.success }}>{fmt(Math.round(totalSavings))}/mo</strong>.
                 {data.housing > grossMonthly * 0.3 && " Your housing exceeds 30% of gross income — consider downsizing or negotiating rent."}
                 {data.entertainment > totalMonthly * 0.1 && " Entertainment is above 10% of spending — look for free alternatives."}
                 {data.food > grossMonthly * 0.15 && " Food costs are high — meal planning could cut this by 20-30%."}
@@ -1954,7 +1946,7 @@ export function ResultsPage({
                 ].map(({ label, saving }) => (
                   <div key={label} style={{ padding: "0.65rem 0.85rem", background: t.primary + "10", borderRadius: "8px" }}>
                     <div style={{ fontSize: "0.75rem", color: t.muted, marginBottom: "0.2rem" }}>{label}</div>
-                    <div style={{ fontSize: "1rem", fontWeight: 800, color: "#22c55e" }}>{saving}</div>
+                    <div style={{ fontSize: "1rem", fontWeight: 800, color: t.success }}>{saving}</div>
                   </div>
                 ))}
               </div>
@@ -2083,10 +2075,10 @@ export function ResultsPage({
                     {forecastData.map((d, i) => (
                       <tr key={i} style={{ borderBottom: `1px solid ${t.border}20` }}>
                         <td style={{ padding: "0.3rem 0.5rem", color: t.text, fontWeight: 600, whiteSpace: "nowrap" }}>{d.label}</td>
-                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: "#22c55e", whiteSpace: "nowrap" }}>{fmt(d.income)}</td>
+                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: t.success, whiteSpace: "nowrap" }}>{fmt(d.income)}</td>
                         <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: t.text, whiteSpace: "nowrap" }}>{fmt(d.expenses)}</td>
-                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: d.net >= 0 ? "#22c55e" : "#ef4444", fontWeight: 700, whiteSpace: "nowrap" }}>{d.net >= 0 ? "+" : ""}{fmt(d.net)}</td>
-                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: d.cumulative >= 0 ? "#22c55e" : "#ef4444", fontWeight: 700, whiteSpace: "nowrap" }}>{d.cumulative >= 0 ? "+" : ""}{fmt(d.cumulative)}</td>
+                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: d.net >= 0 ? t.success : t.danger, fontWeight: 700, whiteSpace: "nowrap" }}>{d.net >= 0 ? "+" : ""}{fmt(d.net)}</td>
+                        <td style={{ padding: "0.3rem 0.5rem", textAlign: "right", color: d.cumulative >= 0 ? t.success : t.danger, fontWeight: 700, whiteSpace: "nowrap" }}>{d.cumulative >= 0 ? "+" : ""}{fmt(d.cumulative)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -2224,7 +2216,7 @@ export function ResultsPage({
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-              <Flame size={16} style={{ color: "#f59e0b" }} />
+              <Flame size={16} style={{ color: t.warning }} />
               <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>FIRE Estimator</span>
             </div>
             <p style={{ color: t.muted, fontSize: "0.82rem", margin: 0, lineHeight: 1.5 }}>
@@ -2251,7 +2243,7 @@ export function ResultsPage({
               <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>12-Mo Forecast</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: "#f59e0b", borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40" }}>Premium</span>
+              <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: t.warning, borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40" }}>Premium</span>
             </div>
           </button>
           <button
@@ -2266,7 +2258,7 @@ export function ResultsPage({
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
-              <Wallet size={14} style={{ color: "#ef4444" }} />
+              <Wallet size={14} style={{ color: t.danger }} />
               <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>Debt Payoff</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
@@ -2289,7 +2281,7 @@ export function ResultsPage({
               <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>FI Date</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: "#f59e0b", borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40" }}>Premium</span>
+              <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: t.warning, borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40" }}>Premium</span>
             </div>
           </button>
         </div>
@@ -2407,7 +2399,7 @@ export function ResultsPage({
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-                  <Sparkles size={18} style={{ color: "#f59e0b" }} />
+                  <Sparkles size={18} style={{ color: t.warning }} />
                   <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>AI Income Ideas</span>
                 </div>
                 <div
@@ -2784,7 +2776,7 @@ export function ResultsPage({
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
-            <Star size={16} style={{ color: "#f59e0b" }} />
+            <Star size={16} style={{ color: t.warning }} />
             <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Go deeper on your numbers</span>
           </div>
           <p style={{ color: t.muted, fontSize: "0.9rem", margin: "0 0 1.25rem" }}>
@@ -2842,7 +2834,7 @@ export function ResultsPage({
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.25rem" }}>
                 <span style={{ fontWeight: 700, color: "#fff", fontSize: "0.9rem" }}>Premium</span>
-                <span style={{ fontSize: "0.65rem", background: "#f59e0b", color: "#000", borderRadius: "4px", padding: "0 5px", fontWeight: 700 }}>
+                <span style={{ fontSize: "0.65rem", background: t.warning, color: "#000", borderRadius: "4px", padding: "0 5px", fontWeight: 700 }}>
                   POPULAR
                 </span>
               </div>
