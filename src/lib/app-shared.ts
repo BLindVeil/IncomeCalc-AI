@@ -107,48 +107,55 @@ export const NEUTRAL_BORDER = "#E5E7EB";
 export const MONO_FONT_STACK =
   "'Geist Mono', 'SF Mono', 'Menlo', ui-monospace, monospace";
 
-const EVERGREEN_LIGHT: ThemeConfig = {
-  name: "Evergreen",
+// ─── Editorial identity ─────────────────────────────────────────────────────
+// The landing DNA, promoted app-wide: white/canvas surfaces, ink text, grey
+// support copy, hairline borders. Brand green (primary/accent) is reserved for
+// DATA and marks — never for chrome. CTAs are ink/white pills, not green
+// gradients (see the editorial CTA primitive). Keeping the ThemeConfig shape
+// means every `t.*` consumer flips to editorial with zero prop changes.
+
+const EDITORIAL_LIGHT: ThemeConfig = {
+  name: "Ascentra",
   icon: "▲",
-  primary: EV_800,
+  primary: EV_800,        // green, data only
   primaryHover: EV_700,
-  primarySoft: EV_100,
-  accent: EV_500,
-  bg: "#F6F7F5",
+  primarySoft: EV_100,    // mint highlight
+  accent: EV_500,         // green, data only
+  bg: "#F7F7F5",          // off-white canvas
   cardBg: "#FFFFFF",
-  text: "#0F1A14",
-  muted: "#6B7570",
-  subtle: "#9CA49E",
-  border: "#E8E9E5",
-  borderStrong: "#D4D7D0",
-  headerBg: "rgba(246,247,245,0.92)",
+  text: "#0A0A0A",        // ink
+  muted: "#71717A",       // grey body
+  subtle: "#A1A1AA",      // receding grey
+  border: "#E4E4E7",      // hairline
+  borderStrong: "#D4D4D8",
+  headerBg: "rgba(247,247,245,0.82)",
   success: "#40916C",
-  warning: "#D97706",
+  warning: "#B45309",
   danger: "#DC2626",
 };
 
-const EVERGREEN_DARK: ThemeConfig = {
-  name: "Evergreen",
+const EDITORIAL_DARK: ThemeConfig = {
+  name: "Ascentra",
   icon: "▲",
-  primary: EV_500,
+  primary: EV_500,        // green, data only
   primaryHover: EV_400,
-  primarySoft: "rgba(82, 183, 136, 0.15)",
+  primarySoft: "rgba(82, 183, 136, 0.14)",
   accent: EV_400,
-  bg: "#0A0F0B",
-  cardBg: "#111A13",
-  text: "#E8F5EC",
-  muted: "#8B9A8F",
-  subtle: "#5C6B63",
-  border: "#1E2A22",
-  borderStrong: "#2A3A30",
-  headerBg: "rgba(10,15,11,0.88)",
+  bg: "#0A0A0A",          // neutral ink canvas (not green-black)
+  cardBg: "#151515",
+  text: "#FAFAFA",
+  muted: "#A1A1AA",
+  subtle: "#71717A",
+  border: "#262626",
+  borderStrong: "#333333",
+  headerBg: "rgba(10,10,10,0.82)",
   success: EV_500,
   warning: "#F59E0B",
   danger: "#EF4444",
 };
 
 export function buildTheme(isDark: boolean): ThemeConfig {
-  return isDark ? EVERGREEN_DARK : EVERGREEN_LIGHT;
+  return isDark ? EDITORIAL_DARK : EDITORIAL_LIGHT;
 }
 
 // ─── Expense fields config ──────────────────────────────────────────────────
