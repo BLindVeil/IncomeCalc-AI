@@ -90,7 +90,7 @@ export function AIIncomeIdeas({ data, grossAnnual, totalMonthly, t, isDark }: AI
   }
 
   const difficultyColor = (d: string) =>
-    d === "Easy" ? "#22c55e" : d === "Medium" ? "#f59e0b" : "#ef4444";
+    d === "Easy" ? "#40916C" : d === "Medium" ? "#B45309" : "#DC2626";
 
   return (
     <div
@@ -104,7 +104,7 @@ export function AIIncomeIdeas({ data, grossAnnual, totalMonthly, t, isDark }: AI
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Lightbulb size={18} style={{ color: "#f59e0b" }} />
+          <Lightbulb size={18} style={{ color: "#B45309" }} />
           <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>AI Income Ideas</span>
         </div>
         {generated && (
@@ -126,9 +126,10 @@ export function AIIncomeIdeas({ data, grossAnnual, totalMonthly, t, isDark }: AI
         <div style={{ textAlign: "center", padding: "0.75rem 0" }}>
           <button
             onClick={generateIdeas}
+            className="lp-press"
             style={{
-              background: "#f59e0b",
-              color: "#fff",
+              background: t.text,
+              color: t.cardBg,
               border: "none",
               borderRadius: "8px",
               padding: "0.6rem 1.5rem",
@@ -148,13 +149,13 @@ export function AIIncomeIdeas({ data, grossAnnual, totalMonthly, t, isDark }: AI
 
       {loading && (
         <div style={{ textAlign: "center", padding: "1.5rem 0", color: t.muted, fontSize: "0.9rem" }}>
-          <Lightbulb size={18} style={{ marginBottom: "0.5rem", color: "#f59e0b" }} />
+          <Lightbulb size={18} style={{ marginBottom: "0.5rem", color: "#B45309" }} />
           <div>Finding personalized income opportunities...</div>
         </div>
       )}
 
       {error && (
-        <p style={{ color: "#ef4444", fontSize: "0.88rem", textAlign: "center", padding: "0.5rem 0", margin: 0 }}>
+        <p style={{ color: "#DC2626", fontSize: "0.88rem", textAlign: "center", padding: "0.5rem 0", margin: 0 }}>
           {error}
         </p>
       )}
@@ -174,7 +175,7 @@ export function AIIncomeIdeas({ data, grossAnnual, totalMonthly, t, isDark }: AI
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.35rem" }}>
                 <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>{idea.title}</span>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ fontWeight: 700, color: "#22c55e", fontSize: "0.88rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{idea.range}</span>
+                  <span style={{ fontWeight: 700, color: "#40916C", fontSize: "0.88rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{idea.range}</span>
                   <span
                     style={{
                       fontSize: "0.72rem",

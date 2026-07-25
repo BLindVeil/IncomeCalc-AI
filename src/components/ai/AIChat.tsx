@@ -145,7 +145,7 @@ Give personalized, actionable advice based on these real numbers. Be concise, wa
                 width: "40px",
                 height: "40px",
                 borderRadius: "50%",
-                background: `linear-gradient(135deg, ${t.primary}, ${t.accent ?? t.primary})`,
+                background: t.primary,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -156,8 +156,8 @@ Give personalized, actionable advice based on these real numbers. Be concise, wa
             </div>
             <div>
               <div style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>AI Financial Advisor</div>
-              <div style={{ fontSize: "0.78rem", color: "#22c55e", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                <span style={{ display: "inline-block", width: "7px", height: "7px", borderRadius: "50%", background: "#22c55e" }} />
+              <div style={{ fontSize: "0.78rem", color: "#40916C", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                <span style={{ display: "inline-block", width: "7px", height: "7px", borderRadius: "50%", background: "#40916C" }} />
                 Online · Powered by GPT-4.1
               </div>
             </div>
@@ -199,7 +199,7 @@ Give personalized, actionable advice based on these real numbers. Be concise, wa
                     width: "28px",
                     height: "28px",
                     borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${t.primary}, ${t.accent ?? t.primary})`,
+                    background: t.primary,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -291,7 +291,7 @@ Give personalized, actionable advice based on these real numbers. Be concise, wa
             onClick={handleSend}
             disabled={!input.trim() || loading}
             style={{
-              background: t.primary,
+              background: t.text,
               border: "none",
               borderRadius: "12px",
               width: "46px",
@@ -302,10 +302,9 @@ Give personalized, actionable advice based on these real numbers. Be concise, wa
               cursor: input.trim() && !loading ? "pointer" : "not-allowed",
               opacity: input.trim() && !loading ? 1 : 0.5,
               flexShrink: 0,
-              boxShadow: `0 2px 12px ${t.primary}50`,
             }}
           >
-            <Send size={18} style={{ color: "#fff" }} />
+            <Send size={18} style={{ color: t.cardBg }} />
           </button>
         </div>
       </div>

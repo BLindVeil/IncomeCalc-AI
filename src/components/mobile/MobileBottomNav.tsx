@@ -52,7 +52,7 @@ export function MobileBottomNav({ t, activeTab, onTabChange }: MobileBottomNavPr
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: isActive ? t.primary : t.muted,
+              color: isActive ? t.text : t.muted,
               transition: "color 150ms ease",
             }}
           >

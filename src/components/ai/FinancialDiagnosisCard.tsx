@@ -26,9 +26,9 @@ import { useIsMobile } from "@/lib/useIsMobile";
 
 function RiskBadge({ level }: { level: FinancialDiagnosis["riskLevel"] }) {
   const cfg = {
-    low: { bg: "#22c55e20", border: "#22c55e", color: "#22c55e", label: "Low Risk" },
-    medium: { bg: "#f59e0b20", border: "#f59e0b", color: "#f59e0b", label: "Medium Risk" },
-    high: { bg: "#ef444420", border: "#ef4444", color: "#ef4444", label: "High Risk" },
+    low: { bg: "#40916C20", border: "#40916C", color: "#40916C", label: "Low Risk" },
+    medium: { bg: "#B4530920", border: "#B45309", color: "#B45309", label: "Medium Risk" },
+    high: { bg: "#DC262620", border: "#DC2626", color: "#DC2626", label: "High Risk" },
   }[level];
 
   return (
@@ -57,8 +57,8 @@ function RiskBadge({ level }: { level: FinancialDiagnosis["riskLevel"] }) {
 function ImpactBadge({ impact }: { impact: DiagnosisAction["impact"] }) {
   const cfg = {
     low: { bg: "#64748b20", color: "#64748b" },
-    medium: { bg: "#f59e0b20", color: "#f59e0b" },
-    high: { bg: "#22c55e20", color: "#22c55e" },
+    medium: { bg: "#B4530920", color: "#B45309" },
+    high: { bg: "#40916C20", color: "#40916C" },
   }[impact];
   return (
     <span style={{ fontSize: "0.68rem", fontWeight: 700, padding: "2px 7px", borderRadius: "6px", background: cfg.bg, color: cfg.color }}>
@@ -69,9 +69,9 @@ function ImpactBadge({ impact }: { impact: DiagnosisAction["impact"] }) {
 
 function DifficultyBadge({ difficulty }: { difficulty: DiagnosisAction["difficulty"] }) {
   const cfg = {
-    easy: { bg: "#22c55e20", color: "#22c55e" },
-    moderate: { bg: "#f59e0b20", color: "#f59e0b" },
-    hard: { bg: "#ef444420", color: "#ef4444" },
+    easy: { bg: "#40916C20", color: "#40916C" },
+    moderate: { bg: "#B4530920", color: "#B45309" },
+    hard: { bg: "#DC262620", color: "#DC2626" },
   }[difficulty];
   return (
     <span style={{ fontSize: "0.68rem", fontWeight: 700, padding: "2px 7px", borderRadius: "6px", background: cfg.bg, color: cfg.color }}>
@@ -131,11 +131,11 @@ function ActionCard({ move, index, t, isDark, expanded }: { move: DiagnosisActio
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>
           <div style={{ padding: "0.4rem 0.6rem", borderRadius: "8px", background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)" }}>
             <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em" }}>Impact</div>
-            <div style={{ fontSize: "0.78rem", fontWeight: 600, color: { low: "#64748b", medium: "#f59e0b", high: "#22c55e" }[move.impact] }}>{impactLabel}</div>
+            <div style={{ fontSize: "0.78rem", fontWeight: 600, color: { low: "#64748b", medium: "#B45309", high: "#40916C" }[move.impact] }}>{impactLabel}</div>
           </div>
           <div style={{ padding: "0.4rem 0.6rem", borderRadius: "8px", background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)" }}>
             <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em" }}>Effort</div>
-            <div style={{ fontSize: "0.78rem", fontWeight: 600, color: { easy: "#22c55e", moderate: "#f59e0b", hard: "#ef4444" }[move.difficulty] }}>{diffLabel}</div>
+            <div style={{ fontSize: "0.78rem", fontWeight: 600, color: { easy: "#40916C", moderate: "#B45309", hard: "#DC2626" }[move.difficulty] }}>{diffLabel}</div>
           </div>
         </div>
       </div>
@@ -197,9 +197,9 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
 
   const fmtUsd = (n: number) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
 
-  const surplusColor = monthlySurplus >= 0 ? "#22c55e" : "#ef4444";
-  const savingsColor = savingsRate >= 20 ? "#22c55e" : savingsRate >= 10 ? "#f59e0b" : "#ef4444";
-  const riskColor = { low: "#22c55e", medium: "#f59e0b", high: "#ef4444" }[diagnosis.riskLevel];
+  const surplusColor = monthlySurplus >= 0 ? "#40916C" : "#DC2626";
+  const savingsColor = savingsRate >= 20 ? "#40916C" : savingsRate >= 10 ? "#B45309" : "#DC2626";
+  const riskColor = { low: "#40916C", medium: "#B45309", high: "#DC2626" }[diagnosis.riskLevel];
 
   function handleCopy() {
     const text = [
@@ -294,7 +294,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
             flexWrap: "wrap",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", minWidth: 0 }}>
-              <Zap size={12} style={{ color: "#22c55e", flexShrink: 0 }} />
+              <Zap size={12} style={{ color: "#40916C", flexShrink: 0 }} />
               <span style={{ fontSize: "0.8rem", color: t.muted, fontWeight: 500 }}>
                 Start with:
               </span>
@@ -367,13 +367,13 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
 
       {/* ── Primary Diagnosis (always visible) ────────────────────────── */}
       <div style={{ marginBottom: "0" }}>
-        <SectionLabel icon={AlertTriangle} label="Primary Diagnosis" color="#ef4444" />
+        <SectionLabel icon={AlertTriangle} label="Primary Diagnosis" color="#DC2626" />
         <div
           style={{
             padding: "0.9rem 1rem",
             borderRadius: "10px",
             background: isDark ? "rgba(239,68,68,0.08)" : "rgba(239,68,68,0.06)",
-            borderLeft: "3px solid #ef4444",
+            borderLeft: "3px solid #DC2626",
           }}
         >
           <div style={{ fontWeight: 700, fontSize: "0.95rem", color: t.text, lineHeight: 1.4, marginBottom: "0.35rem" }}>
@@ -421,15 +421,14 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
               onClick={() => onUpgrade("premium")}
               className="atv-btn-primary"
               style={{
-                background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-                color: "#fff",
+                background: t.text,
+                color: t.cardBg,
                 border: "none",
                 borderRadius: "8px",
                 padding: "0.45rem 1.2rem",
                 fontSize: "0.8rem",
                 fontWeight: 700,
                 cursor: "pointer",
-                boxShadow: `0 3px 10px ${t.primary}4D`,
               }}
             >
               Upgrade to Premium
@@ -464,8 +463,8 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
       {showDetails && (
         <div style={{ marginTop: "0.75rem" }}>
           {/* ── Why This Matters ──────────────────────────────────────── */}
-          <SectionLabel icon={Zap} label="Why This Matters" color="#f59e0b" />
-          <div style={sectionStyle("#f59e0b")}>
+          <SectionLabel icon={Zap} label="Why This Matters" color="#B45309" />
+          <div style={sectionStyle("#B45309")}>
             {(() => {
               const sentences = diagnosis.summary.includes(". ")
                 ? diagnosis.summary.split(/\.\s+/).filter(Boolean)
@@ -479,7 +478,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                       {visibleSentences.map((sentence, i) => (
                         <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
-                          <span style={{ color: "#f59e0b", fontSize: "0.7rem", marginTop: "3px", flexShrink: 0 }}>▸</span>
+                          <span style={{ color: "#B45309", fontSize: "0.7rem", marginTop: "3px", flexShrink: 0 }}>▸</span>
                           <span style={{ fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>
                             {sentence.endsWith(".") ? sentence : sentence + "."}
                           </span>
@@ -502,7 +501,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
                         marginTop: "0.35rem",
                         fontSize: "0.78rem",
                         fontWeight: 600,
-                        color: "#f59e0b",
+                        color: "#B45309",
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "0.3rem",
@@ -520,7 +519,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
           {/* ── Key Signals (capped at 3) ────────────────────────────── */}
           {visibleSignals.length > 0 && (
             <div style={{ marginBottom: "1rem" }}>
-              <SectionLabel icon={ShieldAlert} label="Key Signals" color="#f59e0b" />
+              <SectionLabel icon={ShieldAlert} label="Key Signals" color="#B45309" />
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
                 {visibleSignals.map((signal, i) => (
                   <span
@@ -532,7 +531,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
                       borderRadius: "8px",
                       background: isDark ? "rgba(245,158,11,0.1)" : "rgba(245,158,11,0.08)",
                       border: "1px solid rgba(245,158,11,0.25)",
-                      color: "#f59e0b",
+                      color: "#B45309",
                       lineHeight: 1.4,
                     }}
                   >
@@ -546,7 +545,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
           {/* ── #1 Action (Premium) / Locked CTA (Free) ──────────────── */}
           {isPremium ? (
             <div>
-              <SectionLabel icon={Zap} label="Start Here" color="#22c55e" />
+              <SectionLabel icon={Zap} label="Start Here" color="#40916C" />
               {diagnosis.topMoves[0] && (
                 <ActionCard move={diagnosis.topMoves[0]} index={0} t={t} isDark={isDark} expanded />
               )}
@@ -571,15 +570,14 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
               <button
                 onClick={() => onUpgrade("premium")}
                 style={{
-                  background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-                  color: "#fff",
+                  background: t.text,
+                  color: t.cardBg,
                   border: "none",
                   borderRadius: "8px",
                   padding: "0.55rem 1.5rem",
                   fontSize: "0.85rem",
                   fontWeight: 700,
                   cursor: "pointer",
-                  boxShadow: `0 3px 10px ${t.primary}4D`,
                 }}
               >
                 Unlock Full Diagnosis
@@ -597,7 +595,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
 
               {/* ── Scenario Comparison ────────────────────────────────── */}
               <div style={{ marginTop: "1rem" }}>
-                <SectionLabel icon={ShieldAlert} label="Your Two Paths" color="#f59e0b" />
+                <SectionLabel icon={ShieldAlert} label="Your Two Paths" color="#B45309" />
 
                 {/* 30 Days */}
                 <div style={{ marginBottom: "0.75rem" }}>
@@ -613,16 +611,16 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
                   >
                     <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(245,158,11,0.06)" : "rgba(245,158,11,0.04)" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                        <ArrowDown size={11} style={{ color: "#f59e0b" }} />
-                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
+                        <ArrowDown size={11} style={{ color: "#B45309" }} />
+                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#B45309", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
                       </div>
                       <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifUnchanged30d}</p>
                     </div>
                     <div style={{ height: "1px", background: t.border }} />
                     <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.04)" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                        <ArrowUp size={11} style={{ color: "#22c55e" }} />
-                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#22c55e", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
+                        <ArrowUp size={11} style={{ color: "#40916C" }} />
+                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#40916C", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
                       </div>
                       <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifOptimized30d}</p>
                     </div>
@@ -643,16 +641,16 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
                   >
                     <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(245,158,11,0.06)" : "rgba(245,158,11,0.04)" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                        <ArrowDown size={11} style={{ color: "#f59e0b" }} />
-                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
+                        <ArrowDown size={11} style={{ color: "#B45309" }} />
+                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#B45309", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
                       </div>
                       <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifUnchanged12m}</p>
                     </div>
                     <div style={{ height: "1px", background: t.border }} />
                     <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.04)" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                        <ArrowUp size={11} style={{ color: "#22c55e" }} />
-                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#22c55e", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
+                        <ArrowUp size={11} style={{ color: "#40916C" }} />
+                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#40916C", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
                       </div>
                       <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifOptimized12m}</p>
                     </div>
@@ -663,11 +661,11 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
               {/* ── Cut First ──────────────────────────────────────────── */}
               {diagnosis.cutFirst && diagnosis.cutFirst.length > 0 && (
                 <div style={{ marginTop: "0.75rem" }}>
-                  <SectionLabel icon={Scissors} label="Cut First" color="#ef4444" />
-                  <div style={sectionStyle("#ef4444")}>
+                  <SectionLabel icon={Scissors} label="Cut First" color="#DC2626" />
+                  <div style={sectionStyle("#DC2626")}>
                     {diagnosis.cutFirst.map((item, i) => (
                       <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem", marginBottom: i < diagnosis.cutFirst!.length - 1 ? "0.35rem" : 0 }}>
-                        <Check size={13} style={{ color: "#ef4444", marginTop: "2px", flexShrink: 0 }} />
+                        <Check size={13} style={{ color: "#DC2626", marginTop: "2px", flexShrink: 0 }} />
                         <span style={{ fontSize: "0.84rem", color: t.text, lineHeight: 1.5 }}>{item}</span>
                       </div>
                     ))}

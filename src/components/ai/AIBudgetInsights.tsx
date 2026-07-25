@@ -126,9 +126,10 @@ export function AIBudgetInsights({ data, taxRate, grossAnnual, grossMonthly, tot
           </p>
           <button
             onClick={generateInsights}
+            className="lp-press"
             style={{
-              background: t.primary,
-              color: "#fff",
+              background: t.text,
+              color: t.cardBg,
               border: "none",
               borderRadius: "8px",
               padding: "0.6rem 1.5rem",
@@ -154,7 +155,7 @@ export function AIBudgetInsights({ data, taxRate, grossAnnual, grossMonthly, tot
       )}
 
       {error && (
-        <p style={{ color: "#ef4444", fontSize: "0.88rem", textAlign: "center", padding: "0.5rem 0", margin: 0 }}>
+        <p style={{ color: "#DC2626", fontSize: "0.88rem", textAlign: "center", padding: "0.5rem 0", margin: 0 }}>
           {error}
         </p>
       )}

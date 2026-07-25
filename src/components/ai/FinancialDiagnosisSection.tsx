@@ -219,7 +219,7 @@ export function FinancialDiagnosisSection({
           left: 0,
           right: 0,
           height: "3px",
-          background: `linear-gradient(90deg, #ef4444, #f59e0b, #22c55e, ${t.primary})`,
+          background: `linear-gradient(90deg, #DC2626, #B45309, #40916C, ${t.primary})`,
           borderRadius: "14px 14px 0 0",
         }}
       />
@@ -234,7 +234,7 @@ export function FinancialDiagnosisSection({
               fontSize: "0.7rem",
               fontWeight: 700,
               background: userTier === "premium"
-                ? `linear-gradient(90deg, #ef4444, ${t.primary})`
+                ? `linear-gradient(90deg, #DC2626, ${t.primary})`
                 : `linear-gradient(90deg, ${t.primary}, ${t.accent})`,
               color: "#fff",
               padding: "2px 7px",
@@ -273,8 +273,8 @@ export function FinancialDiagnosisSection({
             <button
               onClick={generateDiagnosis}
               style={{
-                background: `linear-gradient(135deg, #ef4444, ${t.primary})`,
-                color: "#fff",
+                background: t.text,
+                color: t.cardBg,
                 border: "none",
                 borderRadius: "10px",
                 padding: "0.75rem 2rem",
@@ -306,7 +306,7 @@ export function FinancialDiagnosisSection({
       {/* Error */}
       {error && (
         <div style={{ textAlign: "center", margin: "0.75rem 0 0" }}>
-          <p style={{ color: "#ef4444", fontSize: "0.88rem", marginBottom: "0.5rem" }}>
+          <p style={{ color: "#DC2626", fontSize: "0.88rem", marginBottom: "0.5rem" }}>
             {/529|overloaded/i.test(error)
               ? "Our AI is experiencing high demand right now. Please try again in a moment."
               : "Something went wrong. Please try again."}

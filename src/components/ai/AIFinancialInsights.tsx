@@ -196,8 +196,8 @@ export function AIFinancialInsights({
           <button
             onClick={generateInsights}
             style={{
-              background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
-              color: "#fff",
+              background: t.text,
+              color: t.cardBg,
               border: "none",
               borderRadius: "10px",
               padding: "0.7rem 1.8rem",
@@ -224,7 +224,7 @@ export function AIFinancialInsights({
       )}
 
       {error && (
-        <p style={{ color: "#ef4444", fontSize: "0.88rem", textAlign: "center", margin: "0.5rem 0 0" }}>
+        <p style={{ color: "#DC2626", fontSize: "0.88rem", textAlign: "center", margin: "0.5rem 0 0" }}>
           {error}
         </p>
       )}
@@ -268,13 +268,13 @@ export function AIFinancialInsights({
                   fontWeight: 700,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
-                  color: "#ef4444",
+                  color: "#DC2626",
                 }}
               >
                 <AlertTriangle size={13} />
                 Risk Warning
               </div>
-              <div style={sectionStyle("#ef4444")}>
+              <div style={sectionStyle("#DC2626")}>
                 <p style={{ margin: 0, fontSize: "0.875rem", color: t.text, lineHeight: 1.55 }}>{result.riskWarning}</p>
               </div>
             </div>
@@ -292,13 +292,13 @@ export function AIFinancialInsights({
                   fontWeight: 700,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
-                  color: "#22c55e",
+                  color: "#40916C",
                 }}
               >
                 <Zap size={13} />
                 Optimization Opportunity
               </div>
-              <div style={sectionStyle("#22c55e")}>
+              <div style={sectionStyle("#40916C")}>
                 <p style={{ margin: 0, fontSize: "0.875rem", color: t.text, lineHeight: 1.55 }}>{result.optimization}</p>
               </div>
             </div>
@@ -316,13 +316,13 @@ export function AIFinancialInsights({
                   fontWeight: 700,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
-                  color: "#f59e0b",
+                  color: "#B45309",
                 }}
               >
                 <TrendingUp size={13} />
                 10-Year Projection
               </div>
-              <div style={sectionStyle("#f59e0b")}>
+              <div style={sectionStyle("#B45309")}>
                 <p style={{ margin: 0, fontSize: "0.875rem", color: t.text, lineHeight: 1.55 }}>{result.projection}</p>
               </div>
             </div>
