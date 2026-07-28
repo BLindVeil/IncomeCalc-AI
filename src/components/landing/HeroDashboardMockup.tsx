@@ -1,5 +1,6 @@
 import { INK, GREY, GREY_LIGHT, HAIRLINE, GREEN, GREEN_DEEP, MONO, WHITE } from "./landing-theme";
 import { useReveal } from "./useReveal";
+import { useResolveSequence } from "./useResolveSequence";
 
 /**
  * Product preview for the hero. Deliberately dense: a headline figure, supporting
@@ -28,9 +29,13 @@ const BARS = Array.from({ length: 68 }, (_, i) => {
 
 export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
   const barsRef = useReveal<HTMLDivElement>({ amount: 0.4 });
+  const { stageRef, targetRef, registerSource } = useResolveSequence();
+
   return (
     <div
+      ref={stageRef}
       style={{
+        position: "relative",
         width: "100%",
         background: WHITE,
         borderRadius: 12,
@@ -165,6 +170,7 @@ export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
         </div>
         <div style={{ display: "flex", alignItems: "baseline", gap: 9, marginTop: 3, flexWrap: "wrap" }}>
           <span
+            ref={targetRef}
             style={{
               fontSize: isMobile ? 27 : 34,
               fontWeight: 600,
@@ -172,6 +178,10 @@ export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
               color: INK,
               fontFamily: MONO,
               fontFeatureSettings: "'tnum','zero'",
+              // The focal sequence animates filter here; a paint-contained box
+              // keeps that blur off the surrounding layout.
+              display: "inline-block",
+              willChange: "filter, opacity, transform",
             }}
           >
             $6,840.00
@@ -265,6 +275,7 @@ export function HeroDashboardMockup({ isMobile }: { isMobile: boolean }) {
                 <span style={{ fontSize: 10.5, fontWeight: 500, color: INK }}>{cat}</span>
                 <span style={{ fontSize: 9.5, color: GREY_LIGHT }}>{note}</span>
                 <span
+                  ref={registerSource(i)}
                   style={{
                     fontSize: 10.5,
                     color: INK,

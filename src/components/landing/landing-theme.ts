@@ -21,7 +21,9 @@ export const GREEN = "#52B788";
 export const GLASS_DARK = "rgba(255,255,255,0.08)";
 export const GLASS_DARK_BORDER = "rgba(255,255,255,0.16)";
 
-export const EASE_OUT_CSS = "cubic-bezier(0.23, 1, 0.32, 1)";
+// Re-exported so the curve is declared once, in the motion system.
+export { EASE_OUT as EASE_OUT_CSS } from "@/lib/motion";
+/** Control-point form, for APIs that take the points rather than a CSS string. */
 export const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 export const RADIUS_CARD = 16;

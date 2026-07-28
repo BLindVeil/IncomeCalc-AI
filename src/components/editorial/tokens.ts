@@ -10,9 +10,8 @@ import type { CSSProperties } from "react";
 export const FONT_STACK = "'Geist', -apple-system, system-ui, 'Segoe UI', sans-serif";
 export const MONO = "'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
 
-/** The house ease-out (matches the landing `--lp-ease-out`). */
-export const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
-export const EASE_IO = "cubic-bezier(0.77, 0, 0.175, 1)";
+/** The house curves, re-exported from the motion system (`--lp-ease-out`). */
+export { EASE_OUT, EASE_IO } from "@/lib/motion";
 
 /** Editorial type scale (px). Display sizes are tight-tracked; body is relaxed. */
 export const TYPE = {
