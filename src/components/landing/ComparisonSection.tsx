@@ -1,8 +1,84 @@
+import { useEffect, useRef } from "react";
 import { WHITE, INK, MINT, MONO, GLASS_DARK, GLASS_DARK_BORDER } from "./landing-theme";
 import { Reveal } from "./Reveal";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 interface ComparisonSectionProps {
   isMobile: boolean;
+}
+
+/** Shared geometry for the backdrop, over-sized so parallax has room to drift. */
+const BACKDROP: React.CSSProperties = {
+  position: "absolute",
+  top: "-14%",
+  left: 0,
+  width: "100%",
+  height: "128%",
+  objectFit: "cover",
+  zIndex: 0,
+  ["--lp-par-from" as string]: "-56px",
+  ["--lp-par-to" as string]: "56px",
+} as React.CSSProperties;
+
+/**
+ * The ambient loop is the same frame as `section-dark.jpg` - it was generated
+ * from it - so the poster and the first video frame are identical and the swap
+ * is invisible. Nothing downloads until the band is nearly in view.
+ */
+function AmbientBackdrop() {
+  const ref = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const start = () => {
+      if (el.dataset.started) return;
+      el.dataset.started = "true";
+      // React sets `muted` as a property and never as an attribute, which some
+      // autoplay policies read before allowing playback. Set it again here.
+      el.muted = true;
+      el.src = "/img/section-dark-loop.mp4";
+      // Autoplay can still be refused (data saver, battery saver); the poster
+      // stays up if it is, which is the correct fallback either way.
+      el.play().catch(() => {});
+    };
+
+    if (typeof IntersectionObserver === "undefined") {
+      start();
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            start();
+            io.disconnect();
+          }
+        }
+      },
+      { rootMargin: "200px 0px" },
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <video
+      ref={ref}
+      className="lp-parallax"
+      poster="/img/section-dark.jpg"
+      muted
+      loop
+      playsInline
+      preload="none"
+      aria-hidden="true"
+      tabIndex={-1}
+      style={BACKDROP}
+    />
+  );
 }
 
 const ROWS = [
@@ -17,6 +93,8 @@ const ROWS = [
 const ALT_HAS = [false, false, true, false, false];
 
 export function ComparisonSection({ isMobile }: ComparisonSectionProps) {
+  const reducedMotion = usePrefersReducedMotion();
+
   return (
     <section
       id="why"
@@ -27,24 +105,19 @@ export function ComparisonSection({ isMobile }: ComparisonSectionProps) {
         color: WHITE,
       }}
     >
-      {/* Full-bleed photography, over-sized and drifting for parallax depth */}
-      <img
-        src="/img/section-dark.jpg"
-        alt=""
-        loading="lazy"
-        className="lp-parallax"
-        style={{
-          position: "absolute",
-          top: "-14%",
-          left: 0,
-          width: "100%",
-          height: "128%",
-          objectFit: "cover",
-          zIndex: 0,
-          ["--lp-par-from" as string]: "-56px",
-          ["--lp-par-to" as string]: "56px",
-        } as React.CSSProperties}
-      />
+      {/* Full-bleed backdrop, over-sized and drifting for parallax depth. Drops
+          to the still frame when the user has asked for less motion. */}
+      {reducedMotion ? (
+        <img
+          src="/img/section-dark.jpg"
+          alt=""
+          loading="lazy"
+          className="lp-parallax"
+          style={BACKDROP}
+        />
+      ) : (
+        <AmbientBackdrop />
+      )}
       <div
         style={{
           position: "absolute",
