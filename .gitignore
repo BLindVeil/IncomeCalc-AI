@@ -9,3 +9,4 @@ dist
 
 # agent visual-review artifacts
 scripts/visual/out/
+*.md
