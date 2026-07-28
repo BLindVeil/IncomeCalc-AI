@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type CSSProperties } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import {
   EV_200, EV_300, EV_400, EV_500, EV_600, EV_700, EV_800, EV_900,
@@ -258,11 +258,26 @@ function IncomeLineChart({ t, grossMonthlyIncome, totalExpenses }: { t: ThemeCon
                 <stop offset="100%" stopColor={EV_500} stopOpacity="0" />
               </linearGradient>
             </defs>
-            <path d={areaPath} fill="url(#lineAreaGrad)" />
-            <path d={linePath} fill="none" stroke={EV_500} strokeWidth={2.5} />
+            <path className="rp-draw-area" d={areaPath} fill="url(#lineAreaGrad)" />
+            <path
+              className="rp-draw-line"
+              d={linePath}
+              fill="none"
+              stroke={EV_500}
+              strokeWidth={2.5}
+              pathLength={1}
+            />
             {/* Data points */}
             {coords.map((c, i) => (
-              <circle key={i} cx={c.x} cy={c.y} r={3} fill={EV_500} />
+              <circle
+                key={i}
+                className="rp-draw-point"
+                style={{ ["--rp-i" as string]: i } as CSSProperties}
+                cx={c.x}
+                cy={c.y}
+                r={3}
+                fill={EV_500}
+              />
             ))}
           </svg>
 
@@ -443,15 +458,20 @@ function IncomeExpenseBarChart({ t, isDark, grossMonthlyIncome, totalExpenses }:
             />
           ))}
 
-          {data.map((d) => {
+          {data.map((d, i) => {
             const incH = (d.income / yMax) * 100;
             const expH = (d.expense / yMax) * 100;
             const exceeded = d.expense > d.income;
+            // Both bars in a month grow together, so the pair stays readable
+            // as a comparison while it arrives.
+            const growDelay = { ["--rp-i" as string]: i } as CSSProperties;
             return (
               <div key={d.month} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, position: "relative", zIndex: 1 }}>
                 <div style={{ display: "flex", gap: 3, alignItems: "flex-end", height: 160 }}>
                   <div
+                    className="rp-grow-bar"
                     style={{
+                      ...growDelay,
                       width: 16,
                       height: `${incH}%`,
                       background: `linear-gradient(180deg, ${EV_500}, ${EV_800})`,
@@ -460,7 +480,9 @@ function IncomeExpenseBarChart({ t, isDark, grossMonthlyIncome, totalExpenses }:
                     }}
                   />
                   <div
+                    className="rp-grow-bar"
                     style={{
+                      ...growDelay,
                       width: 16,
                       height: `${expH}%`,
                       background: exceeded ? t.danger : isDark ? "rgba(82,183,136,0.3)" : EV_200,
@@ -533,7 +555,7 @@ function StatisticsDonut({ t, expenses, totalExpenses }: { t: ThemeConfig; expen
 
       {/* Donut */}
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-        <svg width={140} height={140} viewBox="0 0 140 140">
+        <svg className="rp-draw-donut" width={140} height={140} viewBox="0 0 140 140">
           {arcs.map((arc, i) => (
             <circle
               key={i}

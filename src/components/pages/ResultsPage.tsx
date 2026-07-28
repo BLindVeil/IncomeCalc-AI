@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, type ReactNode } from "react";
 import { useIsMobile } from "@/lib/useIsMobile";
+import { runViewTransition, directionBetween } from "@/lib/view-transition";
 import {
   Calculator,
   TrendingUp,
@@ -570,6 +571,14 @@ export interface ResultsPageProps {
   fromGuidedFlow?: boolean;
 }
 
+/**
+ * The shell's swappable views, in sidebar order.
+ *
+ * Order is load-bearing: it decides which way a view enters, so the movement
+ * matches the nav the user just clicked.
+ */
+const SHELL_VIEWS = ["dashboard", "budget", "analytics", "scenarios"] as const;
+
 function resolveActiveTab(currentView: string): MobileTab {
   if (currentView === "dashboard") return "dashboard";
   if (currentView === "scenarios") return "scenarios";
@@ -750,22 +759,55 @@ export function ResultsPage({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Shared navigation handler (used by sidebar + topbar)
+  /**
+   * The single entry point for changing what the shell shows.
+   *
+   * Sidebar, topbar search, in-page back buttons and the mobile tab bar and
+   * More sheet all route through here, so a destination arrives the same way
+   * whatever the user pressed to reach it.
+   */
   const handleNavigate = (view: string) => {
-    if (["dashboard", "budget", "analytics", "scenarios"].includes(view)) {
-      setCurrentView(view);
+    if ((SHELL_VIEWS as readonly string[]).includes(view)) {
+      if (view === currentView) return;
+      // Scroll before the transition snapshots the outgoing view, so the new
+      // view is captured at the top rather than animating a scroll jump.
       const mainEl = document.querySelector("[data-main-content]");
       if (mainEl) mainEl.scrollTo(0, 0);
+      runViewTransition(
+        () => setCurrentView(view),
+        directionBetween(SHELL_VIEWS, currentView, view),
+      );
       return;
     }
     if (view === "calculator") onRecalculate();
     else if (view === "simulator") onSimulator();
     else if (view === "diagnosis") {
-      setCurrentView("dashboard");
-      setShowFullReport(true);
-      requestAnimationFrame(() => {
-        const el = document.getElementById("diagnosis-section");
-        if (el) el.scrollIntoView({ behavior: "smooth" });
+      // The diagnosis lives inside the dashboard, so reaching it is a view
+      // change and a scroll at once.
+      let arrive: Promise<void>;
+      if (currentView === "dashboard") {
+        setShowFullReport(true);
+        arrive = Promise.resolve();
+      } else {
+        // Both updates go inside the transition so the report is already open
+        // in the frame the view arrives on, rather than appearing after it.
+        arrive = runViewTransition(
+          () => {
+            setCurrentView("dashboard");
+            setShowFullReport(true);
+          },
+          directionBetween(SHELL_VIEWS, currentView, "dashboard"),
+        );
+      }
+
+      // Scroll only once the view has settled: a smooth scroll started
+      // mid-transition drives a surface that is already moving, which reads
+      // as a stutter.
+      arrive.then(() => {
+        requestAnimationFrame(() => {
+          const el = document.getElementById("diagnosis-section");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        });
       });
     }
   };
@@ -819,7 +861,19 @@ export function ResultsPage({
             </>
           )}
 
-          <div style={{ maxWidth: "1100px", margin: "0 auto", padding: isMobile ? "72px 1rem calc(80px + env(safe-area-inset-bottom, 0px))" : isDesktop ? "2rem 2rem 4rem" : "96px 1.5rem 4rem", position: "relative", zIndex: 1 }}>
+          {/* `rp-view` is what the view transition animates. It names the
+              content column only, so the sidebar, header and mobile nav stay
+              perfectly still while the view inside them changes. */}
+          <div
+            style={{
+              maxWidth: "1100px",
+              margin: "0 auto",
+              padding: isMobile ? "72px 1rem calc(80px + env(safe-area-inset-bottom, 0px))" : isDesktop ? "2rem 2rem 4rem" : "96px 1.5rem 4rem",
+              position: "relative",
+              zIndex: 1,
+              ["viewTransitionName" as string]: "rp-view",
+            } as React.CSSProperties}
+          >
 
             {/* ─── Budget view ─────────────────────────────────────────── */}
             {currentView === "budget" && (
@@ -829,7 +883,7 @@ export function ResultsPage({
                 expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
                 totalExpenses={totalMonthly}
                 grossMonthlyIncome={grossMonthly}
-                onBack={() => setCurrentView("dashboard")}
+                onBack={() => handleNavigate("dashboard")}
                 customBudgets={customBudgets}
                 onSetCustomBudget={setCustomBudget}
                 onClearCustomBudget={clearCustomBudget}
@@ -850,7 +904,7 @@ export function ResultsPage({
                 taxRate={taxRate}
                 annualRequired={grossAnnual}
                 currentAnnualIncome={currentGrossIncome}
-                onBack={() => setCurrentView("dashboard")}
+                onBack={() => handleNavigate("dashboard")}
                 onExportCsv={handleExportCsv}
               />
             )}
@@ -867,7 +921,7 @@ export function ResultsPage({
                 currentAnnualIncome={currentGrossIncome}
                 taxRate={taxRate}
                 healthScore={healthScore}
-                onBack={() => setCurrentView("dashboard")}
+                onBack={() => handleNavigate("dashboard")}
                 onSimulator={onSimulator}
               />
             )}
@@ -999,7 +1053,7 @@ export function ResultsPage({
             </button>
 
             {showFullReport && (
-            <div>
+            <div className="rp-reveal-enter">
         <div className="atv-fade-in" style={{ marginBottom: "2rem" }}>
           {fromGuidedFlow ? (
             <button
@@ -1823,7 +1877,7 @@ export function ResultsPage({
             {showAnalytics ? "Hide detailed analytics ↑" : "View detailed analytics →"}
           </button>
           {showAnalytics && (
-            <div style={{ marginTop: 16 }}>
+            <div className="rp-reveal-enter" style={{ marginTop: 16 }}>
               <AnalyticsPage
                 t={t}
                 isDark={isDark}
@@ -3003,23 +3057,18 @@ export function ResultsPage({
           t={t}
           activeTab={resolveActiveTab(currentView)}
           onTabChange={(tab) => {
+            // Same destinations as the sidebar, so they take the same route
+            // and arrive with the same motion.
             switch (tab) {
-              case "dashboard": setCurrentView("dashboard"); break;
+              case "dashboard": handleNavigate("dashboard"); break;
               case "calculator": onRecalculate(); break;
-              case "diagnosis":
-                setCurrentView("dashboard");
-                setShowFullReport(true);
-                requestAnimationFrame(() => {
-                  const el = document.getElementById("diagnosis-section");
-                  if (el) el.scrollIntoView({ behavior: "smooth" });
-                });
-                break;
-              case "scenarios": setCurrentView("scenarios"); break;
+              case "diagnosis": handleNavigate("diagnosis"); break;
+              case "scenarios": handleNavigate("scenarios"); break;
             }
           }}
           onMoreNavigate={(id) => {
-            if (id === "budget") { setCurrentView("budget"); return; }
-            if (id === "analytics") { setCurrentView("analytics"); return; }
+            if (id === "budget") { handleNavigate("budget"); return; }
+            if (id === "analytics") { handleNavigate("analytics"); return; }
             if (id === "simulator") { onSimulator(); return; }
             if (id === "forecast") { onForecast(); return; }
             if (id === "fire") { onFire(); return; }

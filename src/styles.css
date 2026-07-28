@@ -729,3 +729,213 @@ select.atv-select option {
 	}
 }
 
+
+/* ═══ App view transitions ════════════════════════════════════════════════
+   Continuity for the Results shell, where Dashboard / Budget / Analytics /
+   Scenarios swap in place. The sidebar is an ordered list, so direction of
+   travel carries information: moving down the nav lifts content up from
+   below, moving up drops it in from above. That makes the nav's order
+   legible instead of arbitrary.
+
+   Operate surface: fast, and the outgoing view leaves quicker than the
+   incoming one arrives so the swap never feels like waiting. Everything here
+   is inert without the View Transitions API and under reduced motion.
+   ────────────────────────────────────────────────────────────────────── */
+:root {
+	--vt-duration-in: 320ms;
+	--vt-duration-out: 200ms;
+	--vt-shift: 14px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	::view-transition-old(rp-view),
+	::view-transition-new(rp-view) {
+		/* Replace the default cross-fade; these run their own keyframes. */
+		animation: none;
+		mix-blend-mode: normal;
+	}
+
+	::view-transition-old(rp-view) {
+		animation: rpViewOut var(--vt-duration-out) var(--lp-ease-out) both;
+	}
+	::view-transition-new(rp-view) {
+		animation: rpViewIn var(--vt-duration-in) var(--lp-ease-out) both;
+	}
+
+	@keyframes rpViewOut {
+		to {
+			opacity: 0;
+			transform: translate3d(0, calc(var(--vt-shift) * -0.5), 0);
+		}
+	}
+	@keyframes rpViewIn {
+		from {
+			opacity: 0;
+			transform: translate3d(0, var(--vt-shift), 0);
+		}
+	}
+
+	/* Travelling back up the nav mirrors the axis. */
+	[data-vt-direction="backward"] ::view-transition-old(rp-view) {
+		animation-name: rpViewOutBack;
+	}
+	[data-vt-direction="backward"] ::view-transition-new(rp-view) {
+		animation-name: rpViewInBack;
+	}
+	@keyframes rpViewOutBack {
+		to {
+			opacity: 0;
+			transform: translate3d(0, calc(var(--vt-shift) * 0.5), 0);
+		}
+	}
+	@keyframes rpViewInBack {
+		from {
+			opacity: 0;
+			transform: translate3d(0, calc(var(--vt-shift) * -1), 0);
+		}
+	}
+
+	/* Arriving from outside the sidebar has no direction to express. */
+	[data-vt-direction="none"] ::view-transition-new(rp-view) {
+		animation-name: rpViewFade;
+	}
+	@keyframes rpViewFade {
+		from {
+			opacity: 0;
+		}
+	}
+}
+
+/* ── Disclosure reveal (Full breakdown, detailed analytics) ─────────────
+   A `clip-path` wipe from the top edge reads as the panel opening downward,
+   and unlike a height or grid-rows animation it needs no wrapper element and
+   never touches layout - the content below settles once, immediately.
+
+   Runs on mount, so the closed state stays unmounted: these panels carry a
+   full report and charts, and holding them in the tree purely to animate
+   them would cost more than the animation is worth. Closing is instant,
+   which is the right asymmetry anyway - exits outpace entrances. */
+.rp-reveal-enter {
+	animation: rpRevealIn 320ms var(--lp-ease-out) both;
+}
+
+@keyframes rpRevealIn {
+	from {
+		opacity: 0;
+		clip-path: inset(0 0 100% 0);
+		transform: translate3d(0, -4px, 0);
+	}
+	to {
+		opacity: 1;
+		clip-path: inset(0 0 0 0);
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rp-reveal-enter {
+		animation: none;
+		clip-path: none;
+	}
+}
+
+/* ── Data entrance (Analytics, Scenarios trend charts) ──────────────────
+   The view arrives first, then its data resolves under it: the line draws
+   along its own path, the area washes in beneath, and the points land in
+   sequence. Deliberately subordinate to the results reveal - this is the
+   supporting beat, not a second focal moment - so the whole sequence is
+   done inside a second.
+
+   Every delay here clears `--vt-duration-in`, so the data animates against
+   live DOM rather than inside the view transition's snapshot of it. Only
+   chart marks are held back; the figures and labels around them are legible
+   from the first frame, so nothing the user came to read is gated on this.
+
+   `pathLength="1"` on the path normalises the stroke, so the dash values
+   are plain constants instead of a measured geometry: no ref, no layout
+   read, and it stays correct when the chart reflows at any width.
+   ────────────────────────────────────────────────────────────────────── */
+.rp-draw-line {
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+	animation: rpDrawLine 520ms var(--lp-ease-io) 340ms both;
+}
+
+@keyframes rpDrawLine {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+/* Trails the line so the fill reads as a consequence of it, not a backdrop
+   that was always there. */
+.rp-draw-area {
+	animation: rpWashIn 380ms var(--lp-ease-out) 420ms both;
+}
+
+@keyframes rpWashIn {
+	from {
+		opacity: 0;
+	}
+}
+
+/* `transform-box: fill-box` makes `scale` pivot on each point rather than
+   the SVG origin, which would fling them in from the corner. */
+.rp-draw-point {
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: rpPointIn 200ms var(--lp-ease-out) both;
+	animation-delay: calc(520ms + var(--rp-i, 0) * 35ms);
+}
+
+@keyframes rpPointIn {
+	from {
+		opacity: 0;
+		transform: scale(0.2);
+	}
+}
+
+/* Bars share the line's start beat, so the two charts in a view read as one
+   arrival rather than two. `scaleY` keeps this off the layout path - the bar's
+   `height` stays the real measured value the whole time. */
+.rp-grow-bar {
+	transform-origin: bottom;
+	animation: rpGrowBar 380ms var(--lp-ease-out) both;
+	animation-delay: calc(340ms + var(--rp-i, 0) * 40ms);
+}
+
+@keyframes rpGrowBar {
+	from {
+		transform: scaleY(0);
+	}
+}
+
+/* The donut's slices are already described by `stroke-dasharray`, and each arc
+   already carries a rotate transform, so drawing them arc-by-arc would fight
+   both. It lands as one mark instead - the class goes on the `svg` element,
+   where a CSS transform cannot clobber the per-arc `transform` attribute. */
+.rp-draw-donut {
+	transform-origin: center;
+	animation: rpDonutIn 420ms var(--lp-ease-out) 360ms both;
+}
+
+@keyframes rpDonutIn {
+	from {
+		opacity: 0;
+		transform: scale(0.92);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rp-draw-line,
+	.rp-draw-area,
+	.rp-draw-point,
+	.rp-grow-bar,
+	.rp-draw-donut {
+		animation: none;
+	}
+	.rp-draw-line {
+		stroke-dasharray: none;
+		stroke-dashoffset: 0;
+	}
+}

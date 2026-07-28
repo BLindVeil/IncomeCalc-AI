@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type CSSProperties } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
 import { EV_400, EV_500, EV_700, MONO_FONT_STACK } from "@/lib/app-shared";
 import { FormattedNumber } from "@/components/FormattedNumber";
@@ -598,10 +598,18 @@ function ImpactOverviewChart({ t, realScenarios }: { t: ThemeConfig; realScenari
                 <stop offset="100%" stopColor={EV_500} stopOpacity="0" />
               </linearGradient>
             </defs>
-            <path d={areaPath} fill="url(#impactAreaGrad)" />
-            <path d={linePath} fill="none" stroke={EV_500} strokeWidth={2} />
+            <path className="rp-draw-area" d={areaPath} fill="url(#impactAreaGrad)" />
+            <path className="rp-draw-line" d={linePath} fill="none" stroke={EV_500} strokeWidth={2} pathLength={1} />
             {coords.map((c, i) => (
-              <circle key={i} cx={c.x} cy={c.y} r={2.5} fill={EV_500} />
+              <circle
+                key={i}
+                className="rp-draw-point"
+                style={{ ["--rp-i" as string]: i } as CSSProperties}
+                cx={c.x}
+                cy={c.y}
+                r={2.5}
+                fill={EV_500}
+              />
             ))}
           </svg>
 

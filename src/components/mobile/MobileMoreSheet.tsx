@@ -88,7 +88,9 @@ export function MobileMoreSheet({ t, open, onClose, onNavigate, onSignOut }: Mob
     fontSize: 15,
     fontWeight: 400,
     textAlign: "left",
-    transition: "background 150ms ease",
+    // `transform` is named so `.lp-press` has something to ease against; an
+    // inline transition overrides the class's own.
+    transition: "background 150ms ease, transform 160ms var(--lp-ease-out)",
   });
 
   const divider = (
@@ -164,6 +166,7 @@ export function MobileMoreSheet({ t, open, onClose, onNavigate, onSignOut }: Mob
             <button
               key={id}
               onClick={() => { onNavigate(id); onClose(); }}
+              className="lp-press"
               style={itemStyle()}
               onMouseEnter={(e) => { e.currentTarget.style.background = t.border; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
@@ -182,6 +185,7 @@ export function MobileMoreSheet({ t, open, onClose, onNavigate, onSignOut }: Mob
             <button
               key={id}
               onClick={() => { onNavigate(id); onClose(); }}
+              className="lp-press"
               style={itemStyle()}
               onMouseEnter={(e) => { e.currentTarget.style.background = t.border; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}

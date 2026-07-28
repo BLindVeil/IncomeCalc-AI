@@ -41,6 +41,7 @@ export function MobileBottomNav({ t, activeTab, onTabChange }: MobileBottomNavPr
           <button
             key={id}
             onClick={() => onTabChange(id)}
+            className="lp-press"
             style={{
               flex: 1,
               display: "flex",
@@ -53,7 +54,9 @@ export function MobileBottomNav({ t, activeTab, onTabChange }: MobileBottomNavPr
               border: "none",
               cursor: "pointer",
               color: isActive ? t.text : t.muted,
-              transition: "color 150ms ease",
+              // Named explicitly so `.lp-press` has a transform transition to
+              // ease against; an inline transition overrides the class's own.
+              transition: "color 150ms ease, transform 160ms var(--lp-ease-out)",
             }}
           >
             <Icon size={20} />

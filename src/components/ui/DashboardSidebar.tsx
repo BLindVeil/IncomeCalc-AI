@@ -117,7 +117,10 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
       fontSize: 14,
       fontWeight: isActive ? 600 : 500,
       cursor: "pointer",
-      transition: "background 150ms, color 150ms",
+      // `transform` is here so `.lp-press` has something to ease against -
+      // an inline transition beats the class's own, and without it the press
+      // would snap rather than give.
+      transition: "background 150ms, color 150ms, transform 160ms var(--lp-ease-out)",
       background: isActive
         ? `color-mix(in srgb, ${t.text} 7%, transparent)`
         : isHover
@@ -173,6 +176,7 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
           <button
             key={item.id}
             type="button"
+            className="lp-press"
             style={itemStyle(item.id)}
             onMouseEnter={() => setHovered(item.id)}
             onMouseLeave={() => setHovered(null)}
