@@ -31,7 +31,14 @@ function fmtCompact(n: number): string {
   return "$" + Math.round(Math.abs(n)).toLocaleString();
 }
 
-function ratioColor(value: number, green: number, warn: number, invert = false): string {
+/**
+ * Grade a ratio into a theme colour.
+ *
+ * The theme is passed in rather than closed over: this function sits at module
+ * scope, so referencing the component's `t` here compiled to a free variable
+ * and threw "t is not defined" as soon as Analytics rendered.
+ */
+function ratioColor(t: ThemeConfig, value: number, green: number, warn: number, invert = false): string {
   if (invert) return value <= green ? t.success : value <= warn ? t.warning : t.danger;
   return value >= green ? t.success : value >= warn ? t.warning : t.danger;
 }
@@ -807,19 +814,19 @@ export function AnalyticsPage({
           <RatioItem
             label="Housing ratio"
             value={`${housingRatio.toFixed(0)}%`}
-            color={ratioColor(housingRatio, 30, 40, true)}
+            color={ratioColor(t, housingRatio, 30, 40, true)}
             t={t}
           />
           <RatioItem
             label="Savings rate"
             value={`${savingsRate.toFixed(0)}%`}
-            color={ratioColor(savingsRate, 20, 10)}
+            color={ratioColor(t, savingsRate, 20, 10)}
             t={t}
           />
           <RatioItem
             label="Expense ratio"
             value={`${expenseRatio.toFixed(0)}%`}
-            color={ratioColor(expenseRatio, 70, 85, true)}
+            color={ratioColor(t, expenseRatio, 70, 85, true)}
             t={t}
           />
           <RatioItem
