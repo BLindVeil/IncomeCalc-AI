@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -75,6 +75,8 @@ import {
   type Session,
 } from "@/lib/auth-store";
 import { getDisplayName, getInitials } from "@/lib/user-display";
+import { useExpenseDraft } from "@/lib/useExpenseDraft";
+import { ExpenseSaveStatus } from "@/components/ExpenseSaveStatus";
 import {
   type Page,
   type UserTier,
@@ -3140,6 +3142,29 @@ function App() {
   const [shareModalScenario, setShareModalScenario] = useState<SavedScenario | null>(null);
   const [shareSlug, setShareSlug] = useState<string | null>(null);
 
+  // ── Expense autosave (layer 1 local, layer 2 account) ──
+  // Declared before the resume-flow effect below so an explicit resume from
+  // /welcome still wins over a previously stored draft.
+  const draftSession = getSession();
+  const draftCredentials = useMemo(
+    () =>
+      currentUser && draftSession
+        ? { userId: currentUser.id, sessionToken: draftSession.token }
+        : null,
+    [currentUser?.id, draftSession?.token], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const expenseDraft = useExpenseDraft({
+    expenseData,
+    taxRate,
+    currentGrossIncome,
+    credentials: draftCredentials,
+    onRestore: (values) => {
+      setExpenseData(values.expenseData);
+      setTaxRate(values.taxRate);
+      setCurrentGrossIncome(values.currentGrossIncome);
+    },
+  });
+
   // ── Restore last page from sessionStorage on mount ──
   useEffect(() => {
     if (!currentUser) return;
@@ -3745,9 +3770,20 @@ async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
     );
   }
 
+  const draftTheme = applyDark(currentTheme, isDark);
+
   return (
     <>
       {pageContent}
+      {page !== "landing" && (
+        <ExpenseSaveStatus
+          state={expenseDraft}
+          surface={draftTheme.cardBg}
+          border={draftTheme.border}
+          text={draftTheme.text}
+          muted={draftTheme.muted}
+        />
+      )}
       {showAuthModal && (
         <AuthModal
           mode={authModalMode}
