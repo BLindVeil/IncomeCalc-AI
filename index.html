@@ -17,6 +17,17 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Hero summit is the LCP element; fetch it alongside the bundle rather than
+         after React mounts. Same srcset the <picture> uses, so no extra download. -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      href="/img/hero-summit.webp"
+      imagesrcset="/img/hero-summit-sm.webp 1400w, /img/hero-summit.webp 2400w"
+      imagesizes="(max-width: 768px) 100vw, 1352px"
+      fetchpriority="high"
+    />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap"

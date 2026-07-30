@@ -22,6 +22,8 @@ interface HeroTopNavProps {
   isMobile: boolean;
   /** Center anchor links need full desktop width to avoid colliding with the controls */
   showLinks?: boolean;
+  /** Riding on the hero photograph: type goes white, the CTA pill inverts. */
+  onDark?: boolean;
   onStart: () => void;
   onSignIn?: () => void;
   isSignedIn?: boolean;
@@ -30,13 +32,22 @@ interface HeroTopNavProps {
   onSignOut?: () => void;
 }
 
-export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn, userName, onDashboard, onSignOut }: HeroTopNavProps) {
+export function HeroTopNav({ isMobile, showLinks, onDark = false, onStart, onSignIn, isSignedIn, userName, onDashboard, onSignOut }: HeroTopNavProps) {
   const [hoverSignIn, setHoverSignIn] = useState(false);
   const [hoverCta, setHoverCta] = useState(false);
   const [hoverLink, setHoverLink] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoverItem, setHoverItem] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // On the photograph every value shifts to the light end of the same scale;
+  // the ink pill inverts to white so it still reads as the one filled control.
+  const wordmarkColor = onDark ? WHITE : INK;
+  const linkIdle = onDark ? "rgba(255,255,255,0.74)" : GREY;
+  const linkActive = onDark ? WHITE : INK;
+  const linkHoverBg = onDark ? "rgba(255,255,255,0.14)" : "rgba(12,26,18,0.06)";
+  const ctaBg = onDark ? WHITE : INK;
+  const ctaFg = onDark ? INK : WHITE;
 
   // Close on click outside
   useEffect(() => {
@@ -74,7 +85,7 @@ export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn,
             fontSize: 16,
             fontWeight: 600,
             letterSpacing: "-0.01em",
-            color: INK,
+            color: wordmarkColor,
           }}
         >
           Ascentra
@@ -101,13 +112,13 @@ export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn,
               onMouseEnter={() => setHoverLink(link.target)}
               onMouseLeave={() => setHoverLink(null)}
               style={{
-                background: hoverLink === link.target ? "rgba(12,26,18,0.06)" : "transparent",
+                background: hoverLink === link.target ? linkHoverBg : "transparent",
                 border: "none",
                 borderRadius: 999,
                 padding: "7px 14px",
                 fontSize: 13.5,
                 fontWeight: 500,
-                color: hoverLink === link.target ? INK : GREY,
+                color: hoverLink === link.target ? linkActive : linkIdle,
                 cursor: "pointer",
                 transition: "color 150ms ease, background 150ms ease",
               }}
@@ -130,6 +141,7 @@ export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn,
                   height: 32,
                   borderRadius: "50%",
                   background: EV_800,
+                  boxShadow: onDark ? "0 0 0 1.5px rgba(255,255,255,0.55)" : "none",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -212,7 +224,7 @@ export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn,
               style={{
                 fontSize: 13.5,
                 fontWeight: 500,
-                color: hoverSignIn ? INK : GREY,
+                color: hoverSignIn ? linkActive : linkIdle,
                 cursor: "pointer",
                 transition: "color 150ms",
                 background: "none",
@@ -236,8 +248,8 @@ export function HeroTopNav({ isMobile, showLinks, onStart, onSignIn, isSignedIn,
             borderRadius: 999,
             fontSize: 13,
             fontWeight: 600,
-            color: WHITE,
-            background: INK,
+            color: ctaFg,
+            background: ctaBg,
             opacity: hoverCta ? 0.86 : 1,
             cursor: "pointer",
           }}

@@ -1,5 +1,5 @@
 import { useState, useEffect, type CSSProperties } from "react";
-import { WHITE, INK, GREY, GREY_LIGHT, eyebrow, FONT_STACK } from "./landing-theme";
+import { WHITE, INK, eyebrow, FONT_STACK } from "./landing-theme";
 
 /** Per-element entrance delay as the shared --lp-delay custom property. */
 const delay = (ms: number) => ({ ["--lp-delay" as string]: `${ms}ms` }) as CSSProperties;
@@ -39,6 +39,32 @@ function useHeroBreakpoint(): BP {
   return bp;
 }
 
+/**
+ * The scrim is a legibility device, not decoration: it holds white type above
+ * 4.5:1 across the headline band while leaving the summit and the mist below it
+ * at full luminance. Built from EV_900, the palette's own darkest green, so the
+ * darkening reads as deeper forest rather than as grey wash.
+ */
+const SCRIM_TOP =
+  "linear-gradient(180deg," +
+  " rgba(8,28,21,0.74) 0%," +
+  " rgba(8,28,21,0.68) 28%," +
+  " rgba(8,28,21,0.52) 46%," +
+  " rgba(8,28,21,0.22) 62%," +
+  " rgba(8,28,21,0.04) 78%," +
+  " rgba(8,28,21,0) 88%)";
+
+/**
+ * A second, side-weighted pass. Text lives on the left two thirds, so the
+ * darkening leans that way and lets the lit right flank of the range keep its
+ * dawn highlight instead of washing the whole frame down.
+ */
+const SCRIM_SIDE =
+  "linear-gradient(100deg," +
+  " rgba(8,28,21,0.42) 0%," +
+  " rgba(8,28,21,0.20) 44%," +
+  " rgba(8,28,21,0) 74%)";
+
 interface LandingHeroProps {
   onStart: () => void;
   onSignIn?: () => void;
@@ -51,94 +77,191 @@ interface LandingHeroProps {
 export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboard, onSignOut }: LandingHeroProps) {
   const bp = useHeroBreakpoint();
   const isMobile = bp === "mobile";
+  const isDesktop = bp === "desktop";
+
+  const bandHeight = isMobile ? 620 : bp === "tablet" ? 660 : 720;
 
   return (
     <header
       style={{
         width: "100%",
-        // Light falls from above: the canvas lifts to pure white behind the headline
-        // and settles into a faint warm grey where the product preview sits.
-        background: `linear-gradient(180deg, ${WHITE} 0%, ${WHITE} 46%, #F4F4F2 100%)`,
-        padding: isMobile ? "18px 20px 0" : "22px 40px 0",
+        background: WHITE,
+        padding: isMobile ? "0 0 0" : "16px 24px 0",
         color: INK,
         fontFamily: FONT_STACK,
         boxSizing: "border-box",
-        overflow: "hidden",
       }}
     >
-      <div style={{ maxWidth: 1240, margin: "0 auto" }}>
-        <HeroTopNav
-          isMobile={isMobile}
-          showLinks={bp === "desktop"}
-          onStart={onStart}
-          onSignIn={onSignIn}
-          isSignedIn={isSignedIn}
-          userName={userName}
-          onDashboard={onDashboard}
-          onSignOut={onSignOut}
-        />
+      <div style={{ maxWidth: 1352, margin: "0 auto" }}>
+        {/* ── The photographic band ─────────────────────────────────────── */}
+        <div
+          style={{
+            position: "relative",
+            minHeight: bandHeight,
+            borderRadius: isMobile ? 0 : 28,
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+            isolation: "isolate",
+          }}
+        >
+          {/* Summit photograph. Anchored low so the peak stays in frame as the
+              band gets shorter; the sky is what the crop gives up first. */}
+          <picture>
+            <source
+              type="image/webp"
+              srcSet="/img/hero-summit-sm.webp 1400w, /img/hero-summit.webp 2400w"
+              sizes="(max-width: 768px) 100vw, 1352px"
+            />
+            <img
+              src="/img/hero-summit.jpg"
+              srcSet="/img/hero-summit-sm.jpg 1400w, /img/hero-summit.jpg 2400w"
+              sizes="(max-width: 768px) 100vw, 1352px"
+              alt="A forested summit rising through a sea of cloud at dawn"
+              fetchPriority="high"
+              decoding="async"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center top",
+                // Scaled from the top edge so the cloud horizon falls below the
+                // text block instead of cutting through it, and the summit reads
+                // large rather than as a distant bump. Legibility bought with
+                // composition, not with more scrim over the photograph.
+                transform: isMobile ? "scale(1.32)" : "scale(1.3)",
+                transformOrigin: isMobile ? "58% top" : "center top",
+                zIndex: -2,
+              }}
+            />
+          </picture>
+          <div style={{ position: "absolute", inset: 0, background: SCRIM_TOP, zIndex: -1 }} />
+          <div style={{ position: "absolute", inset: 0, background: SCRIM_SIDE, zIndex: -1 }} />
 
-        <div style={{ height: isMobile ? 52 : 88 }} />
-
-        <div style={{ maxWidth: 880, margin: "0 auto", textAlign: "center" }}>
-          <div className="lp-in" style={{ ...eyebrow, ...delay(40) }}>
-            Personal finance, clarified
-          </div>
-
-          <h1
-            className="lp-in"
+          <div
+            data-hero-copy
             style={{
-              fontSize: isMobile ? 38 : bp === "tablet" ? 56 : 72,
-              lineHeight: 1.04,
-              letterSpacing: "-0.038em",
-              fontWeight: 600,
-              margin: `${isMobile ? 16 : 22}px 0 0`,
-              ...delay(120),
+              padding: isMobile ? "18px 20px 0" : "22px 40px 0",
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
             }}
           >
-            <span style={{ display: "block", color: GREY_LIGHT }}>Peace of mind starts</span>
-            <span style={{ display: "block", color: INK }}>with one number</span>
-          </h1>
+            <HeroTopNav
+              isMobile={isMobile}
+              showLinks={isDesktop}
+              onDark
+              onStart={onStart}
+              onSignIn={onSignIn}
+              isSignedIn={isSignedIn}
+              userName={userName}
+              onDashboard={onDashboard}
+              onSignOut={onSignOut}
+            />
 
-          <p
-            className="lp-in"
-            style={{
-              fontSize: isMobile ? 15 : 16.5,
-              color: GREY,
-              lineHeight: 1.6,
-              maxWidth: 500,
-              margin: `${isMobile ? 18 : 24}px auto 0`,
-              ...delay(220),
-            }}
-          >
-            Enter your expenses and get the income you actually need, your financial
-            health score, and the one move that changes the most.
-          </p>
+            <div style={{ height: isMobile ? 56 : 82 }} />
 
-          <div className="lp-in" style={{ marginTop: isMobile ? 26 : 34, ...delay(300) }}>
-            <PillButton size="lg" onClick={onStart}>
-              Calculate my number
-            </PillButton>
-            <div style={{ fontSize: 12.5, color: GREY_LIGHT, marginTop: 14 }}>
-              Free forever. No bank linking, no credit pull.
+            {/* Headline left, the argument and the action right — the split lets
+                the display type run at full size without crowding the prose. */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: isDesktop ? "minmax(0, 1.15fr) minmax(0, 0.85fr)" : "1fr",
+                gap: isDesktop ? 48 : 28,
+                alignItems: "start",
+                maxWidth: isDesktop ? "none" : 620,
+              }}
+            >
+              <div>
+                <div
+                  className="lp-in"
+                  style={{ ...eyebrow, color: "rgba(255,255,255,0.68)", ...delay(40) }}
+                >
+                  Personal finance, clarified
+                </div>
+
+                <h1
+                  className="lp-in"
+                  style={{
+                    fontSize: isMobile ? 40 : bp === "tablet" ? 58 : 74,
+                    lineHeight: 1.03,
+                    letterSpacing: "-0.038em",
+                    fontWeight: 600,
+                    margin: `${isMobile ? 16 : 20}px 0 0`,
+                    textWrap: "balance",
+                    ...delay(120),
+                  }}
+                >
+                  <span style={{ display: "block", color: "rgba(255,255,255,0.62)" }}>
+                    Peace of mind starts
+                  </span>
+                  <span style={{ display: "block", color: WHITE }}>with one number</span>
+                </h1>
+              </div>
+
+              <div style={{ paddingTop: isDesktop ? 14 : 0 }}>
+                <p
+                  className="lp-in"
+                  style={{
+                    fontSize: isMobile ? 15.5 : 16.5,
+                    color: "rgba(255,255,255,0.84)",
+                    lineHeight: 1.6,
+                    maxWidth: 460,
+                    margin: 0,
+                    ...delay(220),
+                  }}
+                >
+                  Enter your expenses and get the income you actually need, your financial
+                  health score, and the one move that changes the most.
+                </p>
+
+                <div className="lp-in" style={{ marginTop: isMobile ? 20 : 24, ...delay(300) }}>
+                  {/* The qualifier sits above the control: lower down the frame
+                      the scrim has released the cloud to full brightness, and
+                      12.5px type cannot hold its contrast there. */}
+                  <div
+                    style={{
+                      fontSize: 12.5,
+                      color: WHITE,
+                      marginBottom: 14,
+                    }}
+                  >
+                    Free forever. No bank linking, no credit pull.
+                  </div>
+                  <PillButton size="lg" tone="light" onClick={onStart}>
+                    Calculate my number
+                  </PillButton>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div style={{ height: isMobile ? 44 : 72 }} />
-
-        {/* Product preview: parallax outer drifts with scroll, inner enters on load */}
-        <div className={isMobile ? undefined : "lp-parallax-scroll"} style={{ ["--lp-par" as string]: "-30px" }}>
+        {/* ── Product preview, lifted into the photograph's lower edge ───── */}
+        <div
+          className={isMobile ? undefined : "lp-parallax-scroll"}
+          style={{
+            ["--lp-par" as string]: "-30px",
+            marginTop: isMobile ? -64 : -104,
+            position: "relative",
+            zIndex: 1,
+            padding: isMobile ? "0 12px" : 0,
+          }}
+        >
           <div
             className="lp-in"
             style={{
-              maxWidth: 1120,
+              maxWidth: 1180,
               margin: "0 auto",
               borderRadius: 14,
               padding: 7,
-              background: "rgba(255,255,255,0.6)",
-              border: "1px solid rgba(10,10,10,0.06)",
-              boxShadow: "0 32px 80px -24px rgba(10,10,10,0.22)",
+              background: "rgba(255,255,255,0.72)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.5)",
+              boxShadow: "0 40px 90px -28px rgba(8,28,21,0.45)",
               boxSizing: "border-box",
               ...delay(420),
             }}
