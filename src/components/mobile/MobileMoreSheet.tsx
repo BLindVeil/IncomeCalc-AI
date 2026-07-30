@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Play,
   DollarSign,
@@ -47,8 +47,25 @@ interface MobileMoreSheetProps {
   onSignOut: () => void;
 }
 
+/** Matches the `.ms-sheet[data-state="closed"]` exit in styles.css. */
+const EXIT_MS = 200;
+
 export function MobileMoreSheet({ t, open, onClose, onNavigate, onSignOut }: MobileMoreSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
+
+  // The sheet outlives `open` by the length of its exit, so it can animate off
+  // the edge it arrived from instead of vanishing. Everything else still keys
+  // off `open`, so a sheet on its way out stops responding immediately.
+  const [rendered, setRendered] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      setRendered(true);
+      return;
+    }
+    const id = setTimeout(() => setRendered(false), EXIT_MS);
+    return () => clearTimeout(id);
+  }, [open]);
 
   // Close on outside click
   useEffect(() => {
@@ -72,7 +89,9 @@ export function MobileMoreSheet({ t, open, onClose, onNavigate, onSignOut }: Mob
     return () => document.removeEventListener("keydown", handleKey);
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!rendered) return null;
+
+  const state = open ? "open" : "closed";
 
   const itemStyle = (danger?: boolean): React.CSSProperties => ({
     display: "flex",
@@ -101,6 +120,8 @@ export function MobileMoreSheet({ t, open, onClose, onNavigate, onSignOut }: Mob
     <>
       {/* Backdrop */}
       <div
+        className="ms-backdrop"
+        data-state={state}
         style={{
           position: "fixed",
           inset: 0,
@@ -112,6 +133,8 @@ export function MobileMoreSheet({ t, open, onClose, onNavigate, onSignOut }: Mob
       {/* Sheet */}
       <div
         ref={sheetRef}
+        className="ms-sheet"
+        data-state={state}
         style={{
           position: "fixed",
           bottom: 0,
