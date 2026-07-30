@@ -270,7 +270,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
     <div style={{ minHeight: "100vh", background: WHITE, color: INK, overflowX: "hidden", fontFamily: FONT_STACK }}>
       <LandingHero onStart={onStart} onSignIn={onSignIn} isSignedIn={!!currentUser} userName={currentUser?.email} onDashboard={onDashboard} onSignOut={onSignOut} />
 
-      <CapabilitiesSection isMobile={isMobile} />
+      <CapabilitiesSection isMobile={isMobile} t={lt} />
       <ComparisonSection isMobile={isMobile} />
 
       <section style={band(CANVAS)}>

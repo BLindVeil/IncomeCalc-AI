@@ -1,5 +1,6 @@
-import { useState, useEffect, type CSSProperties } from "react";
+import { useState, useEffect, useRef, type CSSProperties } from "react";
 import { WHITE, INK, eyebrow, FONT_STACK } from "./landing-theme";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 /** Per-element entrance delay as the shared --lp-delay custom property. */
 const delay = (ms: number) => ({ ["--lp-delay" as string]: `${ms}ms` }) as CSSProperties;
@@ -65,6 +66,75 @@ const SCRIM_SIDE =
   " rgba(8,28,21,0.20) 44%," +
   " rgba(8,28,21,0) 74%)";
 
+/**
+ * The cloud loop, layered over the still on the exact same geometry.
+ *
+ * The still stays mounted underneath and remains the LCP element — the video is
+ * never given a `src` until the browser is idle, so it cannot compete for
+ * bandwidth with the image or the bundle. Its first frame is the still, so the
+ * short fade covers only encoder colour drift, not a change of picture. If
+ * autoplay is refused (data saver, battery saver) the still simply stays.
+ */
+function HeroCloudLayer({ style }: { style: CSSProperties }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const start = () => {
+      el.muted = true; // React sets muted as a property; autoplay policies read the attribute
+      // Sources carry their URL in data-src so nothing is fetched until here.
+      let attached = false;
+      el.querySelectorAll("source").forEach((s) => {
+        const url = s.dataset.src;
+        if (url) {
+          s.src = url;
+          attached = true;
+        }
+      });
+      if (!attached) return;
+      el.load();
+      el.play().catch(() => {});
+    };
+
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(start, { timeout: 2500 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(start, 1400);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  return (
+    <video
+      ref={ref}
+      muted
+      loop
+      playsInline
+      preload="none"
+      aria-hidden="true"
+      tabIndex={-1}
+      onPlaying={() => setPlaying(true)}
+      style={{
+        ...style,
+        opacity: playing ? 1 : 0,
+        transition: "opacity 900ms ease",
+      }}
+    >
+      {/* VP9 first (smaller, and what Chrome and Firefox pick), H.264 for Safari. */}
+      <source data-src="/img/hero-clouds.webm" type="video/webm" />
+      <source data-src="/img/hero-clouds.mp4" type="video/mp4" />
+    </video>
+  );
+}
+
 interface LandingHeroProps {
   onStart: () => void;
   onSignIn?: () => void;
@@ -78,8 +148,23 @@ export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboa
   const bp = useHeroBreakpoint();
   const isMobile = bp === "mobile";
   const isDesktop = bp === "desktop";
+  const reducedMotion = usePrefersReducedMotion();
 
   const bandHeight = isMobile ? 620 : bp === "tablet" ? 660 : 720;
+
+  // One geometry, shared by the still and the loop, so the two register exactly
+  // and the fade between them reads as the picture coming alive rather than moving.
+  const backdrop: CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    objectPosition: "center top",
+    transform: isMobile ? "scale(1.32)" : "scale(1.3)",
+    transformOrigin: isMobile ? "58% top" : "center top",
+    zIndex: -2,
+  };
 
   return (
     <header
@@ -120,23 +205,10 @@ export function LandingHero({ onStart, onSignIn, isSignedIn, userName, onDashboa
               alt="A forested summit rising through a sea of cloud at dawn"
               fetchPriority="high"
               decoding="async"
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                objectPosition: "center top",
-                // Scaled from the top edge so the cloud horizon falls below the
-                // text block instead of cutting through it, and the summit reads
-                // large rather than as a distant bump. Legibility bought with
-                // composition, not with more scrim over the photograph.
-                transform: isMobile ? "scale(1.32)" : "scale(1.3)",
-                transformOrigin: isMobile ? "58% top" : "center top",
-                zIndex: -2,
-              }}
+              style={backdrop}
             />
           </picture>
+          {!reducedMotion && <HeroCloudLayer style={backdrop} />}
           <div style={{ position: "absolute", inset: 0, background: SCRIM_TOP, zIndex: -1 }} />
           <div style={{ position: "absolute", inset: 0, background: SCRIM_SIDE, zIndex: -1 }} />
 

@@ -61,30 +61,34 @@ export function TopMoveCard({ t, category, amount, percentOfTotal, suggestion, o
         {suggestion}
       </p>
 
-      <button
-        onClick={onSimulator}
-        className="lp-press"
-        style={{
-          width: "100%",
-          background: t.text,
-          color: t.cardBg,
-          border: "none",
-          borderRadius: 999,
-          padding: "11px 0",
-          fontSize: 13,
-          fontWeight: 600,
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 6,
-        }}
-      >
-        <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        Simulate reducing {category.toLowerCase()}
-      </button>
+      {/* No simulator to open (the marketing surface reuses this card as a
+          read-only sample), so the control is omitted rather than left inert. */}
+      {onSimulator && (
+        <button
+          onClick={onSimulator}
+          className="lp-press"
+          style={{
+            width: "100%",
+            background: t.text,
+            color: t.cardBg,
+            border: "none",
+            borderRadius: 999,
+            padding: "11px 0",
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+          }}
+        >
+          <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Simulate reducing {category.toLowerCase()}
+        </button>
+      )}
     </div>
   );
 }

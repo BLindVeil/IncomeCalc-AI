@@ -641,6 +641,22 @@ select.atv-select option {
 	transform-origin: bottom;
 }
 
+/* Horizontal meter fill: sweeps from the left edge to its measured width, so a
+   score reads as being taken rather than as having always been there. */
+@keyframes lpFillBar {
+	from {
+		transform: scaleX(0);
+	}
+	to {
+		transform: scaleX(1);
+	}
+}
+.lp-bar-fill {
+	transform-origin: left;
+	animation: lpFillBar 0.72s var(--lp-ease-out) both;
+	animation-delay: var(--lp-delay, 0ms);
+}
+
 @keyframes lpBreath {
 	0%,
 	100% {
@@ -721,8 +737,12 @@ select.atv-select option {
 	.lp-parallax,
 	.lp-parallax-scroll,
 	.lp-page,
+	.lp-bar-fill,
 	.lp-bars.is-in .lp-bar {
 		animation: none !important;
+	}
+	.lp-bar-fill {
+		transform: none !important;
 	}
 	.lp-bars .lp-bar {
 		transform: none !important;
