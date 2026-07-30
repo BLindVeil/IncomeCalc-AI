@@ -4,6 +4,11 @@
  * Verifies Stripe webhook signatures and persists entitlements to Vercel KV
  * when a checkout.session.completed event fires.
  *
+ * Ascentra sells a single one-time purchase (Full Diagnosis). A completed
+ * checkout grants a lifetime "paid" entitlement — expires_at is null and the
+ * record never lapses. Legacy subscription records (plan "pro"/"premium" with
+ * a real expires_at) are still honored by /api/entitlement until they expire.
+ *
  * Required env vars:
  *   STRIPE_SECRET_KEY       — Stripe secret key (sk_live_... or sk_test_...)
  *   STRIPE_WEBHOOK_SECRET   — Webhook endpoint secret (whsec_...)
@@ -20,17 +25,13 @@ export const config = { api: { bodyParser: false } };
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type PlanTier = "free" | "pro" | "premium";
-type BillingPeriod = "monthly" | "yearly";
-
 interface EntitlementRecord {
   user_id: string;
-  plan: PlanTier;
-  billing_period: BillingPeriod;
+  plan: "paid";
   stripe_session_id: string | null;
-  status: "active" | "expired";
+  status: "active";
   created_at: string;
-  expires_at: string;
+  expires_at: null; // lifetime — one-time purchase never lapses
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -41,11 +42,6 @@ async function getRawBody(req: IncomingMessage): Promise<Buffer> {
     chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as Uint8Array));
   }
   return Buffer.concat(chunks);
-}
-
-function getExpiresAt(billingPeriod: BillingPeriod): string {
-  const days = billingPeriod === "yearly" ? 366 : 31;
-  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
@@ -108,19 +104,13 @@ export default async function handler(
     return;
   }
 
-  const rawPlan = (session.metadata?.planTier ?? "").toLowerCase();
-  const plan: PlanTier = rawPlan === "premium" ? "premium" : rawPlan === "pro" ? "pro" : "free";
-  const rawBilling = (session.metadata?.billingPeriod ?? "").toLowerCase();
-  const billingPeriod: BillingPeriod = rawBilling === "yearly" ? "yearly" : "monthly";
-
   const record: EntitlementRecord = {
     user_id: userId,
-    plan,
-    billing_period: billingPeriod,
+    plan: "paid",
     stripe_session_id: session.id,
     status: "active",
     created_at: new Date().toISOString(),
-    expires_at: getExpiresAt(billingPeriod),
+    expires_at: null,
   };
 
   try {
@@ -133,5 +123,5 @@ export default async function handler(
   }
 
   res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(JSON.stringify({ received: true, plan, userId }));
+  res.end(JSON.stringify({ received: true, plan: "paid", userId }));
 }

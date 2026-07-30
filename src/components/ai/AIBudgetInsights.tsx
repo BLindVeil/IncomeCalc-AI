@@ -103,15 +103,19 @@ export function AIBudgetInsights({ data, taxRate, grossAnnual, grossMonthly, tot
         marginBottom: "1.25rem",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Brain size={18} style={{ color: t.primary }} />
-          <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>AI Budget Insights</span>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "0.75rem", marginBottom: "0.85rem" }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: t.muted, marginBottom: "0.5rem" }}>
+            AI Budget Insights
+          </div>
+          <div style={{ fontSize: "1.15rem", fontWeight: 600, letterSpacing: "-0.014em", color: t.text, lineHeight: 1.25 }}>
+            Tips written from your exact breakdown
+          </div>
         </div>
         {generated && (
           <button
             onClick={generateInsights}
-            style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "10px", minWidth: "44px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "10px", minWidth: "44px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
             title="Regenerate"
           >
             <RefreshCw size={15} />
@@ -120,62 +124,73 @@ export function AIBudgetInsights({ data, taxRate, grossAnnual, grossMonthly, tot
       </div>
 
       {!generated && !loading && (
-        <div style={{ textAlign: "center", padding: "1rem 0" }}>
-          <p style={{ color: t.muted, fontSize: "0.9rem", marginBottom: "1rem" }}>
-            Get personalized AI tips based on your exact expense breakdown.
-          </p>
-          <button
-            onClick={generateInsights}
-            className="lp-press"
-            style={{
-              background: t.text,
-              color: t.cardBg,
-              border: "none",
-              borderRadius: "8px",
-              padding: "0.6rem 1.5rem",
-              fontSize: "0.9rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-            }}
-          >
-            <Sparkles size={15} />
-            Generate My AI Insights
-          </button>
-        </div>
+        <button
+          onClick={generateInsights}
+          className="lp-press"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "11px 22px",
+            background: t.text,
+            color: t.cardBg,
+            border: "none",
+            borderRadius: 999,
+            fontSize: 14,
+            fontWeight: 550,
+            letterSpacing: "-0.01em",
+            cursor: "pointer",
+          }}
+        >
+          <Sparkles size={15} />
+          Generate my budget tips
+        </button>
       )}
 
       {loading && (
-        <div style={{ textAlign: "center", padding: "1.5rem 0", color: t.muted, fontSize: "0.9rem" }}>
-          <Sparkles size={18} style={{ marginBottom: "0.5rem", color: t.primary }} />
-          <div>Analyzing your finances...</div>
+        <div aria-label="Analyzing your budget" role="status">
+          <style>{`
+            @keyframes dx-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+            @media (prefers-reduced-motion: reduce) { .dx-skel { animation: none !important; } }
+          `}</style>
+          {[["84%", 12], ["68%", 12]].map(([w, h], i) => (
+            <div
+              key={i}
+              className="dx-skel"
+              style={{
+                width: w as string,
+                height: h as number,
+                borderRadius: 6,
+                background: t.border,
+                marginBottom: 10,
+                animation: `dx-pulse 1.6s ease-in-out ${i * 0.12}s infinite`,
+              }}
+            />
+          ))}
+          <div style={{ fontSize: "0.8rem", color: t.muted, marginTop: "0.6rem" }}>Analyzing your finances…</div>
         </div>
       )}
 
       {error && (
-        <p style={{ color: "#DC2626", fontSize: "0.88rem", textAlign: "center", padding: "0.5rem 0", margin: 0 }}>
+        <p style={{ color: t.text, fontSize: "0.88rem", fontWeight: 500, margin: 0 }}>
           {error}
         </p>
       )}
 
       {generated && !loading && insights.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+        <div>
           {insights.map((tip, i) => (
             <div
               key={i}
               style={{
                 display: "flex",
-                alignItems: "flex-start",
                 gap: "0.6rem",
-                padding: "0.65rem 0.85rem",
-                background: t.primary + "10",
-                borderRadius: "8px",
+                padding: "0.6rem 0",
+                borderTop: i > 0 ? `1px solid ${t.border}` : "none",
               }}
             >
-              <Brain size={14} style={{ color: t.primary, flexShrink: 0, marginTop: "2px" }} />
-              <span style={{ fontSize: "0.88rem", color: t.text, lineHeight: 1.5 }}>{tip}</span>
+              <span style={{ fontSize: "0.85rem", color: t.subtle, flexShrink: 0, lineHeight: 1.55 }}>—</span>
+              <span style={{ fontSize: "0.88rem", color: t.text, lineHeight: 1.55 }}>{tip}</span>
             </div>
           ))}
         </div>

@@ -30,8 +30,8 @@ const FAQS: FAQ[] = [
     a: "Your expense categories, your number, and your saved scenarios. No account numbers, no transactions, no credentials. We never link to your bank.",
   },
   {
-    q: "Can I cancel anytime?",
-    a: "Yes. Pro and Premium are month-to-month or yearly with no lock-in. Your free-tier number and scenarios stay yours forever.",
+    q: "Is it really one payment?",
+    a: "Yes. The full diagnosis is a single one-time purchase — no subscription, no renewals, nothing to cancel. Your free number and scenarios stay yours forever either way.",
   },
   {
     q: "Is this financial advice?",

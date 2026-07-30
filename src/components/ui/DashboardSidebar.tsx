@@ -8,6 +8,11 @@ export interface SidebarNavItem {
   icon: React.ComponentType;
 }
 
+export interface SidebarNavGroup {
+  label: string;
+  items: SidebarNavItem[];
+}
+
 export interface DashboardSidebarProps {
   t: ThemeConfig;
   isDark: boolean;
@@ -16,6 +21,8 @@ export interface DashboardSidebarProps {
   onNavigate?: (item: string) => void;
   onSignOut?: () => void;
   items?: SidebarNavItem[];
+  /** Labelled groups rendered after the main nav (e.g. Tools). */
+  groups?: SidebarNavGroup[];
   bottomItems?: SidebarNavItem[];
 }
 
@@ -100,7 +107,7 @@ const BOTTOM_ITEMS = [
   { id: "logout", label: "Logout", icon: LogoutIcon },
 ];
 
-export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard", onNavigate, onSignOut, items, bottomItems }: DashboardSidebarProps) {
+export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard", onNavigate, onSignOut, items, groups, bottomItems }: DashboardSidebarProps) {
   const navItems = items ?? NAV_ITEMS;
   const navBottomItems = bottomItems ?? BOTTOM_ITEMS;
   const [hovered, setHovered] = useState<string | null>(null);
@@ -185,6 +192,37 @@ export function DashboardSidebar({ t, isDark, setIsDark, activeItem = "dashboard
             <item.icon />
             {item.label}
           </button>
+        ))}
+
+        {groups?.map((group) => (
+          <div key={group.label} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 500,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: t.subtle,
+                padding: "16px 14px 6px",
+              }}
+            >
+              {group.label}
+            </div>
+            {group.items.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className="lp-press"
+                style={itemStyle(item.id)}
+                onMouseEnter={() => setHovered(item.id)}
+                onMouseLeave={() => setHovered(null)}
+                onClick={() => onNavigate?.(item.id)}
+              >
+                <item.icon />
+                {item.label}
+              </button>
+            ))}
+          </div>
         ))}
       </nav>
 

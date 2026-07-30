@@ -13,7 +13,7 @@ export function initAnalytics(): void {
     console.warn("[Analytics] VITE_POSTHOG_KEY not set — analytics disabled.");
     return;
   }
-  const host = (import.meta.env.VITE_POSTHOG_HOST as string) || "https://app.posthog.com";
+  const host = (import.meta.env.VITE_POSTHOG_HOST as string) || "https://us.i.posthog.com";
   posthog.init(key, {
     api_host: host,
     autocapture: false,
@@ -61,8 +61,7 @@ export type AnalyticsEvent =
   | "intent_skipped";
 
 export interface EventProps {
-  plan?: "pro" | "premium";
-  billing?: "monthly" | "yearly";
+  plan?: string;
   amount?: number;
   source_page?: string;
   [key: string]: string | number | boolean | undefined;

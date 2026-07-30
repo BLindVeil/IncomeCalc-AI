@@ -67,10 +67,10 @@ function BillingSuccessPage() {
 
         if (confirmedPlan) {
           // Mirror the server-verified plan into localStorage for getPlan()
-          localStorage.setItem("incomecalc-tier", confirmedPlan);
+          localStorage.setItem("incomecalc-tier", "paid");
 
           trackEvent("purchase_success", {
-            plan: confirmedPlan as "pro" | "premium",
+            plan: "paid",
             source_page: "/billing/success",
           });
         }
@@ -93,7 +93,7 @@ function BillingSuccessPage() {
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
             <Loader2 size={48} style={{ color: "var(--theme-primary)", animation: "spin 1s linear infinite" }} />
             <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#ffffff" }}>Verifying your payment...</h1>
-            <p style={{ color: "rgba(255,255,255,0.55)" }}>Please wait while we confirm your subscription.</p>
+            <p style={{ color: "rgba(255,255,255,0.55)" }}>Please wait while we confirm your purchase.</p>
             <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
           </div>
         )}
@@ -105,7 +105,7 @@ function BillingSuccessPage() {
             </div>
             <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#ffffff", letterSpacing: "-0.02em" }}>Payment Successful!</h1>
             <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "1rem", lineHeight: 1.6 }}>
-              Your plan has been activated. You now have full access to all premium features.
+              Your full diagnosis is unlocked — every tool, yours forever. No subscription, nothing to cancel.
             </p>
             <Link
               to="/"

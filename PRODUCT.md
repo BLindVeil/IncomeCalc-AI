@@ -48,7 +48,7 @@ The stated contrast in existing product copy is against spreadsheets and multi-d
 
 **Confirmed constraints**
 
-- Three plan tiers — Free ($0), Pro, Premium — billed monthly or yearly through Stripe. Feature access is gated by tier.
+- Two access levels — Free ($0) and the one-time Full Diagnosis purchase ($29, via Stripe). There is no subscription; "pay once, no subscription" is a headline positioning claim. Feature access is gated free vs. paid.
 - AI features depend on an external provider key (OpenAI and/or Anthropic). With neither configured they degrade to an explicit "AI not configured" state rather than failing silently. Any design work must treat the unconfigured state as a real, reachable state.
 - Tax handling is an *estimated* rate, not a filing-accurate computation. Do not present it as tax advice or as a filed figure.
 - Published legal surfaces exist and are binding: privacy policy, terms, refund policy.

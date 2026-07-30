@@ -1,455 +1,99 @@
-# Ascentra — Project Context
-
-Use this document to restore full codebase context in a new AI chat session.
-
-## Tech Stack
-
-- **Framework**: React 19 + TanStack Router (file-based routing)
-- **Styling**: Tailwind CSS v4 + Radix UI primitives (but all component code uses inline styles, not Tailwind classes)
-- **Build**: Vite (rolldown-vite), TypeScript 5.8
-- **State**: Zustand v5
-- **Forms**: React Hook Form + Zod
-- **Charts**: Recharts v2.15
-- **Toasts**: Sonner v2
-- **Backend**: Vercel serverless functions (`api/*.ts`)
-- **Payments**: Stripe
-- **Analytics**: PostHog
-- **Error tracking**: Sentry
-- **Icons**: Lucide React
-
-## Project Structure
-
-```
-├── api/
-│   ├── ai.ts                 # AI endpoint (POST /api/ai)
-│   └── entitlement.ts        # Plan verification endpoint
-├── src/
-│   ├── routes/
-│   │   └── index.tsx          # Monolithic main app (~8000+ lines, all pages)
-│   ├── lib/
-│   │   ├── app-shared.ts      # Shared types, themes, constants, helpers
-│   │   ├── calc.ts            # Core calculation engine (ExpenseData, CalcOutput)
-│   │   ├── diagnosis-types.ts # AI diagnosis types & JSON parser
-│   │   ├── entitlements.ts    # Plan tier logic (free/pro/premium + dev override)
-│   │   ├── stabilityMetrics.ts# Income gap, runway, alerts
-│   │   ├── auth-store.ts      # User/session management
-│   │   ├── forecast.ts        # 12-month cashflow projection
-│   │   ├── fireCalc.ts        # FIRE retirement estimator
-│   │   ├── debt.ts            # Debt payoff (snowball/avalanche)
-│   │   ├── fi.ts              # Financial independence date
-│   │   ├── planRules.ts       # Deterministic Q&A fallback
-│   │   ├── analytics.ts       # PostHog event tracking
-│   │   ├── stripe-entitlements.ts
-│   │   ├── sentry.ts
-│   │   └── utils.ts
-│   ├── components/
-│   │   ├── pages/
-│   │   │   ├── ResultsPage.tsx    # Main results display (AI components, premium gates)
-│   │   │   ├── CheckoutPage.tsx   # Stripe payment flow
-│   │   │   ├── SimulatorPage.tsx  # Scenario comparison
-│   │   │   └── CheckInPage.tsx    # Monthly snapshot tracking
-│   │   ├── ai/
-│   │   │   ├── AIFinancialInsights.tsx     # 3 insights + risk + optimization + projection
-│   │   │   ├── AIBudgetInsights.tsx        # 4 budget optimization tips
-│   │   │   ├── AIIncomeIdeas.tsx           # 4 income ideas with difficulty
-│   │   │   ├── AIChat.tsx                  # Multi-turn advisor modal
-│   │   │   ├── FinancialDiagnosisSection.tsx  # Premium diagnosis wrapper
-│   │   │   ├── FinancialDiagnosisCard.tsx     # Diagnosis result renderer
-│   │   │   └── DiagnosisToneSelector.tsx      # Direct/Supportive/Disciplined picker
-│   │   ├── ui/                 # ~45 shadcn/Radix components
-│   │   └── Header.tsx
-│   └── styles.css              # Global CSS (locked overlays, glass effects, buttons)
-├── vercel.json
-└── package.json
-```
-
-## Core Data Model
-
-### ExpenseData (src/lib/calc.ts)
-
-```ts
-interface ExpenseData {
-  housing: number; food: number; transport: number; healthcare: number;
-  utilities: number; entertainment: number; clothing: number; savings: number; other: number;
-}
-```
-
-### CalcOutput (src/lib/calc.ts)
-
-Returned by `computeForExpenses(data, taxRate)`:
-
-```ts
-interface CalcOutput {
-  monthlyExpensesTotal: number;
-  annualGrossRequired: number;
-  grossMonthlyRequired: number;
-  hourlyRequired: number;
-  emergencyFundTarget: number;
-  taxMonthly: number;
-  fragilityScore: number;        // 0-100
-  healthScore: number;           // 0-100
-  healthLabel: string;           // "Excellent" | "Good" | "Fair" | "Needs Work"
-  ratios: { rentRatio, debtRatio, transportRatio, savingsRatio, entertainmentRatio };
-  subScores: { cashflowStability, debtRisk, savingsStrength, incomeFragility };
-}
-```
-
-### FinancialDiagnosis (src/lib/diagnosis-types.ts)
-
-```ts
-type DiagnosisTone = "direct" | "supportive" | "disciplined";
-type DiagnosisAction = { title: string; explanation: string; impact: "low"|"medium"|"high"; difficulty: "easy"|"moderate"|"hard" };
-type FinancialDiagnosis = {
-  mainIssue: string; summary: string; riskLevel: "low"|"medium"|"high";
-  topMoves: DiagnosisAction[];
-  ifUnchanged30d: string; ifOptimized30d: string; ifUnchanged12m: string; ifOptimized12m: string;
-  verdict: string; cutFirst?: string[]; hiddenStrength?: string; toneUsed: DiagnosisTone;
-};
-```
+# Ascentra — Project Context (Strategy & Market)
 
-`parseDiagnosis(raw)` validates AI JSON into this shape, returning `null` on failure.
+**Last validated: July 2026.** If more than ~6 months have passed, re-verify the market section before making strategic decisions from this doc.
 
-## Pages & Navigation
+This document is the *why* behind Ascentra. For guardrails and coding rules, see `CLAUDE.md` (auto-loaded). For codebase reference, see `ARCHITECTURE.md`.
 
-All pages rendered via `page` state string in the main App component (`src/routes/index.tsx`):
+---
 
-`landing` | `calculator` | `results` | `checkout` | `simulator` | `checkin` | `fire` | `forecast` | `debt` | `fi` | `dashboard` | `share` | `dev-access` | `digest-preview`
+## Core purpose
 
-## ResultsPage Architecture
+Ascentra tells financially anxious people where they actually stand and the single next move that matters — one honest diagnosis, paid once, no subscription, no tracking homework.
 
-**File**: `src/components/pages/ResultsPage.tsx`
+It is a **financial clarity and diagnosis engine**, not a finance app. The experience is:
 
-**Key props**: `data`, `taxRate`, `currentGrossIncome`, `userTier`, `onUpgrade`, `isDark`, `currentTheme`, plus navigation callbacks.
+**Diagnosis → Simulation → Decision** (not Input → Output)
 
-**Computation**: Calls `computeForExpenses(data, taxRate)` at the top to derive all financial metrics.
+## The job to be done
 
-**AI component render order** (after main results hero):
-1. `FinancialDiagnosisSection` — Premium diagnosis with tone selector, KPI snapshot, signals, gated sections
-2. `AIFinancialInsights` — 3 insights + risk warning + optimization + 10yr projection
-3. `AIBudgetInsights` — 4 budget tips
-4. `AIIncomeIdeas` — 4 income ideas with range/difficulty
+The real user job is not "calculate my finances," "track my budget," or "use an AI tool." It is:
 
-## AI Endpoint (api/ai.ts)
+**"Tell me if my life is financially realistic, what's actually hurting me, and what to change first."**
 
-**POST /api/ai** with `{ feature, input }`.
+Every feature, copy decision, and prompt must serve that job.
 
-Features:
-| Feature | Provider Preference | Output |
-|---|---|---|
-| `incomeIdeas` | Anthropic | `{ ideas: IncomeIdea[] }` |
-| `budgetInsights` | Anthropic | `{ insights: string[] }` |
-| `financialInsights` | Anthropic | `{ insights, riskWarning, optimization, projection }` |
-| `financialDiagnosis` | Anthropic (1200 tokens) | `FinancialDiagnosis` JSON |
-| `advisor` | OpenAI (gpt-4.1) | `{ reply: string }` |
+## Business model — SETTLED
 
-Helper functions: `callAI(system, user, preferOpenAI, maxTokens)`, `callAnthropic(system, msgs, maxTokens)`, `callOpenAI(msgs)`.
+**One-time payment. Pay once, get your full diagnosis.** This decision is final for the current phase.
 
-## AI Component Pattern
+- The subscription tier system (free/pro/premium) is legacy. The codebase still contains tier logic mid-migration — see the refactor spec. Do not extend it; migrate away from it.
+- One-time pricing is a *positioning weapon*, not a compromise: every major competitor (Monarch, Copilot, Rocket Money, YNAB) is a subscription tracker, and subscription fatigue is a documented complaint against all of them. "Pay once, no subscription" is a headline differentiator, not fine print.
+- "Repeat usage" is no longer a top-level optimization goal. A user can return for a fresh diagnosis after life changes, but the product does not need engagement loops to justify recurring billing — because there is none.
 
-All AI components follow this pattern:
-1. Local state: `loading`, `generated`, `error`, `result`
-2. SessionStorage cache with 5-minute TTL
-3. Fetch `/api/ai` on button click
-4. Three UI states: not-generated (button), loading (spinner), success (rendered sections)
-5. Error state with retry button
-6. Refresh/regenerate button in header after generation
+## Current phase — distribution-first
 
-## AI Financial Diagnosis Feature
+No new feature work during this window. The recurring bottleneck across all of Jack's ventures is distribution, not build capacity. The product is sufficient; the audience is not.
 
-**Premium flagship feature** with monetization gate.
+Allowed work: bug fixes, conversion-critical funnel fixes, copy, PostHog instrumentation, and assets serving the TikTok content flywheel.
 
-**Components**:
-- `FinancialDiagnosisSection` — Outer wrapper: tone selector, generate button, loading/error states, passes `userTier`/`onUpgrade` through
-- `FinancialDiagnosisCard` — Result renderer with premium gating:
-  - **All users see**: Financial Snapshot (grid), Risk Badge, Main Issue, Why This Matters, Diagnosis Signals (derived pills), first action
-  - **Free users**: Preview progress bar ("1 of 6 insights shown") + blurred locked overlay with upgrade CTA
-  - **Premium users**: Full actions, scenario comparison (30d/12m), cut first, hidden strength, verdict, copy button
+Milestone gate: consistent revenue ($3–5K/month) is the prerequisite before institutional investor outreach (Z Fellows is the immediate target before that bar).
 
-**Diagnosis Signals**: Derived client-side from financial data (housing %, savings rate, fixed expense ratio, surplus sign, income vs savings ratio). No AI call needed.
+---
 
-## Tier & Premium Gating
+## Market context (July 2026) — why this product, why now
 
-**Types**: `UserTier = "free" | "pro" | "premium"`, `PlanId = "pro" | "premium"`
+### The pain is massive and emotional, not informational
 
-**Entitlements** (`src/lib/entitlements.ts`):
-- `getPlan()` — returns tier (dev override via `localStorage.dev_override` wins)
-- `hasProAccess()` — pro or premium
-- `hasPremiumAccess()` — premium only
+- 63% of Americans live paycheck to paycheck; 90% of those have less than $500/mo left after expenses (CNBC/SurveyMonkey, July 2026).
+- 53% worry about money daily, up from 44% in 2021 (Ramsey State of Personal Finance, 2026).
+- 88% of US adults reported financial stress entering 2026; 77% had a financial setback in 2025 (NEFE).
+- Financial stress hits people who *look* stable on paper — even $150K+ households report living paycheck to paycheck (BofA via Fortune, 2026). The press is calling the paper-vs-feelings gap "money dysmorphia." **That gap is literally a diagnostic problem. That is our lane.**
 
-**Locked overlay pattern** (used in ResultsPage and DiagnosisCard):
-```tsx
-<div style={{ position: "relative", overflow: "hidden" }}>
-  <div style={{ filter: "blur(5px)", pointerEvents: "none" }}>{content}</div>
-  <div className="atv-locked-overlay" style={{ position: "absolute", inset: 0 }}>
-    <Lock className="atv-lock-icon-glow" />
-    <button onClick={() => onUpgrade("premium")} className="atv-btn-primary">Unlock</button>
-  </div>
-</div>
-```
+### The hierarchy insight — who we build for
 
-**CSS classes**: `atv-locked-overlay`, `atv-lock-icon-glow`, `atv-btn-primary`, `atv-glass`, `atv-glass-static`, `atv-accent-bar` (defined in `src/styles.css`)
+MX Research (March 2026) frames a "Hierarchy of Financial Health": **stability** (covering bills) → **progress** (debt, credit, first savings) → **long-term security** (investing, wealth). Most fintech builds for the top. The mass market is stuck at the bottom two levels — and only 12% of consumers achieved all their 2025 financial goals.
 
-## Theme System
+**Ascentra's user lives at stability/progress.** Top 2026 consumer resolutions: pay down debt (42%), follow a budget (39%), improve credit (36%) — plain, unsexy goals. Write copy and diagnosis prompts for this person, not for FIRE optimizers.
 
-**Single evergreen identity + light/dark mode.** The 5-theme picker (Cinematic, Deep Sea, Aurora, Ember, Prism) was removed in the Phase 1 visual identity overhaul; theme picker UI and `Theme` / `THEMES` exports are gone.
+The gap for this user is not information. It's that they don't know **where they actually stand** or **what to fix first**. The winning move per Ramsey's own framing: money success is ~80% behavior, ~20% knowledge. Jack's psychology background is the credibility asset here — no competitor in the Mint-successor tier owns "behavioral diagnostic."
 
-**Evergreen palette constants** (exported from `src/lib/app-shared.ts`):
+### Competitive landscape
 
-| Token | Hex |
-|---|---|
-| `EV_50`  | `#F1FAF4` |
-| `EV_100` | `#D8F3DC` |
-| `EV_200` | `#B7E4C7` |
-| `EV_300` | `#95D5B2` |
-| `EV_400` | `#74C69D` |
-| `EV_500` | `#52B788` |
-| `EV_600` | `#40916C` |
-| `EV_700` | `#2D6A4F` |
-| `EV_800` | `#1B4332` (PRIMARY) |
-| `EV_900` | `#081C15` |
+- Mint is dead (shut down early 2024). Weekly personal finance app usage is at an all-time high (~38% of US adults per Fed surveys via TechBullion, 2026). The audience got absorbed by Monarch, Copilot, Rocket Money, YNAB, Empower, and Apple Wallet.
+- All of those are **subscription trackers**. Ascentra is not competing to be the 13th dashboard. It is the *checkup* you take before/instead of committing to a dashboard.
+- Origin's documented weaknesses (see competitor research) remain the sharpest direct-positioning contrast.
+- Consumers want proactive guidance, not data display — but demand transparency and "human guardrails" when money is involved (Plaid 2026 trends). Trust and explainability beat AI magic. Structured, grounded diagnosis output is the moat direction, not chat.
 
-**ThemeConfig shape** (now expanded): `{ name, icon, primary, primaryHover, primarySoft, accent, bg, cardBg, text, muted, subtle, border, borderStrong, headerBg, success, warning, danger }`.
+### Regulatory tailwind (watch, don't build yet)
 
-**Typography**: Geist Sans body / Geist Mono for numeric displays (loaded via Google Fonts in `src/styles.css`). The `MONO_FONT_STACK` constant is exported from `app-shared.ts` for Phase 2 rollout.
+CFPB Section 1033 data-portability rules begin phased implementation in 2026, giving consumers an enforceable right to share financial data with third-party apps. This may eventually lower the cost of an *optional* one-shot data import for diagnosis. It does NOT change the no-tracker rule — if ever used, it would be a single snapshot import, never continuous syncing. Not for this phase.
 
-**Theme resolution**: `buildTheme(isDark)` returns the evergreen `ThemeConfig` for the current mode. `applyDark(theme, isDark)` is preserved as a backwards-compatible alias that delegates to `buildTheme`. Every component still receives `t: ThemeConfig` and `isDark: boolean`.
+---
 
-## Styling Pattern
+## What to optimize for (in order)
 
-**All component code uses inline CSS** (`style={}` props), not Tailwind utility classes. New components must match this pattern. Theme colors are applied via the `t` object (e.g., `t.cardBg`, `t.border`, `t.text`, `t.muted`).
+1. **Clarity** — instantly understandable results: where you stand, what hurts most, what helps most
+2. **Diagnosis quality** — the AI Financial Diagnosis is the flagship; it must feel sharp, specific, and personal
+3. **One-time conversion** — the diagnosis reveal must justify the one-time price on its own
+4. **Trust** — grounded, structured, explainable outputs safe enough to act on
+5. **Scenario depth** — test meaningful life changes, not static numbers
 
-## Storage Keys
+## What NOT to build
 
-| Key | Storage | Purpose |
-|---|---|---|
-| `incomecalc-tier` | localStorage | User plan tier |
-| `dev_override` | localStorage | Dev tier override |
-| `incomecalc-scenarios` | localStorage | Saved scenarios |
-| `incomecalc-snapshots` | localStorage | Check-in history |
-| `incomecalc-user` | localStorage | Current user |
-| `ai_cache_*` | sessionStorage | 5-min AI response cache |
+Account syncing, budgeting dashboards, investment tracking, subscription tiers, generic AI assistants, full planning suites, professional/advisor tools (deferred), broad productivity features. Do not chase "AI for everyone." Do not build vague automation or shallow AI wrappers.
 
-## Scripts
+**Feature filter:** a feature earns its place only if it strengthens clarity, diagnosis quality, scenario exploration, trust, or one-time conversion. Otherwise it is a distraction — including good ideas.
 
-| Command | Purpose |
-|---|---|
-| `npm run dev` | Vite dev server (port 3000) |
-| `npm run build` | Production build |
-| `npm run check` | TS + lint + format |
-| `npm run test` | Vitest tests |
-| `npm run dev:local` | Vercel local dev |
+## Strategic sequence
 
-## Known Issues
+Consumer wedge (now, distribution-first) → stronger diagnosis + reveal moment → deeper scenario engine → professional enablement *later*, only after consumer demand is proven with revenue.
 
-- Pre-existing TS error in `src/routes/index.tsx` (~line 2983): `signOut` does not exist on `auth-store` — unrelated to AI features, does not block build.
+## Operating principle
 
-## Key Constraints for Editing
+**Ascentra should be the fastest, clearest way for someone to understand what their life costs, what they can afford, and what to do next — for a single honest price.**
 
-1. **Do not bloat `src/routes/index.tsx`** — prefer creating focused components in `src/components/`
-2. **Match inline style pattern** — no Tailwind classes in components
-3. **Reuse `computeForExpenses()`** as the single source of truth for calculations
-4. **Reuse existing AI endpoint** (`/api/ai`) by adding new feature cases
-5. **Follow the AI component pattern**: local state, sessionStorage cache, fetch on click, loading/error/success states
-6. **Use existing premium gate pattern**: blur + `atv-locked-overlay` + `atv-btn-primary`
-7. **Pass theme via props** (`t: ThemeConfig`, `isDark: boolean`)
+---
 
-## Product Strategy
+## Maintenance rule for this document
 
-Ascentra is not a generic AI finance app, a budgeting dashboard, or a broad personal finance platform.
-
-It is a **financial clarity and scenario engine** focused on one core value:
-
-**helping users understand what their life actually costs, what they can afford, and what to change next.**
-
-### Core Thesis
-
-The product should become the **decision-support layer for lifestyle affordability and financial clarity**.
-
-The goal is to help users quickly understand:
-
-- what their current lifestyle costs
-- what income they need
-- what is making their situation harder
-- which changes improve their position the most
-- what realistic next steps make sense
-
-### Job To Be Done
-
-The core user job is not:
-
-- “calculate my finances”
-- “track my budget”
-- “use an AI tool”
-
-The real job is:
-
-**“Help me know whether my current or desired life is financially realistic, and show me what to change.”**
-
-Every feature should support that job.
-
-### Product Experience Standard
-
-The core product experience should feel like:
-
-**Diagnosis → Simulation → Decision**
-
-Not just:
-
-**Input → Output**
-
-The product should help the user:
-
-1. enter their real situation
-2. understand where they stand
-3. test meaningful scenarios
-4. see which changes matter most
-5. leave with more confidence about what to do next
-
-### Current Product Wedge
-
-The current best wedge is **consumer financial clarity**.
-
-The product should help individuals make decisions around:
-
-- affordability
-- income targets
-- expense tradeoffs
-- savings pressure
-- debt pressure
-- lifestyle changes
-- “can I afford this?” decisions
-
-This is stronger than building a generic finance tool.
-
-### What To Optimize For
-
-Prioritize features that improve one or more of these:
-
-1. **Clarity**  
-   The result should be instantly understandable. Users should quickly see where they stand, what hurts most, and what helps most.
-
-2. **Diagnosis quality**  
-   The AI Financial Diagnosis is the flagship feature and should feel sharp, useful, and specific.
-
-3. **Scenario depth**  
-   Users should be able to test meaningful life changes, not just view static numbers.
-
-4. **Repeat usage**  
-   The product should give users reasons to come back and compare new scenarios over time.
-
-5. **Trust**  
-   Outputs should feel grounded, structured, and safe enough to rely on for planning decisions.
-
-6. **Premium conversion**  
-   Premium should unlock deeper insight, stronger comparisons, and more valuable decision support.
-
-### What Not To Build
-
-Avoid expanding into unrelated financial software categories such as:
-
-- account syncing
-- investment tracking
-- budgeting dashboards
-- full financial planning suites
-- generic AI assistant features
-- broad productivity features
-- anything that adds complexity without improving decisions
-
-Do not chase “AI for everyone.”
-
-Do not build vague automation or shallow AI wrappers.
-
-### Feature Filter
-
-A feature is worth building only if it improves one or more of these:
-
-- financial clarity
-- diagnosis quality
-- scenario exploration
-- trust in the output
-- repeat usage
-- premium conversion
-
-If it does not strengthen the core job, it is likely a distraction.
-
-### Strategic Direction
-
-The current best path is:
-
-**consumer wedge first → stronger scenario engine → deeper premium value → professional enablement later**
-
-Do not build for professionals first.
-
-The longer-term opportunity may include tools for:
-
-- financial coaches
-- advisors
-- accountants
-- real estate teams
-- relocation advisors
-- debt consultants
-
-But that comes later, after the consumer product proves strong demand and repeat use.
-
-### Product Moat Direction
-
-The moat is not “we use AI.”
-
-The moat should become:
-
-- a better diagnosis flow
-- a stronger reveal moment
-- more useful scenario comparisons
-- saved context and history
-- action-oriented outputs
-- trusted decision support
-- eventually, advisor/client workflow
-
-### Operating Principle
-
-**Ascentra should become the fastest, clearest way for someone to understand what their life costs, what they can afford, and what to do next.**
-
-## Brand Identity
-
-- **Name**: Ascentra
-- **Domain**: ascentra.finance
-- **Brand mark**: Geometric "A" — upward-pointing triangle with horizontal bar (ascent motif), rendered as inline SVG
-- **Brand mark container**: Evergreen gradient (`#1B4332` → `#52B788`), rounded square
-- **Sizes**: 36x36 (sidebar), 32x32 (header), 48x48 (share card), 32x32 (favicon)
-- **Favicon**: SVG at `/public/favicon.svg` — same geometric "A" on `#1B4332` background
-
-## Phase 3e — Shipped
-
-**Name capture:**
-- User type (src/lib/auth-store.ts:14) has optional `name?: string`. Legacy users = undefined, new signups collect it.
-- Signup API (api/auth.ts) stores name in KV, login returns it.
-- AuthModal signup form collects name (optional, max 60 chars). Signin unchanged.
-
-**User display helpers (src/lib/user-display.ts):**
-- `getDisplayName(user)` → full name or email prefix fallback. Use for dashboard greetings, labels.
-- `getFirstName(user)` → first word of name, or email prefix fallback. Use for welcome screens.
-- `getInitials(user)` → "JS" for multi-word names, "J" for single-word or email fallback.
-- **Rule: never use `email.split("@")` for display in UI code.** One intentional exception remains: `auth-store.ts:702` digest email (has name-first fallback).
-
-**Dashboard empty state:**
-- `hasRealExpenseData(expenseData)` lives in `src/lib/app-shared.ts:227`. Returns true if any expense value > 0.
-- `DashboardEmptyState` component at `src/components/dashboard/DashboardEmptyState.tsx`. Centered layout matching Budget/Scenarios pattern, personalized greeting, orange CTA → intent picker.
-- ResultsPage gates the entire dashboard view on `hasRealExpenseData`. Empty state replaces metric cards + health score + runway + alerts + scenarios — none of those render for zero-data users.
-- DashboardTopbar `subtitle` prop overrides "Here's your financial assessment..." with "Let's get started" when empty.
-
-**FirstVisitBanner:**
-- Single variant only. Renders "Your $X,XXX/mo required income is saved..." when user has pendingData, else returns null.
-- Variant B (no-data "come alive" copy) deleted — absorbed by DashboardEmptyState.
-
-**Path correction:**
-- `DashboardTopbar` lives at `src/components/ui/DashboardTopbar.tsx` (NOT `src/components/dashboard/`). Prior docs had this wrong.
-
-**Infrastructure:**
-- `.gitattributes` now normalizes all source files to LF. No more CRLF/LF churn in phase diffs.
-
-## Known open items (carry forward)
-
-- **Analytics page zero-data bug** (src/components/pages/AnalyticsPage.tsx or equivalent). Same class as the dashboard bug we just fixed: "Your expenses are well distributed across categories" renders with no expenses. Apply the `hasRealExpenseData` + centered empty-state pattern. Small phase, high quality bar.
-- **incomecalai.com decommission.** Old domain still pointing at stale Vercel deployment with pre-rebrand landing. Namecheap DNS action required.
-- **TikTok rename** from @incomecalc.ai to match Ascentra brand. Business verified, content strategy paused.
-- **Post-signup personalization (was "3f").** Name capture works now — next step is slotting 1-2 financial-context questions into /welcome before dashboard hydrates. Design-heavy, save for a session where you have time to think about which questions earn their place.
+When Claude Code proposes something this doc can't cleanly rule in or out, that's a missing line — add one line, then. Re-validate the market section every ~6 months. Update "Last validated" date on every meaningful edit.

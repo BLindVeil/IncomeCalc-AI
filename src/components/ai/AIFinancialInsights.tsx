@@ -125,206 +125,162 @@ export function AIFinancialInsights({
     setLoading(false);
   }
 
-  const sectionStyle = (accent: string): React.CSSProperties => ({
-    padding: "0.85rem 1rem",
-    borderRadius: "10px",
-    background: accent + "12",
-    borderLeft: `3px solid ${accent}`,
-    marginBottom: "0.65rem",
-  });
+  const blockLabel: React.CSSProperties = {
+    fontSize: "0.85rem",
+    fontWeight: 600,
+    letterSpacing: "-0.01em",
+    color: t.text,
+    marginBottom: "0.4rem",
+  };
+  const blockText: React.CSSProperties = {
+    margin: 0,
+    fontSize: "0.9rem",
+    color: t.muted,
+    lineHeight: 1.65,
+    maxWidth: "62ch",
+  };
+  const blockRule: React.CSSProperties = {
+    marginTop: "1.1rem",
+    paddingTop: "1rem",
+    borderTop: `1px solid ${t.border}`,
+  };
 
   return (
     <div
       style={{
-        background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+        background: t.cardBg,
         border: `1px solid ${t.border}`,
-        borderRadius: "14px",
+        borderRadius: "16px",
         padding: "1.5rem",
         marginBottom: "1.25rem",
-        position: "relative",
-        overflow: "hidden",
       }}
     >
-      {/* Gradient accent bar */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: `linear-gradient(90deg, ${t.primary}, ${t.accent}, #ec4899)`,
-          borderRadius: "14px 14px 0 0",
-        }}
-      />
-
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Sparkles size={18} style={{ color: t.primary }} />
-          <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Financial Insights</span>
-          <span
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "0.75rem" }}>
+        <div>
+          <div
             style={{
-              fontSize: "0.7rem",
-              fontWeight: 700,
-              background: `linear-gradient(90deg, ${t.primary}, ${t.accent})`,
-              color: "#fff",
-              padding: "2px 7px",
-              borderRadius: "20px",
-              letterSpacing: "0.04em",
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: t.muted,
+              marginBottom: "0.5rem",
             }}
           >
-            AI
-          </span>
+            AI Financial Insights
+          </div>
+          <div style={{ fontSize: "1.15rem", fontWeight: 600, letterSpacing: "-0.014em", color: t.text, lineHeight: 1.25 }}>
+            Your picture, risks, and 10-year outlook
+          </div>
         </div>
         {generated && (
           <button
             onClick={generateInsights}
-            style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "10px", minWidth: "44px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "10px", minWidth: "44px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
             title="Regenerate"
           >
             <RefreshCw size={15} />
           </button>
         )}
       </div>
-      <p style={{ color: t.muted, fontSize: "0.85rem", marginBottom: "1rem", margin: "0 0 1rem" }}>
-        A complete AI analysis of your financial picture — insights, risks, and your 10-year outlook.
-      </p>
 
       {!generated && !loading && (
-        <div style={{ textAlign: "center", padding: "1rem 0" }}>
+        <div style={{ marginTop: "0.85rem" }}>
+          <p style={{ ...blockText, marginBottom: "1.1rem" }}>
+            One pass over everything you entered: what stands out, what could hurt
+            you, and where a decade of your current pace lands.
+          </p>
           <button
             onClick={generateInsights}
+            className="lp-press"
             style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "11px 22px",
               background: t.text,
               color: t.cardBg,
               border: "none",
-              borderRadius: "10px",
-              padding: "0.7rem 1.8rem",
-              fontSize: "0.95rem",
-              fontWeight: 700,
+              borderRadius: 999,
+              fontSize: 14,
+              fontWeight: 550,
+              letterSpacing: "-0.01em",
               cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              boxShadow: `0 4px 14px ${t.primary}59`,
             }}
           >
-            <Sparkles size={16} />
-            Generate My Financial Insights
+            <Sparkles size={15} />
+            Generate my insights
           </button>
         </div>
       )}
 
       {loading && (
-        <div style={{ textAlign: "center", padding: "1.75rem 0", color: t.muted, fontSize: "0.9rem" }}>
-          <Sparkles size={20} style={{ marginBottom: "0.5rem", color: t.primary }} />
-          <div style={{ fontWeight: 500 }}>Analyzing your complete financial picture…</div>
+        <div style={{ marginTop: "1.1rem" }} aria-label="Analyzing your financial picture" role="status">
+          <style>{`
+            @keyframes dx-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+            @media (prefers-reduced-motion: reduce) { .dx-skel { animation: none !important; } }
+          `}</style>
+          {[["88%", 12], ["76%", 12], ["52%", 12]].map(([w, h], i) => (
+            <div
+              key={i}
+              className="dx-skel"
+              style={{
+                width: w as string,
+                height: h as number,
+                borderRadius: 6,
+                background: t.border,
+                marginBottom: 10,
+                animation: `dx-pulse 1.6s ease-in-out ${i * 0.12}s infinite`,
+              }}
+            />
+          ))}
+          <div style={{ fontSize: "0.8rem", color: t.muted, marginTop: "0.75rem" }}>
+            Analyzing your complete financial picture…
+          </div>
         </div>
       )}
 
       {error && (
-        <p style={{ color: "#DC2626", fontSize: "0.88rem", textAlign: "center", margin: "0.5rem 0 0" }}>
+        <p style={{ color: t.text, fontSize: "0.88rem", fontWeight: 500, margin: "0.85rem 0 0" }}>
           {error}
         </p>
       )}
 
       {generated && !loading && result && (
         <div>
-          {/* Key Insights */}
-          <div style={{ marginBottom: "1rem" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.4rem",
-                marginBottom: "0.55rem",
-                fontSize: "0.78rem",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                color: t.primary,
-              }}
-            >
-              <Brain size={13} />
-              Key Insights
-            </div>
+          {/* Key insights */}
+          <div style={blockRule}>
+            <div style={blockLabel}>Key insights</div>
             {result.insights.map((insight, i) => (
-              <div key={i} style={sectionStyle(t.primary)}>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: t.text, lineHeight: 1.55 }}>{insight}</p>
+              <div key={i} style={{ display: "flex", gap: "0.6rem", marginBottom: "0.45rem" }}>
+                <span style={{ fontSize: "0.82rem", color: t.subtle, flexShrink: 0, lineHeight: 1.65 }}>—</span>
+                <p style={blockText}>{insight}</p>
               </div>
             ))}
           </div>
 
           {result.riskWarning && (
-            <div style={{ marginBottom: "1rem" }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  marginBottom: "0.55rem",
-                  fontSize: "0.78rem",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  color: "#DC2626",
-                }}
-              >
-                <AlertTriangle size={13} />
-                Risk Warning
+            <div style={blockRule}>
+              <div style={{ ...blockLabel, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#DC2626", flexShrink: 0 }} />
+                Risk warning
               </div>
-              <div style={sectionStyle("#DC2626")}>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: t.text, lineHeight: 1.55 }}>{result.riskWarning}</p>
-              </div>
+              <p style={blockText}>{result.riskWarning}</p>
             </div>
           )}
 
           {result.optimization && (
-            <div style={{ marginBottom: "1rem" }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  marginBottom: "0.55rem",
-                  fontSize: "0.78rem",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  color: "#40916C",
-                }}
-              >
-                <Zap size={13} />
-                Optimization Opportunity
-              </div>
-              <div style={sectionStyle("#40916C")}>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: t.text, lineHeight: 1.55 }}>{result.optimization}</p>
-              </div>
+            <div style={blockRule}>
+              <div style={blockLabel}>Optimization opportunity</div>
+              <p style={blockText}>{result.optimization}</p>
             </div>
           )}
 
           {result.projection && (
-            <div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  marginBottom: "0.55rem",
-                  fontSize: "0.78rem",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  color: "#B45309",
-                }}
-              >
-                <TrendingUp size={13} />
-                10-Year Projection
-              </div>
-              <div style={sectionStyle("#B45309")}>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: t.text, lineHeight: 1.55 }}>{result.projection}</p>
-              </div>
+            <div style={{ marginTop: "1.1rem", background: t.primarySoft, borderRadius: 12, padding: "1rem 1.1rem" }}>
+              <div style={blockLabel}>10-year projection</div>
+              <p style={{ ...blockText, color: t.text }}>{result.projection}</p>
             </div>
           )}
         </div>

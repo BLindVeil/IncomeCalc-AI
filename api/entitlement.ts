@@ -3,6 +3,12 @@
  *
  * Returns the server-verified plan for the authenticated user.
  *
+ * Ascentra's model is a one-time purchase: the only tiers are "free" and
+ * "paid". Legacy subscription records (plan "pro"/"premium" written before the
+ * migration) are mapped to "paid" while still active and lapse to "free" when
+ * their original expires_at passes. New one-time purchases have
+ * expires_at: null and never lapse.
+ *
  * Auth:
  *   Authorization: Bearer <sessionToken>  — required in all environments
  *   X-User-Id: <userId>                   — required (client-side auth)
@@ -12,7 +18,7 @@
  * scaling to production with sensitive data.
  *
  * Response schema:
- *   { user_id, plan, status, created_at }
+ *   { user_id, plan: "free" | "paid", status, created_at }
  *
  * Required env vars:
  *   KV_REST_API_URL    — Set automatically by Vercel KV
@@ -35,12 +41,12 @@ interface Res {
 
 interface EntitlementRecord {
   user_id: string;
-  plan: "free" | "pro" | "premium";
-  billing_period: "monthly" | "yearly";
+  // "paid" for one-time purchases; "pro"/"premium" on legacy records
+  plan: "free" | "paid" | "pro" | "premium";
   stripe_session_id: string | null;
   status: "active" | "expired";
   created_at: string;
-  expires_at: string;
+  expires_at: string | null;
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
@@ -74,14 +80,18 @@ export default async function handler(req: Req, res: Res): Promise<void> {
       return;
     }
 
-    // Determine if the entitlement is still active
+    // Lifetime purchases have expires_at: null and never expire.
     const isExpired = record.expires_at
       ? new Date(record.expires_at) < new Date()
       : false;
 
+    const hasAccess =
+      !isExpired &&
+      (record.plan === "paid" || record.plan === "pro" || record.plan === "premium");
+
     res.status(200).json({
       user_id: record.user_id,
-      plan: isExpired ? "free" : record.plan,
+      plan: hasAccess ? "paid" : "free",
       status: isExpired ? "expired" : record.status,
       created_at: record.created_at,
     });

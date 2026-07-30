@@ -29,7 +29,6 @@ import {
   MONO_FONT_STACK,
   type ThemeConfig,
   type UserTier,
-  type PlanId,
   type ExpenseData,
   type Scenario,
 } from "@/lib/app-shared";
@@ -42,7 +41,7 @@ export interface SimulatorPageProps {
   initialExpenses: ExpenseData;
   initialTaxRate: number;
   onBack: () => void;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
   userTier: UserTier;
   isDark: boolean;
   setIsDark: (v: boolean) => void;
@@ -61,10 +60,10 @@ export function SimulatorPage({
 }: SimulatorPageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
-  const hasPaidAccess = userTier === "pro" || userTier === "premium";
+  const hasPaidAccess = userTier === "paid";
 
   // Active workspace slot limits (distinct from saved-scenario storage limits)
-  const workspaceLimit = userTier === "premium" ? 5 : userTier === "pro" ? 3 : 1;
+  const workspaceLimit = userTier === "paid" ? 5 : 1;
 
   // All saved scenarios (persisted to localStorage as the user's scenario library)
   const [savedScenarios, setSavedScenarios] = useState<Scenario[]>(() => {
@@ -310,7 +309,7 @@ export function SimulatorPage({
             >
               <Plus size={14} /> Add Variation
             </button>
-          ) : userTier === "premium" ? (
+          ) : userTier === "paid" ? (
             <span
               style={{
                 border: `1px dashed ${t.border}`,
@@ -327,7 +326,7 @@ export function SimulatorPage({
             </span>
           ) : (
             <button
-              onClick={() => { const p = userTier === "free" ? "pro" as const : "premium" as const; trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", plan: p }); onUpgrade(p); }}
+              onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator" }); onUpgrade(); }}
               style={{
                 background: "transparent",
                 border: `1px dashed ${t.primary}50`,
@@ -442,7 +441,7 @@ export function SimulatorPage({
                         applyPreset(activeScenario.id, p.key);
                       } else {
                         trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", trigger: "preset_click" });
-                        onUpgrade("pro");
+                        onUpgrade();
                       }
                     }}
                     style={{
@@ -479,10 +478,10 @@ export function SimulatorPage({
                 >
                   <Lock size={13} style={{ color: t.primary, flexShrink: 0 }} />
                   <span style={{ fontSize: "0.8rem", color: t.muted, flex: 1 }}>
-                    Upgrade to Pro to edit values and build custom scenarios.
+                    Unlock the Full Diagnosis to edit values and build custom scenarios.
                   </span>
                   <button
-                    onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", trigger: "form_lock_banner" }); onUpgrade("pro"); }}
+                    onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", trigger: "form_lock_banner" }); onUpgrade(); }}
                     className="lp-press"
                     style={{
                       background: t.text,
@@ -696,7 +695,7 @@ export function SimulatorPage({
                   </div>
                 </div>
                 <button
-                  onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator", plan: "pro" }); onUpgrade("pro"); }}
+                  onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "simulator" }); onUpgrade(); }}
                   className="lp-press"
                   style={{
                     background: t.text,
@@ -715,7 +714,7 @@ export function SimulatorPage({
                   }}
                 >
                   <Lock size={13} />
-                  Upgrade to Pro
+                  Unlock Full Diagnosis
                 </button>
               </div>
             </div>

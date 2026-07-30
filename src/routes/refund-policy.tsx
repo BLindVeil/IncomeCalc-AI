@@ -23,11 +23,11 @@ function RefundPolicyPage() {
 
         <div style={{ lineHeight: 1.8, fontSize: "0.95rem", color: "color-mix(in srgb, var(--foreground) 75%, transparent)" }}>
           <p style={{ background: "color-mix(in srgb, var(--foreground) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--foreground) 12%, transparent)", borderRadius: "8px", padding: "1rem", fontWeight: 500, color: "var(--foreground)" }}>
-            <strong>Ascentra is not financial, tax, or legal advice.</strong> This refund policy applies to Ascentra Pro and Premium subscription plans.
+            <strong>Ascentra is not financial, tax, or legal advice.</strong> This refund policy applies to the Ascentra Full Diagnosis one-time purchase.
           </p>
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>7-Day Money-Back Guarantee</h2>
-          <p>We offer a <strong>7-day money-back guarantee</strong> on all Ascentra paid plans (Pro and Premium). If you are not satisfied with the Service for any reason, you may request a full refund within 7 days of your initial purchase date.</p>
+          <p>We offer a <strong>7-day money-back guarantee</strong> on the Full Diagnosis purchase. If you are not satisfied with the Service for any reason, you may request a full refund within 7 days of your purchase date.</p>
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>How to Request a Refund</h2>
           <ol style={{ paddingLeft: "1.5rem" }}>
@@ -39,18 +39,18 @@ function RefundPolicyPage() {
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>Eligibility</h2>
           <ul style={{ paddingLeft: "1.5rem" }}>
             <li>Refunds are available within <strong>7 calendar days</strong> from the date of your first payment.</li>
-            <li>This guarantee applies to both monthly and yearly plans.</li>
-            <li>Refunds for renewal payments (after the initial billing period) are handled on a case-by-case basis.</li>
+            <li>The guarantee applies to the one-time Full Diagnosis purchase.</li>
+            <li>There are no renewal payments — the purchase is a single one-time charge.</li>
             <li>Refunds are issued to the original payment method via Stripe.</li>
           </ul>
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>After a Refund</h2>
           <p>Once a refund is issued, your account will be downgraded to the Free plan. You will retain access to all free features. Your saved scenarios and data will not be deleted.</p>
 
-          <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>Cancellations</h2>
-          <p>You can cancel your subscription at any time. After cancellation:</p>
+          <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>No Cancellations Needed</h2>
+          <p>Because there is no subscription, there is nothing to cancel:</p>
           <ul style={{ paddingLeft: "1.5rem" }}>
-            <li>You retain access to paid features until the end of your current billing period.</li>
+            <li>Your access never expires — pay once, keep it forever.</li>
             <li>No further charges will be made.</li>
             <li>You can resubscribe at any time.</li>
           </ul>

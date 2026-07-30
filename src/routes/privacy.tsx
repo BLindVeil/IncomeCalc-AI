@@ -32,7 +32,7 @@ function PrivacyPage() {
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>2. Information We Collect</h2>
 
           <h3 style={{ fontSize: "1.05rem", fontWeight: 600, color: "var(--foreground)", marginTop: "1.25rem" }}>a) Email Address</h3>
-          <p>When you create an account or subscribe to a plan, we collect your email address. This is used for account identification, subscription management, and optional weekly digest emails.</p>
+          <p>When you create an account or make a purchase, we collect your email address. This is used for account identification, purchase management, and optional weekly digest emails.</p>
 
           <h3 style={{ fontSize: "1.05rem", fontWeight: 600, color: "var(--foreground)", marginTop: "1.25rem" }}>b) Analytics Events</h3>
           <p>We use PostHog (or a similar analytics service) to collect anonymous usage data, including:</p>
@@ -45,7 +45,7 @@ function PrivacyPage() {
           <p>This data helps us understand how the Service is used and improve it. No personally identifiable financial data is sent to analytics.</p>
 
           <h3 style={{ fontSize: "1.05rem", fontWeight: 600, color: "var(--foreground)", marginTop: "1.25rem" }}>c) Payment Processing</h3>
-          <p>All payment processing is handled by <strong>Stripe</strong>. We do not store your credit card number, CVV, or full payment details. Stripe processes and stores your payment information securely in compliance with PCI-DSS Level 1 standards. We may receive from Stripe: your email, subscription status, and transaction identifiers.</p>
+          <p>All payment processing is handled by <strong>Stripe</strong>. We do not store your credit card number, CVV, or full payment details. Stripe processes and stores your payment information securely in compliance with PCI-DSS Level 1 standards. We may receive from Stripe: your email, purchase status, and transaction identifiers.</p>
 
           <h3 style={{ fontSize: "1.05rem", fontWeight: 600, color: "var(--foreground)", marginTop: "1.25rem" }}>d) Financial Data You Enter</h3>
           <p>Expense data, income figures, and other financial information you enter into the calculator are processed locally in your browser and may be stored in your browser's local storage. This data is not sent to our servers unless you explicitly use a cloud-sync or sharing feature.</p>
@@ -53,7 +53,7 @@ function PrivacyPage() {
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>3. How We Use Your Information</h2>
           <ul style={{ paddingLeft: "1.5rem" }}>
             <li>To provide and improve the Service</li>
-            <li>To process subscriptions and payments via Stripe</li>
+            <li>To process payments via Stripe</li>
             <li>To send weekly digest emails (if you opt in)</li>
             <li>To analyze usage patterns and improve features</li>
             <li>To provide customer support</li>

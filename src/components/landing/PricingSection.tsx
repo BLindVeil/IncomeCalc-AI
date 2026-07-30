@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ThemeConfig } from "@/lib/app-shared";
+import { FULL_PRICE } from "@/lib/app-shared";
 import { INK, GREY, GREY_LIGHT, HAIRLINE, MINT, MONO, WHITE, RADIUS_CARD } from "./landing-theme";
 import { PillButton } from "./PillButton";
 import { Reveal } from "./Reveal";
@@ -8,19 +9,16 @@ interface PricingSectionProps {
   t: ThemeConfig;
   isDark: boolean;
   onStart: () => void;
-  onUpgrade: (plan: "pro" | "premium") => void;
+  onUpgrade: () => void;
 }
 
-type Billing = "monthly" | "yearly";
-
 interface TierRow {
-  id: "free" | "pro" | "premium";
+  id: "free" | "full";
   name: string;
   tagline: string;
   features: string;
-  monthly: number;
-  yearly: number;
-  yearlySavings?: string;
+  priceLabel: string;
+  priceSuffix: string;
   recommended?: boolean;
 }
 
@@ -30,49 +28,27 @@ const TIERS: TierRow[] = [
     name: "Free",
     tagline: "Know your number",
     features: "Required income · Health score · Income gap · Top move · 2 debts tracked",
-    monthly: 0,
-    yearly: 0,
+    priceLabel: "$0",
+    priceSuffix: "forever",
   },
   {
-    id: "pro",
-    name: "Pro",
-    tagline: "Clarity on what to change",
-    features: "Everything in Free · AI budget insights · AI income ideas · Scenario simulator · Saved scenarios · 6 debts tracked",
-    monthly: 4.99,
-    yearly: 49,
-    yearlySavings: "save 18%",
-  },
-  {
-    id: "premium",
-    name: "Premium",
-    tagline: "Full planning and forecasting",
-    features: "Everything in Pro · AI advisor · Savings analysis · 12-month forecast · FIRE planning · Unlimited debts",
-    monthly: 19,
-    yearly: 99,
-    yearlySavings: "save 57%",
+    id: "full",
+    name: "Full Diagnosis",
+    tagline: "Everything, paid once — no subscription",
+    features:
+      "Complete AI diagnosis · Savings analysis · 12-month forecast · Unlimited scenarios · FIRE planning · Unlimited debts · Every tool, forever",
+    priceLabel: `$${FULL_PRICE}`,
+    priceSuffix: "once",
     recommended: true,
   },
 ];
 
-export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSectionProps) {
-  const [billing, setBilling] = useState<Billing>("yearly");
-  const [selected, setSelected] = useState<"free" | "pro" | "premium">("premium");
-
-  const segmentStyle = (active: boolean): React.CSSProperties => ({
-    padding: "6px 14px",
-    fontSize: 12,
-    fontWeight: 600,
-    borderRadius: 999,
-    border: "none",
-    cursor: "pointer",
-    background: active ? INK : "transparent",
-    color: active ? WHITE : GREY,
-    transition: "background 180ms ease, color 180ms ease",
-  });
+export function PricingSection({ t: _t, isDark: _isDark, onStart, onUpgrade }: PricingSectionProps) {
+  const [selected, setSelected] = useState<"free" | "full">("full");
 
   function handleContinue() {
     if (selected === "free") onStart();
-    else onUpgrade(selected);
+    else onUpgrade();
   }
 
   return (
@@ -85,11 +61,15 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
             letterSpacing: "-0.032em",
             fontWeight: 600,
             color: INK,
-            margin: "0 0 40px",
+            margin: "0 0 12px",
           }}
         >
-          Start free. Upgrade when it pays for itself
+          Pay once. Own it forever.
         </h2>
+        <p style={{ fontSize: 15, color: GREY, lineHeight: 1.6, margin: "0 0 40px", maxWidth: 520 }}>
+          Every budgeting app wants a monthly subscription. Ascentra is a one-time
+          diagnosis — no renewals, nothing to cancel, no tracking homework.
+        </p>
       </Reveal>
 
       <Reveal
@@ -101,32 +81,10 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
           padding: "1.5rem",
         }}
       >
-        {/* Billing toggle */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
-          <div
-            style={{
-              display: "inline-flex",
-              gap: 2,
-              background: "#F4F4F5",
-              borderRadius: 999,
-              padding: 2,
-            }}
-          >
-            <button style={segmentStyle(billing === "monthly")} onClick={() => setBilling("monthly")}>
-              Monthly
-            </button>
-            <button style={segmentStyle(billing === "yearly")} onClick={() => setBilling("yearly")}>
-              Yearly
-            </button>
-          </div>
-        </div>
-
         {/* Tier rows */}
         <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
           {TIERS.map((tier, i) => {
             const isSelected = selected === tier.id;
-            const price = billing === "monthly" ? tier.monthly : tier.yearly;
-            const priceSuffix = billing === "monthly" ? "/mo" : "/yr";
 
             return (
               <div key={tier.id}>
@@ -189,7 +147,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                             color: INK,
                           }}
                         >
-                          RECOMMENDED
+                          NO SUBSCRIPTION
                         </span>
                       )}
                     </div>
@@ -199,7 +157,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
 
                   {/* Price */}
                   <div style={{ flexShrink: 0, textAlign: "right" }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 2, justifyContent: "flex-end" }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 4, justifyContent: "flex-end" }}>
                       <span
                         style={{
                           fontSize: 18,
@@ -209,15 +167,10 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
                           color: INK,
                         }}
                       >
-                        ${price === 0 ? "0" : price}
+                        {tier.priceLabel}
                       </span>
-                      <span style={{ fontSize: 12, color: GREY_LIGHT }}>{priceSuffix}</span>
+                      <span style={{ fontSize: 12, color: GREY_LIGHT }}>{tier.priceSuffix}</span>
                     </div>
-                    {tier.yearlySavings && billing === "yearly" && (
-                      <div style={{ fontSize: 11, color: GREY, fontWeight: 500, marginTop: 2 }}>
-                        {tier.yearlySavings}
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -228,7 +181,7 @@ export function PricingSection({ t, isDark, onStart, onUpgrade }: PricingSection
         {/* Continue button */}
         <div style={{ marginTop: 24 }}>
           <PillButton onClick={handleContinue}>
-            Continue with {selected === "free" ? "Free" : selected === "pro" ? "Pro" : "Premium"}
+            {selected === "free" ? "Start free" : `Unlock Full Diagnosis — $${FULL_PRICE} once`}
           </PillButton>
         </div>
       </Reveal>

@@ -1,167 +1,85 @@
 import {
-  AlertTriangle,
-  ArrowUp,
-  ArrowDown,
   ArrowRight,
-  Check,
-  Scissors,
-  Star,
-  Zap,
-  Copy,
-  CheckCircle,
-  ShieldAlert,
   ChevronDown,
   ChevronUp,
-  Lock,
+  Copy,
+  CheckCircle,
 } from "lucide-react";
 import { useState } from "react";
 import type { FinancialDiagnosis, DiagnosisAction } from "@/lib/diagnosis-types";
 import { MONO_FONT_STACK } from "@/lib/app-shared";
-import type { ThemeConfig, PlanId } from "@/lib/app-shared";
+import type { ThemeConfig } from "@/lib/app-shared";
 import type { ExpenseData } from "@/lib/calc";
 import { trackEvent } from "@/lib/analytics";
 import { useIsMobile } from "@/lib/useIsMobile";
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
+// The report speaks in the editorial voice: ink text, hairline rules, mono
+// numerals. Semantic colour appears exactly where it carries meaning — the
+// risk read, and the two-paths contrast — never as decoration.
 
-function RiskBadge({ level }: { level: FinancialDiagnosis["riskLevel"] }) {
-  const cfg = {
-    low: { bg: "#40916C20", border: "#40916C", color: "#40916C", label: "Low Risk" },
-    medium: { bg: "#B4530920", border: "#B45309", color: "#B45309", label: "Medium Risk" },
-    high: { bg: "#DC262620", border: "#DC2626", color: "#DC2626", label: "High Risk" },
-  }[level];
+const RISK = {
+  low: { color: "#40916C", label: "Low risk", note: "On track" },
+  medium: { color: "#B45309", label: "Medium risk", note: "Room to improve" },
+  high: { color: "#DC2626", label: "High risk", note: "Act now" },
+} as const;
 
+const IMPACT_LABEL = { low: "minor lift", medium: "noticeable lift", high: "big lift" } as const;
+const EFFORT_LABEL = { easy: "start today", moderate: "some effort", hard: "real commitment" } as const;
+
+const mono: React.CSSProperties = { fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" };
+
+function ReportLabel({ children, t }: { children: React.ReactNode; t: ThemeConfig }) {
   return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "0.3rem",
-        fontSize: "0.72rem",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        letterSpacing: "0.06em",
-        padding: "3px 10px",
-        borderRadius: "20px",
-        background: cfg.bg,
-        border: `1px solid ${cfg.border}`,
-        color: cfg.color,
-      }}
-    >
-      <AlertTriangle size={11} />
-      {cfg.label}
-    </span>
-  );
-}
-
-function ImpactBadge({ impact }: { impact: DiagnosisAction["impact"] }) {
-  const cfg = {
-    low: { bg: "#64748b20", color: "#64748b" },
-    medium: { bg: "#B4530920", color: "#B45309" },
-    high: { bg: "#40916C20", color: "#40916C" },
-  }[impact];
-  return (
-    <span style={{ fontSize: "0.68rem", fontWeight: 700, padding: "2px 7px", borderRadius: "6px", background: cfg.bg, color: cfg.color }}>
-      {impact} impact
-    </span>
-  );
-}
-
-function DifficultyBadge({ difficulty }: { difficulty: DiagnosisAction["difficulty"] }) {
-  const cfg = {
-    easy: { bg: "#40916C20", color: "#40916C" },
-    moderate: { bg: "#B4530920", color: "#B45309" },
-    hard: { bg: "#DC262620", color: "#DC2626" },
-  }[difficulty];
-  return (
-    <span style={{ fontSize: "0.68rem", fontWeight: 700, padding: "2px 7px", borderRadius: "6px", background: cfg.bg, color: cfg.color }}>
-      {difficulty}
-    </span>
-  );
-}
-
-function SectionLabel({ icon: Icon, label, color }: { icon: React.ComponentType<{ size: number }>; label: string; color: string }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "0.4rem",
-        marginBottom: "0.55rem",
-        fontSize: "0.78rem",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        letterSpacing: "0.08em",
-        color,
-      }}
-    >
-      <Icon size={13} />
-      {label}
+    <div style={{ fontSize: "0.85rem", fontWeight: 600, letterSpacing: "-0.01em", color: t.text, marginBottom: "0.5rem" }}>
+      {children}
     </div>
   );
 }
 
-// ─── Action Card (extracted for reuse) ───────────────────────────────────────
-
-function ActionCard({ move, index, t, isDark, expanded }: { move: DiagnosisAction; index: number; t: ThemeConfig; isDark: boolean; expanded?: boolean }) {
-  if (expanded) {
-    // Enhanced first-action card with structured breakdown
-    const impactLabel = { low: "Minor improvement", medium: "Noticeable improvement", high: "Significant improvement" }[move.impact];
-    const diffLabel = { easy: "Can start today", moderate: "Takes some effort", hard: "Requires commitment" }[move.difficulty];
-    return (
-      <div
-        style={{
-          padding: "1rem 1.1rem",
-          borderRadius: "12px",
-          background: isDark ? `${t.primary}12` : `${t.primary}0A`,
-          border: `1px solid ${t.primary}33`,
-          marginBottom: "0.5rem",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
-          <span style={{ fontWeight: 700, fontSize: "0.92rem", color: t.text }}>
-            {index + 1}. {move.title}
-          </span>
-          <ImpactBadge impact={move.impact} />
-          <DifficultyBadge difficulty={move.difficulty} />
-        </div>
-        <p style={{ margin: "0 0 0.6rem", fontSize: "0.84rem", color: t.text, opacity: 0.85, lineHeight: 1.55 }}>
-          {move.explanation}
-        </p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>
-          <div style={{ padding: "0.4rem 0.6rem", borderRadius: "8px", background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)" }}>
-            <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em" }}>Impact</div>
-            <div style={{ fontSize: "0.78rem", fontWeight: 600, color: { low: "#64748b", medium: "#B45309", high: "#40916C" }[move.impact] }}>{impactLabel}</div>
-          </div>
-          <div style={{ padding: "0.4rem 0.6rem", borderRadius: "8px", background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)" }}>
-            <div style={{ fontSize: "0.65rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.04em" }}>Effort</div>
-            <div style={{ fontSize: "0.78rem", fontWeight: 600, color: { easy: "#40916C", moderate: "#B45309", hard: "#DC2626" }[move.difficulty] }}>{diffLabel}</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+function ActionRow({ move, index, t, highlight }: { move: DiagnosisAction; index: number; t: ThemeConfig; highlight?: boolean }) {
   return (
     <div
       style={{
-        padding: "0.75rem 1rem",
-        borderRadius: "10px",
-        background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
-        border: `1px solid ${t.border}`,
-        marginBottom: "0.5rem",
+        display: "flex",
+        gap: "0.85rem",
+        padding: "0.85rem 0",
+        borderTop: index > 0 ? `1px solid ${t.border}` : "none",
+        background: highlight ? t.primarySoft : "transparent",
+        borderRadius: highlight ? 10 : 0,
+        paddingLeft: highlight ? "0.85rem" : 0,
+        paddingRight: highlight ? "0.85rem" : 0,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem", flexWrap: "wrap" }}>
-        <span style={{ fontWeight: 700, fontSize: "0.88rem", color: t.text }}>
-          {index + 1}. {move.title}
-        </span>
-        <ImpactBadge impact={move.impact} />
-        <DifficultyBadge difficulty={move.difficulty} />
+      <span style={{ ...mono, fontSize: "0.85rem", fontWeight: 600, color: t.muted, lineHeight: 1.5, flexShrink: 0 }}>
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontSize: "0.92rem", fontWeight: 600, color: t.text, lineHeight: 1.45 }}>
+          {move.title}
+        </div>
+        <p style={{ margin: "0.25rem 0 0.35rem", fontSize: "0.85rem", color: t.muted, lineHeight: 1.55 }}>
+          {move.explanation}
+        </p>
+        <div style={{ fontSize: "0.76rem", color: t.subtle }}>
+          <span style={{ color: move.impact === "high" ? "#40916C" : t.muted, fontWeight: 500 }}>
+            {IMPACT_LABEL[move.impact]}
+          </span>
+          {" · "}
+          {EFFORT_LABEL[move.difficulty]}
+        </div>
       </div>
-      <p style={{ margin: 0, fontSize: "0.82rem", color: t.text, opacity: 0.8, lineHeight: 1.5 }}>
-        {move.explanation}
-      </p>
+    </div>
+  );
+}
+
+function PathCell({ kind, text, t }: { kind: "hold" | "act"; text: string; t: ThemeConfig }) {
+  const color = kind === "hold" ? "#B45309" : "#40916C";
+  return (
+    <div style={{ padding: "0.7rem 0.85rem" }}>
+      <div style={{ fontSize: "0.72rem", fontWeight: 600, letterSpacing: "0.02em", color, marginBottom: "0.3rem" }}>
+        {kind === "hold" ? "Do nothing" : "Take action"}
+      </div>
+      <p style={{ margin: 0, fontSize: "0.85rem", color: t.text, lineHeight: 1.55 }}>{text}</p>
     </div>
   );
 }
@@ -176,30 +94,20 @@ interface FinancialDiagnosisCardProps {
   totalMonthly: number;
   data: ExpenseData;
   isPremium: boolean;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
   onSimulator?: () => void;
   t: ThemeConfig;
   isDark: boolean;
 }
 
-export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus, grossMonthly, totalMonthly, data, isPremium, onUpgrade, onSimulator, t, isDark }: FinancialDiagnosisCardProps) {
+export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus, grossMonthly, totalMonthly, data, isPremium, onUpgrade, onSimulator, t, isDark: _isDark }: FinancialDiagnosisCardProps) {
   const [copied, setCopied] = useState(false);
   const isMobile = useIsMobile();
   const [showDetails, setShowDetails] = useState(!isMobile);
 
-  const sectionStyle = (accent: string): React.CSSProperties => ({
-    padding: "0.85rem 1rem",
-    borderRadius: "10px",
-    background: accent + "12",
-    borderLeft: `3px solid ${accent}`,
-    marginBottom: "0.65rem",
-  });
-
+  const risk = RISK[diagnosis.riskLevel];
   const fmtUsd = (n: number) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
-
   const surplusColor = monthlySurplus >= 0 ? "#40916C" : "#DC2626";
-  const savingsColor = savingsRate >= 20 ? "#40916C" : savingsRate >= 10 ? "#B45309" : "#DC2626";
-  const riskColor = { low: "#40916C", medium: "#B45309", high: "#DC2626" }[diagnosis.riskLevel];
 
   function handleCopy() {
     const text = [
@@ -229,8 +137,7 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
     });
   }
 
-  // ── Derive diagnosis signals from existing financial data ─────────────
-
+  // ── Derived signals from the real numbers ─────────────────────────────
   const housingPct = grossMonthly > 0 ? (data.housing / grossMonthly) * 100 : 0;
   const fixedExpenses = data.housing + data.utilities + data.transport + data.healthcare;
   const fixedPct = totalMonthly > 0 ? (fixedExpenses / totalMonthly) * 100 : 0;
@@ -243,105 +150,24 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
   if (monthlySurplus < 0) signals.push("Monthly expenses exceed income");
   if (grossMonthly > 3000 && savingsRate < 15) signals.push("Strong income potential but weak savings structure");
   if (data.entertainment > data.savings && data.savings > 0) signals.push("Discretionary spending exceeds savings");
-
   const visibleSignals = signals.slice(0, 3);
 
-  // ── Verdict block (reused for both premium and gated free) ──────────
-
-  const verdictBlock = (
-    <div
-      style={{
-        marginTop: "1rem",
-        marginBottom: "0.65rem",
-        borderRadius: "10px",
-        background: `linear-gradient(135deg, ${t.primary}1A, ${t.accent}1A)`,
-        border: `1px solid ${t.primary}40`,
-        overflow: "hidden",
-      }}
-    >
-      {/* Risk-colored urgency bar */}
-      <div style={{ height: "3px", background: riskColor }} />
-      <div style={{ padding: "1rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
-          <div style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: t.primary }}>
-            Verdict
-          </div>
-          <span style={{
-            fontSize: "0.62rem",
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.04em",
-            padding: "1px 6px",
-            borderRadius: "4px",
-            background: riskColor + "18",
-            color: riskColor,
-          }}>
-            {diagnosis.riskLevel === "high" ? "Act now" : diagnosis.riskLevel === "medium" ? "Room to improve" : "On track"}
-          </span>
-        </div>
-        <p style={{ margin: 0, fontSize: "0.92rem", fontWeight: 600, color: t.text, lineHeight: 1.55 }}>
-          {diagnosis.verdict}
-        </p>
-        {diagnosis.topMoves[0] && (
-          <div style={{
-            marginTop: "0.6rem",
-            paddingTop: "0.55rem",
-            borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.5rem",
-            flexWrap: "wrap",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", minWidth: 0 }}>
-              <Zap size={12} style={{ color: "#40916C", flexShrink: 0 }} />
-              <span style={{ fontSize: "0.8rem", color: t.muted, fontWeight: 500 }}>
-                Start with:
-              </span>
-              <span style={{ fontSize: "0.8rem", color: t.text, fontWeight: 600 }}>
-                {diagnosis.topMoves[0].title}
-              </span>
-            </div>
-            {onSimulator && (
-              <button
-                onClick={() => {
-                  trackEvent("diagnosis_to_simulator_click", {
-                    riskLevel: diagnosis.riskLevel,
-                    topMoveTitle: diagnosis.topMoves[0].title,
-                  });
-                  onSimulator();
-                }}
-                style={{
-                  background: "transparent",
-                  border: `1px solid ${t.primary}40`,
-                  borderRadius: "6px",
-                  padding: "0.3rem 0.65rem",
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  color: t.primary,
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.3rem",
-                  whiteSpace: "nowrap",
-                  flexShrink: 0,
-                }}
-              >
-                Test in Simulator
-                <ArrowRight size={11} />
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  const firstSummarySentence = (() => {
+    const m = diagnosis.summary.match(/^.*?[.!?](?=\s|$)/);
+    return m ? m[0] : diagnosis.summary;
+  })();
 
   return (
-    <div>
-      {/* ── Risk + Copy row ─────────────────────────────────────────────── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.85rem" }}>
-        <RiskBadge level={diagnosis.riskLevel} />
+    <div style={{ marginTop: "1.25rem" }}>
+      {/* ── Status line ─────────────────────────────────────────────────── */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", marginBottom: "0.85rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: risk.color, flexShrink: 0 }} />
+          <span style={{ fontSize: "0.82rem", fontWeight: 600, color: risk.color }}>
+            {risk.label}
+          </span>
+          <span style={{ fontSize: "0.82rem", color: t.subtle }}>— {risk.note}</span>
+        </div>
         {isPremium && (
           <button
             onClick={handleCopy}
@@ -351,340 +177,238 @@ export function FinancialDiagnosisCard({ diagnosis, savingsRate, monthlySurplus,
               gap: "0.35rem",
               background: "transparent",
               border: `1px solid ${t.border}`,
-              borderRadius: "8px",
-              padding: "4px 10px",
+              borderRadius: 999,
+              padding: "5px 12px",
               fontSize: "0.75rem",
-              fontWeight: 600,
+              fontWeight: 550,
               color: t.muted,
               cursor: "pointer",
             }}
           >
             {copied ? <CheckCircle size={12} /> : <Copy size={12} />}
-            {copied ? "Copied" : "Copy"}
+            {copied ? "Copied" : "Copy report"}
           </button>
         )}
       </div>
 
-      {/* ── Primary Diagnosis (always visible) ────────────────────────── */}
-      <div style={{ marginBottom: "0" }}>
-        <SectionLabel icon={AlertTriangle} label="Primary Diagnosis" color="#DC2626" />
-        <div
-          style={{
-            padding: "0.9rem 1rem",
-            borderRadius: "10px",
-            background: isDark ? "rgba(239,68,68,0.08)" : "rgba(239,68,68,0.06)",
-            borderLeft: "3px solid #DC2626",
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: "0.95rem", color: t.text, lineHeight: 1.4, marginBottom: "0.35rem" }}>
-            {diagnosis.mainIssue}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: surplusColor, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
-              {monthlySurplus >= 0 ? "+" : ""}{fmtUsd(monthlySurplus)}/mo {monthlySurplus >= 0 ? "surplus" : "deficit"}
-            </span>
-            <span style={{ fontSize: "0.68rem", color: t.muted }}>·</span>
-            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: savingsColor, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>
-              {savingsRate.toFixed(1)}% savings rate
-            </span>
-            <span style={{ fontSize: "0.68rem", color: t.muted }}>·</span>
-            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: riskColor }}>
-              {diagnosis.riskLevel} risk
-            </span>
-          </div>
-        </div>
+      {/* ── Primary finding ─────────────────────────────────────────────── */}
+      <div style={{ fontSize: "1.3rem", fontWeight: 600, letterSpacing: "-0.016em", color: t.text, lineHeight: 1.3, marginBottom: "0.6rem" }}>
+        {diagnosis.mainIssue}
+      </div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", flexWrap: "wrap", paddingBottom: "1rem", borderBottom: `1px solid ${t.border}` }}>
+        <span style={{ ...mono, fontSize: "0.85rem", fontWeight: 600, color: surplusColor }}>
+          {monthlySurplus >= 0 ? "+" : ""}{fmtUsd(monthlySurplus)}/mo {monthlySurplus >= 0 ? "surplus" : "deficit"}
+        </span>
+        <span style={{ color: t.subtle, fontSize: "0.8rem" }}>·</span>
+        <span style={{ ...mono, fontSize: "0.85rem", fontWeight: 600, color: t.text }}>
+          {savingsRate.toFixed(1)}% <span style={{ fontWeight: 400, color: t.muted }}>savings rate</span>
+        </span>
       </div>
 
-      {/* ── Verdict (always visible — gated for free users) ───────────── */}
       {isPremium ? (
-        verdictBlock
-      ) : (
-        <div style={{ position: "relative", overflow: "hidden", marginTop: "1rem", marginBottom: "0.65rem" }}>
-          <div style={{ filter: "blur(5px)", pointerEvents: "none", userSelect: "none" }}>
-            {verdictBlock}
-          </div>
-          <div
-            className="atv-locked-overlay"
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-            }}
-          >
-            <Lock className="atv-lock-icon-glow" size={18} style={{ color: t.primary }} />
-            <span style={{ fontSize: "0.82rem", fontWeight: 600, color: t.text }}>Unlock your verdict</span>
-            <button
-              onClick={() => onUpgrade("premium")}
-              className="atv-btn-primary"
-              style={{
-                background: t.text,
-                color: t.cardBg,
-                border: "none",
-                borderRadius: "8px",
-                padding: "0.45rem 1.2rem",
-                fontSize: "0.8rem",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              Upgrade to Premium
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── Collapsible: Full Analysis ─────────────────────────────────── */}
-      <button
-        onClick={() => setShowDetails(!showDetails)}
-        style={{
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "0.35rem",
-          background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
-          border: `1px solid ${t.border}`,
-          borderRadius: "8px",
-          padding: "0.55rem",
-          fontSize: "0.8rem",
-          fontWeight: 600,
-          color: t.muted,
-          cursor: "pointer",
-        }}
-      >
-        {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-        {showDetails ? "Hide details" : "See full analysis"}
-      </button>
-
-      {showDetails && (
-        <div style={{ marginTop: "0.75rem" }}>
-          {/* ── Why This Matters ──────────────────────────────────────── */}
-          <SectionLabel icon={Zap} label="Why This Matters" color="#B45309" />
-          <div style={sectionStyle("#B45309")}>
-            {(() => {
-              const sentences = diagnosis.summary.includes(". ")
-                ? diagnosis.summary.split(/\.\s+/).filter(Boolean)
-                : [diagnosis.summary];
-              const visibleSentences = isPremium ? sentences : sentences.slice(0, 1);
-              const hasMore = !isPremium && sentences.length > 1;
-
-              return (
-                <>
-                  {visibleSentences.length > 1 ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
-                      {visibleSentences.map((sentence, i) => (
-                        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
-                          <span style={{ color: "#B45309", fontSize: "0.7rem", marginTop: "3px", flexShrink: 0 }}>▸</span>
-                          <span style={{ fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>
-                            {sentence.endsWith(".") ? sentence : sentence + "."}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.55, opacity: 0.9 }}>
-                      {visibleSentences[0]?.endsWith(".") ? visibleSentences[0] : (visibleSentences[0] ?? "") + "."}
-                    </p>
-                  )}
-                  {hasMore && (
-                    <button
-                      onClick={() => onUpgrade("premium")}
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                        padding: "0.3rem 0",
-                        marginTop: "0.35rem",
-                        fontSize: "0.78rem",
-                        fontWeight: 600,
-                        color: "#B45309",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "0.3rem",
-                      }}
-                    >
-                      <Lock size={11} />
-                      Unlock full analysis
-                    </button>
-                  )}
-                </>
-              );
-            })()}
-          </div>
-
-          {/* ── Key Signals (capped at 3) ────────────────────────────── */}
-          {visibleSignals.length > 0 && (
-            <div style={{ marginBottom: "1rem" }}>
-              <SectionLabel icon={ShieldAlert} label="Key Signals" color="#B45309" />
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-                {visibleSignals.map((signal, i) => (
-                  <span
-                    key={i}
+        <>
+          {/* ── Verdict ─────────────────────────────────────────────────── */}
+          <div style={{ background: t.primarySoft, borderRadius: 12, padding: "1rem 1.1rem", margin: "1rem 0" }}>
+            <ReportLabel t={t}>Verdict</ReportLabel>
+            <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 500, color: t.text, lineHeight: 1.6 }}>
+              {diagnosis.verdict}
+            </p>
+            {diagnosis.topMoves[0] && (
+              <div
+                style={{
+                  marginTop: "0.75rem",
+                  paddingTop: "0.75rem",
+                  borderTop: `1px solid ${t.primary}26`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "0.6rem",
+                  flexWrap: "wrap",
+                }}
+              >
+                <span style={{ fontSize: "0.85rem", color: t.text, minWidth: 0 }}>
+                  <span style={{ color: t.muted }}>Start with:</span>{" "}
+                  <strong style={{ fontWeight: 600 }}>{diagnosis.topMoves[0].title}</strong>
+                </span>
+                {onSimulator && (
+                  <button
+                    onClick={() => {
+                      trackEvent("diagnosis_to_simulator_click", {
+                        riskLevel: diagnosis.riskLevel,
+                        topMoveTitle: diagnosis.topMoves[0].title,
+                      });
+                      onSimulator();
+                    }}
+                    className="lp-press"
                     style={{
-                      fontSize: "0.74rem",
-                      fontWeight: 600,
-                      padding: "4px 10px",
-                      borderRadius: "8px",
-                      background: isDark ? "rgba(245,158,11,0.1)" : "rgba(245,158,11,0.08)",
-                      border: "1px solid rgba(245,158,11,0.25)",
-                      color: "#B45309",
-                      lineHeight: 1.4,
+                      background: "transparent",
+                      border: `1px solid ${t.borderStrong}`,
+                      borderRadius: 999,
+                      padding: "7px 14px",
+                      fontSize: "0.78rem",
+                      fontWeight: 550,
+                      color: t.text,
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.35rem",
+                      whiteSpace: "nowrap",
+                      flexShrink: 0,
                     }}
                   >
-                    {signal}
-                  </span>
+                    Test in Simulator
+                    <ArrowRight size={12} />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── Details toggle ──────────────────────────────────────────── */}
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.35rem",
+              background: "transparent",
+              border: "none",
+              padding: "0.6rem 0",
+              fontSize: "0.82rem",
+              fontWeight: 550,
+              color: t.muted,
+              cursor: "pointer",
+            }}
+          >
+            {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {showDetails ? "Hide the full report" : "Read the full report"}
+          </button>
+
+          {showDetails && (
+            <div>
+              {/* Why this matters */}
+              <div style={{ paddingTop: "1rem", borderTop: `1px solid ${t.border}` }}>
+                <ReportLabel t={t}>Why this matters</ReportLabel>
+                <p style={{ margin: 0, fontSize: "0.9rem", color: t.muted, lineHeight: 1.65, maxWidth: "62ch" }}>
+                  {diagnosis.summary}
+                </p>
+                {visibleSignals.length > 0 && (
+                  <p style={{ margin: "0.6rem 0 0", fontSize: "0.8rem", color: t.subtle, lineHeight: 1.6 }}>
+                    {visibleSignals.join("  ·  ")}
+                  </p>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: `1px solid ${t.border}` }}>
+                <ReportLabel t={t}>Do this, in order</ReportLabel>
+                {diagnosis.topMoves.map((move, i) => (
+                  <ActionRow key={i} move={move} index={i} t={t} highlight={i === 0} />
                 ))}
               </div>
-            </div>
-          )}
 
-          {/* ── #1 Action (Premium) / Locked CTA (Free) ──────────────── */}
-          {isPremium ? (
-            <div>
-              <SectionLabel icon={Zap} label="Start Here" color="#40916C" />
-              {diagnosis.topMoves[0] && (
-                <ActionCard move={diagnosis.topMoves[0]} index={0} t={t} isDark={isDark} expanded />
+              {/* Two paths */}
+              <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: `1px solid ${t.border}` }}>
+                <ReportLabel t={t}>Your two paths</ReportLabel>
+                {[
+                  { title: "In 30 days", hold: diagnosis.ifUnchanged30d, act: diagnosis.ifOptimized30d },
+                  { title: "In 12 months", hold: diagnosis.ifUnchanged12m, act: diagnosis.ifOptimized12m },
+                ].map(({ title, hold, act }) => (
+                  <div key={title} style={{ marginBottom: "0.85rem" }}>
+                    <div style={{ ...mono, fontSize: "0.72rem", fontWeight: 600, color: t.muted, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
+                      {title}
+                    </div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 12,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div style={{ borderRight: isMobile ? "none" : `1px solid ${t.border}`, borderBottom: isMobile ? `1px solid ${t.border}` : "none" }}>
+                        <PathCell kind="hold" text={hold} t={t} />
+                      </div>
+                      <PathCell kind="act" text={act} t={t} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Cut first */}
+              {diagnosis.cutFirst && diagnosis.cutFirst.length > 0 && (
+                <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: `1px solid ${t.border}` }}>
+                  <ReportLabel t={t}>Cut first</ReportLabel>
+                  {diagnosis.cutFirst.map((item, i) => (
+                    <div key={i} style={{ display: "flex", gap: "0.6rem", marginBottom: "0.4rem" }}>
+                      <span style={{ ...mono, fontSize: "0.82rem", color: t.subtle, flexShrink: 0 }}>—</span>
+                      <span style={{ fontSize: "0.88rem", color: t.text, lineHeight: 1.55 }}>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Hidden strength */}
+              {diagnosis.hiddenStrength && (
+                <div style={{ marginTop: "1.25rem", background: t.primarySoft, borderRadius: 12, padding: "1rem 1.1rem" }}>
+                  <ReportLabel t={t}>Hidden strength</ReportLabel>
+                  <p style={{ margin: 0, fontSize: "0.9rem", color: t.text, lineHeight: 1.6 }}>{diagnosis.hiddenStrength}</p>
+                </div>
               )}
             </div>
-          ) : (
-            <div
-              style={{
-                padding: "1rem 1.1rem",
-                borderRadius: "10px",
-                background: `linear-gradient(135deg, ${t.primary}14, ${t.accent}14)`,
-                border: `1px solid ${t.primary}33`,
-                textAlign: "center",
-              }}
-            >
-              <Lock size={16} style={{ color: t.primary, marginBottom: "0.4rem" }} />
-              <p style={{ margin: "0 0 0.5rem", fontSize: "0.88rem", fontWeight: 600, color: t.text, lineHeight: 1.45 }}>
-                Your ranked actions, scenario projections, and verdict are ready.
-              </p>
-              <p style={{ margin: "0 0 0.75rem", fontSize: "0.78rem", color: t.muted, lineHeight: 1.45 }}>
-                See what to cut first, what happens in 30 days and 12 months, and the AI's final verdict on your position.
-              </p>
+          )}
+        </>
+      ) : (
+        <>
+          {/* ── Free preview: the first insight, real and unblurred ─────── */}
+          <p style={{ margin: "1rem 0 0", fontSize: "0.9rem", color: t.muted, lineHeight: 1.65, maxWidth: "62ch" }}>
+            {firstSummarySentence}
+          </p>
+          {visibleSignals.length > 0 && (
+            <p style={{ margin: "0.6rem 0 0", fontSize: "0.8rem", color: t.subtle, lineHeight: 1.6 }}>
+              {visibleSignals.join("  ·  ")}
+            </p>
+          )}
+
+          {/* ── The unlock — one block, priced, honest ──────────────────── */}
+          <div style={{ background: t.primarySoft, borderRadius: 12, padding: "1.25rem 1.35rem", marginTop: "1.25rem" }}>
+            <div style={{ fontSize: "1.05rem", fontWeight: 600, letterSpacing: "-0.01em", color: t.text, marginBottom: "0.35rem" }}>
+              Your full report is ready.
+            </div>
+            <p style={{ margin: "0 0 1rem", fontSize: "0.85rem", color: t.muted, lineHeight: 1.6, maxWidth: "52ch" }}>
+              The ranked actions, your 30-day and 12-month projections, what to cut
+              first, and the final verdict — written from these exact numbers.
+            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
               <button
-                onClick={() => onUpgrade("premium")}
+                onClick={() => onUpgrade()}
+                className="lp-press"
                 style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "11px 22px",
                   background: t.text,
                   color: t.cardBg,
                   border: "none",
-                  borderRadius: "8px",
-                  padding: "0.55rem 1.5rem",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
+                  borderRadius: 999,
+                  fontSize: 14,
+                  fontWeight: 550,
+                  letterSpacing: "-0.01em",
                   cursor: "pointer",
                 }}
               >
-                Unlock Full Diagnosis
+                Unlock Full Diagnosis — <span style={mono}>$29</span> once
               </button>
+              <span style={{ fontSize: "0.78rem", color: t.muted }}>
+                One payment. No subscription.
+              </span>
             </div>
-          )}
-
-          {/* ── Premium deep-dive sections ────────────────────────────── */}
-          {isPremium && (
-            <div style={{ marginTop: "0.75rem" }}>
-              {/* ── Remaining Actions (2+) ─────────────────────────────── */}
-              {diagnosis.topMoves.slice(1).map((move, i) => (
-                <ActionCard key={i + 1} move={move} index={i + 1} t={t} isDark={isDark} />
-              ))}
-
-              {/* ── Scenario Comparison ────────────────────────────────── */}
-              <div style={{ marginTop: "1rem" }}>
-                <SectionLabel icon={ShieldAlert} label="Your Two Paths" color="#B45309" />
-
-                {/* 30 Days */}
-                <div style={{ marginBottom: "0.75rem" }}>
-                  <div style={{ fontSize: "0.7rem", fontWeight: 700, color: t.muted, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
-                    In 30 Days
-                  </div>
-                  <div
-                    style={{
-                      borderRadius: "10px",
-                      border: `1px solid ${t.border}`,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(245,158,11,0.06)" : "rgba(245,158,11,0.04)" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                        <ArrowDown size={11} style={{ color: "#B45309" }} />
-                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#B45309", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
-                      </div>
-                      <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifUnchanged30d}</p>
-                    </div>
-                    <div style={{ height: "1px", background: t.border }} />
-                    <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.04)" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                        <ArrowUp size={11} style={{ color: "#40916C" }} />
-                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#40916C", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
-                      </div>
-                      <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifOptimized30d}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 12 Months */}
-                <div>
-                  <div style={{ fontSize: "0.7rem", fontWeight: 700, color: t.muted, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
-                    In 12 Months
-                  </div>
-                  <div
-                    style={{
-                      borderRadius: "10px",
-                      border: `1px solid ${t.border}`,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(245,158,11,0.06)" : "rgba(245,158,11,0.04)" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                        <ArrowDown size={11} style={{ color: "#B45309" }} />
-                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#B45309", textTransform: "uppercase", letterSpacing: "0.04em" }}>Do nothing</span>
-                      </div>
-                      <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifUnchanged12m}</p>
-                    </div>
-                    <div style={{ height: "1px", background: t.border }} />
-                    <div style={{ padding: "0.7rem 0.9rem", background: isDark ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.04)" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.25rem" }}>
-                        <ArrowUp size={11} style={{ color: "#40916C" }} />
-                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#40916C", textTransform: "uppercase", letterSpacing: "0.04em" }}>Take action</span>
-                      </div>
-                      <p style={{ margin: 0, fontSize: "0.84rem", color: t.text, lineHeight: 1.5, opacity: 0.9 }}>{diagnosis.ifOptimized12m}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Cut First ──────────────────────────────────────────── */}
-              {diagnosis.cutFirst && diagnosis.cutFirst.length > 0 && (
-                <div style={{ marginTop: "0.75rem" }}>
-                  <SectionLabel icon={Scissors} label="Cut First" color="#DC2626" />
-                  <div style={sectionStyle("#DC2626")}>
-                    {diagnosis.cutFirst.map((item, i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem", marginBottom: i < diagnosis.cutFirst!.length - 1 ? "0.35rem" : 0 }}>
-                        <Check size={13} style={{ color: "#DC2626", marginTop: "2px", flexShrink: 0 }} />
-                        <span style={{ fontSize: "0.84rem", color: t.text, lineHeight: 1.5 }}>{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* ── Hidden Strength ────────────────────────────────────── */}
-              {diagnosis.hiddenStrength && (
-                <div style={{ marginTop: "0.75rem" }}>
-                  <SectionLabel icon={Star} label="Hidden Strength" color={t.primary} />
-                  <div style={sectionStyle(t.primary)}>
-                    <p style={{ margin: 0, fontSize: "0.85rem", color: t.text, lineHeight: 1.55 }}>{diagnosis.hiddenStrength}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

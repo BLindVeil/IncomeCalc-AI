@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Stethoscope, RefreshCw } from "lucide-react";
-import type { ThemeConfig, UserTier, PlanId } from "@/lib/app-shared";
+import type { ThemeConfig, UserTier } from "@/lib/app-shared";
 import type { ExpenseData } from "@/lib/calc";
 import type { FinancialDiagnosis, DiagnosisTone, DiagnosisInput } from "@/lib/diagnosis-types";
 import { parseDiagnosis } from "@/lib/diagnosis-types";
@@ -48,7 +48,7 @@ export interface FinancialDiagnosisSectionProps {
   debtRatio: number;
   emergencyFundTarget: number;
   userTier: UserTier;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
   onSimulator?: () => void;
   t: ThemeConfig;
   isDark: boolean;
@@ -74,7 +74,7 @@ export function FinancialDiagnosisSection({
   t,
   isDark,
 }: FinancialDiagnosisSectionProps) {
-  const isPremium = userTier === "premium";
+  const isPremium = userTier === "paid";
   const { savedDiagnosis, savedDiagnosisTone, savedDiagnosisFingerprint, setSavedDiagnosis, clearSavedDiagnosis } = useDiagnosisStore();
   const [tone, setTone] = useState<DiagnosisTone>(() => savedDiagnosisTone ?? "direct");
 
@@ -202,130 +202,159 @@ export function FinancialDiagnosisSection({
   return (
     <div
       style={{
-        background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+        background: t.cardBg,
         border: `1px solid ${t.border}`,
-        borderRadius: "14px",
+        borderRadius: "16px",
         padding: "1.5rem",
         marginBottom: "1.25rem",
-        position: "relative",
-        overflow: "hidden",
       }}
     >
-      {/* Premium gradient accent bar */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: `linear-gradient(90deg, #DC2626, #B45309, #40916C, ${t.primary})`,
-          borderRadius: "14px 14px 0 0",
-        }}
-      />
-
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Stethoscope size={18} style={{ color: t.primary }} />
-          <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Your AI Financial Diagnosis</span>
-          <span
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "0.75rem" }}>
+        <div>
+          <div
             style={{
-              fontSize: "0.7rem",
-              fontWeight: 700,
-              background: userTier === "premium"
-                ? `linear-gradient(90deg, #DC2626, ${t.primary})`
-                : `linear-gradient(90deg, ${t.primary}, ${t.accent})`,
-              color: "#fff",
-              padding: "2px 7px",
-              borderRadius: "20px",
-              letterSpacing: "0.04em",
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: t.muted,
+              marginBottom: "0.5rem",
             }}
           >
-            {userTier === "premium" ? "PREMIUM" : "PREVIEW"}
-          </span>
+            AI Financial Diagnosis
+          </div>
+          <div style={{ fontSize: "1.3rem", fontWeight: 600, letterSpacing: "-0.016em", color: t.text, lineHeight: 1.2 }}>
+            {generated && result ? "Your report" : "Read your position like a clinician would"}
+          </div>
         </div>
-        {generated && (
-          <button
-            onClick={generateDiagnosis}
-            disabled={loading}
-            style={{ background: "transparent", border: "none", cursor: loading ? "not-allowed" : "pointer", color: t.muted, padding: "10px", minWidth: "44px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center" }}
-            title="Regenerate"
-          >
-            <RefreshCw size={15} />
-          </button>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", flexShrink: 0 }}>
+          {userTier !== "paid" && (
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 500,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: t.muted,
+                border: `1px solid ${t.borderStrong}`,
+                borderRadius: "999px",
+                padding: "4px 10px",
+              }}
+            >
+              Preview
+            </span>
+          )}
+          {generated && (
+            <button
+              onClick={generateDiagnosis}
+              disabled={loading}
+              style={{ background: "transparent", border: "none", cursor: loading ? "not-allowed" : "pointer", color: t.muted, padding: "10px", minWidth: "44px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center" }}
+              title="Regenerate"
+            >
+              <RefreshCw size={15} />
+            </button>
+          )}
+        </div>
       </div>
-      <p style={{ color: t.muted, fontSize: "0.85rem", margin: "0 0 1rem" }}>
-        A deep, structured analysis of your financial position with ranked actions and scenario projections.
-      </p>
 
       {/* Tone selector + generate */}
       {(!generated || !result) && !loading && (
         <>
-          <div style={{ marginBottom: "1rem" }}>
-            <div style={{ fontSize: "0.78rem", fontWeight: 600, color: t.muted, marginBottom: "0.45rem" }}>
-              Choose your coaching tone
+          <p style={{ color: t.muted, fontSize: "0.9rem", lineHeight: 1.6, margin: "0.6rem 0 1.25rem", maxWidth: "52ch" }}>
+            One structured read of your position: the main issue, what it costs you,
+            and the moves that change it — ranked by dollar impact.
+          </p>
+          <div style={{ marginBottom: "1.25rem" }}>
+            <div style={{ fontSize: "0.82rem", fontWeight: 600, color: t.text, marginBottom: "0.5rem" }}>
+              Coaching tone
             </div>
             <DiagnosisToneSelector value={tone} onChange={setTone} t={t} isDark={isDark} />
           </div>
-          <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-            <button
-              onClick={generateDiagnosis}
-              style={{
-                background: t.text,
-                color: t.cardBg,
-                border: "none",
-                borderRadius: "10px",
-                padding: "0.75rem 2rem",
-                fontSize: "0.95rem",
-                fontWeight: 700,
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                boxShadow: `0 4px 14px ${t.primary}59`,
-              }}
-            >
-              <Stethoscope size={16} />
-              {savedDiagnosis ? "Regenerate My Diagnosis" : "Generate My Diagnosis"}
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* Loading */}
-      {loading && (
-        <div style={{ textAlign: "center", padding: "2rem 0", color: t.muted, fontSize: "0.9rem" }}>
-          <Stethoscope size={22} style={{ marginBottom: "0.5rem", color: t.primary }} />
-          <div style={{ fontWeight: 500 }}>Diagnosing your financial position…</div>
-          <div style={{ fontSize: "0.78rem", marginTop: "0.35rem", opacity: 0.7 }}>This may take a few seconds</div>
-        </div>
-      )}
-
-      {/* Error */}
-      {error && (
-        <div style={{ textAlign: "center", margin: "0.75rem 0 0" }}>
-          <p style={{ color: "#DC2626", fontSize: "0.88rem", marginBottom: "0.5rem" }}>
-            {/529|overloaded/i.test(error)
-              ? "Our AI is experiencing high demand right now. Please try again in a moment."
-              : "Something went wrong. Please try again."}
-          </p>
           <button
             onClick={generateDiagnosis}
+            className="lp-press"
             style={{
-              background: "transparent",
-              border: `1px solid ${t.border}`,
-              borderRadius: "8px",
-              padding: "0.4rem 1rem",
-              fontSize: "0.82rem",
-              fontWeight: 600,
-              color: t.text,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "11px 22px",
+              background: t.text,
+              color: t.cardBg,
+              border: "none",
+              borderRadius: 999,
+              fontSize: 14,
+              fontWeight: 550,
+              letterSpacing: "-0.01em",
               cursor: "pointer",
             }}
           >
-            Retry
+            <Stethoscope size={15} />
+            {savedDiagnosis ? "Run my diagnosis again" : "Run my diagnosis"}
           </button>
+        </>
+      )}
+
+      {/* Loading — skeleton report, not a spinner */}
+      {loading && (
+        <div style={{ marginTop: "1.25rem" }} aria-label="Generating your diagnosis" role="status">
+          <style>{`
+            @keyframes dx-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+            @media (prefers-reduced-motion: reduce) { .dx-skel { animation: none !important; } }
+          `}</style>
+          {[["58%", 18], ["92%", 12], ["84%", 12], ["40%", 12], ["70%", 34]].map(([w, h], i) => (
+            <div
+              key={i}
+              className="dx-skel"
+              style={{
+                width: w as string,
+                height: h as number,
+                borderRadius: 6,
+                background: t.border,
+                marginBottom: i === 0 ? 14 : 10,
+                animation: `dx-pulse 1.6s ease-in-out ${i * 0.12}s infinite`,
+              }}
+            />
+          ))}
+          <div style={{ fontSize: "0.8rem", color: t.muted, marginTop: "0.85rem" }}>
+            Reading your numbers — a few seconds.
+          </div>
+        </div>
+      )}
+
+      {/* Error — the unconfigured/overloaded state is real and reachable */}
+      {error && !loading && (
+        <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: `1px solid ${t.border}` }}>
+          <p style={{ color: t.text, fontSize: "0.9rem", fontWeight: 500, margin: "0 0 0.2rem" }}>
+            {/529|overloaded/i.test(error)
+              ? "The AI is under heavy demand right now."
+              : /not configured/i.test(error)
+                ? "AI is not configured on this deployment."
+                : "The diagnosis didn't come back."}
+          </p>
+          <p style={{ color: t.muted, fontSize: "0.82rem", margin: "0 0 0.75rem" }}>
+            {/not configured/i.test(error)
+              ? "Your numbers are unaffected — every calculator and tool still works."
+              : "Nothing was lost — run it again."}
+          </p>
+          {!/not configured/i.test(error) && (
+            <button
+              onClick={generateDiagnosis}
+              className="lp-press"
+              style={{
+                background: "transparent",
+                border: `1px solid ${t.borderStrong}`,
+                borderRadius: 999,
+                padding: "9px 18px",
+                fontSize: 13,
+                fontWeight: 550,
+                color: t.text,
+                cursor: "pointer",
+              }}
+            >
+              Try again
+            </button>
+          )}
         </div>
       )}
 

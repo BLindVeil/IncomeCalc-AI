@@ -19,7 +19,6 @@ import {
   MONO_FONT_STACK,
   type ThemeConfig,
   type UserTier,
-  type PlanId,
   type ExpenseData,
   type CheckInSnapshot,
 } from "@/lib/app-shared";
@@ -30,7 +29,7 @@ export interface CheckInPageProps {
   currentExpenses: ExpenseData;
   currentTaxRate: number;
   onBack: () => void;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
   onForecast: () => void;
   userTier: UserTier;
   isDark: boolean;
@@ -125,7 +124,7 @@ export function CheckInPage({
   }
 
   // Limit history view for free users
-  const visibleSnapshots = userTier === "premium" ? snapshots : snapshots.slice(-3);
+  const visibleSnapshots = userTier === "paid" ? snapshots : snapshots.slice(-3);
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg, color: t.text, position: "relative" as const }}>
@@ -282,12 +281,12 @@ export function CheckInPage({
                 </div>
               </div>
             ))}
-            {userTier !== "premium" && snapshots.length > 3 && (
+            {userTier !== "paid" && snapshots.length > 3 && (
               <div style={{ marginTop: "0.75rem", padding: "0.6rem 0.85rem", background: t.primary + "08", border: `1px solid ${t.primary}20`, borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
                 <span style={{ fontSize: "0.82rem", color: t.muted }}>
                   You have {snapshots.length} check-ins — unlock your full history to see whether your score is actually improving.
                 </span>
-                <button onClick={() => onUpgrade("premium")} style={{ background: t.primary, color: "#fff", border: "none", borderRadius: "6px", padding: "0.3rem 0.7rem", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer" }}>
+                <button onClick={() => onUpgrade()} style={{ background: t.primary, color: "#fff", border: "none", borderRadius: "6px", padding: "0.3rem 0.7rem", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer" }}>
                   See My Progress
                 </button>
               </div>
@@ -317,7 +316,7 @@ export function CheckInPage({
         >
           <TrendingUp size={16} />
           Forecast from this Check-In
-          <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: t.warning, borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40", marginLeft: "0.25rem" }}>Premium</span>
+          <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: t.warning, borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40", marginLeft: "0.25rem" }}>Full</span>
         </button>
       </div>
     </div>

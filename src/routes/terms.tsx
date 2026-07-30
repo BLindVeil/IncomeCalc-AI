@@ -42,8 +42,8 @@ function TermsPage() {
             <li>The Service should not be used as a substitute for professional financial advice.</li>
           </ul>
 
-          <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>5. Accounts and Subscriptions</h2>
-          <p>Some features require a paid subscription (Pro or Premium). Subscriptions are billed through Stripe. By subscribing, you authorize recurring charges according to your selected billing cycle (monthly or yearly). You may cancel at any time.</p>
+          <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>5. Accounts and Purchases</h2>
+          <p>Some features require a one-time purchase (the Full Diagnosis). Payments are processed through Stripe. It is a single charge — there is no subscription and no recurring billing. Access granted by a purchase does not expire. Legacy subscriptions purchased before this policy remain governed by their original terms until they lapse.</p>
 
           <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--foreground)", marginTop: "2rem" }}>6. Refund Policy</h2>
           <p>We offer a <strong>7-day money-back guarantee</strong>. If you are not satisfied, contact us within 7 days of purchase for a full refund. See our <Link to="/refund-policy" style={{ color: "var(--theme-primary)", textDecoration: "underline" }}>Refund Policy</Link> for details.</p>

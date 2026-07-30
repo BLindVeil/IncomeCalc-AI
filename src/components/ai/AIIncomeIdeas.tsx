@@ -102,106 +102,114 @@ export function AIIncomeIdeas({ data, grossAnnual, totalMonthly, t, isDark }: AI
         marginBottom: "1.25rem",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Lightbulb size={18} style={{ color: "#B45309" }} />
-          <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>AI Income Ideas</span>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "0.75rem", marginBottom: "0.85rem" }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: t.muted, marginBottom: "0.5rem" }}>
+            AI Income Ideas
+          </div>
+          <div style={{ fontSize: "1.15rem", fontWeight: 600, letterSpacing: "-0.014em", color: t.text, lineHeight: 1.25 }}>
+            Realistic ways to close{" "}
+            <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(Math.round(gap))}</span>/year
+          </div>
         </div>
         {generated && (
           <button
             onClick={generateIdeas}
-            style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "10px", minWidth: "44px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={{ background: "transparent", border: "none", cursor: "pointer", color: t.muted, padding: "10px", minWidth: "44px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
             title="Regenerate"
           >
             <RefreshCw size={15} />
           </button>
         )}
       </div>
-      <p style={{ color: t.muted, fontSize: "0.85rem", marginBottom: "1rem" }}>
-        Realistic ways to earn an extra{" "}
-        <strong style={{ color: t.text, fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{fmt(Math.round(gap))}/year</strong> toward financial freedom.
-      </p>
 
       {!generated && !loading && (
-        <div style={{ textAlign: "center", padding: "0.75rem 0" }}>
-          <button
-            onClick={generateIdeas}
-            className="lp-press"
-            style={{
-              background: t.text,
-              color: t.cardBg,
-              border: "none",
-              borderRadius: "8px",
-              padding: "0.6rem 1.5rem",
-              fontSize: "0.9rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-            }}
-          >
-            <Lightbulb size={15} />
-            Find My Income Ideas
-          </button>
-        </div>
+        <button
+          onClick={generateIdeas}
+          className="lp-press"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "11px 22px",
+            background: t.text,
+            color: t.cardBg,
+            border: "none",
+            borderRadius: 999,
+            fontSize: 14,
+            fontWeight: 550,
+            letterSpacing: "-0.01em",
+            cursor: "pointer",
+          }}
+        >
+          <Lightbulb size={15} />
+          Find my income ideas
+        </button>
       )}
 
       {loading && (
-        <div style={{ textAlign: "center", padding: "1.5rem 0", color: t.muted, fontSize: "0.9rem" }}>
-          <Lightbulb size={18} style={{ marginBottom: "0.5rem", color: "#B45309" }} />
-          <div>Finding personalized income opportunities...</div>
+        <div aria-label="Finding income opportunities" role="status">
+          <style>{`
+            @keyframes dx-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+            @media (prefers-reduced-motion: reduce) { .dx-skel { animation: none !important; } }
+          `}</style>
+          {[["72%", 12], ["86%", 12], ["58%", 12]].map(([w, h], i) => (
+            <div
+              key={i}
+              className="dx-skel"
+              style={{
+                width: w as string,
+                height: h as number,
+                borderRadius: 6,
+                background: t.border,
+                marginBottom: 10,
+                animation: `dx-pulse 1.6s ease-in-out ${i * 0.12}s infinite`,
+              }}
+            />
+          ))}
+          <div style={{ fontSize: "0.8rem", color: t.muted, marginTop: "0.6rem" }}>Finding personalized income opportunities…</div>
         </div>
       )}
 
       {error && (
-        <p style={{ color: "#DC2626", fontSize: "0.88rem", textAlign: "center", padding: "0.5rem 0", margin: 0 }}>
+        <p style={{ color: t.text, fontSize: "0.88rem", fontWeight: 500, margin: 0 }}>
           {error}
         </p>
       )}
 
       {generated && !loading && ideas.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <div>
           {ideas.map((idea, i) => (
             <div
               key={i}
               style={{
-                padding: "0.9rem 1rem",
-                background: isDark ? "#2a2a2f" : "#f9f9fb",
-                borderRadius: "10px",
-                border: `1px solid ${t.border}`,
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "1rem",
+                padding: "0.85rem 0",
+                borderTop: i > 0 ? `1px solid ${t.border}` : "none",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.35rem" }}>
-                <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>{idea.title}</span>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ fontWeight: 700, color: "#40916C", fontSize: "0.88rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>{idea.range}</span>
-                  <span
-                    style={{
-                      fontSize: "0.72rem",
-                      fontWeight: 600,
-                      color: difficultyColor(idea.difficulty),
-                      background: difficultyColor(idea.difficulty) + "15",
-                      border: `1px solid ${difficultyColor(idea.difficulty)}40`,
-                      borderRadius: "6px",
-                      padding: "1px 6px",
-                    }}
-                  >
-                    {idea.difficulty}
-                  </span>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 600, color: t.text, fontSize: "0.92rem", letterSpacing: "-0.01em", marginBottom: "0.2rem" }}>
+                  {idea.title}
                 </div>
+                <div style={{ fontSize: "0.85rem", color: t.muted, lineHeight: 1.55 }}>{idea.description}</div>
+                <div style={{ fontSize: "0.76rem", color: t.subtle, marginTop: "0.3rem" }}>{idea.difficulty}</div>
               </div>
-              <div style={{ fontSize: "0.85rem", color: t.muted, lineHeight: 1.5 }}>{idea.description}</div>
+              <span style={{ fontWeight: 600, color: "#40916C", fontSize: "0.88rem", fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'", whiteSpace: "nowrap", flexShrink: 0 }}>
+                {idea.range}
+              </span>
             </div>
           ))}
-          <p style={{ fontSize: "0.78rem", color: t.muted, textAlign: "center", margin: "0.25rem 0 0" }}>
+          <p style={{ fontSize: "0.78rem", color: t.muted, margin: "0.5rem 0 0" }}>
             Chat with the AI Advisor below for deeper guidance on any idea.
           </p>
         </div>
       )}
 
       {generated && !loading && ideas.length === 0 && (
-        <p style={{ color: t.muted, fontSize: "0.9rem", textAlign: "center" }}>
+        <p style={{ color: t.muted, fontSize: "0.9rem", margin: 0 }}>
           Couldn't generate ideas — try again.
         </p>
       )}

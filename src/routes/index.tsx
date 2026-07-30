@@ -80,7 +80,6 @@ import { ExpenseSaveStatus } from "@/components/ExpenseSaveStatus";
 import {
   type Page,
   type UserTier,
-  type PlanId,
   type ThemeConfig,
   type ExpenseData,
   type ExpenseKey,
@@ -148,7 +147,7 @@ interface LandingProps {
   setIsDark: (v: boolean) => void;
   currentTheme: ThemeConfig;
   onDevAccess?: () => void;
-  onUpgrade?: (plan: "pro" | "premium") => void;
+  onUpgrade?: () => void;
   onSignIn?: () => void;
   onSignOut?: () => void;
   onDashboard?: () => void;
@@ -280,7 +279,7 @@ function Landing({ onStart, onPricing, isDark, setIsDark, currentTheme, onDevAcc
 
       <section style={band(WHITE)}>
         <div style={inner}>
-          <PricingSection t={lt} isDark={false} onStart={onStart} onUpgrade={onUpgrade ?? ((plan) => onPricing())} />
+          <PricingSection t={lt} isDark={false} onStart={onStart} onUpgrade={onUpgrade ?? (() => onPricing())} />
         </div>
       </section>
 
@@ -785,7 +784,7 @@ interface AskYourPlanProps {
   isDark: boolean;
   onSimulator: () => void;
   userTier: UserTier;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
 }
 
 function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier, onUpgrade }: AskYourPlanProps) {
@@ -818,7 +817,7 @@ function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier,
     setFallbackAnswer(deterministic);
 
     // Try LLM for premium users
-    if (userTier === "premium") {
+    if (userTier === "paid") {
       setAiLoading(true);
       try {
         const contextStr = `User data:
@@ -966,7 +965,7 @@ function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier,
           <p style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.75rem", fontStyle: "italic" }}>
             Estimates only. Not financial advice.
           </p>
-          {userTier !== "premium" && (
+          {userTier !== "paid" && (
             <div style={{
               marginTop: "0.75rem",
               padding: "0.6rem 0.85rem",
@@ -983,7 +982,7 @@ function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier,
                 Get AI-powered answers with Premium
               </span>
               <button
-                onClick={() => onUpgrade("premium")}
+                onClick={() => onUpgrade()}
                 style={{
                   background: t.primary,
                   color: "#fff",
@@ -1010,7 +1009,7 @@ function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier,
 
 interface FirePageProps {
   onBack: () => void;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
   userTier: UserTier;
   isDark: boolean;
   setIsDark: (v: boolean) => void;
@@ -1027,7 +1026,7 @@ function FirePage({
 }: FirePageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
-  const isPremium = userTier === "premium";
+  const isPremium = userTier === "paid";
 
   const [currentAge, setCurrentAge] = useState(30);
   const [retirementAge, setRetirementAge] = useState(65);
@@ -1305,7 +1304,7 @@ function FirePage({
               </div>
 
               <button
-                onClick={() => onUpgrade("premium")}
+                onClick={() => onUpgrade()}
                 style={{
                   background: `linear-gradient(135deg, #f59e0b, #ea580c)`,
                   color: "#fff",
@@ -1385,7 +1384,7 @@ interface ForecastPageProps {
   expenses: ExpenseData;
   taxRate: number;
   onBack: () => void;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
   userTier: UserTier;
   isDark: boolean;
   setIsDark: (v: boolean) => void;
@@ -1404,7 +1403,7 @@ function ForecastPage({
 }: ForecastPageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
-  const isPremium = userTier === "premium";
+  const isPremium = userTier === "paid";
 
   const outputs = computeForExpenses(expenses, taxRate);
 
@@ -1486,7 +1485,7 @@ function ForecastPage({
                 <div style={{ fontWeight: 700, color: t.text, marginBottom: "0.25rem" }}>See Your Full 12-Month Outlook</div>
                 <div style={{ fontSize: "0.85rem", color: t.muted }}>Unlock stability trends, runway projections, and debt paydown month by month.</div>
               </div>
-              <button onClick={() => onUpgrade("premium")} style={{ background: currentTheme.primary, color: "#fff", border: "none", borderRadius: "8px", padding: "0.6rem 1.5rem", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <button onClick={() => onUpgrade()} style={{ background: currentTheme.primary, color: "#fff", border: "none", borderRadius: "8px", padding: "0.6rem 1.5rem", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                 <TrendingUp size={15} />
                 Unlock 12-Month Forecast
               </button>
@@ -1552,7 +1551,7 @@ function ForecastPage({
 
 interface DebtPageProps {
   onBack: () => void;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
   userTier: UserTier;
   isDark: boolean;
   setIsDark: (v: boolean) => void;
@@ -1570,8 +1569,7 @@ function DebtPage({
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
   const isFree = userTier === "free";
-  const isPro = userTier === "pro";
-  const isPremium = userTier === "premium";
+  const isPremium = userTier === "paid";
 
   const [debts, setDebts] = useState<DebtItem[]>(() => {
     const saved = loadDebts();
@@ -1581,7 +1579,7 @@ function DebtPage({
   const [mode, setMode] = useState<"snowball" | "avalanche" | "compare">("compare");
 
   // Debt limits by tier
-  const debtLimit = isPremium ? 999 : isPro ? 6 : 2;
+  const debtLimit = isPremium ? 999 : 2;
 
   // Persist debts
   useEffect(() => { saveDebts(debts); }, [debts]);
@@ -1679,7 +1677,7 @@ function DebtPage({
           ) : (
             <div style={{ fontSize: "0.82rem", color: t.muted }}>
               {isPremium ? null : (
-                <button onClick={() => onUpgrade(isFree ? "pro" : "premium")} style={{ background: "transparent", border: "none", color: t.primary, cursor: "pointer", fontWeight: 600, fontSize: "0.82rem", padding: 0 }}>
+                <button onClick={() => onUpgrade()} style={{ background: "transparent", border: "none", color: t.primary, cursor: "pointer", fontWeight: 600, fontSize: "0.82rem", padding: 0 }}>
                   Upgrade for more debt slots
                 </button>
               )}
@@ -1729,7 +1727,7 @@ function DebtPage({
             </div>
 
             <button
-              onClick={() => onUpgrade("pro")}
+              onClick={() => onUpgrade()}
               style={{
                 background: "linear-gradient(135deg, #ef4444, #dc2626)",
                 color: "#fff",
@@ -1878,7 +1876,7 @@ interface FIPageProps {
   expenses: ExpenseData;
   taxRate: number;
   onBack: () => void;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
   userTier: UserTier;
   isDark: boolean;
   setIsDark: (v: boolean) => void;
@@ -1897,7 +1895,7 @@ function FIEstimatorPage({
 }: FIPageProps) {
   const t = applyDark(currentTheme, isDark);
   const isMobile = useIsMobile();
-  const isPremium = userTier === "premium";
+  const isPremium = userTier === "paid";
 
   const outputs = computeForExpenses(expenses, taxRate);
   const annualExpenses = outputs.monthlyExpensesTotal * 12;
@@ -2130,7 +2128,7 @@ function FIEstimatorPage({
               </div>
 
               <button
-                onClick={() => onUpgrade("premium")}
+                onClick={() => onUpgrade()}
                 style={{
                   background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`,
                   color: "#fff",
@@ -2170,7 +2168,7 @@ interface DevAccessProps {
   devOverride: boolean;
   devBadgeLabel: string | null;
   effectiveTier: UserTier;
-  onToggle: (enabled: boolean, level?: "pro" | "premium") => void;
+  onToggle: (enabled: boolean) => void;
   onBack: () => void;
 }
 
@@ -2205,7 +2203,7 @@ function DevAccessPage({ isDark, setIsDark, currentTheme, devOverride, devBadgeL
               )}
             </div>
             <div style={{ fontSize: "0.78rem", color: t.muted, marginBottom: "0.25rem" }}>
-              Effective tier: <strong style={{ color: effectiveTier === "premium" ? t.primary : effectiveTier === "pro" ? "#3b82f6" : t.muted }}>{effectiveTier.toUpperCase()}</strong>
+              Effective tier: <strong style={{ color: effectiveTier === "paid" ? t.primary : t.muted }}>{effectiveTier.toUpperCase()}</strong>
             </div>
             {devBadgeLabel && (
               <div style={{
@@ -2227,25 +2225,10 @@ function DevAccessPage({ isDark, setIsDark, currentTheme, devOverride, devBadgeL
           {/* Tier buttons */}
           <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center", flexWrap: "wrap" }}>
             <button
-              onClick={() => onToggle(true, "pro")}
+              onClick={() => onToggle(true)}
               style={{
-                background: effectiveTier === "pro" && devOverride ? "#3b82f6" : t.bg,
-                color: effectiveTier === "pro" && devOverride ? "#fff" : "#3b82f6",
-                border: "2px solid #3b82f6",
-                borderRadius: "8px",
-                padding: "0.6rem 1.1rem",
-                fontSize: "0.85rem",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              Unlock Pro
-            </button>
-            <button
-              onClick={() => onToggle(true, "premium")}
-              style={{
-                background: effectiveTier === "premium" && devOverride ? t.primary : t.bg,
-                color: effectiveTier === "premium" && devOverride ? "#fff" : t.primary,
+                background: effectiveTier === "paid" && devOverride ? t.primary : t.bg,
+                color: effectiveTier === "paid" && devOverride ? "#fff" : t.primary,
                 border: `2px solid ${t.primary}`,
                 borderRadius: "8px",
                 padding: "0.6rem 1.1rem",
@@ -2254,7 +2237,7 @@ function DevAccessPage({ isDark, setIsDark, currentTheme, devOverride, devBadgeL
                 cursor: "pointer",
               }}
             >
-              Unlock Premium
+              Unlock Full Access
             </button>
             <button
               onClick={() => onToggle(false)}
@@ -3124,7 +3107,6 @@ function App() {
   const [expenseData, setExpenseData] = useState<ExpenseData>(DEFAULT_EXPENSES);
   const [taxRate, setTaxRate] = useState(25);
   const [currentGrossIncome, setCurrentGrossIncome] = useState(0);
-  const [checkoutPlan, setCheckoutPlan] = useState<PlanId>("pro");
   const [userTier, setUserTier] = useState<UserTier>(loadUserTier);
   const [devOverride, setDevOverride] = useState(getDevOverride);
 
@@ -3232,7 +3214,7 @@ function App() {
   }
   
   // Create a Stripe Checkout Session via the server and redirect the browser to it.
-  async function redirectToCheckout(plan: PlanId, billingPeriod: "monthly" | "yearly") {
+  async function redirectToCheckout() {
     const user = getCurrentUser();
     const session = getSession();
 
@@ -3252,8 +3234,6 @@ function App() {
         method: "POST",
         headers,
         body: JSON.stringify({
-          planTier: plan,
-          billingPeriod,
           userId: user.id,
         }),
       });
@@ -3297,7 +3277,7 @@ function App() {
 
 // ── DEV_BYPASS_PAYWALL ──
   const devBypassActive = isDevBypassPaywall();
-  const effectiveTier: UserTier = devBypassActive ? "premium" : (devOverride ? (getPlan() as UserTier) : userTier);
+  const effectiveTier: UserTier = devBypassActive ? "paid" : (devOverride ? (getPlan() as UserTier) : userTier);
   const devBadgeLabel = devBypassActive ? "DEV: PAYWALL BYPASS" : getDevBadgeLabel();
   // currentTheme is defined above alongside the useEffect
 
@@ -3347,10 +3327,10 @@ function App() {
     }
   }, []);
 
-  function handleDevToggle(enabled: boolean, level: "pro" | "premium" = "premium") {
+  function handleDevToggle(enabled: boolean) {
     if (enabled) {
       enableDevOverride(); // legacy
-      entitlementEnable(level);
+      entitlementEnable();
     } else {
       disableDevOverride(); // legacy
       entitlementDisable();
@@ -3375,14 +3355,13 @@ function App() {
     setPage("landing");
   }
 
-function handleUpgrade(plan: PlanId = "pro") {
+function handleUpgrade() {
   // Save scroll position before leaving so we can restore on Back
   savedScrollY.current = window.scrollY;
   // Push current returnTo onto stack so the full back-chain is preserved
   // e.g. Results → Fire → Checkout → Back → Fire → Back → Results
   if (returnTo) returnStack.current.push(returnTo);
   setReturnTo({ page, guidedStep });
-  setCheckoutPlan(plan);
   setPage("checkout");
   window.scrollTo(0, 0);
 }
@@ -3544,8 +3523,8 @@ async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
     pageContent = (
       <Landing
         onStart={() => setPage("intent")}
-        onPricing={() => handleUpgrade("pro")}
-        onUpgrade={(plan) => handleUpgrade(plan)}
+        onPricing={() => handleUpgrade()}
+        onUpgrade={() => handleUpgrade()}
         onSignIn={() => openAuthModal("signin")}
         onSignOut={handleSignOut}
         onDashboard={() => setPage("results")}
@@ -3585,7 +3564,6 @@ async function handleAuthSuccess(user: AuthUser, mode: "signin" | "signup") {
       <Suspense fallback={<PageLoader />}>
         <CheckoutPage
           onBack={backToResults}
-          initialPlan={checkoutPlan}
           onRequireAuth={openAuthModal}
           onCheckout={redirectToCheckout}
           {...sharedProps}

@@ -18,7 +18,6 @@ import {
   MONO_FONT_STACK,
   type ThemeConfig,
   type UserTier,
-  type PlanId,
   type ExpenseData,
 } from "@/lib/app-shared";
 import { computeIncomeGap, computeRunway, computeAlerts } from "@/lib/stabilityMetrics";
@@ -49,7 +48,7 @@ export interface GuidedFlowPageProps {
   onStepChange: (step: number) => void;
   onBack: () => void;
   onRecalculate: () => void;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
   onSimulator: () => void;
   onResults: () => void;
   onSaveScenario?: () => void;
@@ -310,7 +309,7 @@ export function GuidedFlowPage({
   const topMove = computeTopMove(data, taxRate, outputs);
   const healthDelta = topMove.projectedHealth - topMove.currentHealth;
 
-  const hasPaidAccess = userTier === "pro" || userTier === "premium";
+  const hasPaidAccess = userTier === "paid";
 
   // ── Analytics: track step views ──
   const STEP_NAMES = ["snapshot_viewed", "diagnosis_viewed", "top_move_viewed", "your_plan_viewed"] as const;
@@ -652,12 +651,12 @@ export function GuidedFlowPage({
                   </div>
                   <div style={{ fontSize: "0.82rem", color: t.muted, lineHeight: 1.55, marginBottom: "0.95rem" }}>
                     {healthScore < 60
-                      ? "Pro lets you build custom scenarios, test different expense changes, and find the specific combination that moves your score the most. See exactly which trade-offs are worth making before you commit."
-                      : "Pro lets you build and compare scenarios side by side, test real trade-offs, and find the strongest path from here. One change helped — now find the combination that helps the most."
+                      ? "The Full Diagnosis lets you build custom scenarios, test different expense changes, and find the specific combination that moves your score the most. See exactly which trade-offs are worth making before you commit."
+                      : "The Full Diagnosis lets you build and compare scenarios side by side, test real trade-offs, and find the strongest path from here. One change helped — now find the combination that helps the most."
                     }
                   </div>
-                  <CTAButton t={t} isDark={isDark} size="sm" onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "guided", plan: "pro" }); onUpgrade("pro"); }}>
-                    <Lock size={13} /> Upgrade to Pro
+                  <CTAButton t={t} isDark={isDark} size="sm" onClick={() => { trackEvent("upgrade_intent", { user_tier: userTier, source_page: "guided" }); onUpgrade(); }}>
+                    <Lock size={13} /> Unlock Full Diagnosis
                   </CTAButton>
                 </EditorialCard>
               </Reveal>

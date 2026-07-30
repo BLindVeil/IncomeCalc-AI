@@ -32,8 +32,9 @@ export type Page =
   | "share"
   | "digest-preview";
 
-export type UserTier = "free" | "pro" | "premium";
-export type PlanId = "pro" | "premium";
+// One-time purchase model: the only tiers are "free" and "paid".
+// Legacy localStorage values ("pro"/"premium") are read as "paid".
+export type UserTier = "free" | "paid";
 
 export interface ThemeConfig {
   name: string;
@@ -74,16 +75,6 @@ export interface CheckInSnapshot {
 export interface PlanFeature {
   text: string;
   included: boolean;
-}
-
-export interface Plan {
-  id: PlanId;
-  name: string;
-  price: number;
-  yearlyPrice: number;
-  description: string;
-  badge?: string;
-  features: PlanFeature[];
 }
 
 // ─── Evergreen Palette ─────────────────────────────────────────────────────
@@ -180,47 +171,33 @@ export const EXPENSE_FIELDS: {
 
 // ─── Plan definitions ───────────────────────────────────────────────────────
 
-export const PLANS: Plan[] = [
-  {
-    id: "pro",
-    name: "Pro",
-    price: 4.99,
-    yearlyPrice: 49,
-    description: "Clarity & Control — know exactly what you need to earn and where it goes.",
-    features: [
-      { text: "Everything in Free", included: true },
-      { text: "Historical analytics dashboard", included: true },
-      { text: "Retirement goal planner", included: true },
-      { text: "Branded PDF report export", included: true },
-      { text: "Compare 3 income scenarios", included: true },
-      { text: "AI-powered recommendations", included: false },
-      { text: "Multi-person household planning", included: false },
-      { text: "Cloud sync across devices", included: false },
-    ],
-  },
-  {
-    id: "premium",
-    name: "Premium",
-    price: 9.99,
-    yearlyPrice: 99,
-    description: "Financial Growth & Long-Term Strategy — advanced planning, forecasting, and wealth optimization.",
-    badge: "Most Popular",
-    features: [
-      { text: "Everything in Pro", included: true },
-      { text: "Unlimited scenario comparisons", included: true },
-      { text: "12-Month cashflow forecast", included: true },
-      { text: "FIRE Retirement Estimator", included: true },
-      { text: "Stability history tracking", included: true },
-      { text: "Advanced AI Advisor", included: true },
-      { text: "AI-powered spending recommendations", included: true },
-      { text: "Multi-person household planning", included: true },
-      { text: "Cloud sync across devices", included: true },
-      { text: "Priority email support", included: true },
-      { text: "Export to CSV / Google Sheets", included: true },
-      { text: "Household multi-income modeling", included: true },
-    ],
-  },
-];
+// The single one-time product. Pay once, own the full diagnosis forever.
+export const FULL_PRICE = 29;
+
+export interface FullPlan {
+  name: string;
+  price: number;
+  description: string;
+  features: PlanFeature[];
+}
+
+export const FULL_PLAN: FullPlan = {
+  name: "Full Diagnosis",
+  price: FULL_PRICE,
+  description: "Everything Ascentra can tell you about your money — one payment, yours forever.",
+  features: [
+    { text: "Complete AI Financial Diagnosis", included: true },
+    { text: "Unlimited scenario comparisons", included: true },
+    { text: "12-Month cashflow forecast", included: true },
+    { text: "Savings potential analysis", included: true },
+    { text: "FIRE Retirement Estimator", included: true },
+    { text: "Historical analytics & stability tracking", included: true },
+    { text: "AI-powered spending recommendations", included: true },
+    { text: "Multi-person household planning", included: true },
+    { text: "Export to CSV / Google Sheets", included: true },
+    { text: "Cloud sync across devices", included: true },
+  ],
+};
 
 export const DEFAULT_EXPENSES: import("@/lib/calc").ExpenseData = {
   housing: 0,
@@ -283,15 +260,14 @@ export function saveSnapshots(snapshots: CheckInSnapshot[]) {
 export function loadUserTier(): UserTier {
   try {
     const raw = localStorage.getItem("incomecalc-tier");
-    if (raw === "pro" || raw === "premium") return raw;
+    // Legacy subscription-era values map to "paid" so existing customers keep access.
+    if (raw === "paid" || raw === "pro" || raw === "premium") return "paid";
     return "free";
   } catch { return "free"; }
 }
 
 export function getScenarioLimit(tier: UserTier): number {
-  if (tier === "premium") return 999;
-  if (tier === "pro") return 3;
-  return 1;
+  return tier === "paid" ? 999 : 1;
 }
 
 export function genId(): string {

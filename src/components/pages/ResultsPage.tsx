@@ -45,7 +45,6 @@ import {
   hasRealExpenseData,
   type ThemeConfig,
   type UserTier,
-  type PlanId,
   type ExpenseData,
 } from "@/lib/app-shared";
 import { Header } from "@/components/Header";
@@ -74,79 +73,6 @@ import { BudgetPage } from "@/components/pages/BudgetPage";
 import { AnalyticsPage } from "@/components/pages/AnalyticsPage";
 import { ScenariosPage } from "@/components/pages/ScenariosPage";
 import { useBudgetStore } from "@/lib/budget-store";
-
-// ─── AnnualUpsellModal ────────────────────────────────────────────────────────
-
-interface AnnualUpsellModalProps {
-  plan: PlanId;
-  onAnnual: () => void;
-  onMonthly: () => void;
-  onClose: () => void;
-  t: ThemeConfig;
-}
-
-export function AnnualUpsellModal({ plan, onAnnual, onMonthly, onClose, t }: AnnualUpsellModalProps) {
-  const prices = plan === "premium"
-    ? { monthly: 9.99, yearly: 99, savePercent: 17 }
-    : { monthly: 4.99, yearly: 49, savePercent: 18 };
-
-  return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0,0,0,0.5)",
-        backdropFilter: "blur(4px)",
-        padding: "1rem",
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: t.cardBg,
-          border: `1px solid ${t.border}`,
-          borderRadius: "16px",
-          padding: "2rem",
-          maxWidth: "420px",
-          width: "100%",
-          textAlign: "center",
-          position: "relative",
-          overflow: "hidden",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div style={{ ...eyebrowStyle, color: t.muted, marginBottom: "0.6rem" }}>Save 2 months</div>
-        <h2 style={{ fontSize: "1.4rem", fontWeight: 600, color: t.text, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
-          Save with Annual Billing
-        </h2>
-        <p style={{ color: t.muted, fontSize: "0.95rem", lineHeight: 1.6, marginBottom: "1.5rem" }}>
-          Get <strong style={{ color: t.text }}>2 months free</strong> when you switch to annual! Pay <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>${prices.yearly}</span>/year instead of <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>${(prices.monthly * 12).toFixed(0)}</span>/year.
-        </p>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          <button
-            onClick={onAnnual}
-            className="lp-press"
-            style={{ width: "100%", padding: "0.85rem", fontSize: "1rem", fontWeight: 600, border: "none", borderRadius: 999, background: t.text, color: t.cardBg, cursor: "pointer", letterSpacing: "-0.01em" }}
-          >
-            Switch to Annual (Save {prices.savePercent}%)
-          </button>
-          <button
-            onClick={onMonthly}
-            className="lp-press"
-            style={{ width: "100%", padding: "0.85rem", fontSize: "1rem", fontWeight: 600, border: `1px solid ${t.borderStrong}`, borderRadius: 999, background: "transparent", color: t.text, cursor: "pointer" }}
-          >
-            Continue Monthly — <span style={{ fontFamily: MONO_FONT_STACK, fontFeatureSettings: "'tnum', 'zero'" }}>${prices.monthly}</span>/mo
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ─── RestorePurchaseModal ─────────────────────────────────────────────────────
 
@@ -181,8 +107,8 @@ export function RestorePurchaseModal({ onClose, t }: RestorePurchaseModalProps) 
       if (resp.ok) {
         const data = (await resp.json()) as { plan?: string; status?: string };
         if (data.plan && data.plan !== "free" && data.status !== "expired") {
-          localStorage.setItem("incomecalc-tier", data.plan);
-          trackEvent("restore_purchase_success", { plan: data.plan as "pro" | "premium", source_page: "/checkout" });
+          localStorage.setItem("incomecalc-tier", "paid");
+          trackEvent("restore_purchase_success", { plan: "paid", source_page: "/checkout" });
           setStatus("success");
           return;
         }
@@ -318,7 +244,7 @@ interface AskYourPlanProps {
   isDark: boolean;
   onSimulator: () => void;
   userTier: UserTier;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
   initialQuestion?: string | null;
 }
 
@@ -345,7 +271,7 @@ function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier,
     setFallbackAnswer(deterministic);
 
     // Try LLM for premium users
-    if (userTier === "premium") {
+    if (userTier === "paid") {
       setAiLoading(true);
       try {
         const contextStr = `User data:
@@ -503,7 +429,7 @@ function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier,
           <p style={{ fontSize: "0.72rem", color: t.muted, marginTop: "0.75rem", fontStyle: "italic" }}>
             Estimates only. Not financial advice.
           </p>
-          {userTier !== "premium" && (
+          {userTier !== "paid" && (
             <div style={{
               marginTop: "0.75rem",
               padding: "0.6rem 0.85rem",
@@ -517,10 +443,10 @@ function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier,
               gap: "0.5rem",
             }}>
               <span style={{ fontSize: "0.82rem", color: t.muted }}>
-                Get AI-powered answers with Premium
+                Get AI-powered answers with the Full Diagnosis
               </span>
               <button
-                onClick={() => onUpgrade("premium")}
+                onClick={() => onUpgrade()}
                 style={{
                   background: t.primary,
                   color: "#fff",
@@ -532,7 +458,7 @@ function AskYourPlan({ data, taxRate, outputs, t, isDark, onSimulator, userTier,
                   cursor: "pointer",
                 }}
               >
-                Get Premium
+                Unlock — $29 once
               </button>
             </div>
           )}
@@ -550,7 +476,7 @@ export interface ResultsPageProps {
   currentGrossIncome: number;
   onBack: () => void;
   onRecalculate: () => void;
-  onUpgrade: (plan?: PlanId) => void;
+  onUpgrade: () => void;
   onSimulator: () => void;
   onCheckIn: () => void;
   onFire: () => void;
@@ -628,9 +554,6 @@ export function ResultsPage({
   const [showBudgetInsights, setShowBudgetInsights] = useState(false);
   const [showIncomeIdeas, setShowIncomeIdeas] = useState(false);
   const [showFullReport, setShowFullReport] = useState(false);
-  const [showBudgetAnalysis, setShowBudgetAnalysis] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(false);
-  const [showScenarios, setShowScenarios] = useState(false);
   const [budgetOpacity, setBudgetOpacity] = useState(0);
   const [ideasOpacity, setIdeasOpacity] = useState(0);
 
@@ -642,10 +565,6 @@ export function ResultsPage({
       return () => clearTimeout(timer);
     }
   }, [showBudgetInsights, userTier]);
-
-  const [moreToolsOpen, setMoreToolsOpen] = useState(() => {
-    try { return sessionStorage.getItem("incomecalc-tools-expanded") === "true"; } catch { return false; }
-  });
 
   // Use shared calculation engine
   const outputs = computeForExpenses(data, taxRate);
@@ -781,6 +700,11 @@ export function ResultsPage({
     }
     if (view === "calculator") onRecalculate();
     else if (view === "simulator") onSimulator();
+    else if (view === "fire") onFire();
+    else if (view === "debt") onDebt();
+    else if (view === "forecast") onForecast();
+    else if (view === "fi") onFI();
+    else if (view === "checkin") onCheckIn();
     else if (view === "diagnosis") {
       // The diagnosis lives inside the dashboard, so reaching it is a view
       // change and a scroll at once.
@@ -838,6 +762,18 @@ export function ResultsPage({
             activeItem={currentView}
             onNavigate={handleNavigate}
             onSignOut={onSignOut}
+            groups={[
+              {
+                label: "Tools",
+                items: [
+                  { id: "fire", label: "FIRE Estimator", icon: () => <Flame size={18} /> },
+                  { id: "debt", label: "Debt Payoff", icon: () => <Wallet size={18} /> },
+                  { id: "forecast", label: "12-Mo Forecast", icon: () => <TrendingUp size={18} /> },
+                  { id: "fi", label: "FI Date", icon: () => <Milestone size={18} /> },
+                  { id: "checkin", label: "Monthly Check-In", icon: () => <CalendarCheck size={18} /> },
+                ],
+              },
+            ]}
           />
         )}
 
@@ -1741,43 +1677,13 @@ export function ResultsPage({
           </div>
         </div>
 
-        {/* ═══ SECTION 3: More Tools & Insights (collapsible) ═══ */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "1rem 0 0" }}>
-          <div style={{ flex: 1, height: "1px", background: `linear-gradient(90deg, ${t.border}, transparent)` }} />
-          <button
-            onClick={() => setMoreToolsOpen((v) => { const next = !v; try { sessionStorage.setItem("incomecalc-tools-expanded", String(next)); } catch {} return next; })}
-            style={{
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              padding: "0.6rem 0.75rem",
-              fontSize: "0.78rem",
-              minHeight: "44px",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: t.muted,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {moreToolsOpen ? "Show Less" : "More Tools & Insights"}
-            {moreToolsOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
-          <div style={{ flex: 1, height: "1px", background: `linear-gradient(270deg, ${t.border}, transparent)` }} />
+        {/* ═══ SECTION 3: Breakdown & deeper insight ═══ */}
+        <div style={{ margin: "2rem 0 1.25rem" }}>
+          <SectionHeader label="Breakdown & Deeper Insight" t={t} />
         </div>
 
-        <div
-          style={{
-            overflow: "hidden",
-            transition: "max-height 0.4s ease, opacity 0.3s ease",
-            maxHeight: moreToolsOpen ? "2000px" : "0px",
-            opacity: moreToolsOpen ? 1 : 0,
-          }}
-        >
-        <div style={{ paddingTop: "1.25rem" }}>
+        <div>
+        <div>
 
         {/* Expense breakdown (moved from Section 1) */}
         {breakdownItems.length > 0 && (
@@ -1827,110 +1733,34 @@ export function ResultsPage({
           </div>
         )}
 
-        {/* Budget Analysis */}
-        <div style={{ marginBottom: "1.25rem" }}>
-          <button
-            onClick={() => setShowBudgetAnalysis(!showBudgetAnalysis)}
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              fontSize: 14,
-              fontWeight: 500,
-              color: t.primary,
-              cursor: "pointer",
-            }}
-          >
-            {showBudgetAnalysis ? "Hide budget analysis ↑" : "View full budget analysis →"}
-          </button>
-          {showBudgetAnalysis && (
-            <div style={{ marginTop: 16 }}>
-              <BudgetPage
-                t={t}
-                isDark={isDark}
-                expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
-                totalExpenses={totalMonthly}
-                grossMonthlyIncome={grossMonthly}
-                customBudgets={customBudgets}
-                onSetCustomBudget={setCustomBudget}
-                onClearCustomBudget={clearCustomBudget}
-                onClearAllCustomBudgets={clearAllCustomBudgets}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Analytics */}
-        <div style={{ marginBottom: "1.25rem" }}>
-          <button
-            onClick={() => setShowAnalytics(!showAnalytics)}
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              fontSize: 14,
-              fontWeight: 500,
-              color: t.primary,
-              cursor: "pointer",
-            }}
-          >
-            {showAnalytics ? "Hide detailed analytics ↑" : "View detailed analytics →"}
-          </button>
-          {showAnalytics && (
-            <div className="rp-reveal-enter" style={{ marginTop: 16 }}>
-              <AnalyticsPage
-                t={t}
-                isDark={isDark}
-                grossMonthlyIncome={grossMonthly}
-                netMonthlyIncome={grossMonthly - taxMonthly}
-                totalExpenses={totalMonthly}
-                expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
-                healthScore={healthScore}
-                taxRate={taxRate}
-                annualRequired={grossAnnual}
-                currentAnnualIncome={currentGrossIncome}
-                onExportCsv={handleExportCsv}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Scenarios */}
-        <div style={{ marginBottom: "1.25rem" }}>
-          <button
-            onClick={() => setShowScenarios(!showScenarios)}
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              fontSize: 14,
-              fontWeight: 500,
-              color: t.primary,
-              cursor: "pointer",
-            }}
-          >
-            {showScenarios ? "Hide all scenarios ↑" : "View all scenarios →"}
-          </button>
-          {showScenarios && (
-            <div style={{ marginTop: 16 }}>
-              <ScenariosPage
-                t={t}
-                isDark={isDark}
-                expenses={breakdownItems.map((item) => ({ category: item.label, amount: item.value }))}
-                totalExpenses={totalMonthly}
-                grossMonthlyIncome={grossMonthly}
-                annualRequired={grossAnnual}
-                currentAnnualIncome={currentGrossIncome}
-                taxRate={taxRate}
-                healthScore={healthScore}
-                onSimulator={onSimulator}
-              />
-            </div>
-          )}
+        {/* Deep views live in the sidebar; these are the same destinations
+            for readers arriving by scroll. */}
+        <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", marginBottom: "1.25rem" }}>
+          {[
+            { id: "budget", label: "Full budget analysis" },
+            { id: "analytics", label: "Detailed analytics" },
+            { id: "scenarios", label: "All scenarios" },
+          ].map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => handleNavigate(id)}
+              style={{
+                background: "none",
+                border: "none",
+                padding: 0,
+                fontSize: 14,
+                fontWeight: 500,
+                color: t.primary,
+                cursor: "pointer",
+              }}
+            >
+              {label} →
+            </button>
+          ))}
         </div>
 
         {/* Savings Potential - unlocked for Premium */}
-        {userTier === "premium" ? (() => {
+        {userTier === "paid" ? (() => {
           const sortedExpenses = EXPENSE_FIELDS.map((f) => ({ key: f.name, label: f.label, value: data[f.name] }))
             .filter((e) => e.value > 0 && e.key !== "savings")
             .sort((a, b) => b.value - a.value);
@@ -2042,7 +1872,7 @@ export function ResultsPage({
                 </div>
               </div>
               <button
-                onClick={() => onUpgrade("premium")}
+                onClick={() => onUpgrade()}
                 className="atv-btn-primary"
                 style={{
                   padding: "0.55rem 1.25rem",
@@ -2060,7 +1890,7 @@ export function ResultsPage({
         )}
 
         {/* 12-Month Cashflow Forecast - unlocked for Premium */}
-        {userTier === "premium" ? (() => {
+        {userTier === "paid" ? (() => {
           const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
           const startMonth = new Date().getMonth();
           const incomePerMonth = grossMonthly;
@@ -2220,7 +2050,7 @@ export function ResultsPage({
                 </div>
               </div>
               <button
-                onClick={() => onUpgrade("premium")}
+                onClick={() => onUpgrade()}
                 className="atv-btn-primary"
                 style={{
                   padding: "0.55rem 1.25rem",
@@ -2237,107 +2067,51 @@ export function ResultsPage({
           </div>
         )}
 
-        {/* Share Stability Score + FIRE CTA row (moved from Section 1) */}
-        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
-          <button
-            onClick={() => setShareCardOpen(true)}
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "16px",
-              padding: "1.25rem",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-              <Share2 size={16} style={{ color: t.primary }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>Share My Score</span>
-            </div>
-            <p style={{ color: t.muted, fontSize: "0.82rem", margin: 0, lineHeight: 1.5 }}>
-              Generate a branded stability card to download and share.
-            </p>
-          </button>
-          <button
-            onClick={onFire}
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "16px",
-              padding: "1.25rem",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-              <Flame size={16} style={{ color: t.warning }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.95rem" }}>FIRE Estimator</span>
-            </div>
-            <p style={{ color: t.muted, fontSize: "0.82rem", margin: 0, lineHeight: 1.5 }}>
-              Project your retirement countdown and target balance.
-            </p>
-          </button>
+        {/* ═══ Tools — one grid, one vocabulary; also in the sidebar ═══ */}
+        <div style={{ margin: "2rem 0 1.25rem" }}>
+          <SectionHeader label="Tools" t={t} />
         </div>
-
-        {/* Feature Nav: Forecast, Debt, FI (moved from Section 1) */}
-        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "1.25rem" }}>
-          <button
-            onClick={onForecast}
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "16px",
-              padding: "1rem",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
-              <TrendingUp size={14} style={{ color: t.primary }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>12-Mo Forecast</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: t.warning, borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40" }}>Premium</span>
-            </div>
-          </button>
-          <button
-            onClick={onDebt}
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "16px",
-              padding: "1rem",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
-              <Wallet size={14} style={{ color: t.danger }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>Debt Payoff</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              <span style={{ fontSize: "0.65rem", background: currentTheme.primary + "20", color: currentTheme.primary, borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: `1px solid ${currentTheme.primary}40` }}>Pro+</span>
-            </div>
-          </button>
-          <button
-            onClick={onFI}
-            style={{
-              background: t.cardBg,
-              border: `1px solid ${t.border}`,
-              borderRadius: "16px",
-              padding: "1rem",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.35rem" }}>
-              <Milestone size={14} style={{ color: t.primary }} />
-              <span style={{ fontWeight: 700, color: t.text, fontSize: "0.82rem" }}>FI Date</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              <span style={{ fontSize: "0.65rem", background: "#f59e0b20", color: t.warning, borderRadius: "4px", padding: "0 4px", fontWeight: 600, border: "1px solid #f59e0b40" }}>Premium</span>
-            </div>
-          </button>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0.75rem", marginBottom: "1.25rem" }}>
+          {[
+            { onClick: onFire, Icon: Flame, name: "FIRE Estimator", desc: "When work becomes optional — your countdown and target balance.", paid: true },
+            { onClick: onDebt, Icon: Wallet, name: "Debt Payoff", desc: "Snowball vs. avalanche — the faster route out, in months.", paid: false },
+            { onClick: onForecast, Icon: TrendingUp, name: "12-Month Forecast", desc: "Whether your surplus holds up across the next twelve months.", paid: true },
+            { onClick: onFI, Icon: Milestone, name: "FI Date", desc: "The date your assets cover your life at your current pace.", paid: true },
+            { onClick: onCheckIn, Icon: CalendarCheck, name: "Monthly Check-In", desc: "Log this month's position and watch the trend, not the noise.", paid: false },
+            { onClick: () => setShareCardOpen(true), Icon: Share2, name: "Share My Score", desc: "A branded stability card, ready to download or post.", paid: false },
+          ].map(({ onClick, Icon, name, desc, paid }) => (
+            <button
+              key={name}
+              onClick={onClick}
+              className="lp-press"
+              style={{
+                background: t.cardBg,
+                border: `1px solid ${t.border}`,
+                borderRadius: "16px",
+                padding: "1.1rem 1.25rem",
+                cursor: "pointer",
+                textAlign: "left",
+                display: "flex",
+                gap: "0.85rem",
+                alignItems: "flex-start",
+              }}
+            >
+              <Icon size={17} style={{ color: t.muted, flexShrink: 0, marginTop: 2 }} />
+              <span style={{ minWidth: 0 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.2rem" }}>
+                  <span style={{ fontWeight: 600, color: t.text, fontSize: "0.92rem", letterSpacing: "-0.01em" }}>{name}</span>
+                  {paid && userTier === "free" && (
+                    <span style={{ fontSize: "0.62rem", fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: t.muted, border: `1px solid ${t.borderStrong}`, borderRadius: "999px", padding: "1px 7px" }}>
+                      Full
+                    </span>
+                  )}
+                </span>
+                <span style={{ display: "block", color: t.muted, fontSize: "0.82rem", lineHeight: 1.5 }}>
+                  {desc}
+                </span>
+              </span>
+            </button>
+          ))}
         </div>
 
         </div>{/* end paddingTop wrapper */}
@@ -2406,7 +2180,7 @@ export function ResultsPage({
                     <Lock size={20} className="atv-lock-icon-glow" />
                   </div>
                   <button
-                    onClick={() => onUpgrade("pro")}
+                    onClick={() => onUpgrade()}
                     className="atv-btn-primary"
                     style={{
                       padding: "0.55rem 1.25rem",
@@ -2417,7 +2191,7 @@ export function ResultsPage({
                     }}
                   >
                     <Lock size={14} />
-                    Unlock with Pro
+                    Unlock with Full Diagnosis
                   </button>
                 </div>
               </div>
@@ -2484,7 +2258,7 @@ export function ResultsPage({
                     <Lock size={20} className="atv-lock-icon-glow" />
                   </div>
                   <button
-                    onClick={() => onUpgrade("pro")}
+                    onClick={() => onUpgrade()}
                     className="atv-btn-primary"
                     style={{
                       padding: "0.55rem 1.25rem",
@@ -2495,7 +2269,7 @@ export function ResultsPage({
                     }}
                   >
                     <Lock size={14} />
-                    Unlock with Pro
+                    Unlock with Full Diagnosis
                   </button>
                 </div>
               </div>
@@ -2677,7 +2451,7 @@ export function ResultsPage({
         </div>
 
         {/* Export block - unlocked for Pro+ */}
-        {(userTier === "pro" || userTier === "premium") ? (
+        {(userTier === "paid") ? (
           <div
             style={{
               background: t.cardBg,
@@ -2802,17 +2576,17 @@ export function ResultsPage({
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <FileText size={18} className="atv-lock-icon-glow" />
-                <span style={{ fontWeight: 600, color: t.text }}>Export features require Pro</span>
+                <span style={{ fontWeight: 600, color: t.text }}>Export features are part of the Full Diagnosis</span>
               </div>
               <button
-                onClick={() => onUpgrade("pro")}
+                onClick={() => onUpgrade()}
                 className="atv-btn-primary"
                 style={{
                   padding: "0.5rem 1.25rem",
                   fontSize: "0.88rem",
                 }}
               >
-                See Pro Plan &rarr;
+                Unlock Full Diagnosis &rarr;
               </button>
             </div>
           </div>
@@ -2834,90 +2608,45 @@ export function ResultsPage({
             <span style={{ fontWeight: 700, color: t.text, fontSize: "1.05rem" }}>Go deeper on your numbers</span>
           </div>
           <p style={{ color: t.muted, fontSize: "0.9rem", margin: "0 0 1.25rem" }}>
-            You've seen where you stand. Upgrade to test changes, get a full diagnosis, and make stronger decisions.
+            You've seen where you stand. One payment unlocks the full diagnosis — every tool, yours forever.
           </p>
-          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-            {/* Pro card */}
-            <div
+          <div
+            style={{
+              background: currentTheme.primary,
+              borderRadius: "16px",
+              padding: "1rem 1.25rem",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.25rem" }}>
+              <span style={{ fontWeight: 700, color: "#fff", fontSize: "0.9rem" }}>Full Diagnosis</span>
+              <span style={{ fontSize: "0.65rem", background: t.warning, color: "#000", borderRadius: "4px", padding: "0 5px", fontWeight: 700 }}>
+                NO SUBSCRIPTION
+              </span>
+            </div>
+            <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#fff" }}>
+              $29<span style={{ fontSize: "0.75rem", fontWeight: 400, opacity: 0.75 }}> once</span>
+            </div>
+            <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.55, margin: "0.6rem 0 0.75rem" }}>
+              <div style={{ marginBottom: "0.3rem" }}>✓ <span style={{ color: "#fff", fontWeight: 500 }}>Full AI diagnosis</span> with ranked actions</div>
+              <div style={{ marginBottom: "0.3rem" }}>✓ <span style={{ color: "#fff", fontWeight: 500 }}>12-month forecast</span> and savings analysis</div>
+              <div>✓ <span style={{ color: "#fff", fontWeight: 500 }}>Unlimited scenarios</span> and every planning tool</div>
+            </div>
+            <button
+              onClick={() => onUpgrade()}
               style={{
-                background: t.cardBg,
-                border: `1px solid ${t.border}`,
-                borderRadius: "16px",
-                padding: "0.85rem 1rem",
-                flex: 1,
-                minWidth: "160px",
+                width: "100%",
+                background: "#fff",
+                color: currentTheme.primary,
+                border: "none",
+                borderRadius: "7px",
+                padding: "0.45rem",
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                cursor: "pointer",
               }}
             >
-              <div style={{ fontWeight: 700, color: t.text, fontSize: "0.9rem", marginBottom: "0.25rem" }}>Pro</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 800, color: t.primary }}>
-                $4.99<span style={{ fontSize: "0.75rem", fontWeight: 400, color: t.muted }}>/mo</span>
-              </div>
-              <div style={{ fontSize: "0.75rem", color: t.muted, marginBottom: "0.6rem" }}>or $49/year</div>
-              <div style={{ fontSize: "0.78rem", color: t.muted, lineHeight: 1.55, marginBottom: "0.75rem" }}>
-                <div style={{ marginBottom: "0.3rem" }}>✓ <span style={{ color: t.text, fontWeight: 500 }}>Build custom scenarios</span> and compare outcomes</div>
-                <div style={{ marginBottom: "0.3rem" }}>✓ <span style={{ color: t.text, fontWeight: 500 }}>Edit any expense</span> and see the score impact</div>
-                <div>✓ <span style={{ color: t.text, fontWeight: 500 }}>Find the trade-offs</span> that improve your position most</div>
-              </div>
-              <button
-                onClick={() => onUpgrade("pro")}
-                style={{
-                  width: "100%",
-                  background: "transparent",
-                  color: t.primary,
-                  border: `1.5px solid ${t.primary}`,
-                  borderRadius: "7px",
-                  padding: "0.45rem",
-                  fontSize: "0.85rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-              >
-                Get Pro
-              </button>
-            </div>
-
-            {/* Premium card */}
-            <div
-              style={{
-                background: currentTheme.primary,
-                borderRadius: "16px",
-                padding: "0.85rem 1rem",
-                flex: 1,
-                minWidth: "160px",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.25rem" }}>
-                <span style={{ fontWeight: 700, color: "#fff", fontSize: "0.9rem" }}>Premium</span>
-                <span style={{ fontSize: "0.65rem", background: t.warning, color: "#000", borderRadius: "4px", padding: "0 5px", fontWeight: 700 }}>
-                  POPULAR
-                </span>
-              </div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#fff" }}>
-                $9.99<span style={{ fontSize: "0.75rem", fontWeight: 400, opacity: 0.75 }}>/mo</span>
-              </div>
-              <div style={{ fontSize: "0.75rem", color: "#fff", opacity: 0.75, marginBottom: "0.6rem" }}>or $99/year</div>
-              <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.55, marginBottom: "0.75rem" }}>
-                <div style={{ marginBottom: "0.3rem" }}>✓ <span style={{ color: "#fff", fontWeight: 500 }}>Full AI diagnosis</span> with ranked actions</div>
-                <div style={{ marginBottom: "0.3rem" }}>✓ <span style={{ color: "#fff", fontWeight: 500 }}>12-month forecast</span> and savings analysis</div>
-                <div>✓ <span style={{ color: "#fff", fontWeight: 500 }}>Everything in Pro</span> plus deeper decision support</div>
-              </div>
-              <button
-                onClick={() => onUpgrade("premium")}
-                style={{
-                  width: "100%",
-                  background: "#fff",
-                  color: currentTheme.primary,
-                  border: "none",
-                  borderRadius: "7px",
-                  padding: "0.45rem",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                Get Premium
-              </button>
-            </div>
+              Unlock Full Diagnosis — $29 once
+            </button>
           </div>
         </div>
         )}
