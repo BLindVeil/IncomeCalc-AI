@@ -470,6 +470,9 @@ select.atv-select option {
 :root {
 	--lp-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 	--lp-ease-io: cubic-bezier(0.77, 0, 0.175, 1);
+	/* Sheet/drawer curve: leaves the edge fast and settles long, so a surface
+	   arriving from off-screen reads as weight rather than a slide. */
+	--lp-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ── 1. Press + hover micro-interactions ─────────────────────────────── */
@@ -681,6 +684,112 @@ select.atv-select option {
 }
 .lp-page {
 	animation: lpPage 0.36s var(--lp-ease-out) both;
+}
+
+/* ── 5b. Mobile bottom sheet ──────────────────────────────────────────
+   The sheet enters and leaves along the same edge it lives on, so where it
+   came from and where it went are the same fact. Translation is a percentage,
+   not a pixel count, so it stays correct at any sheet height.
+
+   The exit is shorter than the entrance and the backdrop clears first: a
+   dismissal should feel like it already happened, while an arrival deserves
+   the longer settle. `--lp-ease-drawer` gives the entrance its weight.
+   ────────────────────────────────────────────────────────────────────── */
+.ms-backdrop {
+	animation: msBackdropIn 240ms var(--lp-ease-out) both;
+}
+.ms-backdrop[data-state="closed"] {
+	animation: msBackdropOut 180ms var(--lp-ease-out) both;
+}
+@keyframes msBackdropIn {
+	from {
+		opacity: 0;
+	}
+}
+@keyframes msBackdropOut {
+	to {
+		opacity: 0;
+	}
+}
+
+.ms-sheet {
+	animation: msSheetIn 320ms var(--lp-ease-drawer) both;
+	will-change: transform;
+}
+.ms-sheet[data-state="closed"] {
+	animation: msSheetOut 200ms var(--lp-ease-out) both;
+}
+@keyframes msSheetIn {
+	from {
+		transform: translate3d(0, 100%, 0);
+	}
+}
+@keyframes msSheetOut {
+	to {
+		transform: translate3d(0, 100%, 0);
+	}
+}
+
+/* Reduced motion keeps the fade — it still says "this arrived" — and drops
+   the travel, which is the part that provokes. */
+@media (prefers-reduced-motion: reduce) {
+	.ms-sheet {
+		animation: msBackdropIn 200ms ease both;
+		will-change: auto;
+	}
+	.ms-sheet[data-state="closed"] {
+		animation: msBackdropOut 150ms ease both;
+	}
+}
+
+/* ── 5c. Payment confirmation ─────────────────────────────────────────
+   The one screen in the product a user reaches immediately after paying, and
+   the rarest — so this is where the delight budget belongs. Follow-through
+   orders it: the seal lands, the mark inside it settles a beat later, and only
+   then does the copy arrive. Confirming in sequence reads as a system
+   completing a transaction; confirming all at once reads as a static page.
+
+   The seal is the single place overshoot is earned — small, and only because
+   the outcome is positive. Money UI does not bounce anywhere else.
+   ────────────────────────────────────────────────────────────────────── */
+.bs-seal {
+	animation: bsSeal 460ms var(--lp-ease-out) both;
+}
+@keyframes bsSeal {
+	from {
+		opacity: 0;
+		transform: scale(0.82);
+	}
+	60% {
+		opacity: 1;
+		transform: scale(1.04);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.bs-mark {
+	animation: bsMark 300ms var(--lp-ease-out) 180ms both;
+}
+@keyframes bsMark {
+	from {
+		opacity: 0;
+		transform: scale(0.6);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.bs-seal,
+	.bs-mark {
+		animation: bsFade 240ms ease both;
+	}
+	@keyframes bsFade {
+		from {
+			opacity: 0;
+		}
+	}
 }
 
 /* ── 6. FAQ accordion (interruptible height via grid rows) ───────────── */

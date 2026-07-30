@@ -7,6 +7,12 @@ dist
 .env*.local
 .claude/
 
+# Single lockfile: package-lock.json, matching vercel.json's `npm run build`.
+# A second lockfile makes installs nondeterministic and leaves the package
+# manager ambiguous, so keep bun's out of the repo.
+bun.lock
+bun.lockb
+
 # agent visual-review artifacts
 scripts/visual/out/
 *.md
